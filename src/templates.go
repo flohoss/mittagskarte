@@ -3,12 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"mittag/controller"
 	"os"
 	"regexp"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
