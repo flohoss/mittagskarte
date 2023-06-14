@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container-custom {
+    @apply p-[0.7rem] lg:container mt-12 lg:mt-5;
+  }
+  .icon-xs {
+    @apply flex-shrink-0 w-3 h-3;
+  }
+  .icon-sm {
+    @apply flex-shrink-0 w-4 h-4;
+  }
+  .icon-md {
+    @apply flex-shrink-0 w-5 h-5;
+  }
+  .icon {
+    @apply flex-shrink-0 w-6 h-6;
+  }
+  .kdb-custom {
+    @apply kbd md:col-span-2 justify-between;
+  }
+  .food-card {
+    @apply flex justify-between items-center gap-5 bg-base-100 p-4 rounded-xl hover:scale-[1.005] transition duration-200 ease-out;
+  }
+  .food-card-disabled {
+    @apply flex justify-between items-center gap-5 bg-base-200 opacity-70 p-4 rounded-xl;
+  }
+}

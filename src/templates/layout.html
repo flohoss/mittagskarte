@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de" class="bg-base-300">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ block "title" . }}Mittag{{ end }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A blazing fast start-page for services written in Go " />
+    <meta name="theme-color" content="#d07915" />
+
+    <link rel="icon" type="image/x-icon" href="/static/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/static/css/style.css?v={{ env "VERSION" }}" />
+    {{ block "style". }}{{ end }}
+  </head>
+
+  <body id="app">
+    {{ block "modal". }}{{ end }}
+    {{ block "icons" . }}{{ end }}
+
+    {{ define "link" }}
+      <a href="{{ index . 0 }}">
+        <svg class="icon">
+          <use href="#{{ index . 1 }}"></use>
+        </svg>
+        {{ index . 2 }}
+      </a>
+    {{ end }}
+
+
+    <div class="drawer drawer-mobile">
+      <input id="drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <label for="drawer" class="z-50 lg:hidden absolute top-3 left-3 btn drawer-button">
+          <svg class="icon">
+            <use href="#bars"></use>
+          </svg>
+        </label>
+        <div class="relative">{{ block "content" . }}{{ end }}</div>
+      </div>
+      <div class="drawer-side">
+        <label for="drawer" class="drawer-overlay"></label>
+        <ul class="menu p-4 w-80 bg-base-100 text-base-content gap-8">
+          <ul>
+            <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
+          </ul>
+          <ul>
+            {{ range .Default.StuttgartRestaurants }}
+              {{ $link := printf "%s%s" "/restaurants/" .ID }}
+              <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+            {{ end }}
+          </ul>
+          <ul>
+            {{ range .Default.NuertingenRestaurants }}
+              {{ $link := printf "%s%s" "/restaurants/" .ID }}
+              <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+            {{ end }}
+          </ul>
+          <ul class="mt-auto">
+            <li class="menu-title">
+              <span class="flex items-center gap-3">
+                <svg class="icon"><use href="#version"></use></svg> {{ env "VERSION" }}
+              </span>
+            </li>
+            <li>{{ block "link" list "/settings" "system" "Einstellungen" }}{{ end }}</li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+
+    {{ block "js" . }}{{ end }}
+    <script>
+      const links = document.querySelectorAll(`ul.menu > ul > li > a[href="${location.pathname}"]`);
+      for (const link of links) {
+        link.classList.add("text-primary");
+      }
+    </script>
+  </body>
+</html>
