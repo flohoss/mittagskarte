@@ -19,7 +19,7 @@ FROM node:${NODE_VERSION}-alpine AS nodeBuilder
 
 COPY package.json .
 COPY yarn.lock .
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 COPY tailwind.config.js .
 COPY ./src/templates/ ./src/templates/
