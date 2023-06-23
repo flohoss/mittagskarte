@@ -9,21 +9,6 @@ variables:
 
 image: docker:$DOCKER_VERSION-git
 
-.login_registry:
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
-.if-release-candidate-tag: &if-release-candidate-tag
-  if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$/'
-
-.if-stable-release-tag: &if-stable-release-tag
-  if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
-
-.release:
-  rules:
-    - <<: *if-release-candidate-tag
-    - <<: *if-stable-release-tag
-
 stages:
   - test
   - build
@@ -31,8 +16,29 @@ stages:
   - deploy
 
 include:
+  - local: .gitlab/_common.gitlab-ci.yml
+  - local: .gitlab/_rules.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
   - template: Jobs/Container-Scanning.gitlab-ci.yml
+
+secret_detection:
+  rules: !reference [.rules:default, rules]
+
+unit_tests:
+  rules: !reference [.rules:default, rules]
+  stage: test
+  image: golang:$GOLANG_VERSION-alpine
+  extends:
+    - .go-cache
+  script:
+    - go install gotest.tools/gotestsum@latest
+    - gotestsum --junitfile report.xml --format testname -- ./... -coverprofile=profile.cov
+    - go tool cover -func profile.cov
+  coverage: '/\(statements\)(?:\s+)?(\d+(?:\.\d+)?%)/'
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
 
 build_release:
   rules: !reference [.release, rules]
@@ -45,7 +51,6 @@ build_release:
     DOCKER_BUILDKIT: "1"
     DOCKER_TLS_CERTDIR: "/certs"
     CURRENT_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    VERSION_TAG: $CI_COMMIT_TAG
     GO_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:go-builder"
     NODE_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:node-builder"
     LOGO_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:logo"
