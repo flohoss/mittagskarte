@@ -5,7 +5,7 @@ CMD=./mittag
 
 if [ -n "$PUID" ] || [ -n "$PGID" ]; then
     USER=appuser
-    HOME=/src
+    HOME=/app
 
     if ! grep -q "$USER" /etc/passwd; then
         # https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/basic-system-configuration/Managing_Users_and_Groups/

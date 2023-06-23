@@ -1,12 +1,8 @@
 variables:
   LATEST_IMAGE: "$CI_REGISTRY_IMAGE:latest"
-  # https://hub.docker.com/_/docker
   DOCKER_VERSION: "24.0.2"
-  # https://hub.docker.com/_/golang
   FEDORA_VERSION: "38"
-  # https://nodejs.org/en/download/releases
   NODE_VERSION: "18"
-  # https://hub.docker.com/_/alpine
   ALPINE_VERSION: "3"
 
 image: docker:$DOCKER_VERSION-git

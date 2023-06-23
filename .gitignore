@@ -211,5 +211,6 @@ dist
 
 storage/
 tmp/
-src/static/css/style.css
-src/static/downloads/
+**/style.css
+report.xml
+profile.cov

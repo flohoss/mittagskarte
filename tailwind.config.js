@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/templates/**/*.html"],
+  content: ["./web/templates/**/*.html"],
   theme: {
     container: {
       center: true
@@ -27,7 +27,7 @@ module.exports = {
     themes: [
       {
         light: {
-          ...require("daisyui/src/colors/themes")["[data-theme=light]"],
+          ...require("daisyui/src/theming/themes")["[data-theme=light]"],
           primary: "#EB912D",
           "primary-content": "#000",
           secondary: "#14468c",
@@ -39,7 +39,7 @@ module.exports = {
       },
       {
         dark: {
-          ...require("daisyui/src/colors/themes")["[data-theme=halloween]"],
+          ...require("daisyui/src/theming/themes")["[data-theme=halloween]"],
           primary: "#EB912D",
           "primary-content": "#000",
           secondary: "#14468c",
