@@ -14,12 +14,11 @@ func InitRouter() *echo.Echo {
 
 	e.HideBanner = true
 	e.HidePort = true
-	e.Debug = true
 
-	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(echo.WrapMiddleware(chiMiddleware.Heartbeat("/health")))
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(echo.WrapMiddleware(chiMiddleware.Heartbeat("/health")))
 
 	e.Renderer = initTemplates()
 

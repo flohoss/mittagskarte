@@ -46,6 +46,10 @@ func (c *Controller) handleRatsstuben(restaurant *Restaurant) {
 		lookingFor := []string{"TAGESESSEN", "VEGETARISCHES TAGESESSEN"}
 		for i := 0; i < len(lookingFor); i++ {
 			regex := regexp.MustCompile(fmt.Sprintf(`%s\s?(\d{1,3},\d{2})\s?€{1}`, lookingFor[i]))
+			found := regex.FindSubmatch(text)
+			if len(found) < 2 {
+				continue
+			}
 			price, _ := strconv.ParseFloat(strings.Replace(string(regex.FindSubmatch(text)[1]), ",", ".", 1), 64)
 			prices[i] = price
 		}
