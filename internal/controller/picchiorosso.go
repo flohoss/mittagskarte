@@ -6,10 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"mittag/date"
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goodsign/monday"
+	"gitlab.unjx.de/flohoss/mittag/internal/date"
 	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -25,7 +24,7 @@ func (c *Controller) handlePicchiorosso(restaurant *Restaurant) {
 	dateRegex := regexp.MustCompile(`(\d{2})\s?.\s?(\d{2})\s?.\s?(\d{4})`)
 	groups := dateRegex.FindStringSubmatch(heading)
 	if len(groups) < 4 {
-		c.log.Debug("No header detected", zap.String("groups", fmt.Sprintf("%s", groups)))
+		zap.L().Debug("No header detected", zap.String("groups", fmt.Sprintf("%s", groups)))
 		return
 	}
 	today := fmt.Sprintf("%s.%s.%s", groups[1], groups[2], groups[3])

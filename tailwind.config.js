@@ -39,7 +39,7 @@ module.exports = {
       },
       {
         dark: {
-          ...require("daisyui/src/theming/themes")["[data-theme=halloween]"],
+          ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
           primary: "#EB912D",
           "primary-content": "#000",
           secondary: "#14468c",
@@ -50,7 +50,5 @@ module.exports = {
         },
       },
     ],
-    darkTheme: "dark",
-    utils: true,
   },
 };

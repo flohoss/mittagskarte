@@ -16,7 +16,7 @@
   </head>
 
   <body id="app">
-    {{ block "modal". }}{{ end }}
+    {{ block "modal" . }}{{ end }}
     {{ block "icons" . }}{{ end }}
 
     {{ define "link" }}
@@ -29,51 +29,46 @@
     {{ end }}
 
 
-    <div class="drawer drawer-mobile">
+    <div class="drawer lg:drawer-open">
       <input id="drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content">
-        <label for="drawer" class="z-50 lg:hidden absolute top-3 left-3 btn drawer-button">
+        <label for="drawer" class="lg:hidden absolute top-3 left-3 btn drawer-button">
           <svg class="icon">
             <use href="#bars"></use>
           </svg>
         </label>
-        <div class="relative">{{ block "content" . }}{{ end }}</div>
+        <div>{{ block "content" . }}{{ end }}</div>
       </div>
       <div class="drawer-side">
         <label for="drawer" class="drawer-overlay"></label>
-        <ul class="menu p-4 w-80 bg-base-100 text-base-content gap-8">
-          <ul>
-            <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
-          </ul>
-          <ul>
-            {{ range .Default.StuttgartRestaurants }}
-              {{ $link := printf "%s%s" "/restaurants/" .ID }}
-              <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
-            {{ end }}
-          </ul>
-          <ul>
-            {{ range .Default.NuertingenRestaurants }}
-              {{ $link := printf "%s%s" "/restaurants/" .ID }}
-              <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
-            {{ end }}
-          </ul>
-          <ul class="mt-auto">
-            <li class="menu-title">
-              <span class="flex items-center gap-3">
-                <svg class="icon"><use href="#version"></use></svg> {{ env "VERSION" }}
-              </span>
-            </li>
-            <li>{{ block "link" list "/settings" "system" "Einstellungen" }}{{ end }}</li>
-          </ul>
+        <ul class="menu p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
+          <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
+          <span class="h-5 shrink-0"></span>
+          {{ range .Default.StuttgartRestaurants }}
+            {{ $link := printf "%s%s" "/restaurants/" .ID }}
+            <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+          {{ end }}
+          <span class="h-5 shrink-0"></span>
+          {{ range .Default.NuertingenRestaurants }}
+            {{ $link := printf "%s%s" "/restaurants/" .ID }}
+            <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+          {{ end }}
+          <span class="h-5 shrink-0 flex-grow"></span>
+          <span class="menu-title">
+            <span class="flex items-center gap-2">
+              <svg class="icon"><use href="#version"></use></svg> {{ env "VERSION" }}
+            </span>
+          </span>
+          <li>{{ block "link" list "/settings" "system" "Einstellungen" }}{{ end }}</li>
         </ul>
       </div>
     </div>
 
     {{ block "js" . }}{{ end }}
     <script>
-      const links = document.querySelectorAll(`ul.menu > ul > li > a[href="${location.pathname}"]`);
+      const links = document.querySelectorAll(`ul.menu > li > a[href="${location.pathname}"]`);
       for (const link of links) {
-        link.classList.add("text-primary");
+        link.classList.add("active");
       }
     </script>
   </body>

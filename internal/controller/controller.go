@@ -1,21 +1,19 @@
 package controller
 
 import (
-	"mittag/database"
-	"mittag/env"
-	"mittag/fetch"
-	"mittag/maps"
 	"os"
 
 	"github.com/robfig/cron/v3"
-	"go.uber.org/zap"
+	"gitlab.unjx.de/flohoss/mittag/internal/database"
+	"gitlab.unjx.de/flohoss/mittag/internal/env"
+	"gitlab.unjx.de/flohoss/mittag/internal/fetch"
+	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gorm.io/gorm"
 )
 
 type Controller struct {
 	orm      *gorm.DB
 	env      *env.Config
-	log      *zap.SugaredLogger
 	schedule *cron.Cron
 	Default  Default
 }
@@ -25,10 +23,10 @@ type Default struct {
 	NuertingenRestaurants []Restaurant
 }
 
-func NewController(env *env.Config, logger *zap.SugaredLogger) *Controller {
+func NewController(env *env.Config) *Controller {
 	db := database.NewDatabaseConnection("sqlite.db")
 
-	ctrl := Controller{orm: db, env: env, log: logger}
+	ctrl := Controller{orm: db, env: env}
 	ctrl.setupSchedule()
 	ctrl.MigrateModels()
 	ctrl.setupDefaults()

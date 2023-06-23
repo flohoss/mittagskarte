@@ -11,7 +11,7 @@ import (
 
 func (c *Controller) deleteCard(card *Card) {
 	if card.ID != 0 {
-		c.log.Debugw("deleting card", "card", card)
+		zap.L().Debug("deleting card", zap.Any("card", card))
 		c.orm.Delete(card)
 	}
 }
@@ -20,7 +20,7 @@ func (c *Controller) createCard(card *Card, text []byte, regex string, format st
 	dateRegex := regexp.MustCompile(regex)
 	groups := dateRegex.FindAll(text, 2)
 	if len(groups) < 2 {
-		c.log.Debug("No dates detected", zap.String("groups", fmt.Sprintf("%s", groups)), zap.String("ocr", string(text)))
+		zap.L().Debug("No dates detected", zap.String("groups", fmt.Sprintf("%s", groups)), zap.String("ocr", string(text)))
 		return fmt.Errorf("%s", "No dates detected")
 	}
 	for i := 0; i < len(groups); i++ {

@@ -1,19 +1,23 @@
-package main
+package router
 
 import (
-	"mittag/controller"
 	"net/http"
 
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gitlab.unjx.de/flohoss/mittag/internal/controller"
 )
 
-func initRouter() *echo.Echo {
+func InitRouter() *echo.Echo {
 	e := echo.New()
 
 	e.HideBanner = true
 	e.HidePort = true
+	e.Debug = true
 
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(echo.WrapMiddleware(chiMiddleware.Heartbeat("/health")))
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 
@@ -22,16 +26,12 @@ func initRouter() *echo.Echo {
 	return e
 }
 
-func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Response().Header().Set(echo.HeaderCacheControl, "public, max-age=31536000")
-		return next(c)
-	}
-}
-
-func setupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
+func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 	static := e.Group("/static", longCacheLifetime)
-	static.Static("/", "static")
+	static.Static("/", "web/static")
+
+	storage := e.Group("/storage/downloads", longCacheLifetime)
+	storage.Static("/", "storage/downloads")
 
 	e.GET("/countdown", ctrl.RenderCountdown)
 	e.GET("/settings", ctrl.RenderSettings)

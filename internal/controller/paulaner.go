@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"mittag/convert"
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 )
 
 func (c *Controller) handlePaulaner(restaurant *Restaurant) {

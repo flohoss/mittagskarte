@@ -18,7 +18,7 @@
   <div class="{{ if $restDay }}grayscale opacity-50 animate-fadeIn50{{ else }}animate-fadeIn{{ end }} container-custom">
     <div class="flex flex-col items-center gap-5">
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
-        <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/static/downloads/{{ .Restaurant.ID }}/map.webp')"></div>
+        <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/storage/downloads/{{ .Restaurant.ID }}/map.webp')"></div>
         <div class="bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
           {{ .Restaurant.Name }}
         </div>

@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const DownloadLocation = "static/downloads/"
+const DownloadLocation = "storage/downloads/"
 
 func init() {
 	os.MkdirAll(DownloadLocation, os.ModePerm)

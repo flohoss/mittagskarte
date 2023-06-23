@@ -2,14 +2,14 @@ package controller
 
 import (
 	"fmt"
-	"mittag/convert"
-	"mittag/date"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/goodsign/monday"
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
+	"gitlab.unjx.de/flohoss/mittag/internal/date"
 )
 
 func (c *Controller) handleLinde(restaurant *Restaurant) {

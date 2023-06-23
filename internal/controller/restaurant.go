@@ -6,10 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"mittag/fetch"
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/labstack/echo/v4"
+	"gitlab.unjx.de/flohoss/mittag/internal/fetch"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -84,7 +83,7 @@ func (c *Controller) setRandomRestaurant() {
 }
 
 func (c *Controller) updateRestaurantData(restaurant *Restaurant) {
-	c.log.Debug("Updating restaurant", zap.String("name", restaurant.Name))
+	zap.L().Debug("Updating restaurant", zap.String("name", restaurant.Name))
 	switch restaurant.Name {
 	case "Meet & Eat":
 		c.handleMeetAndEat(restaurant)

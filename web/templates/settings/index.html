@@ -73,6 +73,7 @@
       },
       mounted() {
         const ls = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+        console.log(ls);
         if (ls) {
           const parsed = JSON.parse(ls);
           if (parsed.priceAdjustment < 0) {

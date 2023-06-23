@@ -7,8 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"mittag/convert"
-
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )

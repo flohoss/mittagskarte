@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"mittag/convert"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 )
 
 func (c *Controller) handleDaPeppone(restaurant *Restaurant) {

@@ -6,9 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"mittag/date"
-
 	"github.com/PuerkitoBio/goquery"
+	"gitlab.unjx.de/flohoss/mittag/internal/date"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +21,7 @@ func (c *Controller) handleSchwedenscheuer(restaurant *Restaurant) {
 	dateRegex := regexp.MustCompile(`(\d{2})\s?.?\s?(\d{2})\s?.?\s?(\d{4})?\s?\S+\s?(\d{2})\s?.?\s?(\d{2})\s?.?\s?(\d{4})?`)
 	groups := dateRegex.FindStringSubmatch(heading)
 	if len(groups) < 6 {
-		c.log.Debug("No header detected", zap.String("groups", fmt.Sprintf("%s", groups)))
+		zap.L().Debug("No header detected", zap.String("groups", fmt.Sprintf("%s", groups)))
 		return
 	}
 	fromDate := fmt.Sprintf("%s.%s.%s", groups[1], groups[2], groups[6])

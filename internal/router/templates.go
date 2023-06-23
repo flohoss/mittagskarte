@@ -1,11 +1,10 @@
-package main
+package router
 
 import (
 	"errors"
 	"fmt"
 	"html/template"
 	"io"
-	"mittag/controller"
 	"os"
 	"regexp"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v4"
+	"gitlab.unjx.de/flohoss/mittag/internal/controller"
 	"golang.org/x/image/webp"
 )
 
@@ -31,7 +31,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func templateString(files []string) []string {
-	templatesFolder := "templates/"
+	templatesFolder := "web/templates/"
 	baseTemplates := []string{templatesFolder + "layout.html", templatesFolder + "icons.html"}
 	for i := 0; i < len(files); i++ {
 		files[i] = templatesFolder + files[i]

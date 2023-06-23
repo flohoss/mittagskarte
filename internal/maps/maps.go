@@ -3,12 +3,12 @@ package maps
 import (
 	"fmt"
 	"image/color"
-	"mittag/convert"
 	"os"
 
 	sm "github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
 	"github.com/golang/geo/s2"
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 )
 
 func CreateMap(lat float64, lng float64, folder string) {
