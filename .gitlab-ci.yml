@@ -1,11 +1,12 @@
 variables:
-  LATEST_IMAGE: "$CI_REGISTRY_IMAGE:latest"
-  DOCKER_VERSION: "24.0.2"
-  FEDORA_VERSION: "38"
-  NODE_VERSION: "18"
-  ALPINE_VERSION: "3"
-  DEBIAN_VERSION: "12"
-  TELEPORT_VERSION: "13.1.1"
+  LATEST_IMAGE: '$CI_REGISTRY_IMAGE:latest'
+  DOCKER_VERSION: '24.0.2'
+  GOLANG_VERSION: '1.20'
+  FEDORA_VERSION: '38'
+  NODE_VERSION: '18'
+  ALPINE_VERSION: '3'
+  DEBIAN_VERSION: '12'
+  TELEPORT_VERSION: '13.1.1'
 
 image: docker:$DOCKER_VERSION-git
 
@@ -48,12 +49,12 @@ build_release:
     - name: docker:$DOCKER_VERSION-dind
       alias: docker
   variables:
-    DOCKER_BUILDKIT: "1"
-    DOCKER_TLS_CERTDIR: "/certs"
-    CURRENT_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    GO_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:go-builder"
-    NODE_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:node-builder"
-    LOGO_BUILDER_IMAGE: "$CI_REGISTRY_IMAGE:logo"
+    DOCKER_BUILDKIT: '1'
+    DOCKER_TLS_CERTDIR: '/certs'
+    CURRENT_IMAGE: '$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG'
+    GO_BUILDER_IMAGE: '$CI_REGISTRY_IMAGE:go-builder'
+    NODE_BUILDER_IMAGE: '$CI_REGISTRY_IMAGE:node-builder'
+    LOGO_BUILDER_IMAGE: '$CI_REGISTRY_IMAGE:logo'
   script:
     - apk add bash
     - .gitlab/build_image.sh
@@ -77,8 +78,8 @@ deploy_release:
   script:
     - apt-get update && apt-get install curl -y
     - cd /tmp
-    - "curl -O https://cdn.teleport.dev/teleport-v${TELEPORT_VERSION}-linux-amd64-bin.tar.gz"
+    - 'curl -O https://cdn.teleport.dev/teleport-v${TELEPORT_VERSION}-linux-amd64-bin.tar.gz'
     - tar -xvf teleport-v${TELEPORT_VERSION}-linux-amd64-bin.tar.gz
     - ./teleport/install
-    - "tbot start --token=gitlab --destination-dir=/tmp/tbot-user --data-dir=/tmp/tbot-data --auth-server=tp.fhoss.de:443 --join-method=gitlab --oneshot"
+    - 'tbot start --token=gitlab --destination-dir=/tmp/tbot-user --data-dir=/tmp/tbot-data --auth-server=tp.fhoss.de:443 --join-method=gitlab --oneshot'
     - 'tsh -i /tmp/tbot-user/identity --proxy tp.fhoss.de:443 ssh bot@ducati "docker compose -f /opt/docker/mittag/docker-compose.yml up -d --pull always"'
