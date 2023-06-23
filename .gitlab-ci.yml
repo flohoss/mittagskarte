@@ -41,7 +41,7 @@ unit_tests:
       junit: report.xml
 
 build_release:
-  rules: !reference [.release, rules]
+  rules: !reference [.rules:release, rules]
   stage: build
   extends: .login_registry
   services:
@@ -61,7 +61,7 @@ build_release:
     - docker push $LATEST_IMAGE
 
 container_scanning:
-  rules: !reference [.release, rules]
+  rules: !reference [.rules:release, rules]
   stage: analyse
   variables:
     CS_IMAGE: $LATEST_IMAGE
