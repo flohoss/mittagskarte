@@ -36,7 +36,10 @@ func (c *Controller) handleRatsstuben(restaurant *Restaurant) {
 			return
 		}
 		c.deleteCard(&restaurant.Card)
-		c.createCard(&card, text, `\d{2}\s?.\s?\d{2}\s?.\s?\d{4}`, "02.01.2006")
+		err = c.createCard(&card, text, `\d{2}\s?.\s?\d{2}\s?.\s?\d{4}`, "02.01.2006")
+		if err != nil {
+			return
+		}
 
 		var food []Food
 		prices := []float64{0, 0}

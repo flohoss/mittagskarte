@@ -19,7 +19,7 @@
           <label for="priceAdjustment" class="label">
             <span class="label-text">Preisreduzierung</span>
           </label>
-          <label class="input-group">
+          <div class="join">
             <input
               autocomplete="off"
               id="priceAdjustment"
@@ -27,16 +27,15 @@
               v-model="state.priceAdjustment"
               @keyup.esc="state.priceAdjustment = ''"
               placeholder="0,00"
-              class="input bg-base-100 w-full text-right"
+              class="input bg-base-100 w-full text-right join-item"
             />
-            <span class="bg-base-100">€</span>
-          </label>
+            <div class="btn btn-disabled join-item">€</div>
+          </div>
         </div>
         <div class="w-full flex justify-between gap-2">
           <button :disabled="disabled" class="btn btn-secondary" type="reset">Zurücksetzen</button>
           <button :disabled="disabled" class="btn btn-primary" type="submit">Speichern</button>
         </div>
-        ${clean}
       </form>
     </div>
   </div>
@@ -63,9 +62,9 @@
     const app = createApp({
       data() {
         return {
-          settings: DEFAULT_SETTINGS,
+          settings: { ...DEFAULT_SETTINGS },
           timeOptions: generateMiddayOptions(),
-          state: DEFAULT_SETTINGS,
+          state: { ...DEFAULT_SETTINGS },
           validate: {
             price: (value) => value !== "" && /^\d*([.,]\d+)?$/.test(value),
           },
@@ -73,7 +72,6 @@
       },
       mounted() {
         const ls = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
-        console.log(ls);
         if (ls) {
           const parsed = JSON.parse(ls);
           if (parsed.priceAdjustment < 0) {
