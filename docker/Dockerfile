@@ -7,23 +7,23 @@ ENV GOPROXY=https://proxy.golang.org
 RUN dnf -y upgrade --refresh
 RUN dnf -y install golang
 
-WORKDIR /src
-COPY ./src/go.mod .
-COPY ./src/go.sum .
+WORKDIR /app
+
+COPY ./go.mod .
+COPY ./go.sum .
 RUN go mod download
 
-COPY ./src/ .
-RUN go build -ldflags="-s -w"
+COPY . .
+RUN go build -ldflags="-s -w" cmd/mittag/mittag.go
 
 FROM node:${NODE_VERSION}-alpine AS nodeBuilder
 
-COPY package.json .
-COPY yarn.lock .
+COPY ./package.json .
+COPY ./yarn.lock .
 RUN yarn install --frozen-lockfile
 
-COPY tailwind.config.js .
-COPY ./src/templates/ ./src/templates/
-COPY ./src/static/ ./src/static/
+COPY ./web ./web
+COPY ./tailwind.config.js .
 RUN yarn run tailwind:build
 
 FROM alpine:${ALPINE_VERSION} AS logo
@@ -36,14 +36,13 @@ RUN dnf -y install tesseract tesseract-osd tesseract-langpack-deu tesseract-lang
 RUN dnf -y install ImageMagick poppler-utils libwebp
 
 # Mittag
-WORKDIR /src
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+WORKDIR /app
+COPY scripts/entrypoint.sh .
 
 COPY --from=logo /logo.txt .
-COPY --from=nodeBuilder /src/static/ ./static/
-COPY --from=nodeBuilder /src/templates ./templates/
-COPY --from=goBuilder /src/mittag .
+COPY --from=nodeBuilder /web/static/ ./web/static/
+COPY --from=nodeBuilder /web/templates ./web/templates/
+COPY --from=goBuilder /app/mittag .
 
 # Envs
 ARG VERSION
@@ -51,4 +50,4 @@ ENV VERSION=$VERSION
 ARG BUILDTIME
 ENV BUILDTIME=$BUILDTIME
 
-ENTRYPOINT ["/src/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
