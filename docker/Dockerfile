@@ -45,9 +45,9 @@ COPY --from=nodeBuilder /web/templates ./web/templates/
 COPY --from=goBuilder /app/mittag .
 
 # Envs
-ARG VERSION
-ENV VERSION=$VERSION
-ARG BUILDTIME
-ENV BUILDTIME=$BUILDTIME
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+ARG BUILD_TIME
+ENV BUILD_TIME=$BUILD_TIME
 
 ENTRYPOINT ["/app/entrypoint.sh"]

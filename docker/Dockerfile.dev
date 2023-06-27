@@ -18,6 +18,6 @@ RUN go install github.com/cosmtrek/air@latest
 COPY ./.air.toml .
 
 # Envs
-ENV VERSION=v0.0.0-DEV
-ENV BUILDTIME=2023-06-01T08:07:43.454Z
+ENV APP_VERSION=v0.0.0-DEV
+ENV BUILD_TIME=2023-06-01T08:07:43.454Z
 ENV PATH "$PATH:/root/go/bin"
