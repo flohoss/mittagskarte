@@ -16,8 +16,17 @@ type Restaurant struct {
 	CardType     CardType `json:"card_type"`
 	RestDays     []uint8  `json:"rest_day"`
 	Phone        string   `json:"phone"`
+	Group        Group    `json:"group"`
 	Card         Card     `json:"card" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
+
+type Group uint8
+
+const (
+	Fasanenhof Group = iota + 1
+	Florian
+	Andre
+)
 
 type Card struct {
 	ID           uint   `json:"id" gorm:"primaryKey"`
@@ -57,6 +66,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.168711897889501,
 		RestDays:     []uint8{0, 1, 6},
 		Phone:        "+49 711 78784911",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "meet-and-eat",
 		Name:         "Meet & Eat",
@@ -69,6 +79,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.166203979395853,
 		RestDays:     []uint8{0, 6},
 		Phone:        "+49 157 30664255",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "paulaner",
 		Name:         "Paulaner",
@@ -81,6 +92,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.169774230976934,
 		RestDays:     []uint8{0, 1, 6},
 		Phone:        "+49 711 7944180",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "picchiorosso",
 		Name:         "Picchiorosso",
@@ -93,6 +105,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.171523914268654,
 		RestDays:     []uint8{0, 6},
 		Phone:        "+49 711 7156767",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "ratsstuben",
 		Name:         "Ratsstuben",
@@ -105,6 +118,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.16919593566195,
 		RestDays:     []uint8{0, 6},
 		Phone:        "+49 711 791725",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "sw34",
 		Name:         "SW34",
@@ -117,6 +131,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.1695723175327,
 		RestDays:     []uint8{0, 6},
 		Phone:        "+49 711 62042252",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "schwedenscheuer",
 		Name:         "Schwedenscheuer",
@@ -129,6 +144,20 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.166638055590445,
 		RestDays:     []uint8{0, 6},
 		Phone:        "+49 711 7978527",
+		Group:        Fasanenhof,
+	}, {
+		ID:           "koe5",
+		Name:         "KÖ5",
+		PageURL:      "https://koe5.de/",
+		Street:       "Schelmenwasenstraße",
+		StreetNumber: "5",
+		ZipCode:      "70567",
+		City:         "Stuttgart-Fasanenhof",
+		Latitude:     48.71539920482492,
+		Longitude:    9.165393403838493,
+		RestDays:     []uint8{0, 6},
+		Phone:        "+49 711 99772624",
+		Group:        Fasanenhof,
 	}, {
 		ID:           "fass",
 		Name:         "Fass",
@@ -141,6 +170,7 @@ func (c *Controller) MigrateModels() {
 		Longitude:    9.365059991503585,
 		RestDays:     []uint8{0, 2, 6},
 		Phone:        "+49 7022 61185",
+		Group:        Florian,
 	}, {
 		ID:           "linde",
 		Name:         "Linde",
@@ -152,7 +182,34 @@ func (c *Controller) MigrateModels() {
 		Latitude:     48.641688982054845,
 		Longitude:    9.347466800930759,
 		RestDays:     []uint8{0, 1, 6},
-		Phone:        "+49 7022 62306 ",
+		Phone:        "+49 7022 62306",
+		Group:        Florian,
+	}, {
+		ID:           "metzgerei-schaible",
+		Name:         "Metzgerei Schaible",
+		PageURL:      "https://www.feuerbach.de/branchen-und-firmen/firmen/metzgerei-schaible",
+		Street:       "Staufeneckstraße",
+		StreetNumber: "1",
+		ZipCode:      "70469",
+		City:         "Stuttgart",
+		Latitude:     48.80762311615608,
+		Longitude:    9.156540084375933,
+		RestDays:     []uint8{0, 6},
+		Phone:        "+49 711 8104528",
+		Group:        Andre,
+	}, {
+		ID:           "sg-sushi",
+		Name:         "SG Sushi",
+		PageURL:      "https://sg-sushi.de/mittagstisch/index.php",
+		Street:       "Feuerbacher-Tal-Straße",
+		StreetNumber: "1",
+		ZipCode:      "70469",
+		City:         "Stuttgart-Feuerbach",
+		Latitude:     48.80844745582471,
+		Longitude:    9.157192535139712,
+		RestDays:     []uint8{0, 6},
+		Phone:        "+49 711 80674572",
+		Group:        Andre,
 	}}
 
 	for _, restaurant := range restaurants {

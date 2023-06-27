@@ -19,8 +19,9 @@ type Controller struct {
 }
 
 type Default struct {
-	StuttgartRestaurants  []Restaurant
-	NuertingenRestaurants []Restaurant
+	FasanenhofRestaurants []Restaurant
+	FlorianRestaurants    []Restaurant
+	AndreRestaurants      []Restaurant
 }
 
 func NewController(env *env.Config) *Controller {
@@ -36,8 +37,9 @@ func NewController(env *env.Config) *Controller {
 }
 
 func (c *Controller) setupDefaults() {
-	c.orm.Where("City IN ?", []string{"Leinfelden-Echterdingen", "Stuttgart"}).Select("ID", "Name", "Selected").Order("Name").Find(&c.Default.StuttgartRestaurants)
-	c.orm.Where("City IN ?", []string{"Nürtingen", "Oberboihingen"}).Select("ID", "Name", "Selected").Order("Name").Find(&c.Default.NuertingenRestaurants)
+	c.orm.Where(&Restaurant{Group: Fasanenhof}).Select("ID", "Name", "Selected").Order("Name").Find(&c.Default.FasanenhofRestaurants)
+	c.orm.Where(&Restaurant{Group: Florian}).Select("ID", "Name", "Selected").Order("Name").Find(&c.Default.FlorianRestaurants)
+	c.orm.Where(&Restaurant{Group: Andre}).Select("ID", "Name", "Selected").Order("Name").Find(&c.Default.AndreRestaurants)
 }
 
 func (c *Controller) setupSchedule() {

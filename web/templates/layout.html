@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png" />
-    <link rel="stylesheet" href="/static/css/style.css?v={{ env "VERSION" }}" />
+    <link rel="stylesheet" href="/static/css/style.css?v={{ env "APP_VERSION" }}" />
     {{ block "style". }}{{ end }}
   </head>
 
@@ -37,26 +37,31 @@
             <use href="#bars"></use>
           </svg>
         </label>
-        <div>{{ block "content" . }}{{ end }}</div>
+        <div class="relative">{{ block "content" . }}{{ end }}</div>
       </div>
       <div class="drawer-side">
         <label for="drawer" class="drawer-overlay"></label>
         <ul class="menu p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
           <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
           <span class="h-5 shrink-0"></span>
-          {{ range .Default.StuttgartRestaurants }}
+          {{ range .Default.FasanenhofRestaurants }}
             {{ $link := printf "%s%s" "/restaurants/" .ID }}
             <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
           {{ end }}
           <span class="h-5 shrink-0"></span>
-          {{ range .Default.NuertingenRestaurants }}
+          {{ range .Default.FlorianRestaurants }}
+            {{ $link := printf "%s%s" "/restaurants/" .ID }}
+            <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+          {{ end }}
+          <span class="h-5 shrink-0"></span>
+          {{ range .Default.AndreRestaurants }}
             {{ $link := printf "%s%s" "/restaurants/" .ID }}
             <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
           {{ end }}
           <span class="h-5 shrink-0 flex-grow"></span>
           <span class="menu-title">
             <span class="flex items-center gap-2">
-              <svg class="icon"><use href="#version"></use></svg> {{ env "VERSION" }}
+              <svg class="icon"><use href="#version"></use></svg> {{ env "APP_VERSION" }}
             </span>
           </span>
           <li>{{ block "link" list "/settings" "system" "Einstellungen" }}{{ end }}</li>
@@ -68,7 +73,7 @@
     <script>
       const links = document.querySelectorAll(`ul.menu > li > a[href="${location.pathname}"]`);
       for (const link of links) {
-        link.classList.add("active");
+        link.classList.add('active');
       }
     </script>
   </body>

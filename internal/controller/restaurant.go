@@ -74,9 +74,9 @@ func (c *Controller) getRandomRestaurantIndex(amount int) int {
 func (c *Controller) setRandomRestaurant() {
 	var result []Restaurant
 	c.orm.Find(&result).Update("selected", false)
-	amount := len(c.Default.StuttgartRestaurants)
+	amount := len(c.Default.FasanenhofRestaurants)
 	if amount > 0 {
-		random := c.Default.StuttgartRestaurants[c.getRandomRestaurantIndex(amount-1)]
+		random := c.Default.FasanenhofRestaurants[c.getRandomRestaurantIndex(amount-1)]
 		c.orm.Model(&Restaurant{}).Where("id = ?", random.ID).Update("selected", true)
 		c.setupDefaults()
 	}

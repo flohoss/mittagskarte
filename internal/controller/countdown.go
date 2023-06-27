@@ -14,7 +14,7 @@ type CountdownData struct {
 
 func (c *Controller) RenderCountdown(ctx echo.Context) error {
 	var restaurant Restaurant
-	for _, r := range c.Default.StuttgartRestaurants {
+	for _, r := range c.Default.FasanenhofRestaurants {
 		if r.Selected {
 			restaurant = r
 			break
