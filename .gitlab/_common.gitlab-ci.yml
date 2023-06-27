@@ -7,6 +7,7 @@ variables:
   ALPINE_VERSION: '3'
   DEBIAN_VERSION: '12'
   TELEPORT_VERSION: '13.1.1'
+  PRODUCTION_URL: 'https://mittag.unjx.de'
 
 image: docker:$DOCKER_VERSION-git
 
