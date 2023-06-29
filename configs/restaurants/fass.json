@@ -1,0 +1,10 @@
+{
+  "description_regex": "Mittagstisch\\s?KW\\s?%KW%.*",
+  "food_regex": "(?:Mittagstisch KW 27(?:.|\\s)+?)?(MONTAG|MITTWOCH|DONNERSTAG|FREITAG|ALTERNATIVESSEN|ODER)(?:.|\\s)+?(\\w.*)",
+  "max_food": 6,
+  "fix_price": 10,
+  "positions": {
+    "name": 2,
+    "day": 1
+  }
+}

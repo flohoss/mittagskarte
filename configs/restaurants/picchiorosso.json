@@ -1,0 +1,9 @@
+{
+  "description_regex": "Tagesgerichte\\,?\\s?[a-zA-Z].*",
+  "food_regex": "\\(?(.+?)(\\d{1,2}\\.?\\,?\\d{1,2})\\s?€\\s(.*)",
+  "positions": {
+    "name": 1,
+    "price": 2,
+    "description": 3
+  }
+}

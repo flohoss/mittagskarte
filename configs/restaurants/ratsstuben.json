@@ -1,0 +1,13 @@
+{
+  "download": [
+    {
+      "jquery": "div > p > a",
+      "attribute": "href"
+    }
+  ],
+  "description_regex": "Von Montag.+?Freitag.+?\\d{4}",
+  "positions": {
+    "name": 1,
+    "price": 2
+  }
+}

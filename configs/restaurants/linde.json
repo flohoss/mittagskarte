@@ -1,0 +1,10 @@
+{
+  "download": [
+    {
+      "jquery": "td:contains('%month%') > a",
+      "attribute": "href"
+    }
+  ],
+  "download_prefix": "https://www.gasthauslinde.de",
+  "description_regex": "%month%\\s?\\d{1,4}"
+}

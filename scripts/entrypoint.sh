@@ -8,7 +8,6 @@ if [ -n "$PUID" ] || [ -n "$PGID" ]; then
     HOME=/app
 
     if ! grep -q "$USER" /etc/passwd; then
-        # https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/basic-system-configuration/Managing_Users_and_Groups/
         groupadd -g "$PGID" "$USER"
         useradd -d "$HOME" -g "$PGID" -M -N -u "$PUID" "$USER"
     fi

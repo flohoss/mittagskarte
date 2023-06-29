@@ -1,0 +1,10 @@
+{
+  "description_regex": "Wochenkarte\\s?vom.+?bis.+?\\d{4}",
+  "food_regex": "(MONTAG|DIENSTAG|MITTWOCH|DONNERSTAG|FREITAG)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?€[.\\s]+?(\\w.*)",
+  "max_food": 5,
+  "positions": {
+    "name": 3,
+    "day": 1,
+    "price": 2
+  }
+}

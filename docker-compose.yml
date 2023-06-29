@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile.dev
       args:
-        - FEDORA_VERSION=${FEDORA_VERSION}
+        - GOLANG_VERSION=${GOLANG_VERSION}
     hostname: dev
     command: air -c .air.toml
     environment:

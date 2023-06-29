@@ -1,0 +1,27 @@
+{
+  "download": [
+    {
+      "jquery": "",
+      "attribute": ""
+    }
+  ],
+  "redirect": [
+    {
+      "jquery": "",
+      "attribute": ""
+    }
+  ],
+  "download_prefix": "",
+  "redirect_prefix": "",
+  "description_regex": "",
+  "description_in_html": false,
+  "food_regex": "",
+  "max_food": 0,
+  "fix_price": 0.0,
+  "positions": {
+    "name": 0,
+    "day": 0,
+    "price": 0,
+    "description": 0
+  }
+}

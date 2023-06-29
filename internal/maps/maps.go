@@ -1,14 +1,13 @@
 package maps
 
 import (
-	"fmt"
 	"image/color"
-	"os"
 
 	sm "github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
 	"github.com/golang/geo/s2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
+	"go.uber.org/zap"
 )
 
 func CreateMap(lat float64, lng float64, folder string) {
@@ -25,12 +24,15 @@ func CreateMap(lat float64, lng float64, folder string) {
 
 	img, err := ctx.Render()
 	if err != nil {
-		fmt.Println(err)
+		zap.L().Error(err.Error())
 	}
 
-	if err := gg.SavePNG(folder+"/map.png", img); err != nil {
-		fmt.Println(err)
+	old := folder + "/map.png"
+	if err := gg.SavePNG(old, img); err != nil {
+		zap.L().Error(err.Error())
 	}
-	convert.CreateWebp(folder + "/map.png")
-	os.Remove(folder + "/map.png")
+	_, err = convert.CreateWebp(old)
+	if err != nil {
+		zap.L().Error(err.Error())
+	}
 }

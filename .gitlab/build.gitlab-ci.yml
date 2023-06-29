@@ -12,7 +12,8 @@ build_release:
     - >
       docker build .
       --file docker/Dockerfile
-      --build-arg FEDORA_VERSION=${FEDORA_VERSION}
+      --build-arg GOLANG_VERSION=${GOLANG_VERSION}
+      --build-arg DEBIAN_VERSION=${DEBIAN_VERSION}
       --build-arg NODE_VERSION=${NODE_VERSION}
       --build-arg ALPINE_VERSION=${ALPINE_VERSION}
       --build-arg APP_VERSION=$CI_COMMIT_TAG

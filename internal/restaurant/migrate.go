@@ -1,26 +1,31 @@
-package controller
+package restaurant
 
-type CardType uint8
+import "gorm.io/gorm"
 
 type Restaurant struct {
-	ID           string   `json:"id" gorm:"primaryKey"`
-	Name         string   `json:"name"`
-	PageURL      string   `json:"page_url"`
-	Street       string   `json:"street"`
-	StreetNumber string   `json:"street_number"`
-	ZipCode      string   `json:"zip_code"`
-	City         string   `json:"city"`
-	Latitude     float64  `json:"latitude"`
-	Longitude    float64  `json:"longitude"`
-	Selected     bool     `json:"selected"`
-	CardType     CardType `json:"card_type"`
-	RestDays     []uint8  `json:"rest_day"`
-	Phone        string   `json:"phone"`
-	Group        Group    `json:"group"`
-	Card         Card     `json:"card" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	ID           string  `json:"id" gorm:"primaryKey"`
+	Name         string  `json:"name"`
+	PageURL      string  `json:"page_url"`
+	Street       string  `json:"street"`
+	StreetNumber string  `json:"street_number"`
+	ZipCode      string  `json:"zip_code"`
+	City         string  `json:"city"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+	Selected     bool    `json:"selected"`
+	RestDays     []uint8 `json:"rest_day"`
+	Phone        string  `json:"phone"`
+	Group        Group   `json:"group"`
+	Card         Card    `json:"card" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 type Group uint8
+
+var Groups = []Group{
+	Fasanenhof,
+	Florian,
+	Andre,
+}
 
 const (
 	Fasanenhof Group = iota + 1
@@ -33,9 +38,6 @@ type Card struct {
 	RestaurantID string `json:"restaurant_id"`
 	Description  string `json:"description"`
 	ImageURL     string `json:"image_url"`
-	Year         int    `json:"year"`
-	Week         int    `json:"week"`
-	Day          int    `json:"day"`
 	Food         []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt    int64  `json:"created_at" gorm:"autoCreateTime"`
 }
@@ -49,10 +51,10 @@ type Food struct {
 	Description string  `json:"description"`
 }
 
-func (c *Controller) MigrateModels() {
-	c.orm.AutoMigrate(&Restaurant{})
-	c.orm.AutoMigrate(&Card{})
-	c.orm.AutoMigrate(&Food{})
+func MigrateModels(orm *gorm.DB) {
+	orm.AutoMigrate(&Restaurant{})
+	orm.AutoMigrate(&Card{})
+	orm.AutoMigrate(&Food{})
 
 	restaurants := []Restaurant{{
 		ID:           "da-peppone",
@@ -187,7 +189,7 @@ func (c *Controller) MigrateModels() {
 	}, {
 		ID:           "metzgerei-schaible",
 		Name:         "Metzgerei Schaible",
-		PageURL:      "https://www.feuerbach.de/branchen-und-firmen/firmen/metzgerei-schaible",
+		PageURL:      "https://www.feuerbach.de/aktuelles/mittagstisch/",
 		Street:       "Staufeneckstraße",
 		StreetNumber: "1",
 		ZipCode:      "70469",
@@ -214,9 +216,9 @@ func (c *Controller) MigrateModels() {
 
 	for _, restaurant := range restaurants {
 		var res Restaurant
-		amount := c.orm.Where("name = ?", restaurant.Name).Find(&res).RowsAffected
+		amount := orm.Where("name = ?", restaurant.Name).Find(&res).RowsAffected
 		if amount == 0 {
-			c.orm.Create(&restaurant)
+			orm.Create(&restaurant)
 		}
 	}
 }
