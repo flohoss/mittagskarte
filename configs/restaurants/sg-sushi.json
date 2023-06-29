@@ -1,0 +1,9 @@
+{
+  "description_regex": "Mittag.+?von.+?bis.*",
+  "food_regex": "M\\d\\.?\\s?(.*)\\s.+?(\\w.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?EUR",
+  "positions": {
+    "name": 1,
+    "price": 3,
+    "description": 2
+  }
+}

@@ -6,7 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func GetHtmlOfPage(url string) (*goquery.Document, error) {
+func DownloadHtml(url string) (*goquery.Document, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err

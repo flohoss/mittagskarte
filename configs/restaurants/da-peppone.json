@@ -1,0 +1,15 @@
+{
+  "download": [
+    {
+      "jquery": "a:contains('Mittagskarte')",
+      "attribute": "href"
+    }
+  ],
+  "description_regex": "Mittagskarte\\s?vom.+?bis.*",
+  "description_in_html": true,
+  "food_regex": "Gericht\\s?.{1,5}\\s(.*\\s.*)\\s?€\\s?(\\d{1,2}\\,\\d{1,2})",
+  "positions": {
+    "name": 1,
+    "price": 2
+  }
+}

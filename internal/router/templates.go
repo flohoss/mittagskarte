@@ -7,13 +7,12 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v4"
-	"gitlab.unjx.de/flohoss/mittag/internal/controller"
+	"gitlab.unjx.de/flohoss/mittag/internal/restaurant"
 	"golang.org/x/image/webp"
 )
 
@@ -40,25 +39,18 @@ func templateString(files []string) []string {
 	return combined
 }
 
-func isToday(food controller.Food) bool {
-	var loc monday.Locale = monday.LocaleDeDE
-	shortRegex := regexp.MustCompile(fmt.Sprintf(`%s\.`, monday.Format(time.Now(), "Mon", loc)))
+func isToday(food restaurant.Food) bool {
+	expr := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|^%s$|alternativ|oder`,
+		monday.Format(time.Now(), "Monday", monday.LocaleDeDE),
+		monday.Format(time.Now(), "Mon", monday.LocaleDeDE),
+	))
 	if food.Day == "" {
-		for _, day := range monday.GetShortDays(loc) {
-			if strings.Contains(food.Name, day+".") {
-				return shortRegex.MatchString(food.Name)
-			}
-		}
 		return true
 	}
-	longRegex := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|^%s$|^mo\.?\s?-\s?fr\.?$|alternativ|oder`,
-		monday.Format(time.Now(), "Monday", monday.LocaleDeDE),
-		monday.Format(time.Now(), "Monday, 02.01.", monday.LocaleDeDE),
-	))
-	return longRegex.MatchString(food.Day)
+	return expr.MatchString(food.Day)
 }
 
-func isRestDay(restaurant controller.Restaurant) bool {
+func isRestDay(restaurant restaurant.Restaurant) bool {
 	for _, restDay := range restaurant.RestDays {
 		if uint8(time.Now().Weekday()) == restDay {
 			return true

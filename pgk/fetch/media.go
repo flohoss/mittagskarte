@@ -1,14 +1,13 @@
 package fetch
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
-
-	"go.uber.org/zap"
 )
 
 const DownloadLocation = "storage/downloads/"
@@ -20,7 +19,6 @@ func init() {
 func DownloadFile(id string, fullUrl string) (string, error) {
 	fileURL, err := url.Parse(fullUrl)
 	if err != nil {
-		zap.S().Warnf("Could not parse url %s", fullUrl)
 		return "", err
 	}
 	path := fileURL.Path
@@ -31,7 +29,6 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 
 	file, err := os.Create(fileName)
 	if err != nil {
-		zap.S().Warnf("Could not create file %s", file)
 		return "", err
 	}
 	client := http.Client{
@@ -42,19 +39,15 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 	}
 	resp, err := client.Get(fullUrl)
 	if err != nil {
-		zap.S().Warnf("Could not download file %s", file)
 		return "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		errorText := "Response status is not 200"
-		zap.L().Warn(errorText)
-		return "", fmt.Errorf(strings.ToLower(errorText))
+		return "", errors.New("response status is not 200")
 	}
 
 	_, err = io.Copy(file, resp.Body)
 	if err != nil {
-		zap.S().Warnf("Could not copy file %s", file)
 		return "", err
 	}
 	defer file.Close()

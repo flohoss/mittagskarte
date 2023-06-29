@@ -1,0 +1,18 @@
+{
+  "download": [
+    {
+      "jquery": "a:contains('Zum Mittagsangebot')",
+      "attribute": "href"
+    },
+    {
+      "jquery": "article > div > embed",
+      "attribute": "src"
+    }
+  ],
+  "description_regex": "\\d{1,2}\\.?\\s?Juni\\s?bis\\s?\\d{1,2}\\.?\\s?Juni\\s\\d{2,4}",
+  "food_regex": "(?:\\s\\s)(.*\\s.*\\s.*\\s)€\\s?(\\d{1,2}\\,\\d{1,2})",
+  "positions": {
+    "name": 1,
+    "price": 2
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "redirect": [
+    {
+      "jquery": "a:contains('von Schaible')",
+      "attribute": "href"
+    }
+  ],
+  "redirect_prefix": "https://www.feuerbach.de",
+  "description_regex": "Mittagstisch.+?vom.+?\\d{4}",
+  "food_regex": "(Mo|MO|Di|DI|Mi|MI|Do|DO|Fr|FR)[.:\\s]{1,2}\\s?(.+?)\\d",
+  "fix_price": 7.5,
+  "positions": {
+    "name": 2,
+    "day": 1
+  }
+}
