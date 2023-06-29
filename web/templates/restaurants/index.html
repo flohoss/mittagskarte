@@ -90,7 +90,7 @@
           {{ $width := index $sizes 1 }}
           {{ $imgSize := printf "width='%d' height='%d'" $width $height }}
           <label for="my-modal">
-            <img {{ $imgSize }} class="rounded-xl" src="/{{ .Restaurant.Card.ImageURL }}" />
+            <img {{ $imgSize }} class="rounded-xl dark:invert grayscale opacity-90" src="/{{ .Restaurant.Card.ImageURL }}" />
           </label>
         </div>
       {{ end }}
@@ -111,7 +111,7 @@
     <input type="checkbox" id="my-modal" class="modal-toggle" />
     <label for="my-modal" class="modal modal-bottom sm:modal-middle cursor-pointer">
       <label class="modal-box p-2 relative">
-        <img {{ $imgSize }} class="rounded-xl" src="/{{ .Restaurant.Card.ImageURL }}" />
+        <img {{ $imgSize }} class="rounded-xl dark:invert grayscale" src="/{{ .Restaurant.Card.ImageURL }}" />
       </label>
     </label>
   {{ end }}
