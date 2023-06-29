@@ -16,26 +16,10 @@ import (
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
-
-func UpdateAllRestaurants(orm *gorm.DB) {
-	restaurants := GetRestaurants(orm)
-	var cards []Card
-	for _, r := range restaurants {
-		card, err := r.Update()
-		if err != nil {
-			zap.L().Error(err.Error())
-		} else {
-			cards = append(cards, card)
-		}
-	}
-	orm.Where("1 = 1").Delete(&Card{})
-	orm.Create(&cards)
-}
 
 func GetNavigation(orm *gorm.DB) [][]Restaurant {
 	var navigation [][]Restaurant

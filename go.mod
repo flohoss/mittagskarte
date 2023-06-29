@@ -16,9 +16,11 @@ require (
 	github.com/goodsign/monday v1.0.1
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/otiai10/gosseract/v2 v2.2.4
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+	golang.org/x/text v0.8.0
 	gorm.io/gorm v1.25.1
 	moul.io/zapgorm2 v1.3.0
 )
@@ -74,7 +76,6 @@ require (
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

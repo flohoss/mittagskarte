@@ -44,10 +44,24 @@ func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 			}
 		}()
 	} else {
-		c.setRandomRestaurant()
-		go restaurant.UpdateAllRestaurants(c.orm)
+		go c.UpdateAllRestaurants()
 	}
 	return ctx.NoContent(http.StatusOK)
+}
+
+func (c *Controller) UpdateAllRestaurants() {
+	restaurants := restaurant.GetRestaurants(c.orm)
+	var cards []restaurant.Card
+	for _, r := range restaurants {
+		card, err := r.Update()
+		if err != nil {
+			zap.L().Error(err.Error())
+		} else {
+			cards = append(cards, card)
+		}
+	}
+	c.orm.Where("1 = 1").Delete(&restaurant.Card{})
+	c.orm.Create(&cards)
 }
 
 func (c *Controller) getRandomRestaurantIndex(amount int) int {

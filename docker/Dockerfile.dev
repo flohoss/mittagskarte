@@ -1,6 +1,5 @@
 ARG GOLANG_VERSION
 FROM golang:${GOLANG_VERSION}
-
 RUN apt-get update -qq
 RUN apt-get install -y poppler-utils wv unrtf tidy webp
 RUN apt-get install -y libtesseract-dev libleptonica-dev

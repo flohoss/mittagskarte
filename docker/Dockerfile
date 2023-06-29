@@ -1,20 +1,18 @@
-ARG FEDORA_VERSION
+ARG GOLANG_VERSION
+ARG DEBIAN_VERSION
 ARG NODE_VERSION
 ARG ALPINE_VERSION
-FROM fedora:${FEDORA_VERSION} AS goBuilder
-ENV GOPROXY=https://proxy.golang.org
-
-RUN dnf -y upgrade --refresh
-RUN dnf -y install golang
+FROM golang:${GOLANG_VERSION} AS goBuilder
+RUN apt-get update -qq
+RUN apt-get install -y libtesseract-dev libleptonica-dev
 
 WORKDIR /app
-
 COPY ./go.mod .
 COPY ./go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -ldflags="-s -w" cmd/mittag/mittag.go
+RUN go build -tags ocr -ldflags="-s -w" cmd/mittag/mittag.go
 
 FROM node:${NODE_VERSION}-alpine AS nodeBuilder
 
@@ -30,10 +28,11 @@ FROM alpine:${ALPINE_VERSION} AS logo
 RUN apk add figlet
 RUN figlet Mittag > logo.txt
 
-FROM fedora:${FEDORA_VERSION} AS final
-RUN dnf -y upgrade --refresh
-RUN dnf -y install tesseract tesseract-osd tesseract-langpack-deu tesseract-langpack-eng
-RUN dnf -y install ImageMagick poppler-utils libwebp
+FROM debian:${DEBIAN_VERSION}-slim AS final
+RUN apt-get update -qq
+RUN apt-get install -y poppler-utils wv unrtf tidy webp
+RUN apt-get install -y libtesseract-dev libleptonica-dev
+RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu
 
 # Mittag
 WORKDIR /app
@@ -43,6 +42,7 @@ COPY --from=logo /logo.txt .
 COPY --from=nodeBuilder /web/static/ ./web/static/
 COPY --from=nodeBuilder /web/templates ./web/templates/
 COPY --from=goBuilder /app/mittag .
+COPY ./configs/ ./configs/
 
 # Envs
 ARG APP_VERSION

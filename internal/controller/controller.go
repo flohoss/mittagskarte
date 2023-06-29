@@ -3,6 +3,7 @@ package controller
 import (
 	"os"
 
+	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/database"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/maps"
@@ -14,6 +15,7 @@ import (
 type Controller struct {
 	orm        *gorm.DB
 	env        *env.Config
+	schedule   *cron.Cron
 	Navigation [][]restaurant.Restaurant
 }
 
@@ -25,6 +27,19 @@ func NewController(env *env.Config) *Controller {
 	ctrl.createMaps()
 
 	return &ctrl
+}
+
+func (c *Controller) setupSchedule() {
+	c.schedule = cron.New()
+
+	c.schedule.AddFunc("10 8-14 * * *", func() {
+		c.UpdateAllRestaurants()
+	})
+	c.schedule.AddFunc("0 0 * * *", func() {
+		c.setRandomRestaurant()
+	})
+
+	c.schedule.Start()
 }
 
 func (c *Controller) createMaps() {
