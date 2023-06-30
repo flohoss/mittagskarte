@@ -30,7 +30,9 @@ func (c *Controller) RenderRestaurants(ctx echo.Context) error {
 func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 	id := ctx.QueryParam("id")
 	var result restaurant.Restaurant
-	if id != "" {
+	if id == "random" {
+		c.setRandomRestaurant()
+	} else if id != "" {
 		affected := c.orm.Where("id = ?", id).Preload("Card").Find(&result).RowsAffected
 		if affected == 0 {
 			return ctx.NoContent(http.StatusNotFound)
