@@ -25,6 +25,7 @@ func NewController(env *env.Config) *Controller {
 	restaurant.MigrateModels(ctrl.orm)
 	ctrl.Navigation = restaurant.GetNavigation(ctrl.orm)
 	ctrl.createMaps()
+	ctrl.setupSchedule()
 
 	return &ctrl
 }
