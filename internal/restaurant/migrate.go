@@ -187,8 +187,8 @@ func MigrateModels(orm *gorm.DB) {
 		Phone:        "+49 7022 62306",
 		Group:        Florian,
 	}, {
-		ID:           "metzgerei-schaible",
-		Name:         "Metzgerei Schaible",
+		ID:           "schaible",
+		Name:         "Schaible",
 		PageURL:      "https://www.feuerbach.de/aktuelles/mittagstisch/",
 		Street:       "Staufeneckstraße",
 		StreetNumber: "1",

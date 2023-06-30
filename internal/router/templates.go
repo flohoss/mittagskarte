@@ -40,9 +40,8 @@ func templateString(files []string) []string {
 }
 
 func isToday(food restaurant.Food) bool {
-	expr := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|^%s$|alternativ|oder`,
+	expr := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|alternativ|oder`,
 		monday.Format(time.Now(), "Monday", monday.LocaleDeDE),
-		monday.Format(time.Now(), "Mon", monday.LocaleDeDE),
 	))
 	if food.Day == "" {
 		return true

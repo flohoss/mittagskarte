@@ -16,6 +16,7 @@ import (
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
@@ -39,7 +40,17 @@ func GetRestaurants(orm *gorm.DB) []Restaurant {
 	return result
 }
 
+func posInArray(str string, arr []string) int {
+	for i, s := range arr {
+		if s == str {
+			return i
+		}
+	}
+	return -1
+}
+
 func (r *Restaurant) Update() (Card, error) {
+	zap.L().Debug("updating restaurant", zap.String("name", r.Name))
 	var card Card
 	config, err := parseConfig(ConfigLocation + r.ID + ".json")
 	if err != nil {
@@ -131,6 +142,10 @@ func (r *Restaurant) Update() (Card, error) {
 			if config.Positions.Day > 0 {
 				caser := cases.Title(language.German)
 				f.Day = caser.String(r[config.Positions.Day])
+				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
+				if pos >= 0 {
+					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
+				}
 			}
 			if config.FixPrice != 0 {
 				f.Price = config.FixPrice
