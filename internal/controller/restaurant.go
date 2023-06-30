@@ -66,18 +66,20 @@ func (c *Controller) UpdateAllRestaurants() {
 	c.orm.Create(&cards)
 }
 
-func (c *Controller) getRandomRestaurantIndex(amount int) int {
+func getRandomRestaurantIndex(amount int) int {
 	min := 0
-	return min + rand.Intn(amount-min)
+	return min + rand.Intn(amount-min+1)
 }
 
 func (c *Controller) setRandomRestaurant() {
 	var result []restaurant.Restaurant
 	c.orm.Find(&result).Update("selected", false)
-	amount := len(c.Navigation[0])
-	if amount > 0 {
-		random := c.Navigation[0][c.getRandomRestaurantIndex(amount-1)]
-		c.orm.Model(&restaurant.Restaurant{}).Where("id = ?", random.ID).Update("selected", true)
-		c.Navigation = restaurant.GetNavigation(c.orm)
+	for i, _ := range restaurant.Groups {
+		amount := len(c.Navigation[i])
+		if amount > 0 {
+			random := c.Navigation[i][getRandomRestaurantIndex(amount-1)]
+			c.orm.Model(&restaurant.Restaurant{}).Where("id = ?", random.ID).Update("selected", true)
+			c.Navigation = restaurant.GetNavigation(c.orm)
+		}
 	}
 }

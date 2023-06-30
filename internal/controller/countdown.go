@@ -10,16 +10,18 @@ import (
 type CountdownData struct {
 	Title      string
 	Navigation [][]restaurant.Restaurant
-	Random     restaurant.Restaurant
+	Random     []restaurant.Restaurant
 }
 
 func (c *Controller) RenderCountdown(ctx echo.Context) error {
-	var restaurant restaurant.Restaurant
-	for _, r := range c.Navigation[0] {
-		if r.Selected {
-			restaurant = r
-			break
+	var random []restaurant.Restaurant
+	for i, _ := range restaurant.Groups {
+		for _, r := range c.Navigation[i] {
+			if r.Selected {
+				random = append(random, r)
+				break
+			}
 		}
 	}
-	return ctx.Render(http.StatusOK, "countdown", CountdownData{Title: "Einstellungen", Navigation: c.Navigation, Random: restaurant})
+	return ctx.Render(http.StatusOK, "countdown", CountdownData{Title: "Einstellungen", Navigation: c.Navigation, Random: random})
 }
