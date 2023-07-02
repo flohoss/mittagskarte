@@ -32,7 +32,7 @@
     <div class="drawer lg:drawer-open">
       <input id="drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content">
-        <div class="z-10 flex-none absolute top-3 left-3 lg:hidden">
+        <div class="z-40 flex-none absolute top-3 left-3 lg:hidden">
           <label for="drawer" class="btn btn-square btn-ghost">
             <svg class="icon">
               <use href="#bars"></use>
@@ -41,7 +41,7 @@
         </div>
         <div class="relative">{{ block "content" . }}{{ end }}</div>
       </div>
-      <div class="drawer-side z-20">
+      <div class="drawer-side z-50">
         <label for="drawer" class="drawer-overlay"></label>
         <ul class="menu p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
           <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>

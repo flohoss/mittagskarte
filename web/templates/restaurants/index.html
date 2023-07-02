@@ -5,13 +5,10 @@
 {{ define "content" }}
   {{ $restDay := isRestDay .Restaurant }}
   {{ if $restDay }}
-    <div class="absolute w-full h-full top-0 left-0 z-40"></div>
-    <div class="z-50 -rotate-12 absolute top-24 left-1/2 transform -translate-x-1/2">
+    <div class="z-20 -rotate-12 absolute top-20 left-1/2 transform -translate-x-1/2">
       <div class="alert alert-warning shadow-lg">
-        <div>
-          <svg class="icon"><use href="#info"></use></svg>
-          <span>Heute kein Mittagstisch</span>
-        </div>
+        <svg class="icon"><use href="#info"></use></svg>
+        <span>Heute kein Mittagstisch</span>
       </div>
     </div>
   {{ end }}
