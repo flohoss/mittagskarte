@@ -1,7 +1,7 @@
 {
   "download_prefix": "",
   "description_regex": "Tagesessen.+?vom.+?bis.*",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\:?[.\\s]+?TE\\s?\\d\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
+  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
   "positions": {
     "name": 2,
     "day": 1,
