@@ -26,9 +26,9 @@
     </div>
     {{ $length := len .Random }}
     {{ if gt $length 0 }}
-      <div class="stats stats-vertical">
+      <div class="stats stats-vertical w-full max-w-sm">
         {{ range .Random }}
-          <a class="stat min-w-[25rem]" href="/restaurants/{{ .ID }}">
+          <a class="stat" href="/restaurants/{{ .ID }}">
             <div class="stat-figure text-gray-500">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 512 512">
                 <path
@@ -37,7 +37,7 @@
               </svg>
             </div>
             <div class="stat-title">Zufälliges Restaurant</div>
-            <div class="stat-value">{{ .Name }}</div>
+            <div class="stat-value truncate">{{ .Name }}</div>
             <div class="stat-desc">{{ .Group }}</div>
           </a>
         {{ end }}
