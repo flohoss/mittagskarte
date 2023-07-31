@@ -1,6 +1,6 @@
 {
   "description_regex": "Tageskarte.*",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s+?([a-zA-Z].*)",
+  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s?(\\w.*\\w)",
   "fix_price": 10.9,
   "positions": {
     "name": 2,
