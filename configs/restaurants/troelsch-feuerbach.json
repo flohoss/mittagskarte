@@ -1,0 +1,9 @@
+{
+  "download": [
+    {
+      "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
+      "attribute": "href"
+    }
+  ],
+  "description_regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+}
