@@ -81,7 +81,7 @@
           {{ end }}
         </div>
       {{ else if .Restaurant.Card.ImageURL }}
-        <div class="w-full max-w-4xl" onclick="my_modal.showModal()">
+        <div class="w-full max-w-4xl cursor-zoom-in" onclick="my_modal.showModal()">
           {{ $sizes := imageSize .Restaurant.Card.ImageURL }}
           {{ $height := index $sizes 0 }}
           {{ $width := index $sizes 1 }}
@@ -105,7 +105,7 @@
         <img
           width="{{ $width }}"
           height="{{ $height }}"
-          class="relative rounded-xl w-full"
+          class="rounded-xl w-full"
           src="/{{ .Restaurant.Card.ImageURL }}?{{ now | date "2006-01-02" }}"
         />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

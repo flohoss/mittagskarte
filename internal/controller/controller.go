@@ -33,7 +33,7 @@ func NewController(env *env.Config) *Controller {
 func (c *Controller) setupSchedule() {
 	c.schedule = cron.New()
 
-	c.schedule.AddFunc("10 8-14 * * *", func() {
+	c.schedule.AddFunc("30 8,11 * * *", func() {
 		c.UpdateAllRestaurants()
 	})
 	c.schedule.AddFunc("0 0 * * *", func() {
