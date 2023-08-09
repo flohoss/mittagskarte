@@ -248,7 +248,7 @@ func MigrateModels(orm *gorm.DB) {
 		City:         "Stuttgart-Feuerbach",
 		Latitude:     48.809072665993405,
 		Longitude:    9.158019929356717,
-		RestDays:     []uint8{0},
+		RestDays:     []uint8{0, 6},
 		Phone:        "+49 711 85680030",
 		Group:        Andre,
 	}}
