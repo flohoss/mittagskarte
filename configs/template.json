@@ -23,5 +23,6 @@
     "day": 0,
     "price": 0,
     "description": 0
-  }
+  },
+  "trim_image_edges": false
 }

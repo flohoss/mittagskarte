@@ -71,6 +71,7 @@ func (r *Restaurant) Update() (Card, error) {
 				return card, errors.New("cannot find the menu of the restaurant")
 			}
 		}
+		zap.L().Debug("downloading menu", zap.String("link", config.DownloadPrefix+downloadUrl))
 		fileLocation, err = fetch.DownloadFile(r.ID, config.DownloadPrefix+downloadUrl)
 		if err != nil {
 			return card, err
@@ -79,16 +80,13 @@ func (r *Restaurant) Update() (Card, error) {
 		if err != nil {
 			return card, err
 		}
-		fileLocation, err = convert.ConvertPdfToPng(fileLocation, r.ID, "300")
-		if err != nil {
-			return card, err
-		}
-		fileLocation, err = convert.CreateWebp(fileLocation)
+		fileLocation, err = convert.ConvertPdfToWebp(fileLocation, r.ID, "300", config.TrimImageEdges)
 		if err != nil {
 			return card, err
 		}
 		content = ocr.Body
 	} else {
+		zap.L().Debug("downloading html", zap.String("link", downloadUrl))
 		doc, err = fetch.DownloadHtml(downloadUrl)
 		if err != nil {
 			return card, err

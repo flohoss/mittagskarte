@@ -16,6 +16,7 @@ type Configuration struct {
 	MaxFood           int            `json:"max_food"`
 	FixPrice          float64        `json:"fix_price"`
 	Positions         PositionConfig `json:"positions"`
+	TrimImageEdges    bool           `json:"trim_image_edges"`
 }
 
 type ClickConfig struct {

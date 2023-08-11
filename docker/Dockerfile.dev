@@ -1,7 +1,8 @@
 ARG GOLANG_VERSION
 FROM golang:${GOLANG_VERSION}
 RUN apt-get update -qq
-RUN apt-get install -y poppler-utils wv unrtf tidy webp
+RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy
+RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 RUN apt-get install -y libtesseract-dev libleptonica-dev
 RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu
 
