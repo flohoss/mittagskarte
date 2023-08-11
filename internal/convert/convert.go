@@ -21,10 +21,11 @@ func ConvertPdfToWebp(fileLocation string, resultName string, dpi string, trim b
 	dir := filepath.Dir(fileLocation)
 	result := fmt.Sprintf("%s/%s.webp", dir, resultName)
 	app := "convert"
-	args := []string{"-strip", "-density", dpi, "-alpha", "Remove", fileLocation, "-quality", "90", result}
+	args := []string{}
 	if trim {
-		args = append(args, "-trim")
+		args = []string{"-trim"}
 	}
+	args = append(args, []string{"-strip", "-density", dpi, "-alpha", "Remove", fileLocation, "-quality", "90", result}...)
 	zap.L().Debug("converting pdf to webp", zap.Strings("command", args))
 	out, err := exec.Command(app, args...).CombinedOutput()
 	if err != nil {
