@@ -1,5 +1,5 @@
 services:
-  dev:
+  golang:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
@@ -12,5 +12,22 @@ services:
       - LOG_LEVEL=debug
     ports:
       - 8080:8080
+    volumes:
+      - ./:/app/
+
+  node:
+    image: node:${NODE_VERSION}
+    working_dir: /app
+    tty: true
+    command: yarn tailwind:dev
+    volumes:
+      - ./:/app/
+
+  yarn:
+    container_name: node_modules
+    profiles: [install]
+    image: node:${NODE_VERSION}
+    working_dir: /app
+    entrypoint: yarn
     volumes:
       - ./:/app/

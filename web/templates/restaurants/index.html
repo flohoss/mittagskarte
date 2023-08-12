@@ -15,7 +15,7 @@
   <div class="{{ if $restDay }}grayscale opacity-50 animate-fadeIn50{{ else }}animate-fadeIn{{ end }} container-custom">
     <div class="flex flex-col items-center gap-5">
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
-        <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/storage/downloads/{{ .Restaurant.ID }}/map.webp')"></div>
+        <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/storage/downloads/{{ .Restaurant.ID }}/map.jpg')"></div>
         <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
           {{ .Restaurant.Name }}
         </div>
@@ -102,12 +102,7 @@
     {{ $width := index $sizes 1 }}
     <dialog id="my_modal" class="modal">
       <form method="dialog" class="modal-box p-0 max-w-6xl">
-        <img
-          width="{{ $width }}"
-          height="{{ $height }}"
-          class="rounded-xl w-full"
-          src="/{{ .Restaurant.Card.ImageURL }}?{{ now | date "2006-01-02" }}"
-        />
+        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Restaurant.Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <form method="dialog" class="modal-backdrop">
