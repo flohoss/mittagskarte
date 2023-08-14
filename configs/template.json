@@ -1,28 +1,62 @@
 {
-  "download": [
-    {
-      "jquery": "",
-      "attribute": ""
-    }
-  ],
-  "redirect": [
-    {
-      "jquery": "",
-      "attribute": ""
-    }
-  ],
-  "download_prefix": "",
-  "redirect_prefix": "",
-  "description_regex": "",
-  "description_in_html": false,
-  "food_regex": "",
-  "max_food": 0,
-  "fix_price": 0.0,
-  "positions": {
-    "name": 0,
-    "day": 0,
-    "price": 0,
-    "description": 0
+  "restaurant": {
+    "id": "",
+    "name": "",
+    "page_url": "",
+    "street": "",
+    "street_number": "",
+    "zip_code": "",
+    "city": "",
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "rest_day": [],
+    "phone": ""
   },
-  "trim_image_edges": false
+  "retrieve_download_url": [
+    {
+      "jquery": "",
+      "attribute": ""
+    }
+  ],
+  "download": {
+    "is_file": false,
+    "prefix": "",
+    "trim_edges": false
+  },
+  "menu": {
+    "description": {
+      "regex": "",
+      "jquery": "",
+      "attribute": "",
+      "fixed": ""
+    },
+    "food": [
+      {
+        "day": {
+          "regex": "",
+          "jquery": "",
+          "attribute": "",
+          "fixed": ""
+        },
+        "food": {
+          "regex": "",
+          "jquery": "",
+          "attribute": "",
+          "fixed": ""
+        },
+        "price": {
+          "regex": "",
+          "jquery": "",
+          "attribute": "",
+          "fixed": ""
+        },
+        "description": {
+          "regex": "",
+          "jquery": "",
+          "attribute": "",
+          "fixed": ""
+        }
+      }
+    ]
+  }
 }

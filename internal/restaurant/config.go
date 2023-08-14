@@ -2,38 +2,15 @@ package restaurant
 
 import (
 	"encoding/json"
+	"log/slog"
 	"os"
+	"path/filepath"
 )
-
-type Configuration struct {
-	Download          []ClickConfig  `json:"download"`
-	Redirect          []ClickConfig  `json:"redirect"`
-	DownloadPrefix    string         `json:"download_prefix"`
-	RedirectPrefix    string         `json:"redirect_prefix"`
-	DescriptionRegex  string         `json:"description_regex"`
-	DescriptionInHtml bool           `json:"description_in_html"`
-	FoodRegex         string         `json:"food_regex"`
-	MaxFood           int            `json:"max_food"`
-	FixPrice          float64        `json:"fix_price"`
-	Positions         PositionConfig `json:"positions"`
-	TrimImageEdges    bool           `json:"trim_image_edges"`
-}
-
-type ClickConfig struct {
-	JQuery    string `json:"jquery"`
-	Attribute string `json:"attribute"`
-}
-
-type PositionConfig struct {
-	Name        int `json:"name"`
-	Day         int `json:"day"`
-	Price       int `json:"price"`
-	Description int `json:"description"`
-}
 
 const ConfigLocation = "configs/restaurants/"
 
 func parseConfig(path string) (Configuration, error) {
+	slog.Info("parsing config", "path", path)
 	var config Configuration
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -43,5 +20,21 @@ func parseConfig(path string) (Configuration, error) {
 	if err != nil {
 		return config, err
 	}
+	slog.Info("config successfully parsed", "path", path)
 	return config, nil
+}
+
+func parseAllConfigs() ([]Configuration, error) {
+	var configurations []Configuration
+	err := filepath.WalkDir(ConfigLocation, func(path string, info os.DirEntry, err error) error {
+		if info.Type().IsRegular() {
+			config, err := parseConfig(path)
+			if err != nil {
+				return err
+			}
+			configurations = append(configurations, config)
+		}
+		return nil
+	})
+	return configurations, err
 }
