@@ -1,16 +1,16 @@
 {
-  "redirect": [
-    {
-      "jquery": "a:contains('von Schaible')",
-      "attribute": "href"
-    }
-  ],
-  "redirect_prefix": "https://www.feuerbach.de",
-  "description_regex": "Mittagstisch.+?vom.+?\\d{4}",
-  "food_regex": "(Mo|MO|Di|DI|Mi|MI|Do|DO|Fr|FR)[.:\\s]{1,2}\\s?(.+?)\\d",
-  "fix_price": 7.5,
-  "positions": {
-    "name": 2,
-    "day": 1
+  "restaurant": {
+    "id": "schaible",
+    "name": "Schaible",
+    "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
+    "street": "Staufeneckstraße",
+    "street_number": "1",
+    "zip_code": "70469",
+    "city": "Stuttgart-Feuerbach",
+    "latitude": 48.80762311615608,
+    "longitude": 9.156540084375933,
+    "rest_day": [0, 6],
+    "phone": "+49 711 8104528",
+    "group": 3
   }
 }

@@ -1,9 +1,16 @@
 {
-  "description_regex": "Tagesgerichte\\,?\\s?[a-zA-Z].*",
-  "food_regex": "\\(?(.+?)(\\d{1,2}\\.?\\,?\\d{1,2})\\s?€\\s(.*)",
-  "positions": {
-    "name": 1,
-    "price": 2,
-    "description": 3
+  "restaurant": {
+    "id": "picchiorosso",
+    "name": "Picchiorosso",
+    "page_url": "https://picchiorosso.de/tageskarte/",
+    "street": "Zettachring",
+    "street_number": "12",
+    "zip_code": "70567",
+    "city": "Stuttgart-Fasanenhof",
+    "latitude": 48.70824771163106,
+    "longitude": 9.171523914268654,
+    "rest_day": [0, 6],
+    "phone": "+49 711 7156767",
+    "group": 1
   }
 }

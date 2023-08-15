@@ -1,10 +1,16 @@
 {
-  "download_prefix": "",
-  "description_regex": "Tagesessen.+?vom.+?bis.*",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
-  "positions": {
-    "name": 2,
-    "day": 1,
-    "price": 3
+  "restaurant": {
+    "id": "schwedenscheuer",
+    "name": "Schwedenscheuer",
+    "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
+    "street": "Hauptstraße",
+    "street_number": "71/1",
+    "zip_code": "70771",
+    "city": "Leinfelden-Echterdingen",
+    "latitude": 48.688405113912154,
+    "longitude": 9.166638055590445,
+    "rest_day": [0, 6],
+    "phone": "+49 711 7978527",
+    "group": 1
   }
 }

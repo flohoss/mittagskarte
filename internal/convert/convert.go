@@ -3,12 +3,11 @@ package convert
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"go.uber.org/zap"
 )
 
 func ReplaceEndingToWebp(fileLocation string) string {
@@ -26,11 +25,12 @@ func ConvertPdfToWebp(fileLocation string, resultName string, dpi string, trim b
 		args = []string{"-trim"}
 	}
 	args = append(args, []string{"-strip", "-density", dpi, "-alpha", "Remove", fileLocation, "-quality", "90", result}...)
-	zap.L().Debug("converting pdf to webp", zap.Strings("command", args))
+	slog.Info("converting pdf to webp", "path", fileLocation, "command", args)
 	out, err := exec.Command(app, args...).CombinedOutput()
 	if err != nil {
 		return "", errors.New(string(out))
 	}
 	os.Remove(fileLocation)
+	slog.Info("file successfully converted", "path", result)
 	return result, nil
 }

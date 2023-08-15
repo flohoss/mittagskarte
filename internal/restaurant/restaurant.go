@@ -3,12 +3,11 @@ package restaurant
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
@@ -16,9 +15,6 @@ import (
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"go.uber.org/zap"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -50,128 +46,22 @@ func posInArray(str string, arr []string) int {
 }
 
 func (r *Restaurant) Update() (Card, error) {
-	zap.L().Debug("updating restaurant", zap.String("name", r.Name))
-	var card Card
+	slog.Info("updating restaurant", "name", r.Name)
+	card := Card{RestaurantID: r.ID}
 	config, err := parseConfig(ConfigLocation + r.ID + ".json")
 	if err != nil {
 		return card, err
 	}
-	var doc *goquery.Document
-	var content, fileLocation string
-	var present bool
-	downloadUrl := r.PageURL
-	if len(config.Download) > 0 {
-		for _, d := range config.Download {
-			doc, err = fetch.DownloadHtml(downloadUrl)
-			if err != nil {
-				return card, err
-			}
-			downloadUrl, present = doc.Find(replacePlaceholder(d.JQuery)).First().Attr(d.Attribute)
-			if !present {
-				return card, errors.New("cannot find the menu of the restaurant")
-			}
-		}
-		zap.L().Debug("downloading menu", zap.String("link", config.DownloadPrefix+downloadUrl))
-		fileLocation, err = fetch.DownloadFile(r.ID, config.DownloadPrefix+downloadUrl)
-		if err != nil {
-			return card, err
-		}
-		ocr, err := docconv.ConvertPath(fileLocation)
-		if err != nil {
-			return card, err
-		}
-		fileLocation, err = convert.ConvertPdfToWebp(fileLocation, r.ID, "300", config.TrimImageEdges)
-		if err != nil {
-			return card, err
-		}
-		content = ocr.Body
-	} else {
-		zap.L().Debug("downloading html", zap.String("link", downloadUrl))
-		doc, err = fetch.DownloadHtml(downloadUrl)
-		if err != nil {
-			return card, err
-		}
-		if len(config.Redirect) > 0 {
-			for _, r := range config.Redirect {
-				downloadUrl, present = doc.Find(replacePlaceholder(r.JQuery)).First().Attr(r.Attribute)
-				if !present {
-					return card, errors.New("cannot find the redirect button")
-				}
-				doc, err = fetch.DownloadHtml(config.RedirectPrefix + downloadUrl)
-				if err != nil {
-					return card, err
-				}
-			}
-			content = doc.Text()
-		}
-		content = doc.Text()
-	}
-	folder := fetch.DownloadLocation + r.ID
-	os.MkdirAll(folder, os.ModePerm)
-	err = os.WriteFile(folder+"/text.txt", []byte(content), os.ModePerm)
+	downloadUrl, doc, err := getFinalDownloadUrl(&config, r.PageURL)
+
+	content, img, doc, err := downloadFileOrHtml(r.ID, &config, downloadUrl)
 	if err != nil {
 		return card, err
 	}
+	card.ImageURL = img
 
-	var descrResult string
-	if config.DescriptionRegex != "" {
-		config.DescriptionRegex = replacePlaceholder(config.DescriptionRegex)
-		descrExpr := regexp.MustCompile(config.DescriptionRegex)
-		if config.DescriptionInHtml {
-			descrResult = descrExpr.FindString(doc.Text())
-		} else {
-			descrResult = descrExpr.FindString(content)
-		}
-	}
-
-	var food []Food
-	if config.FoodRegex != "" {
-		config.FoodRegex = replacePlaceholder(config.FoodRegex)
-		foodExpr := regexp.MustCompile(config.FoodRegex)
-		foodResult := foodExpr.FindAllStringSubmatch(content, -1)
-		for i, r := range foodResult {
-			if config.MaxFood != 0 && i >= config.MaxFood {
-				break
-			}
-			var f Food
-			if config.Positions.Name > 0 {
-				f.Name = strings.ReplaceAll(strings.TrimSpace(r[config.Positions.Name]), "\n", " ")
-			}
-			if config.Positions.Day > 0 {
-				caser := cases.Title(language.German)
-				f.Day = caser.String(r[config.Positions.Day])
-				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
-				if pos >= 0 {
-					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
-				}
-			}
-			if config.FixPrice != 0 {
-				f.Price = config.FixPrice
-			} else if config.Positions.Price > 0 {
-				price, _ := strconv.ParseFloat(strings.Replace(r[config.Positions.Price], ",", ".", 1), 64)
-				f.Price = price
-			}
-			if config.Positions.Description > 0 {
-				f.Description = r[config.Positions.Description]
-			}
-			food = append(food, f)
-		}
-	}
-
-	card = Card{
-		RestaurantID: r.ID,
-		Description:  descrResult,
-		ImageURL:     fileLocation,
-		Food:         food,
-		CreatedAt:    0,
-	}
-	card.Description = strings.Map(func(r rune) rune {
-		if unicode.IsGraphic(r) {
-			return r
-		}
-		return -1
-	}, card.Description)
-	card.Description = strings.Replace(strings.TrimSpace(card.Description), "�", "", 1)
+	parseDescription(&config, content, doc)
+	saveContentAsFile(r.ID, content)
 	return card, nil
 }
 
@@ -184,4 +74,89 @@ func replacePlaceholder(input string) string {
 		return strings.Replace(input, "%month%", monday.Format(time.Now(), "January", monday.LocaleDeDE), 1)
 	}
 	return input
+}
+
+func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *goquery.Document, error) {
+	doc := &goquery.Document{}
+	if len(config.RetrieveDownloadUrl) > 0 {
+		for _, d := range config.RetrieveDownloadUrl {
+			slog.Info("navigating to page", "page", downloadUrl)
+			var err error
+			doc, err = fetch.DownloadHtml(downloadUrl)
+			if err != nil {
+				return "", doc, err
+			}
+			var present bool
+			downloadUrl, present = doc.Find(replacePlaceholder(d.JQuery)).First().Attr(d.Attribute)
+			if !present {
+				return "", doc, errors.New("cannot navigate")
+			}
+		}
+	}
+	slog.Info("found final url", "url", downloadUrl)
+	return downloadUrl, doc, nil
+}
+
+func downloadFileOrHtml(id string, config *Configuration, downloadUrl string) (string, string, *goquery.Document, error) {
+	content, img := "", ""
+	doc := &goquery.Document{}
+	var err error
+
+	if config.Download.IsFile {
+		content, img, err = downloadFile(id, config, downloadUrl)
+	} else {
+		content, doc, err = downloadHtml(downloadUrl)
+	}
+	return content, img, doc, err
+}
+
+func downloadFile(id string, config *Configuration, downloadUrl string) (string, string, error) {
+	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl)
+	if err != nil {
+		return "", "", err
+	}
+	slog.Info("scanning file", "path", imageURL)
+	ocr, err := docconv.ConvertPath(imageURL)
+	if err != nil {
+		return "", "", err
+	}
+	webpUrl, err := convert.ConvertPdfToWebp(imageURL, id, "300", config.Download.TrimEdges)
+	if err != nil {
+		return "", "", err
+	}
+	return ocr.Body, webpUrl, nil
+}
+
+func downloadHtml(downloadUrl string) (string, *goquery.Document, error) {
+	slog.Info("downloading html", "url", downloadUrl)
+	doc, err := fetch.DownloadHtml(downloadUrl)
+	if err != nil {
+		return "", &goquery.Document{}, err
+	}
+	return doc.Text(), doc, nil
+}
+
+func parseDescription(config *Configuration, content string, doc *goquery.Document) string {
+	description := ""
+	if strings.Compare(config.Menu.Description.Regex, "") != 0 {
+		descriptionExpr := regexp.MustCompile(replacePlaceholder(config.Menu.Description.Regex))
+		description = descriptionExpr.FindString(content)
+	} else if strings.Compare(config.Menu.Description.JQuery, "") != 0 {
+		if strings.Compare(config.Menu.Description.Attribute, "") == 0 {
+			description = doc.Find(replacePlaceholder(config.Menu.Description.JQuery)).First().Text()
+		} else {
+			description, _ = doc.Find(replacePlaceholder(config.Menu.Description.JQuery)).First().Attr(config.Menu.Description.Attribute)
+		}
+	}
+	return description
+}
+
+func saveContentAsFile(id string, content string) error {
+	folder := fetch.DownloadLocation + id
+	os.MkdirAll(folder, os.ModePerm)
+	err := os.WriteFile(folder+"/text.txt", []byte(content), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
 }

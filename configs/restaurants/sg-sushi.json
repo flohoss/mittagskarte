@@ -1,9 +1,16 @@
 {
-  "description_regex": "Mittag.+?von.+?bis.*",
-  "food_regex": "M\\d\\.?\\s?(.*)\\s.+?(\\w.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?EUR",
-  "positions": {
-    "name": 1,
-    "price": 3,
-    "description": 2
+  "restaurant": {
+    "id": "sg-sushi",
+    "name": "SG Sushi",
+    "page_url": "https://sg-sushi.de/mittagstisch/index.php",
+    "street": "Feuerbacher-Tal-Straße",
+    "street_number": "1",
+    "zip_code": "70469",
+    "city": "Stuttgart-Feuerbach",
+    "latitude": 48.80844745582471,
+    "longitude": 9.157192535139712,
+    "rest_day": [0, 6],
+    "phone": "+49 711 80674572",
+    "group": 3
   }
 }

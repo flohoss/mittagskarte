@@ -1,11 +1,32 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "hoflieferant-munz",
+    "name": "Munz",
+    "page_url": "https://www.hoflieferant-munz.de/aktuelles",
+    "street": "Stuttgarter Straße",
+    "street_number": "23",
+    "zip_code": "70469",
+    "city": "Stuttgart-Feuerbach",
+    "latitude": 48.810595643895155,
+    "longitude": 9.165437084289135,
+    "rest_day": [0, 6],
+    "phone": "+49 711 36591400",
+    "group": 3
+  },
+  "retrieve_download_url": [
     {
       "jquery": "a:contains('Download pdf')",
       "attribute": "href"
     }
   ],
-  "download_prefix": "https://www.hoflieferant-munz.de/",
-  "description_regex": "\\d{1,2}\\.\\s?\\-\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}",
-  "trim_image_edges": true
+  "download": {
+    "is_file": true,
+    "prefix": "https://www.hoflieferant-munz.de/",
+    "trim_edges": true
+  },
+  "menu": {
+    "description": {
+      "regex": "\\d{1,2}\\.\\s?\\-\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}"
+    }
+  }
 }

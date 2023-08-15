@@ -1,10 +1,16 @@
 {
-  "description_regex": "Wochenkarte\\s?vom.+?bis.+?\\d{4}",
-  "food_regex": "(MONTAG|DIENSTAG|MITTWOCH|DONNERSTAG|FREITAG)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?€[.\\s]+?(\\w.*)",
-  "max_food": 5,
-  "positions": {
-    "name": 3,
-    "day": 1,
-    "price": 2
+  "restaurant": {
+    "id": "sw34",
+    "name": "SW34",
+    "page_url": "https://sw34.restaurant/essen-trinken/",
+    "street": "Schelmenwasenstraße",
+    "street_number": "34",
+    "zip_code": "70567",
+    "city": "Stuttgart-Fasanenhof",
+    "latitude": 48.70799627023862,
+    "longitude": 9.1695723175327,
+    "rest_day": [0, 6],
+    "phone": "+49 711 62042252",
+    "group": 1
   }
 }

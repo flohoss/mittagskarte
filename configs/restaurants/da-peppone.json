@@ -1,15 +1,30 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "da-peppone",
+    "name": "Da Peppone",
+    "page_url": "https://dapeppone-restaurant.de/",
+    "street": "Bopseräcker",
+    "street_number": "1",
+    "zip_code": "70597",
+    "city": "Stuttgart-Degerloch",
+    "latitude": 48.7333860132231,
+    "longitude": 9.168711897889501,
+    "rest_day": [0, 1, 6],
+    "phone": "+49 711 78784911",
+    "group": 1
+  },
+  "retrieve_download_url": [
     {
-      "jquery": "a:contains('Mittagskarte')",
+      "jquery": "a:contains('Mittagskarte vom')",
       "attribute": "href"
     }
   ],
-  "description_regex": "Mittagskarte\\s?vom.+?bis.*",
-  "description_in_html": true,
-  "food_regex": "Gericht\\s?.{1,5}\\s(.*\\s.*)\\s?€\\s?(\\d{1,2}\\,\\d{1,2})",
-  "positions": {
-    "name": 1,
-    "price": 2
+  "download": {
+    "is_file": true
+  },
+  "menu": {
+    "description": {
+      "jquery": "a:contains('Mittagskarte vom')"
+    }
   }
 }

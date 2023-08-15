@@ -1,9 +1,16 @@
 {
-  "description_regex": "Tagesessen",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*\\s(.+)\\s(\\d{1,3},\\d{2})€",
-  "positions": {
-    "name": 2,
-    "day": 1,
-    "price": 3
+  "restaurant": {
+    "id": "benz",
+    "name": "Benz",
+    "page_url": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
+    "street": "Hirschstraße",
+    "street_number": "18",
+    "zip_code": "73257",
+    "city": "Köngen",
+    "latitude": 48.68396263959295,
+    "longitude": 9.362366408284398,
+    "rest_day": [0, 6],
+    "phone": "+49 7024 81488",
+    "group": 2
   }
 }

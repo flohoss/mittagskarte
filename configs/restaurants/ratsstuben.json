@@ -1,15 +1,30 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "ratsstuben",
+    "name": "Ratsstuben",
+    "page_url": "https://ratsstuben.de/wochenkarte/",
+    "street": "Bernhäuser Straße",
+    "street_number": "16",
+    "zip_code": "70771",
+    "city": "Leinfelden-Echterdingen",
+    "latitude": 48.68823623924175,
+    "longitude": 9.16919593566195,
+    "rest_day": [0, 6],
+    "phone": "+49 711 791725",
+    "group": 1
+  },
+  "retrieve_download_url": [
     {
       "jquery": "div > p > a",
       "attribute": "href"
     }
   ],
-  "description_regex": "Von Montag.+?Freitag.+?\\d{4}",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s{1,3}((?:\\w.*\\s){2,3})",
-  "fix_price": 12.5,
-  "positions": {
-    "name": 2,
-    "day": 1
+  "download": {
+    "is_file": true
+  },
+  "menu": {
+    "description": {
+      "regex": "Montag.+?Freitag.+?\\d{4}"
+    }
   }
 }

@@ -1,10 +1,31 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "linde",
+    "name": "Linde",
+    "page_url": "https://www.gasthauslinde.de/Mittagstisch",
+    "street": "Wasserburgstraße",
+    "street_number": "3",
+    "zip_code": "72622",
+    "city": "Nürtingen-Zizishausen",
+    "latitude": 48.641688982054845,
+    "longitude": 9.347466800930759,
+    "rest_day": [0, 1, 6],
+    "phone": "+49 7022 62306",
+    "group": 2
+  },
+  "retrieve_download_url": [
     {
       "jquery": "td:contains('%month%') > a",
       "attribute": "href"
     }
   ],
-  "download_prefix": "https://www.gasthauslinde.de",
-  "description_regex": "%month%\\s?\\d{1,4}"
+  "download": {
+    "is_file": true,
+    "prefix": "https://www.gasthauslinde.de"
+  },
+  "menu": {
+    "description": {
+      "regex": "%month%\\s?\\d{1,4}"
+    }
+  }
 }

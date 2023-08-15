@@ -1,5 +1,19 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "paulaner",
+    "name": "Paulaner",
+    "page_url": "https://paulaner-le.de/speisen-getraenke/mittagstisch.html",
+    "street": "Burgstraße",
+    "street_number": "4",
+    "zip_code": "70771",
+    "city": "Leinfelden-Echterdingen",
+    "latitude": 48.68905406629845,
+    "longitude": 9.169774230976934,
+    "rest_day": [0, 1, 6],
+    "phone": "+49 711 7944180",
+    "group": 1
+  },
+  "retrieve_download_url": [
     {
       "jquery": "a:contains('Zum Mittagsangebot')",
       "attribute": "href"
@@ -9,10 +23,12 @@
       "attribute": "src"
     }
   ],
-  "description_regex": "\\d{1,2}\\.?\\s?Juni\\s?bis\\s?\\d{1,2}\\.?\\s?Juni\\s\\d{2,4}",
-  "food_regex": "(?:\\s\\s)(.*\\s.*\\s.*\\s)€\\s?(\\d{1,2}\\,\\d{1,2})",
-  "positions": {
-    "name": 1,
-    "price": 2
+  "download": {
+    "is_file": true
+  },
+  "menu": {
+    "description": {
+      "regex": "\\d{1,2}\\.?\\s?Juni\\s?bis\\s?\\d{1,2}\\.?\\s?Juni\\s\\d{2,4}"
+    }
   }
 }
