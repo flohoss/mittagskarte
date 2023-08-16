@@ -18,10 +18,8 @@ require (
 	github.com/otiai10/gosseract/v2 v2.4.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/zap v1.25.0
 	golang.org/x/image v0.11.0
 	gorm.io/gorm v1.25.2
-	moul.io/zapgorm2 v1.3.0
 )
 
 require (
@@ -69,7 +67,6 @@ require (
 	github.com/tkrajina/gpxgo v1.3.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect

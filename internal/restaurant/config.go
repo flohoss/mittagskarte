@@ -10,7 +10,7 @@ import (
 const ConfigLocation = "configs/restaurants/"
 
 func parseConfig(path string) (Configuration, error) {
-	slog.Info("parsing config", "path", path)
+	slog.Debug("parsing config", "path", path)
 	var config Configuration
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -20,7 +20,7 @@ func parseConfig(path string) (Configuration, error) {
 	if err != nil {
 		return config, err
 	}
-	slog.Info("config successfully parsed", "path", path)
+	slog.Debug("config successfully parsed", "path", path)
 	return config, nil
 }
 

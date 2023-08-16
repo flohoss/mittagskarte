@@ -46,7 +46,7 @@ func posInArray(str string, arr []string) int {
 }
 
 func (r *Restaurant) Update() (Card, error) {
-	slog.Info("updating restaurant", "name", r.Name)
+	slog.Debug("updating restaurant", "name", r.Name)
 	card := Card{RestaurantID: r.ID}
 	config, err := parseConfig(ConfigLocation + r.ID + ".json")
 	if err != nil {
@@ -91,7 +91,7 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 	if len(config.RetrieveDownloadUrl) > 0 {
 		doc := &goquery.Document{}
 		for _, d := range config.RetrieveDownloadUrl {
-			slog.Info("navigating to page", "page", downloadUrl)
+			slog.Debug("navigating to page", "page", downloadUrl)
 			var err error
 			doc, err = fetch.DownloadHtml(downloadUrl)
 			if err != nil {
@@ -103,7 +103,7 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 				return "", doc, errors.New("cannot navigate")
 			}
 		}
-		slog.Info("found final url", "url", downloadUrl)
+		slog.Debug("found final url", "url", downloadUrl)
 		return downloadUrl, doc, nil
 	}
 	return downloadUrl, nil, nil
@@ -114,7 +114,7 @@ func downloadFile(id string, config *Configuration, downloadUrl string) (string,
 	if err != nil {
 		return "", "", err
 	}
-	slog.Info("scanning file", "path", imageURL)
+	slog.Debug("scanning file", "path", imageURL)
 	ocr, err := docconv.ConvertPath(imageURL)
 	if err != nil {
 		return "", "", err
@@ -138,11 +138,11 @@ func parseDescription(config *Configuration, content string, doc *goquery.Docume
 	description := ""
 	if config.Menu.Description.Regex != "" {
 		replaced := replacePlaceholder(config.Menu.Description.Regex)
-		slog.Info("description from regex", "regex", replaced)
+		slog.Debug("description from regex", "regex", replaced)
 		descriptionExpr := regexp.MustCompile(replaced)
 		description = descriptionExpr.FindString(content)
 	} else if config.Menu.Description.JQuery != "" {
-		slog.Info("description from jquery", "jquery", config.Menu.Description.JQuery)
+		slog.Debug("description from jquery", "jquery", config.Menu.Description.JQuery)
 		if config.Menu.Description.Attribute == "" {
 			description = doc.Find(config.Menu.Description.JQuery).First().Text()
 		} else {
@@ -152,6 +152,9 @@ func parseDescription(config *Configuration, content string, doc *goquery.Docume
 				return "", errors.New("cannot find jquery")
 			}
 		}
+	} else if config.Menu.Description.Fixed != "" {
+		slog.Debug("description fixed", "fixed", config.Menu.Description.Fixed)
+		return config.Menu.Description.Fixed, nil
 	}
 	return description, nil
 }

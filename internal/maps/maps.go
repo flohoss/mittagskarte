@@ -2,11 +2,11 @@ package maps
 
 import (
 	"image/color"
+	"log/slog"
 
 	sm "github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
 	"github.com/golang/geo/s2"
-	"go.uber.org/zap"
 )
 
 func CreateMap(lat float64, lng float64, folder string) {
@@ -23,11 +23,11 @@ func CreateMap(lat float64, lng float64, folder string) {
 
 	img, err := ctx.Render()
 	if err != nil {
-		zap.L().Error(err.Error())
+		slog.Error("cannot render map", "err", err)
 	}
 
 	old := folder + "/map.jpg"
 	if err := gg.SaveJPG(old, img, 70); err != nil {
-		zap.L().Error(err.Error())
+		slog.Error("cannot save map", "err", err)
 	}
 }

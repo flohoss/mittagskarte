@@ -1,33 +1,22 @@
 package logging
 
 import (
-	"time"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"log/slog"
+	"os"
 )
 
-func CreateLogger(logLevel string) *zap.Logger {
-	encoderCfg := zap.NewProductionEncoderConfig()
-	encoderCfg.TimeKey = "time"
-	encoderCfg.EncodeTime = zapcore.TimeEncoderOfLayout(time.StampMilli)
-
-	level := zap.NewAtomicLevelAt(zap.InfoLevel)
-	zapLevel, err := zap.ParseAtomicLevel(logLevel)
-	if err == nil {
-		level = zapLevel
+func CreateLogger(logLevel string) *slog.Logger {
+	level := slog.LevelInfo
+	switch logLevel {
+	case "debug":
+		level = slog.LevelDebug
+	case "warn":
+		level = slog.LevelWarn
+	case "error":
+		level = slog.LevelError
 	}
-
-	config := zap.Config{
-		Level:             level,
-		Development:       false,
-		DisableCaller:     false,
-		DisableStacktrace: false,
-		Sampling:          nil,
-		Encoding:          "json",
-		EncoderConfig:     encoderCfg,
-		OutputPaths:       []string{"stdout"},
-		ErrorOutputPaths:  []string{"stderr"},
-	}
-	return zap.Must(config.Build())
+	opts := &slog.HandlerOptions{Level: level}
+	handler := slog.NewJSONHandler(os.Stdout, opts)
+	logger := slog.New(handler)
+	return logger
 }

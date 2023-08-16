@@ -1,12 +1,12 @@
 package controller
 
 import (
+	"log/slog"
 	"math/rand"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/internal/restaurant"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +40,7 @@ func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 		go func() {
 			card, err := result.Update()
 			if err != nil {
-				zap.L().Error(err.Error())
+				slog.Error("cannot update restaurant", "err", err)
 			} else {
 				c.orm.Create(&card)
 			}
@@ -57,7 +57,7 @@ func (c *Controller) UpdateAllRestaurants() {
 	for _, r := range restaurants {
 		card, err := r.Update()
 		if err != nil {
-			zap.L().Error(err.Error())
+			slog.Error("cannot update all restaurants", "err", err)
 		} else {
 			cards = append(cards, card)
 		}

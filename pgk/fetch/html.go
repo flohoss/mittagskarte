@@ -9,7 +9,7 @@ import (
 )
 
 func DownloadHtml(url string) (*goquery.Document, error) {
-	slog.Info("downloading html", "url", url)
+	slog.Debug("downloading html", "url", url)
 	doc := &goquery.Document{}
 	res, err := http.Get(url)
 	if err != nil {

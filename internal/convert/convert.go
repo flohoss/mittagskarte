@@ -25,12 +25,12 @@ func ConvertPdfToWebp(fileLocation string, resultName string, dpi string, trim b
 		args = []string{"-trim"}
 	}
 	args = append(args, []string{"-strip", "-density", dpi, "-alpha", "Remove", fileLocation, "-quality", "90", result}...)
-	slog.Info("converting pdf to webp", "path", fileLocation, "command", args)
+	slog.Debug("converting pdf to webp", "path", fileLocation, "command", args)
 	out, err := exec.Command(app, args...).CombinedOutput()
 	if err != nil {
 		return "", errors.New(string(out))
 	}
 	os.Remove(fileLocation)
-	slog.Info("file successfully converted", "path", result)
+	slog.Debug("file successfully converted", "path", result)
 	return result, nil
 }
