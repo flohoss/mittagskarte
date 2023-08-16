@@ -28,7 +28,7 @@
   },
   "menu": {
     "description": {
-      "regex": "\\d{1,2}\\.?\\s?Juni\\s?bis\\s?\\d{1,2}\\.?\\s?Juni\\s\\d{2,4}"
+      "regex": "\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}\\.?\\s?%month%\\s\\d{2,4}"
     }
   }
 }

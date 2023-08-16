@@ -52,33 +52,44 @@ func (r *Restaurant) Update() (Card, error) {
 	if err != nil {
 		return card, err
 	}
-	downloadUrl, doc, err := getFinalDownloadUrl(&config, r.PageURL)
 
-	content, img, doc, err := downloadFileOrHtml(r.ID, &config, downloadUrl)
+	downloadUrl, doc, err := getFinalDownloadUrl(&config, r.PageURL)
 	if err != nil {
 		return card, err
 	}
-	card.ImageURL = img
 
-	parseDescription(&config, content, doc)
+	var content string
+	if config.Download.IsFile {
+		content, card.ImageURL, err = downloadFile(r.ID, &config, downloadUrl)
+	} else {
+		content, doc, err = downloadHtml(downloadUrl)
+	}
+	if err != nil {
+		return card, err
+	}
 	saveContentAsFile(r.ID, content)
+
+	card.Description, err = parseDescription(&config, content, doc)
+	if err != nil {
+		return card, err
+	}
 	return card, nil
 }
 
 func replacePlaceholder(input string) string {
 	if strings.Contains(input, "%KW%") {
 		_, weekNr := time.Now().ISOWeek()
-		return strings.Replace(input, "%KW%", fmt.Sprintf("%d", weekNr), 1)
+		return strings.Replace(input, "%KW%", fmt.Sprintf("%d", weekNr), -1)
 	}
 	if strings.Contains(input, "%month%") {
-		return strings.Replace(input, "%month%", monday.Format(time.Now(), "January", monday.LocaleDeDE), 1)
+		return strings.Replace(input, "%month%", monday.Format(time.Now(), "January", monday.LocaleDeDE), -1)
 	}
 	return input
 }
 
 func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *goquery.Document, error) {
-	doc := &goquery.Document{}
 	if len(config.RetrieveDownloadUrl) > 0 {
+		doc := &goquery.Document{}
 		for _, d := range config.RetrieveDownloadUrl {
 			slog.Info("navigating to page", "page", downloadUrl)
 			var err error
@@ -92,22 +103,10 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 				return "", doc, errors.New("cannot navigate")
 			}
 		}
+		slog.Info("found final url", "url", downloadUrl)
+		return downloadUrl, doc, nil
 	}
-	slog.Info("found final url", "url", downloadUrl)
-	return downloadUrl, doc, nil
-}
-
-func downloadFileOrHtml(id string, config *Configuration, downloadUrl string) (string, string, *goquery.Document, error) {
-	content, img := "", ""
-	doc := &goquery.Document{}
-	var err error
-
-	if config.Download.IsFile {
-		content, img, err = downloadFile(id, config, downloadUrl)
-	} else {
-		content, doc, err = downloadHtml(downloadUrl)
-	}
-	return content, img, doc, err
+	return downloadUrl, nil, nil
 }
 
 func downloadFile(id string, config *Configuration, downloadUrl string) (string, string, error) {
@@ -120,35 +119,41 @@ func downloadFile(id string, config *Configuration, downloadUrl string) (string,
 	if err != nil {
 		return "", "", err
 	}
-	webpUrl, err := convert.ConvertPdfToWebp(imageURL, id, "300", config.Download.TrimEdges)
+	imageURL, err = convert.ConvertPdfToWebp(imageURL, id, "300", config.Download.TrimEdges)
 	if err != nil {
 		return "", "", err
 	}
-	return ocr.Body, webpUrl, nil
+	return ocr.Body, imageURL, nil
 }
 
 func downloadHtml(downloadUrl string) (string, *goquery.Document, error) {
-	slog.Info("downloading html", "url", downloadUrl)
 	doc, err := fetch.DownloadHtml(downloadUrl)
 	if err != nil {
-		return "", &goquery.Document{}, err
+		return "", doc, err
 	}
 	return doc.Text(), doc, nil
 }
 
-func parseDescription(config *Configuration, content string, doc *goquery.Document) string {
+func parseDescription(config *Configuration, content string, doc *goquery.Document) (string, error) {
 	description := ""
-	if strings.Compare(config.Menu.Description.Regex, "") != 0 {
-		descriptionExpr := regexp.MustCompile(replacePlaceholder(config.Menu.Description.Regex))
+	if config.Menu.Description.Regex != "" {
+		replaced := replacePlaceholder(config.Menu.Description.Regex)
+		slog.Info("description from regex", "regex", replaced)
+		descriptionExpr := regexp.MustCompile(replaced)
 		description = descriptionExpr.FindString(content)
-	} else if strings.Compare(config.Menu.Description.JQuery, "") != 0 {
-		if strings.Compare(config.Menu.Description.Attribute, "") == 0 {
-			description = doc.Find(replacePlaceholder(config.Menu.Description.JQuery)).First().Text()
+	} else if config.Menu.Description.JQuery != "" {
+		slog.Info("description from jquery", "jquery", config.Menu.Description.JQuery)
+		if config.Menu.Description.Attribute == "" {
+			description = doc.Find(config.Menu.Description.JQuery).First().Text()
 		} else {
-			description, _ = doc.Find(replacePlaceholder(config.Menu.Description.JQuery)).First().Attr(config.Menu.Description.Attribute)
+			present := false
+			description, present = doc.Find(config.Menu.Description.JQuery).First().Attr(config.Menu.Description.Attribute)
+			if !present {
+				return "", errors.New("cannot find jquery")
+			}
 		}
 	}
-	return description
+	return description, nil
 }
 
 func saveContentAsFile(id string, content string) error {

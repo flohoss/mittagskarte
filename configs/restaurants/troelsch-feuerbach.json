@@ -12,5 +12,19 @@
     "rest_day": [0, 6],
     "phone": "+49 711 85680030",
     "group": 3
+  },
+  "retrieve_download_url": [
+    {
+      "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
+      "attribute": "href"
+    }
+  ],
+  "download": {
+    "is_file": true
+  },
+  "menu": {
+    "description": {
+      "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+    }
   }
 }

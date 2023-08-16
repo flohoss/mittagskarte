@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,7 +17,6 @@ func init() {
 }
 
 func DownloadFile(id string, fullUrl string) (string, error) {
-	slog.Info("downloading file", "path", fullUrl)
 	fileURL, err := url.Parse(fullUrl)
 	if err != nil {
 		return "", err
@@ -53,6 +51,5 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 		return "", err
 	}
 	defer file.Close()
-	slog.Info("file downloaded", "path", fileName)
 	return fileName, nil
 }
