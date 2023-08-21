@@ -2,19 +2,16 @@ package restaurant
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"regexp"
-	"strings"
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/goodsign/monday"
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -49,59 +46,26 @@ func (r *Restaurant) Update() (Card, error) {
 		return card, err
 	}
 
-	var content string
+	var content []string
 	if config.Download.IsFile {
 		content, card.ImageURL, err = downloadFile(r.ID, &config, downloadUrl)
 	} else {
-		content, doc, err = downloadHtml(downloadUrl)
+		content, doc, err = downloadHtml(r.ID, downloadUrl)
 	}
 	if err != nil {
 		return card, err
 	}
-	saveContentAsFile(r.ID, content)
 
-	card.Description, err = parseDescription(&config, &content, doc)
-	if err != nil {
-		return card, err
-	}
-
-	var allFood []Food
-	if config.Menu.OneForAll.Regex != "" {
-		foodRegex := regexp.MustCompile(replacePlaceholder(config.Menu.OneForAll.Regex))
-		regexResult := foodRegex.FindAllStringSubmatch(content, -1)
-		for _, r := range regexResult {
-			var f Food
-			if config.Menu.OneForAll.PositionFood > 0 {
-				f.Name = strings.ReplaceAll(strings.TrimSpace(r[config.Menu.OneForAll.PositionFood]), "\n", " ")
-			}
-			if config.Menu.OneForAll.PositionDay > 0 {
-				caser := cases.Title(language.German)
-				f.Day = caser.String(r[config.Menu.OneForAll.PositionDay])
-				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
-				if pos >= 0 {
-					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
-				}
-			}
-			if config.Menu.OneForAll.PositionPrice > 0 {
-				f.Price = convertPrice(r[config.Menu.OneForAll.PositionPrice])
-			}
-			if config.Menu.OneForAll.PositionDescription > 0 {
-				f.Description = r[config.Menu.OneForAll.PositionDescription]
-			}
-
-		}
-	} else {
-		for _, f := range config.Menu.Food {
-			allFood = append(allFood, Food{
-				Name:        f.getName(&content),
-				Day:         f.getDay(&content),
-				Price:       f.getPrice(&content),
-				Description: f.getDescription(&content),
-			})
+	if len(content) > 0 {
+		card.Description, err = parseDescription(&config, &content[0], doc)
+		if err != nil {
+			return card, err
 		}
 	}
-	card.Food = allFood
 
+	for _, c := range content {
+		card.Food = append(card.Food, config.getAllFood(&c)...)
+	}
 	return card, nil
 }
 
@@ -127,29 +91,49 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 	return downloadUrl, nil, nil
 }
 
-func downloadFile(id string, config *Configuration, downloadUrl string) (string, string, error) {
+func downloadFile(id string, config *Configuration, downloadUrl string) ([]string, string, error) {
+	var content []string
 	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl)
 	if err != nil {
-		return "", "", err
+		return content, "", err
 	}
 	slog.Debug("scanning file", "path", imageURL)
-	ocr, err := docconv.ConvertPath(imageURL)
-	if err != nil {
-		return "", "", err
+	if len(config.Download.Cropping) != 0 {
+		for i, c := range config.Download.Cropping {
+			res, err := convert.CutPdf(imageURL, fmt.Sprintf("%s-%d", id, i), c)
+			if err != nil {
+				continue
+			}
+			ocr, err := docconv.ConvertPath(res)
+			if err != nil {
+				continue
+			}
+			os.Remove(res)
+			saveContentAsFile(id, fmt.Sprintf("%d", i), ocr.Body)
+			content = append(content, ocr.Body)
+		}
+	} else {
+		ocr, err := docconv.ConvertPath(imageURL)
+		if err != nil {
+			return content, "", err
+		}
+		saveContentAsFile(id, "", ocr.Body)
+		content = append(content, ocr.Body)
 	}
 	imageURL, err = convert.ConvertPdfToWebp(imageURL, id, "300", config.Download.TrimEdges)
 	if err != nil {
-		return "", "", err
+		return content, "", err
 	}
-	return ocr.Body, imageURL, nil
+	return content, imageURL, nil
 }
 
-func downloadHtml(downloadUrl string) (string, *goquery.Document, error) {
+func downloadHtml(id string, downloadUrl string) ([]string, *goquery.Document, error) {
 	doc, err := fetch.DownloadHtml(downloadUrl)
 	if err != nil {
-		return "", doc, err
+		return []string{}, doc, err
 	}
-	return doc.Text(), doc, nil
+	saveContentAsFile(id, "", doc.Text())
+	return []string{doc.Text()}, doc, nil
 }
 
 func parseDescription(config *Configuration, content *string, doc *goquery.Document) (string, error) {
@@ -177,10 +161,10 @@ func parseDescription(config *Configuration, content *string, doc *goquery.Docum
 	return description, nil
 }
 
-func saveContentAsFile(id string, content string) error {
+func saveContentAsFile(id string, suffix string, content string) error {
 	folder := fetch.DownloadLocation + id
 	os.MkdirAll(folder, os.ModePerm)
-	err := os.WriteFile(folder+"/text.txt", []byte(content), os.ModePerm)
+	err := os.WriteFile(fmt.Sprintf("%s/%s-%s.txt", folder, id, suffix), []byte(content), os.ModePerm)
 	if err != nil {
 		return err
 	}

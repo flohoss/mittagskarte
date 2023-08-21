@@ -34,3 +34,17 @@ func ConvertPdfToWebp(fileLocation string, resultName string, dpi string, trim b
 	slog.Debug("file successfully converted", "path", result)
 	return result, nil
 }
+
+func CutPdf(fileLocation string, resultName string, cropping string) (string, error) {
+	dir := filepath.Dir(fileLocation)
+	result := fmt.Sprintf("%s/%s.pdf", dir, resultName)
+	app := "convert"
+	args := []string{"-crop", cropping, fileLocation, result}
+	slog.Debug("cropping pdf", "path", fileLocation, "command", args)
+	out, err := exec.Command(app, args...).CombinedOutput()
+	if err != nil {
+		return "", errors.New(string(out))
+	}
+	slog.Debug("file successfully cropped", "path", result)
+	return result, nil
+}

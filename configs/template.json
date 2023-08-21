@@ -21,7 +21,8 @@
   "download": {
     "is_file": false,
     "prefix": "",
-    "trim_edges": false
+    "trim_edges": false,
+    "cropping": [""]
   },
   "menu": {
     "description": {

@@ -62,9 +62,10 @@ type Retrieve struct {
 }
 
 type Download struct {
-	IsFile    bool   `json:"is_file"`
-	Prefix    string `json:"prefix"`
-	TrimEdges bool   `json:"trim_edges"`
+	IsFile    bool     `json:"is_file"`
+	Prefix    string   `json:"prefix"`
+	TrimEdges bool     `json:"trim_edges"`
+	Cropping  []string `json:"cropping"`
 }
 
 type FoodEntry struct {
