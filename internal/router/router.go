@@ -3,7 +3,6 @@ package router
 import (
 	"net/http"
 
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gitlab.unjx.de/flohoss/mittag/internal/controller"
@@ -18,7 +17,6 @@ func InitRouter() *echo.Echo {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(echo.WrapMiddleware(chiMiddleware.Heartbeat("/health")))
 
 	e.Renderer = initTemplates()
 
