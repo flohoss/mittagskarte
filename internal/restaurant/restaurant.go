@@ -2,16 +2,12 @@ package restaurant
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"os"
 	"regexp"
-	"strings"
-	"time"
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/goodsign/monday"
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
@@ -34,15 +30,6 @@ func GetRestaurants(orm *gorm.DB) []Restaurant {
 		return db.Order("id")
 	}).Order("name").Find(&result)
 	return result
-}
-
-func posInArray(str string, arr []string) int {
-	for i, s := range arr {
-		if s == str {
-			return i
-		}
-	}
-	return -1
 }
 
 func (r *Restaurant) Update() (Card, error) {
@@ -69,22 +56,23 @@ func (r *Restaurant) Update() (Card, error) {
 	}
 	saveContentAsFile(r.ID, content)
 
-	card.Description, err = parseDescription(&config, content, doc)
+	card.Description, err = parseDescription(&config, &content, doc)
 	if err != nil {
 		return card, err
 	}
-	return card, nil
-}
 
-func replacePlaceholder(input string) string {
-	if strings.Contains(input, "%KW%") {
-		_, weekNr := time.Now().ISOWeek()
-		return strings.Replace(input, "%KW%", fmt.Sprintf("%d", weekNr), -1)
+	var allFood []Food
+	for _, f := range config.Menu.Food {
+		allFood = append(allFood, Food{
+			Name:        f.getName(&content),
+			Day:         f.getDay(&content),
+			Price:       f.getPrice(&content),
+			Description: f.getDescription(&content),
+		})
 	}
-	if strings.Contains(input, "%month%") {
-		return strings.Replace(input, "%month%", monday.Format(time.Now(), "January", monday.LocaleDeDE), -1)
-	}
-	return input
+	card.Food = allFood
+
+	return card, nil
 }
 
 func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *goquery.Document, error) {
@@ -134,13 +122,13 @@ func downloadHtml(downloadUrl string) (string, *goquery.Document, error) {
 	return doc.Text(), doc, nil
 }
 
-func parseDescription(config *Configuration, content string, doc *goquery.Document) (string, error) {
+func parseDescription(config *Configuration, content *string, doc *goquery.Document) (string, error) {
 	description := ""
 	if config.Menu.Description.Regex != "" {
 		replaced := replacePlaceholder(config.Menu.Description.Regex)
 		slog.Debug("description from regex", "regex", replaced)
 		descriptionExpr := regexp.MustCompile(replaced)
-		description = descriptionExpr.FindString(content)
+		description = descriptionExpr.FindString(*content)
 	} else if config.Menu.Description.JQuery != "" {
 		slog.Debug("description from jquery", "jquery", config.Menu.Description.JQuery)
 		if config.Menu.Description.Attribute == "" {

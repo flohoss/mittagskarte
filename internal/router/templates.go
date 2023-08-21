@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io"
 	"os"
@@ -40,9 +39,7 @@ func templateString(files []string) []string {
 }
 
 func isToday(food restaurant.Food) bool {
-	expr := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|alternativ|oder`,
-		monday.Format(time.Now(), "Monday", monday.LocaleDeDE),
-	))
+	expr := regexp.MustCompile(monday.Format(time.Now(), "Monday", monday.LocaleDeDE))
 	if food.Day == "" {
 		return true
 	}

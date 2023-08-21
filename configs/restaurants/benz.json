@@ -14,8 +14,58 @@
     "group": 2
   },
   "menu": {
-    "description": {
-      "fixed": "Tagesessen"
-    }
+    "description": { "fixed": "Tagesessen" },
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "regex": "Montag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*(.*)" },
+        "price": { "regex": "Montag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Montag (Vegetarisch)" },
+        "food": { "regex": "Vegetarisch:(.*)" },
+        "price": { "regex": "Vegetarisch:.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Dienstag" },
+        "food": { "regex": "Dienstag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*(.*)" },
+        "price": { "regex": "Dienstag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Dienstag (Vegetarisch)" },
+        "food": { "regex": "Vegetarisch:(.*)" },
+        "price": { "regex": "Vegetarisch:.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "regex": "Mittwoch(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*(.*)" },
+        "price": { "regex": "Mittwoch(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Mittwoch (Vegetarisch)" },
+        "food": { "regex": "Vegetarisch:(.*)" },
+        "price": { "regex": "Vegetarisch:.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "regex": "Donnerstag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*(.*)" },
+        "price": { "regex": "Donnerstag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Donnerstag (Vegetarisch)" },
+        "food": { "regex": "Vegetarisch:(.*)" },
+        "price": { "regex": "Vegetarisch:.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "food": { "regex": "Freitag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*(.*)" },
+        "price": { "regex": "Freitag(?:\\d{1,2}\\.?){2}\\d{1,4}\\s*.*\\s*(.*)\\s?€" }
+      },
+      {
+        "day": { "fixed": "Freitag (Vegetarisch)" },
+        "food": { "regex": "Vegetarisch:(.*)" },
+        "price": { "regex": "Vegetarisch:.*\\s*(.*)\\s?€" }
+      }
+    ]
   }
 }
