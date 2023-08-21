@@ -5,12 +5,16 @@ import (
 	"log/slog"
 	"os"
 	"regexp"
+	"strings"
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/goodsign/monday"
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -62,13 +66,39 @@ func (r *Restaurant) Update() (Card, error) {
 	}
 
 	var allFood []Food
-	for _, f := range config.Menu.Food {
-		allFood = append(allFood, Food{
-			Name:        f.getName(&content),
-			Day:         f.getDay(&content),
-			Price:       f.getPrice(&content),
-			Description: f.getDescription(&content),
-		})
+	if config.Menu.OneForAll.Regex != "" {
+		foodRegex := regexp.MustCompile(replacePlaceholder(config.Menu.OneForAll.Regex))
+		regexResult := foodRegex.FindAllStringSubmatch(content, -1)
+		for _, r := range regexResult {
+			var f Food
+			if config.Menu.OneForAll.PositionFood > 0 {
+				f.Name = strings.ReplaceAll(strings.TrimSpace(r[config.Menu.OneForAll.PositionFood]), "\n", " ")
+			}
+			if config.Menu.OneForAll.PositionDay > 0 {
+				caser := cases.Title(language.German)
+				f.Day = caser.String(r[config.Menu.OneForAll.PositionDay])
+				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
+				if pos >= 0 {
+					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
+				}
+			}
+			if config.Menu.OneForAll.PositionPrice > 0 {
+				f.Price = convertPrice(r[config.Menu.OneForAll.PositionPrice])
+			}
+			if config.Menu.OneForAll.PositionDescription > 0 {
+				f.Description = r[config.Menu.OneForAll.PositionDescription]
+			}
+
+		}
+	} else {
+		for _, f := range config.Menu.Food {
+			allFood = append(allFood, Food{
+				Name:        f.getName(&content),
+				Day:         f.getDay(&content),
+				Price:       f.getPrice(&content),
+				Description: f.getDescription(&content),
+			})
+		}
 	}
 	card.Food = allFood
 

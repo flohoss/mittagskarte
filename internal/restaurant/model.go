@@ -74,9 +74,18 @@ type FoodEntry struct {
 	Description Selector `json:"description"`
 }
 
+type OneForAll struct {
+	Regex               string `json:"regex"`
+	PositionDay         uint8  `json:"pos_day"`
+	PositionFood        uint8  `json:"pos_food"`
+	PositionPrice       uint8  `json:"pos_price"`
+	PositionDescription uint8  `json:"pos_description"`
+}
+
 type Menu struct {
 	Description Selector    `json:"description"`
 	Food        []FoodEntry `json:"food"`
+	OneForAll   OneForAll   `json:"one_for_all"`
 }
 
 type Configuration struct {

@@ -74,9 +74,11 @@
                 <div class="font-bold text-lg">{{ .Name }}</div>
                 {{ if .Description }}<div class="text-sm">{{ .Description }}</div>{{ end }}
               </div>
-              {{ $price := printf "%.2f" .Price }}
-              {{ $price := $price | replace "." "," }}
-              <div class="price badge badge-lg badge-primary whitespace-nowrap">{{ $price }} €</div>
+              {{ if .Price }}
+                {{ $price := printf "%.2f" .Price }}
+                {{ $price := $price | replace "." "," }}
+                <div class="price badge badge-lg badge-primary whitespace-nowrap">{{ $price }} €</div>
+              {{ end }}
             </div>
           {{ end }}
         </div>

@@ -30,6 +30,13 @@
       "attribute": "",
       "fixed": ""
     },
+    "one_for_all": {
+      "regex": "",
+      "pos_day": 0,
+      "pos_food": 0,
+      "pos_price": 0,
+      "pos_description": 0
+    },
     "food": [
       {
         "day": {

@@ -12,5 +12,30 @@
     "rest_day": [0, 6],
     "phone": "+49 711 99772624",
     "group": 1
+  },
+  "menu": {
+    "description": { "regex": "Tageskarte.*" },
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "regex": "Montag\\s?([a-zA-Z].*)" }
+      },
+      {
+        "day": { "fixed": "Dienstag" },
+        "food": { "regex": "Dienstag\\s?([a-zA-Z].*)" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "regex": "Mittwoch\\s?([a-zA-Z].*)" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "regex": "Donnerstag\\s?([a-zA-Z].*)" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "food": { "regex": "Freitag\\s?([a-zA-Z].*)" }
+      }
+    ]
   }
 }

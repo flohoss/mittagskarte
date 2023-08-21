@@ -23,8 +23,11 @@
     "is_file": true
   },
   "menu": {
-    "description": {
-      "jquery": "a:contains('Mittagskarte vom')"
+    "description": { "jquery": "a:contains('Mittagskarte vom')" },
+    "one_for_all": {
+      "regex": "Gericht\\s?.{1,5}\\s(.*\\s.*)\\s?€\\s?(\\d{1,2}\\,\\d{1,2})",
+      "pos_food": 1,
+      "pos_price": 2
     }
   }
 }
