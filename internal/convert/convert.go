@@ -35,11 +35,16 @@ func ConvertPdfToWebp(fileLocation string, resultName string, dpi string, trim b
 	return result, nil
 }
 
-func CutPdf(fileLocation string, resultName string, cropping string) (string, error) {
+func CutPdf(fileLocation string, resultName string, cropping string, gravity string) (string, error) {
 	dir := filepath.Dir(fileLocation)
-	result := fmt.Sprintf("%s/%s.pdf", dir, resultName)
+	ext := filepath.Ext(fileLocation)
+	result := fmt.Sprintf("%s/%s%s", dir, resultName, ext)
 	app := "convert"
-	args := []string{"-crop", cropping, fileLocation, result}
+	args := []string{}
+	if gravity != "" {
+		args = []string{"-gravity", gravity}
+	}
+	args = append(args, []string{"-crop", cropping, fileLocation, result}...)
 	slog.Debug("cropping pdf", "path", fileLocation, "command", args)
 	out, err := exec.Command(app, args...).CombinedOutput()
 	if err != nil {

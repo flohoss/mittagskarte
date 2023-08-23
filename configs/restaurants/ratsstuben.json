@@ -13,18 +13,11 @@
     "phone": "+49 711 791725",
     "group": 1
   },
-  "retrieve_download_url": [
-    {
-      "jquery": "div > p > a",
-      "attribute": "href"
-    }
-  ],
+  "retrieve_download_url": [{ "jquery": "div > p > a", "attribute": "href" }],
   "download": {
     "is_file": true
   },
   "menu": {
-    "description": {
-      "regex": "Montag.+?Freitag.+?\\d{4}"
-    }
+    "description": { "regex": "Montag.+?Freitag.+?\\d{4}" }
   }
 }

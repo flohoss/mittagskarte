@@ -16,7 +16,12 @@
   "retrieve_download_url": [{ "jquery": "div#Speisekarte > a > span > img", "attribute": "src" }],
   "download": {
     "is_file": true,
-    "cropping": ["944x122+0+0", "480x910+0+145", "480x910+490+145", "450x260+250+1020"]
+    "cropping": [
+      { "crop": "100x10%+0+0" },
+      { "crop": "50x60%+0+120" },
+      { "gravity": "NorthEast", "crop": "50x60%+0+120" },
+      { "gravity": "South", "crop": "50x20%+0+0" }
+    ]
   },
   "menu": {
     "description": { "regex": "Speisekarte.*" },
