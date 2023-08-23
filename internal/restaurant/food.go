@@ -77,10 +77,10 @@ func (c *Configuration) getAllFood(content *string) []Food {
 		regexResult := foodRegex.FindAllStringSubmatch(*content, -1)
 		for _, r := range regexResult {
 			var f Food
-			if c.Menu.OneForAll.PositionFood > 0 {
+			if c.Menu.OneForAll.PositionFood > 0 && len(r) > int(c.Menu.OneForAll.PositionFood) {
 				f.Name = strings.ReplaceAll(strings.TrimSpace(r[c.Menu.OneForAll.PositionFood]), "\n", " ")
 			}
-			if c.Menu.OneForAll.PositionDay > 0 {
+			if c.Menu.OneForAll.PositionDay > 0 && len(r) > int(c.Menu.OneForAll.PositionDay) {
 				caser := cases.Title(language.German)
 				f.Day = caser.String(r[c.Menu.OneForAll.PositionDay])
 				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
@@ -88,10 +88,10 @@ func (c *Configuration) getAllFood(content *string) []Food {
 					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
 				}
 			}
-			if c.Menu.OneForAll.PositionPrice > 0 {
+			if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
 				f.Price = convertPrice(r[c.Menu.OneForAll.PositionPrice])
 			}
-			if c.Menu.OneForAll.PositionDescription > 0 {
+			if c.Menu.OneForAll.PositionDescription > 0 && len(r) > int(c.Menu.OneForAll.PositionDescription) {
 				f.Description = r[c.Menu.OneForAll.PositionDescription]
 			}
 			allFood = append(allFood, f)

@@ -26,7 +26,7 @@
   "menu": {
     "description": { "regex": "Speisekarte.*" },
     "one_for_all": {
-      "regex": "(.+?)€\\s?(\\d{1,3},\\d{2})\\s?(.*)",
+      "regex": "(.+?)€\\s?(\\d{1,2},\\d{2})((?:\\s?[a-z\\&].{4,}){0,3})",
       "pos_food": 1,
       "pos_price": 2,
       "pos_description": 3
