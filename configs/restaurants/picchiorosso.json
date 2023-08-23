@@ -12,5 +12,14 @@
     "rest_day": [0, 6],
     "phone": "+49 711 7156767",
     "group": 1
+  },
+  "menu": {
+    "description": { "regex": "Tagesgerichte\\,?\\s?[a-zA-Z].*" },
+    "one_for_all": {
+      "regex": "([A-Z ]+?)(\\d{1,2}.\\d{1,2})\\s?€\\s(.+?)\\d",
+      "pos_food": 1,
+      "pos_price": 2,
+      "pos_description": 3
+    }
   }
 }

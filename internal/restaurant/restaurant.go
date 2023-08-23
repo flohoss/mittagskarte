@@ -48,7 +48,7 @@ func (r *Restaurant) Update() (Card, error) {
 
 	var content []string
 	if config.Download.IsFile {
-		content, card.ImageURL, err = downloadFile(r.ID, &config, downloadUrl)
+		content, card.ImageURL, err = downloadAndParseMenu(r.ID, &config, downloadUrl)
 	} else {
 		content, doc, err = downloadHtml(r.ID, downloadUrl)
 	}
@@ -91,7 +91,7 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 	return downloadUrl, nil, nil
 }
 
-func downloadFile(id string, config *Configuration, downloadUrl string) ([]string, string, error) {
+func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) ([]string, string, error) {
 	var content []string
 	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl)
 	if err != nil {
@@ -109,7 +109,7 @@ func downloadFile(id string, config *Configuration, downloadUrl string) ([]strin
 				continue
 			}
 			os.Remove(res)
-			saveContentAsFile(id, fmt.Sprintf("%d", i), ocr.Body)
+			saveContentAsFile(id, fmt.Sprintf("-%d", i), ocr.Body)
 			content = append(content, ocr.Body)
 		}
 	} else {
@@ -164,7 +164,7 @@ func parseDescription(config *Configuration, content *string, doc *goquery.Docum
 func saveContentAsFile(id string, suffix string, content string) error {
 	folder := fetch.DownloadLocation + id
 	os.MkdirAll(folder, os.ModePerm)
-	err := os.WriteFile(fmt.Sprintf("%s/%s-%s.txt", folder, id, suffix), []byte(content), os.ModePerm)
+	err := os.WriteFile(fmt.Sprintf("%s/%s%s.txt", folder, id, suffix), []byte(content), os.ModePerm)
 	if err != nil {
 		return err
 	}

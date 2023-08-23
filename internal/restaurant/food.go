@@ -2,11 +2,6 @@ package restaurant
 
 import (
 	"regexp"
-	"strings"
-
-	"github.com/goodsign/monday"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func (s *Selector) regexResult(content *string) string {
@@ -78,21 +73,16 @@ func (c *Configuration) getAllFood(content *string) []Food {
 		for _, r := range regexResult {
 			var f Food
 			if c.Menu.OneForAll.PositionFood > 0 && len(r) > int(c.Menu.OneForAll.PositionFood) {
-				f.Name = strings.ReplaceAll(strings.TrimSpace(r[c.Menu.OneForAll.PositionFood]), "\n", " ")
+				f.Name = clearAndTitleString(r[c.Menu.OneForAll.PositionFood])
 			}
 			if c.Menu.OneForAll.PositionDay > 0 && len(r) > int(c.Menu.OneForAll.PositionDay) {
-				caser := cases.Title(language.German)
-				f.Day = caser.String(r[c.Menu.OneForAll.PositionDay])
-				pos := posInArray(f.Day, monday.GetShortDays(monday.LocaleDeDE))
-				if pos >= 0 {
-					f.Day = monday.GetLongDays(monday.LocaleDeDE)[pos]
-				}
+				f.Day = clearAndTitleString(r[c.Menu.OneForAll.PositionDay])
 			}
 			if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
 				f.Price = convertPrice(r[c.Menu.OneForAll.PositionPrice])
 			}
 			if c.Menu.OneForAll.PositionDescription > 0 && len(r) > int(c.Menu.OneForAll.PositionDescription) {
-				f.Description = r[c.Menu.OneForAll.PositionDescription]
+				f.Description = clearString(r[c.Menu.OneForAll.PositionDescription])
 			}
 			allFood = append(allFood, f)
 		}

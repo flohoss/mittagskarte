@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/goodsign/monday"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func convertPrice(strPrice string) float64 {
@@ -32,4 +34,13 @@ func posInArray(str string, arr []string) int {
 		}
 	}
 	return -1
+}
+
+func clearAndTitleString(input string) string {
+	caser := cases.Title(language.German)
+	return caser.String(strings.ReplaceAll(strings.TrimSpace(input), "\n", " "))
+}
+
+func clearString(input string) string {
+	return strings.ReplaceAll(strings.TrimSpace(input), "\n", " ")
 }

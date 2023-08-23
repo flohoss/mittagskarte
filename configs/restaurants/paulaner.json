@@ -14,21 +14,17 @@
     "group": 1
   },
   "retrieve_download_url": [
-    {
-      "jquery": "a:contains('Zum Mittagsangebot')",
-      "attribute": "href"
-    },
-    {
-      "jquery": "article > div > embed",
-      "attribute": "src"
-    }
+    { "jquery": "a:contains('Zum Mittagsangebot')", "attribute": "href" },
+    { "jquery": "article > div > embed", "attribute": "src" }
   ],
-  "download": {
-    "is_file": true
-  },
+  "download": { "is_file": true },
   "menu": {
-    "description": {
-      "regex": "\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}\\.?\\s?%month%\\s\\d{2,4}"
+    "description": { "regex": "\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}\\.?\\s?%month%\\s\\d{2,4}" },
+    "one_for_all": {
+      "regex": "(.*\\s)(.*\\s)(\\d{1,2}\\,\\d{1,2})\\s?€",
+      "pos_food": 1,
+      "pos_price": 3,
+      "pos_description": 2
     }
   }
 }
