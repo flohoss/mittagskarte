@@ -86,6 +86,15 @@ type OneForAll struct {
 	PositionFood        uint8  `json:"pos_food"`
 	PositionPrice       uint8  `json:"pos_price"`
 	PositionDescription uint8  `json:"pos_description"`
+	JQuery              JQuery `json:"jquery"`
+}
+
+type JQuery struct {
+	Wrapper     string `json:"wrapper"`
+	Day         string `json:"day"`
+	Food        string `json:"food"`
+	Price       string `json:"price"`
+	Description string `json:"description"`
 }
 
 type Menu struct {

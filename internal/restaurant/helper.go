@@ -2,6 +2,7 @@ package restaurant
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -12,8 +13,29 @@ import (
 )
 
 func convertPrice(strPrice string) float64 {
-	price, _ := strconv.ParseFloat(strings.Replace(strPrice, ",", ".", 1), 64)
+	removeEuro := strings.Replace(strPrice, "€", "", 1)
+	replaceComma := strings.Replace(removeEuro, ",", ".", 1)
+	trimmed := strings.TrimSpace(replaceComma)
+	price, _ := strconv.ParseFloat(trimmed, 64)
 	return price
+}
+
+func posInArray(str string, arr []string) int {
+	for i, s := range arr {
+		if strings.ToLower(s) == strings.ToLower(str) {
+			return i
+		}
+	}
+	return -1
+}
+
+func foodInAllFood(food Food, arr []Food) int {
+	for i, s := range arr {
+		if reflect.DeepEqual(food, s) {
+			return i
+		}
+	}
+	return -1
 }
 
 func replacePlaceholder(input string) string {

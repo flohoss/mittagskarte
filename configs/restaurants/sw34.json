@@ -12,5 +12,43 @@
     "rest_day": [0, 6],
     "phone": "+49 711 62042252",
     "group": 1
+  },
+  "menu": {
+    "description": { "jquery": "h4:contains('Wochenkarte')" },
+    "one_for_all": {
+      "jquery": {
+        "wrapper": "div.elementor-price-list-text",
+        "food": "div.elementor-price-list-header > span.elementor-price-list-title",
+        "price": "div.elementor-price-list-header > span.elementor-price-list-price",
+        "description": "p.elementor-price-list-description"
+      }
+    },
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "jquery": "div.elementor-price-list-text:contains('MONTAG') > p.elementor-price-list-description" },
+        "price": { "jquery": "div.elementor-price-list-text:contains('MONTAG') > div.elementor-price-list-header > span.elementor-price-list-price" }
+      },
+      {
+        "day": { "fixed": "Dienstag" },
+        "food": { "jquery": "div.elementor-price-list-text:contains('DIENSTAG') > p.elementor-price-list-description" },
+        "price": { "jquery": "div.elementor-price-list-text:contains('DIENSTAG') > div.elementor-price-list-header > span.elementor-price-list-price" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "jquery": "div.elementor-price-list-text:contains('Mittwoch') > p.elementor-price-list-description" },
+        "price": { "jquery": "div.elementor-price-list-text:contains('Mittwoch') > div.elementor-price-list-header > span.elementor-price-list-price" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "jquery": "div.elementor-price-list-text:contains('Donnerstag') > p.elementor-price-list-description" },
+        "price": { "jquery": "div.elementor-price-list-text:contains('Donnerstag') > div.elementor-price-list-header > span.elementor-price-list-price" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "food": { "jquery": "div.elementor-price-list-text:contains('Freitag') > p.elementor-price-list-description" },
+        "price": { "jquery": "div.elementor-price-list-text:contains('Freitag') > div.elementor-price-list-header > span.elementor-price-list-price" }
+      }
+    ]
   }
 }

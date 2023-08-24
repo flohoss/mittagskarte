@@ -64,7 +64,7 @@ func (r *Restaurant) Update() (Card, error) {
 	}
 
 	for _, c := range content {
-		card.Food = append(card.Food, config.getAllFood(&c)...)
+		card.Food = append(card.Food, config.getAllFood(&c, doc)...)
 	}
 	return card, nil
 }
