@@ -100,7 +100,7 @@ func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) 
 	slog.Debug("scanning file", "path", imageURL)
 	if len(config.Download.Cropping) != 0 {
 		for i, c := range config.Download.Cropping {
-			res, err := convert.CutPdf(imageURL, fmt.Sprintf("%s-%d", id, i), c.Crop, c.Gravity)
+			res, err := convert.CropMenu(imageURL, fmt.Sprintf("%s-%d", id, i), c.Crop, c.Gravity)
 			if err != nil {
 				continue
 			}
@@ -120,7 +120,7 @@ func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) 
 		saveContentAsFile(id, "", ocr.Body)
 		content = append(content, ocr.Body)
 	}
-	imageURL, err = convert.ConvertPdfToWebp(imageURL, id, "300", config.Download.TrimEdges)
+	imageURL, err = convert.ConvertToWebp(imageURL, id, config.Download.TrimEdges)
 	if err != nil {
 		return content, "", err
 	}

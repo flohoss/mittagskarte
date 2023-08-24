@@ -38,9 +38,19 @@ func templateString(files []string) []string {
 	return combined
 }
 
+func posInArray(str string, arr []string) int {
+	for i, s := range arr {
+		if s == str {
+			return i
+		}
+	}
+	return -1
+}
+
 func isToday(food restaurant.Food) bool {
+	allowedWords := []string{"Wochen-Renner", "Veggie-Renner"}
 	expr := regexp.MustCompile(monday.Format(time.Now(), "Monday", monday.LocaleDeDE))
-	if food.Day == "" {
+	if food.Day == "" || posInArray(food.Day, allowedWords) != -1 {
 		return true
 	}
 	return expr.MatchString(food.Day)

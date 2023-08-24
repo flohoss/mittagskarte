@@ -86,14 +86,17 @@ func (c *Configuration) getAllFood(content *string) []Food {
 			}
 			allFood = append(allFood, f)
 		}
-	} else {
+	} else if len(c.Menu.Food) > 0 {
 		for _, f := range c.Menu.Food {
-			allFood = append(allFood, Food{
+			food := Food{
 				Name:        f.getName(content),
 				Day:         f.getDay(content),
 				Price:       f.getPrice(content),
 				Description: f.getDescription(content),
-			})
+			}
+			if food.Name != "" {
+				allFood = append(allFood, food)
+			}
 		}
 	}
 	return allFood

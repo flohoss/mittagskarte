@@ -27,15 +27,6 @@ func replacePlaceholder(input string) string {
 	return input
 }
 
-func posInArray(str string, arr []string) int {
-	for i, s := range arr {
-		if s == str {
-			return i
-		}
-	}
-	return -1
-}
-
 func clearAndTitleString(input string) string {
 	caser := cases.Title(language.German)
 	return caser.String(strings.ReplaceAll(strings.TrimSpace(input), "\n", " "))
