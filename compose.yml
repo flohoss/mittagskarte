@@ -1,6 +1,5 @@
 services:
   golang:
-    profiles: [dev]
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
@@ -16,29 +15,29 @@ services:
     volumes:
       - ./:/app/
 
-  golang-debug:
-    profiles: [debug]
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile.debug
-      args:
-        - GOLANG_VERSION=${GOLANG_VERSION}
-    hostname: debug
-    environment:
-      - TZ=Europe/Berlin
-      - LOG_LEVEL=debug
-    ports:
-      - 8080:8080
-      - 4000:4000
-    volumes:
-      - ./:/app/
-
   node:
-    profiles: [dev]
     image: node:${NODE_VERSION}
     working_dir: /app
     tty: true
     command: yarn tailwind:dev
+    volumes:
+      - ./:/app/
+
+  golang-debug:
+    profiles: [debug]
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        - GOLANG_VERSION=${GOLANG_VERSION}
+    hostname: debug
+    command: scripts/debug.sh
+    environment:
+      - TZ=Europe/Berlin
+      - LOG_LEVEL=debug
+    ports:
+      - 8081:8080
+      - 4000:4000
     volumes:
       - ./:/app/
 

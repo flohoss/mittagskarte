@@ -1,12 +1,11 @@
 package database
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/glebarez/sqlite"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"moul.io/zapgorm2"
 )
 
 const Storage = "storage/"
@@ -16,10 +15,10 @@ func init() {
 }
 
 func NewDatabaseConnection(location string) *gorm.DB {
-	logger := zapgorm2.New(zap.L())
-	db, err := gorm.Open(sqlite.Open(Storage+location+"?_pragma=foreign_keys(1)"), &gorm.Config{Logger: logger, SkipDefaultTransaction: true, PrepareStmt: true})
+	db, err := gorm.Open(sqlite.Open(Storage+location+"?_pragma=foreign_keys(1)"), &gorm.Config{SkipDefaultTransaction: true, PrepareStmt: true})
 	if err != nil {
-		zap.S().Fatal("Cannot connect to database", zap.Error(err))
+		slog.Error("Cannot connect to database", "err", err)
+		os.Exit(1)
 	}
 	return db
 }

@@ -1,9 +1,30 @@
 {
-  "download": [
+  "restaurant": {
+    "id": "troelsch-feuerbach",
+    "name": "Troelsch",
+    "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
+    "street": "Stuttgarter Straße",
+    "street_number": "104",
+    "zip_code": "70469",
+    "city": "Stuttgart-Feuerbach",
+    "latitude": 48.809072665993405,
+    "longitude": 9.158019929356717,
+    "rest_day": [0, 6],
+    "phone": "+49 711 85680030",
+    "group": 3
+  },
+  "retrieve_download_url": [
     {
       "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
       "attribute": "href"
     }
   ],
-  "description_regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+  "download": {
+    "is_file": true
+  },
+  "menu": {
+    "description": {
+      "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+    }
+  }
 }

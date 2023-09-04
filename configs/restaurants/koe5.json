@@ -1,9 +1,25 @@
 {
-  "description_regex": "Tageskarte.*",
-  "food_regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s?([a-zA-Z].*\\w)",
-  "fix_price": 10.9,
-  "positions": {
-    "name": 2,
-    "day": 1
+  "restaurant": {
+    "id": "koe5",
+    "name": "KÖ5",
+    "page_url": "https://koe5.de/",
+    "street": "Schelmenwasenstraße",
+    "street_number": "5",
+    "zip_code": "70567",
+    "city": "Stuttgart-Fasanenhof",
+    "latitude": 48.71539920482492,
+    "longitude": 9.165393403838493,
+    "rest_day": [0, 6],
+    "phone": "+49 711 99772624",
+    "group": 1
+  },
+  "menu": {
+    "description": { "regex": "Tageskarte.*" },
+    "one_for_all": {
+      "fixed_price": 10.9,
+      "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s*?([a-zA-Z].*)",
+      "pos_day": 1,
+      "pos_food": 2
+    }
   }
 }

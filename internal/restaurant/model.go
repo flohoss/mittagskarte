@@ -59,12 +59,19 @@ type Selector struct {
 type Retrieve struct {
 	JQuery    string `json:"jquery"`
 	Attribute string `json:"attribute"`
+	Prefix    string `json:"prefix"`
 }
 
 type Download struct {
-	IsFile    bool   `json:"is_file"`
-	Prefix    string `json:"prefix"`
-	TrimEdges bool   `json:"trim_edges"`
+	IsFile    bool       `json:"is_file"`
+	Prefix    string     `json:"prefix"`
+	TrimEdges bool       `json:"trim_edges"`
+	Cropping  []Cropping `json:"cropping"`
+}
+
+type Cropping struct {
+	Gravity string `json:"gravity"`
+	Crop    string `json:"crop"`
 }
 
 type FoodEntry struct {
@@ -74,9 +81,28 @@ type FoodEntry struct {
 	Description Selector `json:"description"`
 }
 
+type OneForAll struct {
+	FixedPrice          float64 `json:"fixed_price"`
+	Regex               string  `json:"regex"`
+	PositionDay         uint8   `json:"pos_day"`
+	PositionFood        uint8   `json:"pos_food"`
+	PositionPrice       uint8   `json:"pos_price"`
+	PositionDescription uint8   `json:"pos_description"`
+	JQuery              JQuery  `json:"jquery"`
+}
+
+type JQuery struct {
+	Wrapper     string `json:"wrapper"`
+	Day         string `json:"day"`
+	Food        string `json:"food"`
+	Price       string `json:"price"`
+	Description string `json:"description"`
+}
+
 type Menu struct {
 	Description Selector    `json:"description"`
 	Food        []FoodEntry `json:"food"`
+	OneForAll   OneForAll   `json:"one_for_all"`
 }
 
 type Configuration struct {

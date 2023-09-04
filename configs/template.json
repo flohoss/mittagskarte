@@ -15,13 +15,16 @@
   "retrieve_download_url": [
     {
       "jquery": "",
-      "attribute": ""
+      "attribute": "",
+      "prefix": ""
     }
   ],
   "download": {
     "is_file": false,
     "prefix": "",
-    "trim_edges": false
+    "trim_edges": false,
+    "gravity": "",
+    "cropping": [""]
   },
   "menu": {
     "description": {
@@ -29,6 +32,21 @@
       "jquery": "",
       "attribute": "",
       "fixed": ""
+    },
+    "one_for_all": {
+      "fixed_price": 0,
+      "regex": "",
+      "pos_day": 0,
+      "pos_food": 0,
+      "pos_price": 0,
+      "pos_description": 0,
+      "jquery": {
+        "wrapper": "",
+        "day": "",
+        "food": "",
+        "price": "",
+        "description": ""
+      }
     },
     "food": [
       {

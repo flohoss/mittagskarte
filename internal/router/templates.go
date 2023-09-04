@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io"
 	"os"
@@ -39,11 +38,19 @@ func templateString(files []string) []string {
 	return combined
 }
 
+func posInArray(str string, arr []string) int {
+	for i, s := range arr {
+		if s == str {
+			return i
+		}
+	}
+	return -1
+}
+
 func isToday(food restaurant.Food) bool {
-	expr := regexp.MustCompile("(?i)" + fmt.Sprintf(`^%s$|alternativ|oder`,
-		monday.Format(time.Now(), "Monday", monday.LocaleDeDE),
-	))
-	if food.Day == "" {
+	allowedWords := []string{"Wochen-Renner", "Veggie-Renner"}
+	expr := regexp.MustCompile("(?i)" + monday.Format(time.Now(), "Monday", monday.LocaleDeDE))
+	if food.Day == "" || posInArray(food.Day, allowedWords) != -1 {
 		return true
 	}
 	return expr.MatchString(food.Day)
@@ -56,6 +63,10 @@ func isRestDay(restaurant restaurant.Restaurant) bool {
 		}
 	}
 	return false
+}
+
+func nothingFound(restaurant restaurant.Restaurant) bool {
+	return len(restaurant.Card.Food) == 0 && restaurant.Card.ImageURL == ""
 }
 
 func imageSize(image string) []int {
@@ -74,9 +85,10 @@ func imageSize(image string) []int {
 
 func generateTemplate(files ...string) *template.Template {
 	return template.Must(template.New("").Funcs(sprig.FuncMap()).Funcs(template.FuncMap{
-		"isToday":   isToday,
-		"isRestDay": isRestDay,
-		"imageSize": imageSize,
+		"isToday":      isToday,
+		"isRestDay":    isRestDay,
+		"imageSize":    imageSize,
+		"nothingFound": nothingFound,
 	}).ParseFiles(templateString(files)...))
 }
 
