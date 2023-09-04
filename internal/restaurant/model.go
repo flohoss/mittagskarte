@@ -21,14 +21,14 @@ type Group uint8
 
 var Groups = []Group{
 	Fasanenhof,
-	Florian,
-	Andre,
+	Nuertingen,
+	Feuerbach,
 }
 
 const (
 	Fasanenhof Group = iota + 1
-	Florian
-	Andre
+	Nuertingen
+	Feuerbach
 )
 
 type Card struct {
