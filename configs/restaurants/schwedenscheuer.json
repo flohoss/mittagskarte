@@ -12,5 +12,24 @@
     "rest_day": [0, 6],
     "phone": "+49 711 7978527",
     "group": 1
+  },
+  "menu": {
+    "description": { "regex": "Tagesessen.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}" },
+    "one_for_all": {
+      "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
+      "pos_day": 1,
+      "pos_food": 2,
+      "pos_price": 3
+    },
+    "food": [
+      {
+        "food": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
+        "price": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
+      },
+      {
+        "food": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
+        "price": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
+      }
+    ]
   }
 }

@@ -59,6 +59,7 @@ type Selector struct {
 type Retrieve struct {
 	JQuery    string `json:"jquery"`
 	Attribute string `json:"attribute"`
+	Prefix    string `json:"prefix"`
 }
 
 type Download struct {
@@ -81,12 +82,13 @@ type FoodEntry struct {
 }
 
 type OneForAll struct {
-	Regex               string `json:"regex"`
-	PositionDay         uint8  `json:"pos_day"`
-	PositionFood        uint8  `json:"pos_food"`
-	PositionPrice       uint8  `json:"pos_price"`
-	PositionDescription uint8  `json:"pos_description"`
-	JQuery              JQuery `json:"jquery"`
+	FixedPrice          float64 `json:"fixed_price"`
+	Regex               string  `json:"regex"`
+	PositionDay         uint8   `json:"pos_day"`
+	PositionFood        uint8   `json:"pos_food"`
+	PositionPrice       uint8   `json:"pos_price"`
+	PositionDescription uint8   `json:"pos_description"`
+	JQuery              JQuery  `json:"jquery"`
 }
 
 type JQuery struct {

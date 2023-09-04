@@ -12,6 +12,8 @@ import (
 	_ "github.com/otiai10/gosseract/v2"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -84,6 +86,7 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 			if !present {
 				return "", doc, errors.New("cannot navigate")
 			}
+			downloadUrl = d.Prefix + downloadUrl
 		}
 		slog.Debug("found final url", "url", downloadUrl)
 		return downloadUrl, doc, nil
@@ -141,7 +144,7 @@ func parseDescription(config *Configuration, content *string, doc *goquery.Docum
 	if config.Menu.Description.Regex != "" {
 		replaced := replacePlaceholder(config.Menu.Description.Regex)
 		slog.Debug("description from regex", "regex", replaced)
-		descriptionExpr := regexp.MustCompile(replaced)
+		descriptionExpr := regexp.MustCompile("(?i)" + replaced)
 		description = descriptionExpr.FindString(*content)
 	} else if config.Menu.Description.JQuery != "" {
 		replaced := replacePlaceholder(config.Menu.Description.JQuery)
@@ -157,9 +160,10 @@ func parseDescription(config *Configuration, content *string, doc *goquery.Docum
 		}
 	} else if config.Menu.Description.Fixed != "" {
 		slog.Debug("description fixed", "fixed", config.Menu.Description.Fixed)
-		return config.Menu.Description.Fixed, nil
+		description = config.Menu.Description.Fixed
 	}
-	return description, nil
+	caser := cases.Title(language.German)
+	return caser.String(description), nil
 }
 
 func saveContentAsFile(id string, suffix string, content string) error {

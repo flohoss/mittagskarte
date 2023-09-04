@@ -15,7 +15,8 @@
   "retrieve_download_url": [
     {
       "jquery": "",
-      "attribute": ""
+      "attribute": "",
+      "prefix": ""
     }
   ],
   "download": {
@@ -33,13 +34,14 @@
       "fixed": ""
     },
     "one_for_all": {
+      "fixed_price": 0,
       "regex": "",
       "pos_day": 0,
       "pos_food": 0,
       "pos_price": 0,
       "pos_description": 0,
       "jquery": {
-        "wrapper":"",
+        "wrapper": "",
         "day": "",
         "food": "",
         "price": "",

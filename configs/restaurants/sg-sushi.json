@@ -12,5 +12,14 @@
     "rest_day": [0, 6],
     "phone": "+49 711 80674572",
     "group": 3
+  },
+  "menu": {
+    "description": { "regex": "Mittag.+?von.+?bis.*" },
+    "one_for_all": {
+      "regex": "M\\d\\.?\\s?(.*)\\s.+?(\\w.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?EUR",
+      "pos_food": 1,
+      "pos_price": 3,
+      "pos_description": 2
+    }
   }
 }

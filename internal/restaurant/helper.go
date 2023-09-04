@@ -20,6 +20,15 @@ func convertPrice(strPrice string) float64 {
 	return price
 }
 
+func foodExisting(allFood *[]Food, food *Food) bool {
+	for _, f := range *allFood {
+		if f.Name == food.Name {
+			return true
+		}
+	}
+	return false
+}
+
 func posInArray(str string, arr []string) int {
 	for i, s := range arr {
 		if strings.ToLower(s) == strings.ToLower(str) {

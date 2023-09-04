@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Selector) regexResult(content *string) string {
-	reg := regexp.MustCompile(replacePlaceholder(s.Regex))
+	reg := regexp.MustCompile("(?i)" + replacePlaceholder(s.Regex))
 	res := reg.FindStringSubmatch(*content)
 	if len(res) > 1 {
 		return res[1]
@@ -69,6 +69,13 @@ func (f *FoodEntry) getDescription(content *string, doc *goquery.Document) strin
 	}
 }
 
+func appendFood(allFood *[]Food, food *Food) {
+	drink, _ := regexp.MatchString("(?i)\\d{1,2},\\d{1,2}\\s?l", food.Description)
+	if food.Price != 0.0 && food.Name != "" && !foodExisting(allFood, food) && posInArray(food.Name, monday.GetLongDays(monday.LocaleDeDE)) == -1 && !drink {
+		*allFood = append(*allFood, *food)
+	}
+}
+
 func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Food {
 	var allFood []Food
 	if len(c.Menu.Food) > 0 {
@@ -79,13 +86,11 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 				Price:       f.getPrice(content, doc),
 				Description: f.getDescription(content, doc),
 			}
-			if food.Price != 0.0 && food.Name != "" {
-				allFood = append(allFood, food)
-			}
+			appendFood(&allFood, &food)
 		}
 	}
 	if c.Menu.OneForAll.Regex != "" {
-		foodRegex := regexp.MustCompile(replacePlaceholder(c.Menu.OneForAll.Regex))
+		foodRegex := regexp.MustCompile("(?i)" + replacePlaceholder(c.Menu.OneForAll.Regex))
 		regexResult := foodRegex.FindAllStringSubmatch(*content, -1)
 		for _, r := range regexResult {
 			var food Food
@@ -95,15 +100,15 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 			if c.Menu.OneForAll.PositionDay > 0 && len(r) > int(c.Menu.OneForAll.PositionDay) {
 				food.Day = clearAndTitleString(r[c.Menu.OneForAll.PositionDay])
 			}
-			if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
+			if c.Menu.OneForAll.FixedPrice != 0 {
+				food.Price = c.Menu.OneForAll.FixedPrice
+			} else if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
 				food.Price = convertPrice(r[c.Menu.OneForAll.PositionPrice])
 			}
 			if c.Menu.OneForAll.PositionDescription > 0 && len(r) > int(c.Menu.OneForAll.PositionDescription) {
 				food.Description = clearString(r[c.Menu.OneForAll.PositionDescription])
 			}
-			if food.Price != 0.0 && food.Name != "" {
-				allFood = append(allFood, food)
-			}
+			appendFood(&allFood, &food)
 		}
 	}
 	if c.Menu.OneForAll.JQuery.Wrapper != "" {
@@ -114,13 +119,13 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 				Price:       convertPrice(s.Find(c.Menu.OneForAll.JQuery.Price).Text()),
 				Description: strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Description).Text()),
 			}
+			if c.Menu.OneForAll.FixedPrice != 0 {
+				food.Price = c.Menu.OneForAll.FixedPrice
+			}
 			if foodInAllFood(food, allFood) != -1 {
 				return
 			}
-			drink, _ := regexp.MatchString("\\d{1,2},\\d{1,2}\\s?l", food.Description)
-			if food.Name != "" && posInArray(food.Name, monday.GetLongDays(monday.LocaleDeDE)) == -1 && !drink {
-				allFood = append(allFood, food)
-			}
+			appendFood(&allFood, &food)
 		})
 	}
 	return allFood

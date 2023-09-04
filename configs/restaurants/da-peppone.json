@@ -19,9 +19,7 @@
       "attribute": "href"
     }
   ],
-  "download": {
-    "is_file": true
-  },
+  "download": { "is_file": true },
   "menu": {
     "description": { "jquery": "a:contains('Mittagskarte vom')" },
     "one_for_all": {

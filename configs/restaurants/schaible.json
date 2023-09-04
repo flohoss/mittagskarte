@@ -12,5 +12,21 @@
     "rest_day": [0, 6],
     "phone": "+49 711 8104528",
     "group": 3
+  },
+  "retrieve_download_url": [
+    {
+      "jquery": "a:contains('Schaible')",
+      "attribute": "href",
+      "prefix": "https://www.feuerbach.de"
+    }
+  ],
+  "menu": {
+    "description": { "regex": "Mittagstisch.+?vom.+?\\d{4}" },
+    "one_for_all": {
+      "regex": "M\\d\\.?\\s?(.*)\\s.+?(\\w.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})\\s?EUR",
+      "pos_food": 1,
+      "pos_price": 3,
+      "pos_description": 2
+    }
   }
 }
