@@ -24,7 +24,7 @@ func (c *Controller) RenderRestaurants(ctx echo.Context) error {
 	if found == 0 {
 		ctx.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	return ctx.Render(http.StatusOK, "restaurants", RestaurantData{Title: restaurant.Name, Navigation: c.Navigation, Restaurant: restaurant})
+	return ctx.Render(http.StatusOK, "restaurants", RestaurantData{Title: "Mittag - " + restaurant.Name, Navigation: c.Navigation, Restaurant: restaurant})
 }
 
 func (c *Controller) UpdateRestaurants(ctx echo.Context) error {

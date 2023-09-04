@@ -13,5 +13,5 @@ type SystemData struct {
 }
 
 func (c *Controller) RenderSettings(ctx echo.Context) error {
-	return ctx.Render(http.StatusOK, "settings", SystemData{Title: "Einstellungen", Navigation: c.Navigation})
+	return ctx.Render(http.StatusOK, "settings", SystemData{Title: "Mittag - Einstellungen", Navigation: c.Navigation})
 }

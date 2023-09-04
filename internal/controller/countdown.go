@@ -23,5 +23,5 @@ func (c *Controller) RenderCountdown(ctx echo.Context) error {
 			}
 		}
 	}
-	return ctx.Render(http.StatusOK, "countdown", CountdownData{Title: "Einstellungen", Navigation: c.Navigation, Random: random})
+	return ctx.Render(http.StatusOK, "countdown", CountdownData{Title: "Mittag - Countdown", Navigation: c.Navigation, Random: random})
 }
