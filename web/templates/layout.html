@@ -47,7 +47,11 @@
           <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
           {{ range .Navigation }}
             {{ $restaurant := index . 0 }}
-            <div class="divider opacity-50">{{ $restaurant.Group }}</div>
+            <li class="disabled mt-5">
+              <div class="cursor-default">
+                <svg class="icon"><use href="#city"></use></svg> {{ $restaurant.Group }}
+              </div>
+            </li>
             {{ range . }}
               {{ $link := printf "%s%s" "/restaurants/" .ID }}
               <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
