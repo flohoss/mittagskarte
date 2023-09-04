@@ -79,7 +79,7 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 				Price:       f.getPrice(content, doc),
 				Description: f.getDescription(content, doc),
 			}
-			if food.Name != "" {
+			if food.Price != 0.0 && food.Name != "" {
 				allFood = append(allFood, food)
 			}
 		}
@@ -88,26 +88,26 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 		foodRegex := regexp.MustCompile(replacePlaceholder(c.Menu.OneForAll.Regex))
 		regexResult := foodRegex.FindAllStringSubmatch(*content, -1)
 		for _, r := range regexResult {
-			var f Food
+			var food Food
 			if c.Menu.OneForAll.PositionFood > 0 && len(r) > int(c.Menu.OneForAll.PositionFood) {
-				f.Name = clearAndTitleString(r[c.Menu.OneForAll.PositionFood])
+				food.Name = clearAndTitleString(r[c.Menu.OneForAll.PositionFood])
 			}
 			if c.Menu.OneForAll.PositionDay > 0 && len(r) > int(c.Menu.OneForAll.PositionDay) {
-				f.Day = clearAndTitleString(r[c.Menu.OneForAll.PositionDay])
+				food.Day = clearAndTitleString(r[c.Menu.OneForAll.PositionDay])
 			}
 			if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
-				f.Price = convertPrice(r[c.Menu.OneForAll.PositionPrice])
+				food.Price = convertPrice(r[c.Menu.OneForAll.PositionPrice])
 			}
 			if c.Menu.OneForAll.PositionDescription > 0 && len(r) > int(c.Menu.OneForAll.PositionDescription) {
-				f.Description = clearString(r[c.Menu.OneForAll.PositionDescription])
+				food.Description = clearString(r[c.Menu.OneForAll.PositionDescription])
 			}
-			if f.Name != "" {
-				allFood = append(allFood, f)
+			if food.Price != 0.0 && food.Name != "" {
+				allFood = append(allFood, food)
 			}
 		}
 	}
 	if c.Menu.OneForAll.JQuery.Wrapper != "" {
-		doc.Find(c.Menu.OneForAll.JQuery.Wrapper).Each(func(i int, s *goquery.Selection) {
+		doc.Find(replacePlaceholder(c.Menu.OneForAll.JQuery.Wrapper)).Each(func(i int, s *goquery.Selection) {
 			food := Food{
 				Name:        strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Food).Text()),
 				Day:         strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Day).Text()),
@@ -118,7 +118,7 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 				return
 			}
 			drink, _ := regexp.MatchString("\\d{1,2},\\d{1,2}\\s?l", food.Description)
-			if food.Price != 0.0 && food.Name != "" && posInArray(food.Name, monday.GetLongDays(monday.LocaleDeDE)) == -1 && !drink {
+			if food.Name != "" && posInArray(food.Name, monday.GetLongDays(monday.LocaleDeDE)) == -1 && !drink {
 				allFood = append(allFood, food)
 			}
 		})

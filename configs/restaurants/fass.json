@@ -12,5 +12,16 @@
     "rest_day": [0, 2, 6],
     "phone": "+49 7022 61185",
     "group": 2
+  },
+  "menu": {
+    "description": { "jquery": "h2:contains('KW %KW%')" },
+    "one_for_all": {
+      "jquery": {
+        "wrapper": "div:contains('KW %KW%') > div > table > tbody > tr",
+        "day": "td:eq(0)",
+        "food": "td:eq(1)",
+        "price": "div.elementor-price-list-header > span.elementor-price-list-price"
+      }
+    }
   }
 }

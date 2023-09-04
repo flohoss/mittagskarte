@@ -144,12 +144,13 @@ func parseDescription(config *Configuration, content *string, doc *goquery.Docum
 		descriptionExpr := regexp.MustCompile(replaced)
 		description = descriptionExpr.FindString(*content)
 	} else if config.Menu.Description.JQuery != "" {
-		slog.Debug("description from jquery", "jquery", config.Menu.Description.JQuery)
+		replaced := replacePlaceholder(config.Menu.Description.JQuery)
+		slog.Debug("description from jquery", "jquery", replaced)
 		if config.Menu.Description.Attribute == "" {
-			description = doc.Find(config.Menu.Description.JQuery).First().Text()
+			description = doc.Find(replaced).First().Text()
 		} else {
 			present := false
-			description, present = doc.Find(config.Menu.Description.JQuery).First().Attr(config.Menu.Description.Attribute)
+			description, present = doc.Find(replaced).First().Attr(config.Menu.Description.Attribute)
 			if !present {
 				return "", errors.New("cannot find jquery")
 			}
