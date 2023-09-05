@@ -13,10 +13,14 @@ import (
 )
 
 func convertPrice(strPrice string) float64 {
-	removeEuro := strings.Replace(strPrice, "€", "", 1)
-	replaceComma := strings.Replace(removeEuro, ",", ".", 1)
-	trimmed := strings.TrimSpace(replaceComma)
-	price, _ := strconv.ParseFloat(trimmed, 64)
+	badStrings := []string{"EUR", "€"}
+	result := strPrice
+	for _, str := range badStrings {
+		result = strings.Replace(result, str, "", 1)
+	}
+	result = strings.Replace(result, ",", ".", 1)
+	result = strings.TrimSpace(result)
+	price, _ := strconv.ParseFloat(result, 64)
 	return price
 }
 

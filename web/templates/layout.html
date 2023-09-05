@@ -47,7 +47,7 @@
           <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
           {{ range .Navigation }}
             {{ $restaurant := index . 0 }}
-            <li class="disabled mt-5">
+            <li class="disabled mt-2">
               <div class="cursor-default">
                 <svg class="icon"><use href="#city"></use></svg> {{ $restaurant.Group }}
               </div>
@@ -57,7 +57,7 @@
               <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
             {{ end }}
           {{ end }}
-          <span class="h-5 shrink-0 flex-grow"></span>
+          <span class="h-2 shrink-0 flex-grow"></span>
           <li class="disabled">
             <div class="cursor-default">
               <svg class="icon"><use href="#version"></use></svg> {{ env "APP_VERSION" }}

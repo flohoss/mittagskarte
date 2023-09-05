@@ -1,0 +1,51 @@
+{
+  "restaurant": {
+    "id": "blessing-kurz",
+    "name": "Blessing-Kurz",
+    "page_url": "https://blessing-kurz.de/Tagesessen/",
+    "street": "Unterdorfstraße",
+    "street_number": "1",
+    "zip_code": "73257",
+    "city": "Köngen",
+    "latitude": 48.68502263874674,
+    "longitude": 9.363344285096607,
+    "rest_day": [0, 6],
+    "phone": "+49 7024 989895",
+    "group": 2
+  },
+  "menu": {
+    "description": { "jquery": "h3:contains('Köngen')" },
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p strong" },
+        "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_preis h4" },
+        "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p" }
+      },
+      {
+        "day": { "fixed": "Dienstag" },
+        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p strong" },
+        "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_preis h4" },
+        "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p strong" },
+        "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_preis h4" },
+        "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p strong" },
+        "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_preis h4" },
+        "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p strong" },
+        "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_preis h4" },
+        "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p" }
+      }
+    ]
+  }
+}
