@@ -6,6 +6,9 @@
   <div class="animate-fadeIn hidden hero min-h-screen" ref="form">
     <div class="hero-content flex flex-col items-center gap-10">
       <h1 class="text-5xl font-bold">Einstellungen</h1>
+      <div class="flex items-center gap-2 opacity-50">
+        <svg class="icon-sm"><use href="#version"></use></svg> {{ env "APP_VERSION" }}
+      </div>
       <form class="grid gap-5" @submit.prevent="saveChanges" @reset.prevent="setValuesToStore">
         <div class="form-control">
           <label class="label" for="midday">
@@ -44,17 +47,17 @@
 {{ define "js" }}
   <script type="text/javascript" src="/static/js/moment.min.js"></script>
   <script type="module">
-    import { createApp } from "/static/js/vue.esm-browser.prod.js";
+    import { createApp } from '/static/js/vue.esm-browser.prod.js';
 
-    const SETTINGS_LOCAL_STORAGE = "mittag_settings";
-    const DEFAULT_SETTINGS = { selectedTime: "1300", priceAdjustment: "0,00" };
+    const SETTINGS_LOCAL_STORAGE = 'mittag_settings';
+    const DEFAULT_SETTINGS = { selectedTime: '1300', priceAdjustment: '0,00' };
 
     function generateMiddayOptions() {
       const tmp = [];
       const start = moment().hour(10).minute(30);
       for (let i = 0; i < 9; i++) {
-        const newTime = start.add(30, "m");
-        tmp.push({ val: newTime.format("HHmm"), text: newTime.format("HH:mm") + " Uhr" });
+        const newTime = start.add(30, 'm');
+        tmp.push({ val: newTime.format('HHmm'), text: newTime.format('HH:mm') + ' Uhr' });
       }
       return tmp;
     }
@@ -66,7 +69,7 @@
           timeOptions: generateMiddayOptions(),
           state: { ...DEFAULT_SETTINGS },
           validate: {
-            price: (value) => value !== "" && /^\d*([.,]\d+)?$/.test(value),
+            price: (value) => value !== '' && /^\d*([.,]\d+)?$/.test(value),
           },
         };
       },
@@ -78,10 +81,10 @@
             parsed.priceAdjustment = (parseFloat(parsed.priceAdjustment) * -1).toFixed(2);
             this.storeSettings(parsed);
           }
-          this.state = { ...parsed, priceAdjustment: parsed.priceAdjustment.replace(".", ",") };
+          this.state = { ...parsed, priceAdjustment: parsed.priceAdjustment.replace('.', ',') };
           this.settings = { ...this.state };
         }
-        this.$refs.form.classList.remove("hidden");
+        this.$refs.form.classList.remove('hidden');
       },
       computed: {
         cleanPriceAdjustment() {
@@ -103,9 +106,9 @@
           this.storeSettings(this.state);
         },
         storeSettings(newSettings) {
-          const formattedPrice = parseFloat(newSettings.priceAdjustment.replace(",", ".")).toFixed(2);
+          const formattedPrice = parseFloat(newSettings.priceAdjustment.replace(',', '.')).toFixed(2);
           localStorage.setItem(SETTINGS_LOCAL_STORAGE, JSON.stringify({ ...newSettings, priceAdjustment: formattedPrice }));
-          this.settings = { ...newSettings, priceAdjustment: formattedPrice.replace(".", ",") };
+          this.settings = { ...newSettings, priceAdjustment: formattedPrice.replace('.', ',') };
           this.setValuesToStore();
         },
         setValuesToStore() {
@@ -113,7 +116,7 @@
         },
       },
     });
-    app.config.compilerOptions.delimiters = ["${", "}"];
-    app.mount("#app");
+    app.config.compilerOptions.delimiters = ['${', '}'];
+    app.mount('#app');
   </script>
 {{ end }}
