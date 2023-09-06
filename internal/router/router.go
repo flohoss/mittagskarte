@@ -39,6 +39,9 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 		return key == adminKey, nil
 	}))
 
+	food := e.Group("/foods")
+	food.GET("/:id", ctrl.RenderFood)
+
 	e.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})

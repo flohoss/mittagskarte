@@ -98,6 +98,7 @@ func initTemplates() *Template {
 	templates["countdown"] = generateTemplate("countdown/index.html")
 	templates["settings"] = generateTemplate("settings/index.html")
 	templates["restaurants"] = generateTemplate("restaurants/index.html")
+	templates["foods"] = generateTemplate("foods/index.html")
 
 	return &Template{templates: templates}
 }

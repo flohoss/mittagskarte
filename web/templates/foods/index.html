@@ -1,0 +1,60 @@
+{{ define "title" }}
+  {{ .Title }}
+{{ end }}
+
+{{ define "content" }}
+  <div class="animate-fadeIn container-custom">
+    <div class="flex flex-col items-center gap-5">
+      <div class="mt-10 relative w-full max-w-4xl h-[150px]">
+        <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/static/images/foodHeader.webp')"></div>
+        <div class="text-center bg-secondary text-secondary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl md:text-4xl">
+          {{ .Group }}
+        </div>
+        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute top-5 left-1/2 -translate-x-1/2 text-3xl md:text-4xl">
+          {{ .Day }}
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4"></div>
+    <div class="flex flex-col gap-1 items-center">
+      <div class="w-full max-w-4xl grid gap-4">
+        {{ range .Restaurants }}
+          {{ $restaurant := .Name }}
+          {{ range .Card.Food }}
+            <div class="food-card">
+              <div>
+                <div class="text-sm">{{ $restaurant }}</div>
+                <div class="font-bold text-lg">{{ .Name }}</div>
+                {{ if .Description }}<div class="text-sm">{{ .Description }}</div>{{ end }}
+              </div>
+              {{ if .Price }}
+                {{ $price := printf "%.2f" .Price }}
+                {{ $price := $price | replace "." "," }}
+                <div class="price badge badge-lg badge-primary whitespace-nowrap">{{ $price }} €</div>
+              {{ end }}
+            </div>
+          {{ end }}
+        {{ end }}
+      </div>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "js" }}
+  <script>
+    const SETTINGS_LOCAL_STORAGE = 'mittag_settings';
+
+    let priceReduction = 0;
+    const prices = document.querySelectorAll('.price');
+    const ls = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+    if (ls) {
+      const parsed = JSON.parse(ls);
+      priceAdjustment = parsed.priceAdjustment;
+      for (price of prices) {
+        const parsedPrice = parseFloat(price.innerText.replace(',', '.'));
+        price.innerText = (parsedPrice - priceAdjustment).toFixed(2).replace('.', ',') + ' €';
+      }
+    }
+  </script>
+{{ end }}

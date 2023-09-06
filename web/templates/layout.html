@@ -47,6 +47,9 @@
           <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
           {{ range .Navigation }}
             <div class="divider m-0"></div>
+            {{ $restaurant := index . 0 }}
+            {{ $link := printf "%s%d" "/foods/" $restaurant.Group }}
+            <li class="text-primary">{{ block "link" list $link "city" $restaurant.Group }}{{ end }}</li>
             {{ range . }}
               {{ $link := printf "%s%s" "/restaurants/" .ID }}
               <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>

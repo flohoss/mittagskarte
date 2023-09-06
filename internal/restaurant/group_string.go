@@ -9,13 +9,13 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[Fasanenhof-1]
-	_ = x[Nuertingen-2]
+	_ = x[Esslingen-2]
 	_ = x[Feuerbach-3]
 }
 
-const _Group_name = "FasanenhofNürtingenFeuerbach"
+const _Group_name = "FasanenhofEsslingenFeuerbach"
 
-var _Group_index = [...]uint8{0, 10, 20, 29}
+var _Group_index = [...]uint8{0, 10, 19, 28}
 
 func (i Group) String() string {
 	i -= 1

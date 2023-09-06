@@ -21,13 +21,13 @@ type Group uint8
 
 var Groups = []Group{
 	Fasanenhof,
-	Nuertingen,
+	Esslingen,
 	Feuerbach,
 }
 
 const (
 	Fasanenhof Group = iota + 1
-	Nuertingen
+	Esslingen
 	Feuerbach
 )
 
