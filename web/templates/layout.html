@@ -21,7 +21,7 @@
 
     {{ define "link" }}
       <a href="{{ index . 0 }}">
-        <svg class="icon-sm">
+        <svg class="icon-sm {{ if index . 3 }}text-primary{{ end }}">
           <use href="#{{ index . 1 }}"></use>
         </svg>
         {{ index . 2 }}
@@ -44,19 +44,19 @@
       <div class="drawer-side z-50">
         <label for="drawer" class="drawer-overlay"></label>
         <ul class="menu menu-md p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
-          <li>{{ block "link" list "/countdown" "clock" "Countdown" }}{{ end }}</li>
+          <li class="font-bold">{{ block "link" list "/countdown" "clock" "Countdown" true }}{{ end }}</li>
           {{ range .Navigation }}
             <div class="divider m-0"></div>
             {{ $restaurant := index . 0 }}
             {{ $link := printf "%s%d" "/foods/" $restaurant.Group }}
-            <li class="text-primary">{{ block "link" list $link "city" $restaurant.Group }}{{ end }}</li>
+            <li class="font-bold">{{ block "link" list $link "city" $restaurant.Group true }}{{ end }}</li>
             {{ range . }}
               {{ $link := printf "%s%s" "/restaurants/" .ID }}
-              <li>{{ block "link" list $link "restaurant" .Name }}{{ end }}</li>
+              <li class="opacity-90">{{ block "link" list $link "restaurant" .Name false }}{{ end }}</li>
             {{ end }}
           {{ end }}
           <span class="h-2 shrink-0 flex-grow"></span>
-          <li>{{ block "link" list "/settings" "system" "Einstellungen" }}{{ end }}</li>
+          <li class="font-bold">{{ block "link" list "/settings" "system" "Einstellungen" true }}{{ end }}</li>
         </ul>
       </div>
     </div>
