@@ -76,8 +76,8 @@
           {{ range .Restaurant.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
-            <div class="{{ if and $today $notRestDay }}food-card{{ else }}food-card-disabled{{ end }}">
-              <div>
+            <div class="{{ if and $today $notRestDay }}food-card{{ else }}food-card-disabled{{ end }} overflow-hidden">
+              <div class="overflow-hidden">
                 {{ if .Day }}<div class="text-sm">{{ .Day }}</div>{{ end }}
                 <div class="font-bold text-lg">{{ .Name }}</div>
                 {{ if .Description }}<div class="text-sm">{{ .Description }}</div>{{ end }}
