@@ -1,7 +1,7 @@
 package fetch
 
 import (
-	"errors"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,7 +16,7 @@ func init() {
 	os.MkdirAll(DownloadLocation, os.ModePerm)
 }
 
-func DownloadFile(id string, fullUrl string) (string, error) {
+func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
 	fileURL, err := url.Parse(fullUrl)
 	if err != nil {
 		return "", err
@@ -31,19 +31,24 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	client := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			r.URL.Opaque = r.URL.Path
-			return nil
-		},
+
+	req, _ := http.NewRequest("GET", fullUrl, nil)
+	req.Header.Set("User-Agent", "Custom Agent")
+	client := http.DefaultClient
+	if http_one {
+		client = &http.Client{
+			Transport: &http.Transport{
+				TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},
+			},
+		}
 	}
-	resp, err := client.Get(fullUrl)
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.New("response status is not 200")
+		return "", fmt.Errorf("no 200 html status, status: %d", resp.StatusCode)
 	}
 
 	_, err = io.Copy(file, resp.Body)

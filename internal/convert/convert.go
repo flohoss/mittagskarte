@@ -66,11 +66,30 @@ func CropMenu(fileLocation string, resultName string, cropping string, gravity s
 }
 
 func ConvertPdfToPng(fileLocation string) (string, error) {
-	result := strings.Replace(fileLocation, ".pdf", "", 1)
-	slog.Debug("converting pdf to png", "path", fileLocation)
-	out, err := exec.Command("pdftoppm", "-singlefile", "-r", "300", "-png", fileLocation, result).CombinedOutput()
-	if err != nil {
-		return "", errors.New(string(out))
+	ext := filepath.Ext(fileLocation)
+	if ext == ".pdf" {
+		result := strings.Replace(fileLocation, ".pdf", "", 1)
+		slog.Debug("converting pdf to png", "path", fileLocation)
+		out, err := exec.Command("pdftoppm", "-r", "300", "-png", fileLocation, result).CombinedOutput()
+		if err != nil {
+			return "", errors.New(string(out))
+		}
+		return result + ".png", nil
 	}
-	return result + ".png", nil
+	return fileLocation, nil
+}
+
+func RemoveExtraPDFPages(fileLocation string) (string, error) {
+	ext := filepath.Ext(fileLocation)
+	if ext == ".pdf" {
+		dir := filepath.Dir(fileLocation)
+		res := dir + "/res.pdf"
+		slog.Debug("removing extra pages from pdf", "path", fileLocation)
+		out, err := exec.Command("pdftk", fileLocation, "cat", "1", "output", res).CombinedOutput()
+		if err != nil {
+			return "", errors.New(string(out))
+		}
+		os.Rename(res, fileLocation)
+	}
+	return fileLocation, nil
 }

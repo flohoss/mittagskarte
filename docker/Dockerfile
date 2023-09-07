@@ -30,7 +30,7 @@ RUN figlet Mittag > logo.txt
 
 FROM debian:${DEBIAN_VERSION}-slim AS final
 RUN apt-get update -qq
-RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy
+RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy pdftk
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 RUN apt-get install -y libtesseract-dev libleptonica-dev
 RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu

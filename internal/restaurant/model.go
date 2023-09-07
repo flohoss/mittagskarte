@@ -107,6 +107,7 @@ type Menu struct {
 
 type Configuration struct {
 	Restaurant          Restaurant `json:"restaurant"`
+	HTTPOne             bool       `json:"http_one"`
 	RetrieveDownloadUrl []Retrieve `json:"retrieve_download_url"`
 	Download            Download   `json:"download"`
 	Menu                Menu       `json:"menu"`

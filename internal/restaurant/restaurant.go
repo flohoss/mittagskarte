@@ -52,7 +52,7 @@ func (r *Restaurant) Update() (Card, error) {
 	if config.Download.IsFile {
 		content, card.ImageURL, err = downloadAndParseMenu(r.ID, &config, downloadUrl)
 	} else {
-		content, doc, err = downloadHtml(r.ID, downloadUrl)
+		content, doc, err = downloadHtml(r.ID, downloadUrl, &config)
 	}
 	if err != nil {
 		return card, err
@@ -77,7 +77,7 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 		for _, d := range config.RetrieveDownloadUrl {
 			slog.Debug("navigating to page", "page", downloadUrl)
 			var err error
-			doc, err = fetch.DownloadHtml(downloadUrl)
+			doc, err = fetch.DownloadHtml(downloadUrl, config.HTTPOne)
 			if err != nil {
 				return "", doc, err
 			}
@@ -96,11 +96,16 @@ func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *go
 
 func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) ([]string, string, error) {
 	var content []string
-	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl)
+	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl, config.HTTPOne)
 	if err != nil {
 		return content, "", err
 	}
-	slog.Debug("scanning file", "path", imageURL)
+
+	imageURL, err = convert.RemoveExtraPDFPages(imageURL)
+	if err != nil {
+		return content, "", err
+	}
+
 	if len(config.Download.Cropping) != 0 {
 		for i, c := range config.Download.Cropping {
 			res, err := convert.CropMenu(imageURL, fmt.Sprintf("%s-%d", id, i), c.Crop, c.Gravity)
@@ -130,8 +135,8 @@ func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) 
 	return content, imageURL, nil
 }
 
-func downloadHtml(id string, downloadUrl string) ([]string, *goquery.Document, error) {
-	doc, err := fetch.DownloadHtml(downloadUrl)
+func downloadHtml(id string, downloadUrl string, config *Configuration) ([]string, *goquery.Document, error) {
+	doc, err := fetch.DownloadHtml(downloadUrl, config.HTTPOne)
 	if err != nil {
 		return []string{}, doc, err
 	}

@@ -1,0 +1,27 @@
+{
+  "restaurant": {
+    "id": "delta",
+    "name": "Delta",
+    "page_url": "https://www.delta-koengen.de/menü/",
+    "street": "Plochinger Straße",
+    "street_number": "22",
+    "zip_code": "73257",
+    "city": "Köngen",
+    "latitude": 48.681631086060534,
+    "longitude": 9.369038900423206,
+    "rest_day": [0, 1, 6],
+    "phone": "+49 7024 466833",
+    "group": 2
+  },
+  "http_one": true,
+  "retrieve_download_url": [
+    {
+      "jquery": "div.cc-m-hgrid-column:contains('Mittagskarte') a.cc-m-download-link",
+      "attribute": "href",
+      "prefix": "https://www.delta-koengen.de"
+    }
+  ],
+  "download": {
+    "is_file": true
+  }
+}
