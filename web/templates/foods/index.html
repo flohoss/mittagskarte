@@ -20,11 +20,12 @@
     <div class="flex flex-col gap-1 items-center">
       <div class="w-full max-w-4xl grid gap-4">
         {{ range .Restaurants }}
-          {{ $restaurant := .Name }}
+          {{ $restaurant := . }}
           {{ range .Card.Food }}
-            <div class="food-card">
+            {{ $link := printf "%s%s" "/restaurants/" $restaurant.ID }}
+            <a href="{{ $link }}" class="food-card">
               <div>
-                <div class="text-sm">{{ $restaurant }}</div>
+                <div class="text-sm">{{ $restaurant.Name }}</div>
                 <div class="font-bold text-lg">{{ .Name }}</div>
                 {{ if .Description }}<div class="text-sm">{{ .Description }}</div>{{ end }}
               </div>
@@ -33,7 +34,7 @@
                 {{ $price := $price | replace "." "," }}
                 <div class="price badge badge-lg badge-primary whitespace-nowrap">{{ $price }} €</div>
               {{ end }}
-            </div>
+            </a>
           {{ end }}
         {{ end }}
       </div>
