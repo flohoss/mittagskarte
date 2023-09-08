@@ -63,15 +63,14 @@ type Retrieve struct {
 }
 
 type Download struct {
-	IsFile    bool       `json:"is_file"`
-	Prefix    string     `json:"prefix"`
-	TrimEdges bool       `json:"trim_edges"`
-	Cropping  []Cropping `json:"cropping"`
+	IsFile   bool       `json:"is_file"`
+	Cropping []Cropping `json:"cropping"`
 }
 
 type Cropping struct {
 	Gravity string `json:"gravity"`
 	Crop    string `json:"crop"`
+	Keep    bool   `json:"keep"`
 }
 
 type FoodEntry struct {

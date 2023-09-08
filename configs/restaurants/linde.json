@@ -16,12 +16,12 @@
   "retrieve_download_url": [
     {
       "jquery": "td:contains('%month%') > a",
-      "attribute": "href"
+      "attribute": "href",
+      "prefix": "https://www.gasthauslinde.de"
     }
   ],
   "download": {
-    "is_file": true,
-    "prefix": "https://www.gasthauslinde.de"
+    "is_file": true
   },
   "menu": {
     "description": {

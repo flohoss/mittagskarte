@@ -16,14 +16,13 @@
   "retrieve_download_url": [
     {
       "jquery": "a:contains('Download pdf')",
-      "attribute": "href"
+      "attribute": "href",
+      "prefix": "https://www.hoflieferant-munz.de/"
     }
   ],
   "download": {
     "is_file": true,
-    "prefix": "https://www.hoflieferant-munz.de/",
-    "trim_edges": true,
-    "cropping": [{ "crop": "50x100%+0+0" }]
+    "cropping": [{ "crop": "50x100%+0+0", "keep": true }]
   },
   "menu": {
     "description": {

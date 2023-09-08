@@ -16,36 +16,36 @@ func ReplaceEndingToWebp(fileLocation string) string {
 	return newFile
 }
 
-func ConvertToWebp(fileLocation string, resultName string, trim bool) (string, error) {
+func ConvertToWebp(fileLocation string, resultName string) (string, error) {
 	dir := filepath.Dir(fileLocation)
 	result := fmt.Sprintf("%s/%s.webp", dir, resultName)
-	app := "convert"
-	args := []string{}
-	if trim {
-		args = []string{"-trim"}
-	}
-	args = append(args, []string{"-strip", "-density", "300", "-alpha", "Remove", fileLocation, "-quality", "90", result}...)
-	slog.Debug("converting to webp", "path", fileLocation, "command", args)
-	out, err := exec.Command(app, args...).CombinedOutput()
+	out, err := exec.Command("convert", "-strip", "-density", "300", "-alpha", "Remove", fileLocation, "-quality", "90", result).CombinedOutput()
 	if err != nil {
 		return "", errors.New(string(out))
 	}
 	os.Remove(fileLocation)
-	slog.Debug("file successfully converted", "path", result)
+	slog.Debug("file successfully converted to webp", "path", result)
 	return result, nil
 }
 
+func ConvertToPng(fileLocation string) (string, error) {
+	ext := filepath.Ext(fileLocation)
+	if ext != ".png" && ext != ".pdf" {
+		result := strings.Replace(fileLocation, ext, ".png", 1)
+		out, err := exec.Command("convert", fileLocation, result).CombinedOutput()
+		if err != nil {
+			return "", errors.New(string(out))
+		}
+		os.Rename(result, fileLocation)
+		slog.Debug("file successfully converted to png", "path", result)
+		return result, nil
+	}
+	return fileLocation, nil
+}
+
 func CropMenu(fileLocation string, resultName string, cropping string, gravity string) (string, error) {
-	var err error
 	dir := filepath.Dir(fileLocation)
 	ext := filepath.Ext(fileLocation)
-	if ext == ".pdf" {
-		fileLocation, err = ConvertPdfToPng(fileLocation)
-		if err != nil {
-			return "", err
-		}
-		ext = ".png"
-	}
 	result := fmt.Sprintf("%s/%s%s", dir, resultName, ext)
 	app := "convert"
 	args := []string{}
@@ -58,38 +58,21 @@ func CropMenu(fileLocation string, resultName string, cropping string, gravity s
 	if err != nil {
 		return "", errors.New(string(out))
 	}
-	if ext == ".png" {
-		os.Remove(fileLocation)
-	}
 	slog.Debug("file successfully cropped", "path", result)
 	return result, nil
 }
 
 func ConvertPdfToPng(fileLocation string) (string, error) {
+	dir := filepath.Dir(fileLocation)
 	ext := filepath.Ext(fileLocation)
 	if ext == ".pdf" {
-		result := strings.Replace(fileLocation, ".pdf", "", 1)
-		slog.Debug("converting pdf to png", "path", fileLocation)
-		out, err := exec.Command("pdftoppm", "-r", "300", "-png", fileLocation, result).CombinedOutput()
+		result := fmt.Sprintf("%s/converted", dir)
+		out, err := exec.Command("pdftoppm", "-singlefile", "-r", "300", "-png", fileLocation, result).CombinedOutput()
 		if err != nil {
 			return "", errors.New(string(out))
 		}
+		os.Remove(fileLocation)
 		return result + ".png", nil
-	}
-	return fileLocation, nil
-}
-
-func RemoveExtraPDFPages(fileLocation string) (string, error) {
-	ext := filepath.Ext(fileLocation)
-	if ext == ".pdf" {
-		dir := filepath.Dir(fileLocation)
-		res := dir + "/res.pdf"
-		slog.Debug("removing extra pages from pdf", "path", fileLocation)
-		out, err := exec.Command("pdftk", fileLocation, "cat", "1", "output", res).CombinedOutput()
-		if err != nil {
-			return "", errors.New(string(out))
-		}
-		os.Rename(res, fileLocation)
 	}
 	return fileLocation, nil
 }

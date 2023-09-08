@@ -7,10 +7,8 @@ import (
 	"os"
 	"regexp"
 
-	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/otiai10/gosseract/v2"
-	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -43,19 +41,23 @@ func (r *Restaurant) Update() (Card, error) {
 		return card, err
 	}
 
-	downloadUrl, doc, err := getFinalDownloadUrl(&config, r.PageURL)
+	downloadUrl, err := config.getFinalDownloadUrl(r.PageURL)
 	if err != nil {
 		return card, err
 	}
 
-	var content []string
-	if config.Download.IsFile {
-		content, card.ImageURL, err = downloadAndParseMenu(r.ID, &config, downloadUrl)
-	} else {
-		content, doc, err = downloadHtml(r.ID, downloadUrl, &config)
-	}
+	doc, err := fetch.DownloadHtml(downloadUrl, config.HTTPOne)
 	if err != nil {
 		return card, err
+	}
+	saveContentAsFile(r.ID, "", doc.Text())
+	content := []string{doc.Text()}
+
+	if config.Download.IsFile {
+		content, card.ImageURL, err = config.downloadAndParseMenu(r.ID, downloadUrl)
+		if err != nil {
+			return card, err
+		}
 	}
 
 	if len(content) > 0 {
@@ -69,79 +71,6 @@ func (r *Restaurant) Update() (Card, error) {
 		card.Food = append(card.Food, config.getAllFood(&c, doc)...)
 	}
 	return card, nil
-}
-
-func getFinalDownloadUrl(config *Configuration, downloadUrl string) (string, *goquery.Document, error) {
-	if len(config.RetrieveDownloadUrl) > 0 {
-		doc := &goquery.Document{}
-		for _, d := range config.RetrieveDownloadUrl {
-			slog.Debug("navigating to page", "page", downloadUrl)
-			var err error
-			doc, err = fetch.DownloadHtml(downloadUrl, config.HTTPOne)
-			if err != nil {
-				return "", doc, err
-			}
-			var present bool
-			downloadUrl, present = doc.Find(replacePlaceholder(d.JQuery)).First().Attr(d.Attribute)
-			if !present {
-				return "", doc, errors.New("cannot navigate")
-			}
-			downloadUrl = d.Prefix + downloadUrl
-		}
-		slog.Debug("found final url", "url", downloadUrl)
-		return downloadUrl, doc, nil
-	}
-	return downloadUrl, nil, nil
-}
-
-func downloadAndParseMenu(id string, config *Configuration, downloadUrl string) ([]string, string, error) {
-	var content []string
-	imageURL, err := fetch.DownloadFile(id, config.Download.Prefix+downloadUrl, config.HTTPOne)
-	if err != nil {
-		return content, "", err
-	}
-
-	imageURL, err = convert.RemoveExtraPDFPages(imageURL)
-	if err != nil {
-		return content, "", err
-	}
-
-	if len(config.Download.Cropping) != 0 {
-		for i, c := range config.Download.Cropping {
-			res, err := convert.CropMenu(imageURL, fmt.Sprintf("%s-%d", id, i), c.Crop, c.Gravity)
-			if err != nil {
-				continue
-			}
-			ocr, err := docconv.ConvertPath(res)
-			if err != nil {
-				continue
-			}
-			os.Remove(res)
-			saveContentAsFile(id, fmt.Sprintf("-%d", i), ocr.Body)
-			content = append(content, ocr.Body)
-		}
-	} else {
-		ocr, err := docconv.ConvertPath(imageURL)
-		if err != nil {
-			return content, "", err
-		}
-		saveContentAsFile(id, "", ocr.Body)
-		content = append(content, ocr.Body)
-	}
-	imageURL, err = convert.ConvertToWebp(imageURL, id, config.Download.TrimEdges)
-	if err != nil {
-		return content, "", err
-	}
-	return content, imageURL, nil
-}
-
-func downloadHtml(id string, downloadUrl string, config *Configuration) ([]string, *goquery.Document, error) {
-	doc, err := fetch.DownloadHtml(downloadUrl, config.HTTPOne)
-	if err != nil {
-		return []string{}, doc, err
-	}
-	saveContentAsFile(id, "", doc.Text())
-	return []string{doc.Text()}, doc, nil
 }
 
 func parseDescription(config *Configuration, content *string, doc *goquery.Document) (string, error) {
