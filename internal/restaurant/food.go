@@ -90,7 +90,11 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 		}
 	}
 	if c.Menu.OneForAll.Regex != "" {
-		foodRegex := regexp.MustCompile("(?i)" + replacePlaceholder(c.Menu.OneForAll.Regex))
+		regexStr := replacePlaceholder(c.Menu.OneForAll.Regex)
+		if c.Menu.OneForAll.Insensitive {
+			regexStr += "(?i)"
+		}
+		foodRegex := regexp.MustCompile(regexStr)
 		regexResult := foodRegex.FindAllStringSubmatch(*content, -1)
 		for _, r := range regexResult {
 			var food Food

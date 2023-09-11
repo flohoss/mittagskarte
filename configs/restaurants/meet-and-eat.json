@@ -20,7 +20,7 @@
       { "crop": "100x10%+0+0" },
       { "crop": "50x60%+0+120" },
       { "gravity": "NorthEast", "crop": "50x60%+0+120" },
-      { "gravity": "South", "crop": "50x20%+0+0" }
+      { "gravity": "South", "crop": "50x30%+0+0" }
     ]
   },
   "menu": {

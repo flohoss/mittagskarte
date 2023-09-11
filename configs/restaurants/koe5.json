@@ -19,7 +19,8 @@
       "fixed_price": 10.9,
       "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s*?([a-zA-Z].*)",
       "pos_day": 1,
-      "pos_food": 2
+      "pos_food": 2,
+      "insensitive": true
     }
   }
 }

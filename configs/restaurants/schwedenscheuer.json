@@ -19,7 +19,8 @@
       "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
       "pos_day": 1,
       "pos_food": 2,
-      "pos_price": 3
+      "pos_price": 3,
+      "insensitive": true
     },
     "food": [
       {

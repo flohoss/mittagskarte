@@ -87,6 +87,7 @@ type OneForAll struct {
 	PositionFood        uint8   `json:"pos_food"`
 	PositionPrice       uint8   `json:"pos_price"`
 	PositionDescription uint8   `json:"pos_description"`
+	Insensitive         bool    `json:"insensitive"`
 	JQuery              JQuery  `json:"jquery"`
 }
 

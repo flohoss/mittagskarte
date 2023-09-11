@@ -39,6 +39,7 @@
       "pos_food": 0,
       "pos_price": 0,
       "pos_description": 0,
+      "insensitive": false,
       "jquery": {
         "wrapper": "",
         "day": "",
