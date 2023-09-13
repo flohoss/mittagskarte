@@ -48,10 +48,8 @@ func (c *Controller) createMaps() {
 		for _, restaurant := range restaurants {
 			folder := fetch.DownloadLocation + restaurant.ID
 			os.MkdirAll(folder, os.ModePerm)
-			if _, err := os.Stat(folder + "/map.jpg"); err == nil {
-				continue
-			}
-			maps.CreateMap(restaurant.Latitude, restaurant.Longitude, folder)
+
+			maps.CreateMap(restaurant.Latitude, restaurant.Longitude, folder, restaurant.Group == 1)
 		}
 	}
 }
