@@ -1,42 +1,43 @@
 package maps
 
 import (
-	"image/color"
+	"context"
 	"log/slog"
 
-	sm "github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
-	"github.com/golang/geo/s2"
+	"gitlab.unjx.de/flohoss/mittag/internal/convert"
+	"googlemaps.github.io/maps"
 )
 
-func CreateMap(lat float64, lng float64, folder string, brainority bool) {
-	ctx := sm.NewContext()
-
-	ctx.SetSize(896, 150)
-	ctx.AddObject(
-		sm.NewMarker(
-			s2.LatLngFromDegrees(lat, lng),
-			color.RGBA{235, 147, 45, 255},
-			16.0,
-		),
-	)
-	if brainority {
-		ctx.AddObject(
-			sm.NewMarker(
-				s2.LatLngFromDegrees(48.70861927536174, 9.168349225546137),
-				color.RGBA{20, 69, 138, 255},
-				16.0,
-			),
-		)
+func CreateMap(address string, folder string, key string, brainority bool) {
+	c, err := maps.NewClient(maps.WithAPIKey(key))
+	if err != nil {
+		slog.Error("cannot create map client", "err", err)
+		return
 	}
 
-	img, err := ctx.Render()
+	markers := []maps.Marker{{LocationAddress: address, Size: "small", Color: "0xEB932D"}}
+
+	if brainority {
+		markers = append(markers, maps.Marker{LocationAddress: "Brainority Software GmbH", Size: "small", Color: "0x14458A"})
+	}
+
+	r := &maps.StaticMapRequest{
+		Size:      "900x150",
+		Scale:     4,
+		MapType:   "hybrid",
+		Markers:   markers,
+		MapStyles: []string{"feature:poi|visibility:off"},
+	}
+	img, err := c.StaticMap(context.Background(), r)
 	if err != nil {
 		slog.Error("cannot render map", "err", err)
+		return
 	}
 
-	old := folder + "/map.jpg"
-	if err := gg.SaveJPG(old, img, 70); err != nil {
+	old := folder + "/map.png"
+	if err := gg.SavePNG(old, img); err != nil {
 		slog.Error("cannot save map", "err", err)
 	}
+	convert.ConvertToWebp(old, "map")
 }

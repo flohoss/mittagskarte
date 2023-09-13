@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/robfig/cron/v3"
@@ -49,7 +50,11 @@ func (c *Controller) createMaps() {
 			folder := fetch.DownloadLocation + restaurant.ID
 			os.MkdirAll(folder, os.ModePerm)
 
-			maps.CreateMap(restaurant.Latitude, restaurant.Longitude, folder, restaurant.Group == 1)
+			if _, err := os.Stat(folder + "/map.webp"); err == nil {
+				continue
+			}
+			maps.CreateMap(fmt.Sprintf("%s %s, %s %s", restaurant.Street, restaurant.StreetNumber, restaurant.ZipCode, restaurant.City), folder, c.env.GoogleAPIKey, restaurant.Group == 1)
+
 		}
 	}
 }

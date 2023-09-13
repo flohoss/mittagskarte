@@ -7,11 +7,9 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/caarlos0/env/v8 v8.0.0
-	github.com/flopp/go-staticmaps v0.0.0-20220221183018-c226716bec53
 	github.com/fogleman/gg v1.3.0
 	github.com/glebarez/sqlite v1.9.0
 	github.com/go-playground/validator/v10 v10.15.1
-	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/goodsign/monday v1.0.1
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/otiai10/gosseract/v2 v2.4.0
@@ -19,6 +17,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/image v0.11.0
 	golang.org/x/text v0.12.0
+	googlemaps.github.io/maps v1.5.0
 	gorm.io/gorm v1.25.4
 )
 
@@ -32,7 +31,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/set v0.2.1 // indirect
-	github.com/flopp/go-coordsparser v0.0.0-20201115094714-8baaeb7062d5 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gigawattio/window v0.0.0-20180317192513-0f5467e35573 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
@@ -65,9 +63,9 @@ require (
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	github.com/tkrajina/gpxgo v1.3.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
