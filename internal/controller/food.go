@@ -30,6 +30,6 @@ func (c *Controller) RenderFood(ctx echo.Context) error {
 	var restaurants []restaurant.Restaurant
 	today := monday.Format(time.Now(), "Monday", monday.LocaleDeDE)
 	options := []string{today, today + " (Vegetarisch)"}
-	c.orm.Where(&restaurant.Restaurant{Group: group}).Preload("Card.Food", "Day IN ?", options).Find(&restaurants)
+	c.orm.Where(&restaurant.Restaurant{Group: group}).Preload("Card.Food", "Day IN ?", options).Order("Name").Find(&restaurants)
 	return ctx.Render(http.StatusOK, "foods", FoodData{Title: "Mittag - " + today + " - " + group.String(), Group: group.String(), Day: today, Navigation: c.Navigation, Restaurants: restaurants})
 }
