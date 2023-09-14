@@ -9,7 +9,7 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-func CreateMap(address string, folder string, key string, brainority bool) {
+func CreateMap(address string, folder string, key string) {
 	c, err := maps.NewClient(maps.WithAPIKey(key))
 	if err != nil {
 		slog.Error("cannot create map client", "err", err)
@@ -17,10 +17,6 @@ func CreateMap(address string, folder string, key string, brainority bool) {
 	}
 
 	markers := []maps.Marker{{LocationAddress: address, Size: "small", Color: "0xEB932D"}}
-
-	if brainority {
-		markers = append(markers, maps.Marker{LocationAddress: "Brainority Software GmbH", Size: "small", Color: "0x14458A"})
-	}
 
 	r := &maps.StaticMapRequest{
 		Size:      "900x150",

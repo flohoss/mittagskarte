@@ -53,7 +53,7 @@ func (c *Controller) createMaps() {
 			if _, err := os.Stat(folder + "/map.webp"); err == nil {
 				continue
 			}
-			maps.CreateMap(fmt.Sprintf("%s %s, %s %s", restaurant.Street, restaurant.StreetNumber, restaurant.ZipCode, restaurant.City), folder, c.env.GoogleAPIKey, restaurant.Group == 1)
+			maps.CreateMap(fmt.Sprintf("%s %s, %s %s", restaurant.Street, restaurant.StreetNumber, restaurant.ZipCode, restaurant.City), folder, c.env.GoogleAPIKey)
 
 		}
 	}

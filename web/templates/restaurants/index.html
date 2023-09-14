@@ -20,14 +20,14 @@
       {{ end }}
     </div>
   {{ end }}
-  <div class="{{ if or $restDay $nothingFound }}grayscale opacity-50 animate-fadeIn50{{ else }}animate-fadeIn{{ end }} container-custom">
+  <div class="{{ if or $restDay $nothingFound }}grayscale opacity-50 animate-fadeIn50{{ else }}animate-fadeIn{{ end }} container-custom mt-12 lg:mt-5">
     <div class="flex flex-col items-center gap-5">
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
         <div
           class="absolute inset-0 rounded-xl bg-cover bg-center"
           style="background-image: url('/storage/downloads/{{ .Restaurant.ID }}/map.webp?{{ env "APP_VERSION" }}')"
         ></div>
-        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-12 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
+        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
           {{ .Restaurant.Name }}
         </div>
       </div>

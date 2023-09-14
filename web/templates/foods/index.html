@@ -3,14 +3,14 @@
 {{ end }}
 
 {{ define "content" }}
-  <div class="animate-fadeIn container-custom">
+  <div class="animate-fadeIn container-custom mt-5 lg:mt-0">
     <div class="flex flex-col items-center gap-5">
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
         <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/static/images/foodHeader.webp')"></div>
-        <div class="text-center bg-secondary text-secondary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 -translate-x-1/2 text-xl md:text-2xl">
+        <div class="text-center bg-secondary text-secondary-content rounded-xl px-3 py-2 absolute top-1/2 left-1/2 -translate-x-1/2 text-xl md:text-2xl">
           {{ .Group }}
         </div>
-        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute top-2 md:top-3 left-1/2 -translate-x-1/2 text-3xl md:text-4xl">
+        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute top-2 md:top-6 left-1/2 -translate-x-1/2 text-3xl md:text-4xl">
           {{ .Day }}
         </div>
       </div>

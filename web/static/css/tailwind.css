@@ -4,7 +4,7 @@
 
 @layer components {
   .container-custom {
-    @apply p-[0.7rem] lg:container mt-12 lg:mt-5;
+    @apply p-[0.7rem] lg:container;
   }
   .icon-xs {
     @apply flex-shrink-0 w-3 h-3;
