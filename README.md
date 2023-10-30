@@ -6,6 +6,7 @@
 
 ```sh
 ./scripts/dev.sh
+docker compose run --rm yarn install --frozen-lockfile
 docker compose up
 ```
 
