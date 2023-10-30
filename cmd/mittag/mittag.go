@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,7 +15,8 @@ import (
 func main() {
 	env, err := env.Parse()
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("cannot parse environment variables", "err", err)
+		os.Exit(1)
 	}
 	slog.SetDefault(logging.CreateLogger(env.LogLevel))
 

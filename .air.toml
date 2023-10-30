@@ -1,5 +1,4 @@
 [build]
 bin = "tmp/mittag"
-pre_cmd = ["npx tailwindcss -i ./web/static/css/tailwind.css -o ./web/static/css/style.css"]
 cmd = "go build -o tmp/mittag -tags ocr cmd/mittag/mittag.go"
-exclude_dir = [".gitlab", "docker", "scripts", "web/node_modules", "storage", "tmp"]
+exclude_dir = [".gitlab", "docker", "scripts", "web/node_modules", "web/static", "storage", "tmp"]
