@@ -8,7 +8,7 @@ import (
 
 	"gitlab.unjx.de/flohoss/mittag/internal/controller"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/logging"
+	"gitlab.unjx.de/flohoss/mittag/internal/logger"
 	"gitlab.unjx.de/flohoss/mittag/internal/router"
 )
 
@@ -18,7 +18,7 @@ func main() {
 		slog.Error("cannot parse environment variables", "err", err)
 		os.Exit(1)
 	}
-	slog.SetDefault(logging.CreateLogger(env.LogLevel))
+	slog.SetDefault(logger.NewLogger(env.LogLevel))
 
 	r := router.InitRouter()
 	c := controller.NewController(env)

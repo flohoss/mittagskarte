@@ -12,6 +12,7 @@ require (
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/goodsign/monday v1.0.1
 	github.com/labstack/echo/v4 v4.11.2
+	github.com/lmittmann/tint v1.0.3
 	github.com/otiai10/gosseract/v2 v2.4.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.4
