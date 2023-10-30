@@ -1,9 +1,17 @@
 # Mittag
 
-[![Open in Coder](https://coder.unjx.de/open-in-coder.svg)](https://coder.unjx.de/templates/mittag/workspace)
+[![pipeline status](https://gitlab.unjx.de/flohoss/mittag/badges/main/pipeline.svg)](https://gitlab.unjx.de/flohoss/mittag/-/commits/main)
 
 ## Run development server
 
 ```sh
-air -c .air.toml
+./scripts/dev.sh
+docker compose up
+```
+
+## Build mittag image
+
+```sh
+./scripts/dev.sh
+docker compose --profile build build
 ```

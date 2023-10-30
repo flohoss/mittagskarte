@@ -15,13 +15,10 @@ COPY . .
 RUN go build -tags ocr -ldflags="-s -w" cmd/mittag/mittag.go
 
 FROM node:${NODE_VERSION}-alpine AS nodeBuilder
+WORKDIR /web
 
-COPY ./package.json .
-COPY ./yarn.lock .
+COPY ./web .
 RUN yarn install --frozen-lockfile
-
-COPY ./web ./web
-COPY ./tailwind.config.js .
 RUN yarn run tailwind:build
 
 FROM alpine:${ALPINE_VERSION} AS logo
