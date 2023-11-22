@@ -1,17 +1,9 @@
 package restaurant
 
 import (
-	"errors"
-	"fmt"
 	"log/slog"
-	"os"
-	"regexp"
 
-	"github.com/PuerkitoBio/goquery"
 	_ "github.com/otiai10/gosseract/v2"
-	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -35,77 +27,43 @@ func GetRestaurants(orm *gorm.DB) []Restaurant {
 
 func (r *Restaurant) Update() (Card, error) {
 	slog.Debug("updating restaurant", "name", r.Name)
-	card := Card{RestaurantID: r.ID}
 	config, err := parseConfig(ConfigLocation + r.ID + ".json")
 	if err != nil {
-		return card, err
+		return config.card, err
+	}
+	config.card = Card{RestaurantID: r.ID}
+
+	if !(len(config.RetrieveDownloadUrl) == 0 && config.Download.IsFile) {
+		err = config.getFirstHtmlPage()
+		if err != nil {
+			return config.card, err
+		}
 	}
 
-	downloadUrl, err := config.getFinalDownloadUrl(r.PageURL)
+	err = config.getFinalHtmlPage()
 	if err != nil {
-		return card, err
+		return config.card, err
 	}
-
-	doc, err := fetch.DownloadHtml(downloadUrl, config.HTTPOne)
-	if err != nil {
-		return card, err
-	}
-	saveContentAsFile(r.ID, "", doc.Text())
-	content := []string{doc.Text()}
 
 	if config.Download.IsFile {
-		content, card.ImageURL, err = config.downloadAndParseMenu(r.ID, downloadUrl)
+		err = config.downloadAndParseMenu()
 		if err != nil {
-			return card, err
+			return config.card, err
 		}
+	} else {
+		config.content = []string{config.htmlPages[len(config.htmlPages)-1].Text()}
+		config.saveContentAsFile("", config.content[0])
 	}
 
-	if len(content) > 0 {
-		card.Description, err = parseDescription(&config, &content[0], doc)
+	if len(config.content) > 0 {
+		err = config.parseDescription()
 		if err != nil {
-			return card, err
+			return config.card, err
 		}
 	}
 
-	for _, c := range content {
-		card.Food = append(card.Food, config.getAllFood(&c, doc)...)
+	for _, c := range config.content {
+		config.card.Food = append(config.card.Food, config.getAllFood(&c)...)
 	}
-	return card, nil
-}
-
-func parseDescription(config *Configuration, content *string, doc *goquery.Document) (string, error) {
-	description := ""
-	if config.Menu.Description.Regex != "" {
-		replaced := replacePlaceholder(config.Menu.Description.Regex)
-		slog.Debug("description from regex", "regex", replaced)
-		descriptionExpr := regexp.MustCompile("(?i)" + replaced)
-		description = descriptionExpr.FindString(*content)
-	} else if config.Menu.Description.JQuery != "" {
-		replaced := replacePlaceholder(config.Menu.Description.JQuery)
-		slog.Debug("description from jquery", "jquery", replaced)
-		if config.Menu.Description.Attribute == "" {
-			description = doc.Find(replaced).First().Text()
-		} else {
-			present := false
-			description, present = doc.Find(replaced).First().Attr(config.Menu.Description.Attribute)
-			if !present {
-				return "", errors.New("cannot find jquery")
-			}
-		}
-	} else if config.Menu.Description.Fixed != "" {
-		slog.Debug("description fixed", "fixed", config.Menu.Description.Fixed)
-		description = config.Menu.Description.Fixed
-	}
-	caser := cases.Title(language.German)
-	return caser.String(description), nil
-}
-
-func saveContentAsFile(id string, suffix string, content string) error {
-	folder := fetch.DownloadLocation + id
-	os.MkdirAll(folder, os.ModePerm)
-	err := os.WriteFile(fmt.Sprintf("%s/%s%s.txt", folder, id, suffix), []byte(content), os.ModePerm)
-	if err != nil {
-		return err
-	}
-	return nil
+	return config.card, nil
 }

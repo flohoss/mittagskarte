@@ -76,15 +76,15 @@ func appendFood(allFood *[]Food, food *Food) {
 	}
 }
 
-func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Food {
+func (c *Configuration) getAllFood(content *string) []Food {
 	var allFood []Food
 	if len(c.Menu.Food) > 0 {
 		for _, f := range c.Menu.Food {
 			food := Food{
-				Name:        f.getName(content, doc),
-				Day:         f.getDay(content, doc),
-				Price:       f.getPrice(content, doc),
-				Description: f.getDescription(content, doc),
+				Name:        f.getName(content, c.htmlPages[len(c.htmlPages)-1]),
+				Day:         f.getDay(content, c.htmlPages[len(c.htmlPages)-1]),
+				Price:       f.getPrice(content, c.htmlPages[len(c.htmlPages)-1]),
+				Description: f.getDescription(content, c.htmlPages[len(c.htmlPages)-1]),
 			}
 			appendFood(&allFood, &food)
 		}
@@ -116,7 +116,7 @@ func (c *Configuration) getAllFood(content *string, doc *goquery.Document) []Foo
 		}
 	}
 	if c.Menu.OneForAll.JQuery.Wrapper != "" {
-		doc.Find(replacePlaceholder(c.Menu.OneForAll.JQuery.Wrapper)).Each(func(i int, s *goquery.Selection) {
+		c.htmlPages[len(c.htmlPages)-1].Find(replacePlaceholder(c.Menu.OneForAll.JQuery.Wrapper)).Each(func(i int, s *goquery.Selection) {
 			food := Food{
 				Name:        strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Food).Text()),
 				Day:         strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Day).Text()),

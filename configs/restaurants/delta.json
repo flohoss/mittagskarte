@@ -23,5 +23,8 @@
   ],
   "download": {
     "is_file": true
+  },
+  "menu": {
+    "description": { "fixed": "Mittagsangebot" }
   }
 }

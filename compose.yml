@@ -11,24 +11,10 @@ services:
         - ALPINE_VERSION=${ALPINE_VERSION}
 
   backend:
+    profiles: [dev]
     build:
       context: .
-      dockerfile_inline: |
-        ARG GOLANG_VERSION
-        FROM golang:${GOLANG_VERSION}
-        RUN apt-get update -qq
-        RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy
-        RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
-        RUN apt-get install -y libtesseract-dev libleptonica-dev
-        RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu
-
-        RUN go install github.com/cosmtrek/air@latest
-        COPY ./.air.toml .
-
-        WORKDIR /app
-        COPY ./go.mod .
-        COPY ./go.sum .
-        RUN go mod download
+      dockerfile: ./docker/Dockerfile.dev
       args:
         - GOLANG_VERSION=${GOLANG_VERSION}
     command: air -c .air.toml
@@ -37,12 +23,34 @@ services:
       - LOG_LEVEL=debug
       - APP_VERSION=v0.0.1-dev
       - BUILD_TIME=2023-04-05T20:48:07Z
+      - GOOGLE_API_KEY=AIzaSyCPVvOqLQTWu3_2Chr_9eqfZefxolRrUc8
     ports:
       - 4000:4000
     volumes:
       - .:/app/
 
+  backend-debug:
+    profiles: [debug]
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        - GOLANG_VERSION=${GOLANG_VERSION}
+    command: scripts/debug.sh
+    environment:
+      - TZ=Europe/Berlin
+      - LOG_LEVEL=debug
+      - APP_VERSION=v0.0.1-dev
+      - BUILD_TIME=2023-04-05T20:48:07Z
+      - GOOGLE_API_KEY=AIzaSyCPVvOqLQTWu3_2Chr_9eqfZefxolRrUc8
+    ports:
+      - 4001:4001
+      - 4000:4000
+    volumes:
+      - ./:/app/
+
   frontend:
+    profiles: [dev, debug]
     image: node:${NODE_VERSION}-alpine
     working_dir: /app/web
     command: yarn run tailwind:dev

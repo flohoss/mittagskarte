@@ -1,5 +1,7 @@
 package restaurant
 
+import "github.com/PuerkitoBio/goquery"
+
 type Restaurant struct {
 	ID           string  `json:"id" gorm:"primaryKey"`
 	Name         string  `json:"name"`
@@ -111,4 +113,8 @@ type Configuration struct {
 	RetrieveDownloadUrl []Retrieve `json:"retrieve_download_url"`
 	Download            Download   `json:"download"`
 	Menu                Menu       `json:"menu"`
+	card                Card
+	htmlPages           []*goquery.Document
+	content             []string
+	downloadUrl         string
 }

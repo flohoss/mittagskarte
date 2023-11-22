@@ -9,18 +9,33 @@
     "city": "Stuttgart-Fasanenhof",
     "latitude": 48.71539920482492,
     "longitude": 9.165393403838493,
-    "rest_day": [0, 6],
+    "rest_day": [0, 5, 6],
     "phone": "+49 711 99772624",
     "group": 1
   },
   "menu": {
     "description": { "regex": "Tageskarte.*" },
-    "one_for_all": {
-      "fixed_price": 10.9,
-      "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag)\\s*?([a-zA-Z].*)",
-      "pos_day": 1,
-      "pos_food": 2,
-      "insensitive": true
-    }
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "regex": "Tageskarte[\\s\\S]*?Montag\\s*?([a-zA-Z].*)" },
+        "price": { "fixed": "10.9" }
+      },
+      {
+        "day": { "fixed": "Dienstag" },
+        "food": { "regex": "Tageskarte[\\s\\S]*?Dienstag\\s*?([a-zA-Z].*)" },
+        "price": { "fixed": "10.9" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "regex": "Tageskarte[\\s\\S]*?Mittwoch\\s*?([a-zA-Z].*)" },
+        "price": { "fixed": "10.9" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "regex": "Tageskarte[\\s\\S]*?Donnerstag\\s*?([a-zA-Z].*)" },
+        "price": { "fixed": "10.9" }
+      }
+    ]
   }
 }

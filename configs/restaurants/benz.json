@@ -13,59 +13,16 @@
     "phone": "+49 7024 81488",
     "group": 2
   },
+  "retrieve_download_url": [
+    {
+      "jquery": "div .mb-0 > p > a",
+      "attribute": "href"
+    }
+  ],
+  "download": {
+    "is_file": true
+  },
   "menu": {
-    "description": { "fixed": "Tagesessen" },
-    "food": [
-      {
-        "day": { "fixed": "Montag" },
-        "food": { "regex": "Montag[\\s\\S]*?([A-Z].*)" },
-        "price": { "regex": "Montag[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Montag (Vegetarisch)" },
-        "food": { "regex": "Montag[\\s\\S]*?Vegetarisch:(.*)" },
-        "price": { "regex": "Montag[\\s\\S]*?Vegetarisch:[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Dienstag" },
-        "food": { "regex": "Dienstag[\\s\\S]*?([A-Z].*)" },
-        "price": { "regex": "Dienstag[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Dienstag (Vegetarisch)" },
-        "food": { "regex": "Dienstag[\\s\\S]*?Vegetarisch:(.*)" },
-        "price": { "regex": "Dienstag[\\s\\S]*?Vegetarisch:[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Mittwoch" },
-        "food": { "regex": "Mittwoch[\\s\\S]*?([A-Z].*)" },
-        "price": { "regex": "Mittwoch[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Mittwoch (Vegetarisch)" },
-        "food": { "regex": "Mittwoch[\\s\\S]*?Vegetarisch:(.*)" },
-        "price": { "regex": "Mittwoch[\\s\\S]*?Vegetarisch:[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Donnerstag" },
-        "food": { "regex": "Donnerstag[\\s\\S]*?([A-Z].*)" },
-        "price": { "regex": "Donnerstag[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Donnerstag (Vegetarisch)" },
-        "food": { "regex": "Donnerstag[\\s\\S]*?Vegetarisch:(.*)" },
-        "price": { "regex": "Donnerstag[\\s\\S]*?Vegetarisch:[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Freitag" },
-        "food": { "regex": "Freitag[\\s\\S]*?([A-Z].*)" },
-        "price": { "regex": "Freitag[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      },
-      {
-        "day": { "fixed": "Freitag (Vegetarisch)" },
-        "food": { "regex": "Freitag[\\s\\S]*?Vegetarisch:(.*)" },
-        "price": { "regex": "Freitag[\\s\\S]*?Vegetarisch:[\\s\\S]*?(\\d{1,2},\\d{1,2})€" }
-      }
-    ]
+    "description": { "regex": "Vom.*bis.*" }
   }
 }

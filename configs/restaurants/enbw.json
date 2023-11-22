@@ -15,5 +15,10 @@
   },
   "download": {
     "is_file": true
+  },
+  "menu": {
+    "description": {
+      "regex": "\\d{2}\\.\\d{2}\\.\\d{2,4}\\s?.+\\s?\\d{2}\\.\\d{2}\\.\\d{2,4}\\s?KW\\s\\d{1,2}"
+    }
   }
 }
