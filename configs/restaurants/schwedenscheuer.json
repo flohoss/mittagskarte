@@ -3,12 +3,7 @@
     "id": "schwedenscheuer",
     "name": "Schwedenscheuer",
     "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
-    "street": "Hauptstraße",
-    "street_number": "71/1",
-    "zip_code": "70771",
-    "city": "Leinfelden-Echterdingen",
-    "latitude": 48.688405113912154,
-    "longitude": 9.166638055590445,
+    "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
     "rest_day": [0, 6],
     "phone": "+49 711 7978527",
     "group": 1

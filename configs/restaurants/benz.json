@@ -3,12 +3,7 @@
     "id": "benz",
     "name": "Benz",
     "page_url": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
-    "street": "Hirschstraße",
-    "street_number": "18",
-    "zip_code": "73257",
-    "city": "Köngen",
-    "latitude": 48.68396263959295,
-    "longitude": 9.362366408284398,
+    "address": "Hirschstraße 18, 73257 Köngen",
     "rest_day": [0, 6],
     "phone": "+49 7024 81488",
     "group": 2

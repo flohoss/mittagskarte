@@ -6,6 +6,7 @@ type Restaurant struct {
 	ID           string  `json:"id" gorm:"primaryKey"`
 	Name         string  `json:"name"`
 	PageURL      string  `json:"page_url"`
+	Address      string  `json:"address"`
 	Street       string  `json:"street"`
 	StreetNumber string  `json:"street_number"`
 	ZipCode      string  `json:"zip_code"`

@@ -3,12 +3,7 @@
     "id": "linde",
     "name": "Linde",
     "page_url": "https://www.gasthauslinde.de/Mittagstisch",
-    "street": "Wasserburgstraße",
-    "street_number": "3",
-    "zip_code": "72622",
-    "city": "Nürtingen-Zizishausen",
-    "latitude": 48.641688982054845,
-    "longitude": 9.347466800930759,
+    "address": "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen",
     "rest_day": [0, 1, 6],
     "phone": "+49 7022 62306",
     "group": 2

@@ -3,12 +3,7 @@
     "id": "ratsstuben",
     "name": "Ratsstuben",
     "page_url": "https://ratsstuben.de/wochenkarte/",
-    "street": "Bernhäuser Straße",
-    "street_number": "16",
-    "zip_code": "70771",
-    "city": "Leinfelden-Echterdingen",
-    "latitude": 48.68823623924175,
-    "longitude": 9.16919593566195,
+    "address": "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen",
     "rest_day": [0, 6],
     "phone": "+49 711 791725",
     "group": 1

@@ -11,7 +11,7 @@ func GetNavigation(orm *gorm.DB) [][]Restaurant {
 	var navigation [][]Restaurant
 	for _, g := range Groups {
 		var restaurants []Restaurant
-		orm.Where(&Restaurant{Group: g}).Select("ID", "Name", "Selected", "Street", "StreetNumber", "ZipCode", "City", "Group").Order("Name").Find(&restaurants)
+		orm.Where(&Restaurant{Group: g}).Order("Name").Find(&restaurants)
 		navigation = append(navigation, restaurants)
 	}
 	return navigation

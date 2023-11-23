@@ -3,12 +3,7 @@
     "id": "meet-and-eat",
     "name": "Meet & Eat",
     "page_url": "http://meetundeat.com/#Speisekarte",
-    "street": "Schelmenwasenstraße",
-    "street_number": "7",
-    "zip_code": "70567",
-    "city": "Stuttgart-Fasanenhof",
-    "latitude": 48.71425688848292,
-    "longitude": 9.166203979395853,
+    "address": "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof",
     "rest_day": [0, 6],
     "phone": "+49 157 30664255",
     "group": 1

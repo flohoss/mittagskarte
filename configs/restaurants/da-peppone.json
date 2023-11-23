@@ -3,12 +3,7 @@
     "id": "da-peppone",
     "name": "Da Peppone",
     "page_url": "https://dapeppone-restaurant.de/",
-    "street": "Bopseräcker",
-    "street_number": "1",
-    "zip_code": "70597",
-    "city": "Stuttgart-Degerloch",
-    "latitude": 48.7333860132231,
-    "longitude": 9.168711897889501,
+    "address": "Bopseräcker 1, 70597 Stuttgart-Degerloch",
     "rest_day": [0, 1, 6],
     "phone": "+49 711 78784911",
     "group": 1

@@ -3,12 +3,7 @@
     "id": "koe5",
     "name": "KÖ5",
     "page_url": "https://koe5.de/",
-    "street": "Schelmenwasenstraße",
-    "street_number": "5",
-    "zip_code": "70567",
-    "city": "Stuttgart-Fasanenhof",
-    "latitude": 48.71539920482492,
-    "longitude": 9.165393403838493,
+    "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
     "rest_day": [0, 5, 6],
     "phone": "+49 711 99772624",
     "group": 1

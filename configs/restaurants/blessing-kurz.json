@@ -3,12 +3,7 @@
     "id": "blessing-kurz",
     "name": "Blessing-Kurz",
     "page_url": "https://blessing-kurz.de/Tagesessen/",
-    "street": "Unterdorfstraße",
-    "street_number": "1",
-    "zip_code": "73257",
-    "city": "Köngen",
-    "latitude": 48.68502263874674,
-    "longitude": 9.363344285096607,
+    "address": "Unterdorfstraße 1, 73257 Köngen",
     "rest_day": [0, 6],
     "phone": "+49 7024 989895",
     "group": 2

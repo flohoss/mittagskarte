@@ -3,12 +3,7 @@
     "id": "schaible",
     "name": "Schaible",
     "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
-    "street": "Staufeneckstraße",
-    "street_number": "1",
-    "zip_code": "70469",
-    "city": "Stuttgart-Feuerbach",
-    "latitude": 48.80762311615608,
-    "longitude": 9.156540084375933,
+    "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
     "rest_day": [0, 6],
     "phone": "+49 711 8104528",
     "group": 3

@@ -3,12 +3,7 @@
     "id": "enbw",
     "name": "EnBW",
     "page_url": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/enbw.jpeg",
-    "street": "Schelmenwasenstraße",
-    "street_number": "15",
-    "zip_code": "70567",
-    "city": "Stuttgart-Fasanenhof",
-    "latitude": 48.71257667730447,
-    "longitude": 9.168240124871295,
+    "address": "Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof",
     "rest_day": [0, 6],
     "phone": "+49 721 72586001",
     "group": 1

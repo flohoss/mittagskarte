@@ -30,6 +30,9 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 	storage := e.Group("/storage/downloads", longCacheLifetime)
 	storage.Static("/", "storage/downloads")
 
+	maps := e.Group("/storage/maps", longCacheLifetime)
+	maps.Static("/", "storage/maps")
+
 	e.GET("/countdown", ctrl.RenderCountdown)
 	e.GET("/settings", ctrl.RenderSettings)
 

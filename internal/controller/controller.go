@@ -1,23 +1,20 @@
 package controller
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/database"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gitlab.unjx.de/flohoss/mittag/internal/restaurant"
-	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 	"gorm.io/gorm"
 )
 
 type Controller struct {
-	orm        *gorm.DB
-	env        *env.Config
-	schedule   *cron.Cron
-	Navigation [][]restaurant.Restaurant
+	orm            *gorm.DB
+	env            *env.Config
+	schedule       *cron.Cron
+	Navigation     [][]restaurant.Restaurant
+	MapInformation map[string]*maps.MapInformation
 }
 
 func NewController(env *env.Config) *Controller {
@@ -45,16 +42,14 @@ func (c *Controller) setupSchedule() {
 }
 
 func (c *Controller) createMaps() {
+	mapRequests := []maps.MapRequest{}
 	for _, restaurants := range c.Navigation {
 		for _, restaurant := range restaurants {
-			folder := fetch.DownloadLocation + restaurant.ID
-			os.MkdirAll(folder, os.ModePerm)
-
-			if _, err := os.Stat(folder + "/map.webp"); err == nil {
-				continue
-			}
-			maps.CreateMap(fmt.Sprintf("%s %s, %s %s", restaurant.Street, restaurant.StreetNumber, restaurant.ZipCode, restaurant.City), folder, c.env.GoogleAPIKey)
-
+			mapRequests = append(mapRequests, maps.MapRequest{
+				Identifier: restaurant.ID,
+				Address:    restaurant.Address,
+			})
 		}
 	}
+	c.MapInformation = maps.GetMapInformation(c.env.GoogleAPIKey, mapRequests)
 }
