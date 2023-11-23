@@ -8,12 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"code.sajari.com/docconv"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 const ConfigLocation = "configs/restaurants/"
@@ -155,7 +154,6 @@ func (c *Configuration) parseDescription() error {
 		slog.Debug("description fixed", "fixed", c.Menu.Description.Fixed)
 		c.card.Description = c.Menu.Description.Fixed
 	}
-	caser := cases.Title(language.German)
-	c.card.Description = caser.String(c.card.Description)
+	c.card.Description = strings.ToValidUTF8(c.card.Description, "")
 	return nil
 }

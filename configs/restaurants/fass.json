@@ -10,13 +10,27 @@
   },
   "menu": {
     "description": { "jquery": "h2:contains('KW %KW%')" },
-    "one_for_all": {
-      "jquery": {
-        "wrapper": "div:contains('KW %KW%') > div > table > tbody > tr",
-        "day": "td:eq(0)",
-        "food": "td:eq(1)",
-        "price": "div.elementor-price-list-header > span.elementor-price-list-price"
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "food": { "jquery": "tr:contains('MONTAG') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "food": { "jquery": "tr:contains('MITTWOCH') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "food": { "jquery": "tr:contains('DONNERSTAG') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "food": { "jquery": "tr:contains('FREITAG') td:last-child" },
+        "price": { "fixed": "10" }
       }
-    }
+    ]
   }
 }
