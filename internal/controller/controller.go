@@ -1,55 +1,48 @@
 package controller
 
 import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
-	"gitlab.unjx.de/flohoss/mittag/internal/database"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/maps"
-	"gitlab.unjx.de/flohoss/mittag/internal/restaurant"
-	"gorm.io/gorm"
+	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
 )
 
 type Controller struct {
-	orm            *gorm.DB
-	env            *env.Config
-	schedule       *cron.Cron
-	Navigation     [][]restaurant.Restaurant
-	MapInformation map[string]*maps.MapInformation
+	env    *env.Env
+	mittag *mittag.Mittag
+	cron   *cron.Cron
 }
 
-func NewController(env *env.Config) *Controller {
-	db := database.NewDatabaseConnection("sqlite.db")
-	ctrl := Controller{orm: db, env: env}
-	restaurant.MigrateModels(ctrl.orm)
-	ctrl.Navigation = restaurant.GetNavigation(ctrl.orm)
-	ctrl.createMaps()
-	ctrl.setupSchedule()
+func NewController(env *env.Env) *Controller {
+	ctrl := new(Controller)
 
-	return &ctrl
+	ctrl.env = env
+	ctrl.mittag = mittag.NewMittag()
+	ctrl.cron = cron.New()
+	ctrl.cron.AddFunc("0,30 10,11 * * *", ctrl.updateAll)
+	ctrl.cron.Start()
+
+	return ctrl
 }
 
-func (c *Controller) setupSchedule() {
-	c.schedule = cron.New()
-
-	c.schedule.AddFunc("0,30 10,11 * * *", func() {
-		c.UpdateAllRestaurants()
-	})
-	c.schedule.AddFunc("0 0 * * *", func() {
-		c.setRandomRestaurant()
-	})
-
-	c.schedule.Start()
+func (c *Controller) updateAll() {
+	c.mittag.UpdateRestaurants()
 }
 
-func (c *Controller) createMaps() {
-	mapRequests := []maps.MapRequest{}
-	for _, restaurants := range c.Navigation {
-		for _, restaurant := range restaurants {
-			mapRequests = append(mapRequests, maps.MapRequest{
-				Identifier: restaurant.ID,
-				Address:    restaurant.Address,
-			})
+func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
+	id := ctx.QueryParam("id")
+	if id != "" {
+		exists, conf := c.mittag.DoesConfigurationExist(id)
+		if !exists {
+			return ctx.NoContent(http.StatusNotFound)
 		}
+		go func() {
+			conf.UpdateInformation(c.mittag.GetORM())
+		}()
+	} else {
+		go c.mittag.UpdateRestaurants()
 	}
-	c.MapInformation = maps.GetMapInformation(c.env.GoogleAPIKey, mapRequests)
+	return ctx.NoContent(http.StatusOK)
 }

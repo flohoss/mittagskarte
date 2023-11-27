@@ -16,14 +16,18 @@ func ReplaceEndingToWebp(fileLocation string) string {
 	return newFile
 }
 
-func ConvertToWebp(fileLocation string, resultName string) (string, error) {
+func ConvertToWebp(fileLocation string, resultName string, removeOld bool) (string, error) {
 	dir := filepath.Dir(fileLocation)
 	result := fmt.Sprintf("%s/%s.webp", dir, resultName)
 	out, err := exec.Command("convert", "-strip", "-density", "300", "-alpha", "Remove", fileLocation, "-quality", "90", result).CombinedOutput()
 	if err != nil {
-		return "", errors.New(string(out))
+		err = errors.New(string(out))
+		slog.Error("file could not be converted to webp", "err", err)
+		return "", err
 	}
-	os.Remove(fileLocation)
+	if removeOld {
+		os.Remove(fileLocation)
+	}
 	slog.Debug("file successfully converted to webp", "path", result)
 	return result, nil
 }
@@ -34,7 +38,9 @@ func ConvertToPng(fileLocation string) (string, error) {
 		result := strings.Replace(fileLocation, ext, ".png", 1)
 		out, err := exec.Command("convert", fileLocation, result).CombinedOutput()
 		if err != nil {
-			return "", errors.New(string(out))
+			err = errors.New(string(out))
+			slog.Error("file could not be converted to png", "err", err)
+			return "", err
 		}
 		os.Rename(result, fileLocation)
 		slog.Debug("file successfully converted to png", "path", result)

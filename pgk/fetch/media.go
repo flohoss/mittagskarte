@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,17 +17,19 @@ func init() {
 	os.MkdirAll(DownloadLocation, os.ModePerm)
 }
 
-func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
-	fileURL, err := url.Parse(fullUrl)
-	if err != nil {
-		return "", err
-	}
+func GetFilename(id string, fullUrl string) string {
+	fileURL, _ := url.Parse(fullUrl)
 	path := fileURL.Path
 	folder := DownloadLocation + id
 	os.MkdirAll(folder, os.ModePerm)
 	segments := strings.Split(path, "/")
-	fileName := fmt.Sprintf("%s/%s", folder, segments[len(segments)-1])
+	return fmt.Sprintf("%s/%s", folder, segments[len(segments)-1])
+}
 
+func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
+	slog.Debug("downloading file", "url", fullUrl)
+
+	fileName := GetFilename(id, fullUrl)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return "", err

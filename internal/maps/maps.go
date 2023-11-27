@@ -11,7 +11,7 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-const MapsFolder = "storage/maps/"
+const MapsFolder = "storage/public/maps"
 const originMarkerRange = 5000
 
 func init() {
@@ -19,6 +19,7 @@ func init() {
 }
 
 type MapInformation struct {
+	client     *maps.Client
 	Identifier string
 	Route      *maps.Route
 }
@@ -51,7 +52,10 @@ func GetMapInformation(key string, mapRequests []MapRequest) map[string]*MapInfo
 }
 
 func (m *MapInformation) getLeg() *maps.Leg {
-	return m.Route.Legs[0]
+	if m.Route != nil && len(m.Route.Legs) > 0 {
+		return m.Route.Legs[0]
+	}
+	return &maps.Leg{}
 }
 
 func (m *MapInformation) getPaths() []maps.Path {
@@ -83,14 +87,13 @@ func getRoute(c *maps.Client, address string) *maps.Route {
 		Language:    "de",
 		Units:       maps.UnitsMetric,
 	})
-	if err != nil {
+	if err != nil || len(routes) == 0 {
 		return &maps.Route{}
 	}
 	return &routes[0]
 }
 
 func (m *MapInformation) createMap(c *maps.Client) {
-
 	r := &maps.StaticMapRequest{
 		Size:      "900x150",
 		Scale:     4,
@@ -109,5 +112,5 @@ func (m *MapInformation) createMap(c *maps.Client) {
 	if err := gg.SavePNG(loc, img); err != nil {
 		slog.Error(err.Error())
 	}
-	convert.ConvertToWebp(loc, m.Identifier)
+	convert.ConvertToWebp(loc, m.Identifier, true)
 }
