@@ -11,7 +11,6 @@ import (
 
 func DownloadHtml(url string, http_one bool) (*goquery.Document, error) {
 	slog.Debug("downloading html", "url", url)
-	doc := &goquery.Document{}
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", "Custom Agent")
@@ -26,14 +25,14 @@ func DownloadHtml(url string, http_one bool) (*goquery.Document, error) {
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		return doc, err
+		return nil, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return doc, fmt.Errorf("no 200 html status, status: %d", res.StatusCode)
+		return nil, fmt.Errorf("no 200 html status, status: %d", res.StatusCode)
 	}
 
-	doc, err = goquery.NewDocumentFromReader(res.Body)
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return doc, err
 
