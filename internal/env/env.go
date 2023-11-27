@@ -2,14 +2,13 @@ package env
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/caarlos0/env/v8"
 	"github.com/go-playground/validator/v10"
 )
 
-type Config struct {
+type Env struct {
 	TimeZone     string `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
 	Port         int    `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
 	LogLevel     string `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
@@ -20,21 +19,21 @@ type Config struct {
 
 var errParse = errors.New("error parsing environment variables")
 
-func Parse() (*Config, error) {
-	cfg := &Config{}
-	if err := env.Parse(cfg); err != nil {
-		return cfg, err
+func Parse() (*Env, error) {
+	e := &Env{}
+	if err := env.Parse(e); err != nil {
+		return e, err
 	}
-	if err := validateContent(cfg); err != nil {
-		return cfg, err
+	if err := validateContent(e); err != nil {
+		return e, err
 	}
-	setAllDefaultEnvs(cfg)
-	return cfg, nil
+	setTZDefaultEnv(e)
+	return e, nil
 }
 
-func validateContent(cfg *Config) error {
+func validateContent(e *Env) error {
 	validate := validator.New()
-	err := validate.Struct(cfg)
+	err := validate.Struct(e)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
@@ -48,8 +47,6 @@ func validateContent(cfg *Config) error {
 	return nil
 }
 
-func setAllDefaultEnvs(cfg *Config) {
-	os.Setenv("TZ", cfg.TimeZone)
-	os.Setenv("PORT", fmt.Sprintf("%d", cfg.Port))
-	os.Setenv("LOG_LEVEL", cfg.LogLevel)
+func setTZDefaultEnv(e *Env) {
+	os.Setenv("TZ", e.TimeZone)
 }
