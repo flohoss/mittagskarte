@@ -8,7 +8,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
-	"gitlab.unjx.de/flohoss/mittag/internal/parse"
+	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 )
 
@@ -47,7 +47,7 @@ func (l *LiveInformation) fetchAndStoreFile(id string, url string, httpOne bool)
 }
 
 func (l *LiveInformation) findDownloadUrlInPage(r *Retrieve) error {
-	downloadUrl, present := l.HTMLPages[len(l.HTMLPages)-1].Find(parse.ReplacePlaceholder(r.JQuery)).First().Attr(r.Attribute)
+	downloadUrl, present := l.HTMLPages[len(l.HTMLPages)-1].Find(helper.ReplacePlaceholder(r.JQuery)).First().Attr(r.Attribute)
 	if !present {
 		errMsg := "could not find url with given information"
 		slog.Error(errMsg, "jquery", r.JQuery, "attribute", r.Attribute)
@@ -58,7 +58,7 @@ func (l *LiveInformation) findDownloadUrlInPage(r *Retrieve) error {
 }
 
 func (l *LiveInformation) parseAndStoreFileText() error {
-	text, err := parse.ParseMenu(l.StoredFileLocation)
+	text, err := helper.ParseMenu(l.StoredFileLocation)
 	if err != nil {
 		slog.Error("could not parse file", "file", l.StoredFileLocation)
 		return err

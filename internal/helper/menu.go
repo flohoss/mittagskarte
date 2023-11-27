@@ -1,6 +1,8 @@
-package parse
+package helper
 
-import "code.sajari.com/docconv"
+import (
+	"code.sajari.com/docconv"
+)
 
 func ParseMenu(filePath string) (string, error) {
 	ocr, err := docconv.ConvertPath(filePath)

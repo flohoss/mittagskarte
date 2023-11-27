@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.unjx.de/flohoss/mittag/internal/parse"
+	"github.com/PuerkitoBio/goquery"
+	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 	"gorm.io/gorm"
 )
 
@@ -109,7 +110,7 @@ func (c *Configuration) getDescription(l *LiveInformation) string {
 	if c.Menu.Description.Fixed != "" {
 		description = c.Menu.Description.Fixed
 	} else if c.Menu.Description.Regex != "" {
-		replaced := parse.ReplacePlaceholder(c.Menu.Description.Regex)
+		replaced := helper.ReplacePlaceholder(c.Menu.Description.Regex)
 		descriptionExpr := regexp.MustCompile("(?i)" + replaced)
 		if l.FileText != "" {
 			description = descriptionExpr.FindString(l.FileText)
@@ -117,7 +118,7 @@ func (c *Configuration) getDescription(l *LiveInformation) string {
 			description = descriptionExpr.FindString(l.HTMLPages[len(l.HTMLPages)-1].Text())
 		}
 	} else if c.Menu.Description.JQuery != "" {
-		replaced := parse.ReplacePlaceholder(c.Menu.Description.JQuery)
+		replaced := helper.ReplacePlaceholder(c.Menu.Description.JQuery)
 		el := l.HTMLPages[len(l.HTMLPages)-1].Find(replaced).First()
 		if c.Menu.Description.Attribute == "" {
 			description = el.Text()
@@ -130,15 +131,59 @@ func (c *Configuration) getDescription(l *LiveInformation) string {
 
 func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 	var allFood []Food
+	lastestHtmlPage := l.HTMLPages[len(l.HTMLPages)-1]
 	for i := 0; i < len(c.Menu.Food); i++ {
 		current := &c.Menu.Food[i]
 		food := Food{
-			Name:        current.getName(&l.FileText, l.HTMLPages[len(l.HTMLPages)-1]),
-			Day:         current.getDay(&l.FileText, l.HTMLPages[len(l.HTMLPages)-1]),
-			Price:       current.getPrice(&l.FileText, l.HTMLPages[len(l.HTMLPages)-1]),
-			Description: current.getDescription(&l.FileText, l.HTMLPages[len(l.HTMLPages)-1]),
+			Name:        current.getName(&l.FileText, lastestHtmlPage),
+			Day:         current.getDay(&l.FileText, lastestHtmlPage),
+			Price:       current.getPrice(&l.FileText, lastestHtmlPage),
+			Description: current.getDescription(&l.FileText, lastestHtmlPage),
 		}
 		appendFood(&allFood, &food)
+	}
+	if c.Menu.OneForAll.Regex != "" {
+		regexStr := helper.ReplacePlaceholder(c.Menu.OneForAll.Regex)
+		if c.Menu.OneForAll.Insensitive {
+			regexStr += "(?i)"
+		}
+		foodRegex := regexp.MustCompile(regexStr)
+		regexResult := foodRegex.FindAllStringSubmatch(l.FileText, -1)
+		for _, r := range regexResult {
+			var food Food
+			if c.Menu.OneForAll.PositionFood > 0 && len(r) > int(c.Menu.OneForAll.PositionFood) {
+				food.Name = helper.ClearAndTitleString(r[c.Menu.OneForAll.PositionFood])
+			}
+			if c.Menu.OneForAll.PositionDay > 0 && len(r) > int(c.Menu.OneForAll.PositionDay) {
+				food.Day = helper.ClearAndTitleString(r[c.Menu.OneForAll.PositionDay])
+			}
+			if c.Menu.OneForAll.FixedPrice != 0 {
+				food.Price = c.Menu.OneForAll.FixedPrice
+			} else if c.Menu.OneForAll.PositionPrice > 0 && len(r) > int(c.Menu.OneForAll.PositionPrice) {
+				food.Price = helper.ConvertPrice(r[c.Menu.OneForAll.PositionPrice])
+			}
+			if c.Menu.OneForAll.PositionDescription > 0 && len(r) > int(c.Menu.OneForAll.PositionDescription) {
+				food.Description = helper.ClearString(r[c.Menu.OneForAll.PositionDescription])
+			}
+			appendFood(&allFood, &food)
+		}
+	}
+	if c.Menu.OneForAll.JQuery.Wrapper != "" {
+		lastestHtmlPage.Find(helper.ReplacePlaceholder(c.Menu.OneForAll.JQuery.Wrapper)).Each(func(i int, s *goquery.Selection) {
+			food := Food{
+				Name:        strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Food).Text()),
+				Day:         strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Day).Text()),
+				Price:       helper.ConvertPrice(s.Find(c.Menu.OneForAll.JQuery.Price).Text()),
+				Description: strings.TrimSpace(s.Find(c.Menu.OneForAll.JQuery.Description).Text()),
+			}
+			if c.Menu.OneForAll.FixedPrice != 0 {
+				food.Price = c.Menu.OneForAll.FixedPrice
+			}
+			if foodInAllFood(food, allFood) != -1 {
+				return
+			}
+			appendFood(&allFood, &food)
+		})
 	}
 	return allFood
 }

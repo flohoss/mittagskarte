@@ -1,16 +1,17 @@
 package mittag
 
 import (
+	"reflect"
 	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goodsign/monday"
-	"gitlab.unjx.de/flohoss/mittag/internal/parse"
+	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 )
 
 func (s *Selector) regexResult(content *string) string {
-	reg := regexp.MustCompile("(?i)" + parse.ReplacePlaceholder(s.Regex))
+	reg := regexp.MustCompile("(?i)" + helper.ReplacePlaceholder(s.Regex))
 	res := reg.FindStringSubmatch(*content)
 	if len(res) > 1 {
 		return res[1]
@@ -48,11 +49,11 @@ func (f *FoodEntry) getName(content *string, doc *goquery.Document) string {
 
 func (f *FoodEntry) getPrice(content *string, doc *goquery.Document) float64 {
 	if f.Price.Fixed != "" {
-		return parse.ConvertPrice(f.Price.Fixed)
+		return helper.ConvertPrice(f.Price.Fixed)
 	} else if f.Price.Regex != "" {
-		return parse.ConvertPrice(f.Price.regexResult(content))
+		return helper.ConvertPrice(f.Price.regexResult(content))
 	} else if f.Price.JQuery != "" {
-		return parse.ConvertPrice(f.Price.jQueryResult(doc))
+		return helper.ConvertPrice(f.Price.jQueryResult(doc))
 	} else {
 		return 0
 	}
@@ -89,6 +90,15 @@ func foodExisting(allFood *[]Food, food *Food) bool {
 func posInArray(str string, arr []string) int {
 	for i, s := range arr {
 		if strings.EqualFold(s, str) {
+			return i
+		}
+	}
+	return -1
+}
+
+func foodInAllFood(food Food, arr []Food) int {
+	for i, s := range arr {
+		if reflect.DeepEqual(food, s) {
 			return i
 		}
 	}
