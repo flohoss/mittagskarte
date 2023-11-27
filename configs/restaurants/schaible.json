@@ -20,27 +20,27 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "food": { "regex": "Mo[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "name": { "regex": "Mo[.:\\s]{1,2}\\s?(.+?)\\d" },
         "price": { "fixed": "7.5" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "food": { "regex": "Di[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "name": { "regex": "Di[.:\\s]{1,2}\\s?(.+?)\\d" },
         "price": { "fixed": "7.5" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "food": { "regex": "Mi[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "name": { "regex": "Mi[.:\\s]{1,2}\\s?(.+?)\\d" },
         "price": { "fixed": "7.5" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "food": { "regex": "Do[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "name": { "regex": "Do[.:\\s]{1,2}\\s?(.+?)\\d" },
         "price": { "fixed": "7.5" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "food": { "regex": "Fr[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "name": { "regex": "Fr[.:\\s]{1,2}\\s?(.+?)\\d" },
         "price": { "fixed": "7.5" }
       }
     ]

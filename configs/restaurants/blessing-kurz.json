@@ -13,31 +13,31 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p strong" },
+        "name": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p strong" },
         "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_preis h4" },
         "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p strong" },
+        "name": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p strong" },
         "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_preis h4" },
         "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p strong" },
+        "name": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p strong" },
         "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_preis h4" },
         "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p strong" },
+        "name": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p strong" },
         "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_preis h4" },
         "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "food": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p strong" },
+        "name": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p strong" },
         "price": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_preis h4" },
         "description": { "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p" }
       }

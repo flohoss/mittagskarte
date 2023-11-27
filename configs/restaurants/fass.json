@@ -13,22 +13,22 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "food": { "jquery": "tr:contains('MONTAG') td:last-child" },
+        "name": { "jquery": "tr:contains('MONTAG') td:last-child" },
         "price": { "fixed": "10" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "food": { "jquery": "tr:contains('MITTWOCH') td:last-child" },
+        "name": { "jquery": "tr:contains('MITTWOCH') td:last-child" },
         "price": { "fixed": "10" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "food": { "jquery": "tr:contains('DONNERSTAG') td:last-child" },
+        "name": { "jquery": "tr:contains('DONNERSTAG') td:last-child" },
         "price": { "fixed": "10" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "food": { "jquery": "tr:contains('FREITAG') td:last-child" },
+        "name": { "jquery": "tr:contains('FREITAG') td:last-child" },
         "price": { "fixed": "10" }
       }
     ]

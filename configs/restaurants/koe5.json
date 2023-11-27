@@ -13,22 +13,22 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "food": { "regex": "Tageskarte[\\s\\S]*?Montag\\s*?([a-zA-Z].*)" },
+        "name": { "regex": "Tageskarte[\\s\\S]*?Montag\\s*?([a-zA-Z].*)" },
         "price": { "fixed": "10.9" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "food": { "regex": "Tageskarte[\\s\\S]*?Dienstag\\s*?([a-zA-Z].*)" },
+        "name": { "regex": "Tageskarte[\\s\\S]*?Dienstag\\s*?([a-zA-Z].*)" },
         "price": { "fixed": "10.9" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "food": { "regex": "Tageskarte[\\s\\S]*?Mittwoch\\s*?([a-zA-Z].*)" },
+        "name": { "regex": "Tageskarte[\\s\\S]*?Mittwoch\\s*?([a-zA-Z].*)" },
         "price": { "fixed": "10.9" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "food": { "regex": "Tageskarte[\\s\\S]*?Donnerstag\\s*?([a-zA-Z].*)" },
+        "name": { "regex": "Tageskarte[\\s\\S]*?Donnerstag\\s*?([a-zA-Z].*)" },
         "price": { "fixed": "10.9" }
       }
     ]

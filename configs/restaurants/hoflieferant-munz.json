@@ -26,52 +26,52 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "food": { "regex": "Montag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Montag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Montag[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Montag (Vegetarisch)" },
-        "food": { "regex": "Montag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Montag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Montag[\\s\\S]*?€[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "food": { "regex": "Dienstag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Dienstag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Dienstag[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Dienstag (Vegetarisch)" },
-        "food": { "regex": "Dienstag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Dienstag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Dienstag[\\s\\S]*?€[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "food": { "regex": "Mittwoch[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Mittwoch[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Mittwoch[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Mittwoch (Vegetarisch)" },
-        "food": { "regex": "Mittwoch[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Mittwoch[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Mittwoch[\\s\\S]*?€[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "food": { "regex": "Donnerstag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Donnerstag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Donnerstag[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Donnerstag (Vegetarisch)" },
-        "food": { "regex": "Donnerstag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Donnerstag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Donnerstag[\\s\\S]*?€[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "food": { "regex": "Freitag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Freitag[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Freitag[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       },
       {
         "day": { "fixed": "Freitag (Vegetarisch)" },
-        "food": { "regex": "Freitag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
+        "name": { "regex": "Freitag[\\s\\S]*?€[\\s\\S]*?([A-Z][\\s\\S]*?)\\d{1,2},\\d{1,2}\\s?€" },
         "price": { "regex": "Freitag[\\s\\S]*?€[\\s\\S]*?[A-Z][\\s\\S]*?(\\d{1,2},\\d{1,2})\\s?€" }
       }
     ]
