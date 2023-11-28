@@ -19,10 +19,12 @@
     },
     "food": [
       {
+        "day": { "fixed": "Alternative" },
         "name": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
         "price": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
       },
       {
+        "day": { "fixed": "Alternative" },
         "name": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
         "price": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
       }

@@ -107,7 +107,7 @@ func foodInAllFood(food Food, arr []Food) int {
 
 func (f *Food) equal(other interface{}) bool {
 	if otherFood, ok := other.(Food); ok {
-		return f.Name == otherFood.Name && f.Price == otherFood.Price && f.Description == otherFood.Description
+		return f.Day == otherFood.Day && f.Name == otherFood.Name && f.Price == otherFood.Price && f.Description == otherFood.Description
 	}
 	return false
 }

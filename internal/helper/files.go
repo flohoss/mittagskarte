@@ -3,6 +3,7 @@ package helper
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -41,5 +42,14 @@ func RemoveAllOtherFiles(filePath string) error {
 		}
 	}
 
+	return nil
+}
+
+func SaveContentAsFile(folder string, content *string) error {
+	os.MkdirAll(folder, os.ModePerm)
+	err := os.WriteFile(fmt.Sprintf("%s/content.txt", folder), []byte(*content), os.ModePerm)
+	if err != nil {
+		return err
+	}
 	return nil
 }

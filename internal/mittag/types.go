@@ -1,5 +1,10 @@
 package mittag
 
+import (
+	"errors"
+	"strings"
+)
+
 type Restaurant struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`
@@ -19,6 +24,19 @@ var Groups = []Group{
 	Feuerbach,
 }
 
+func StringToGroup(s string) (Group, error) {
+	switch strings.ToLower(s) {
+	case "fasanenhof":
+		return Fasanenhof, nil
+	case "esslingen":
+		return Esslingen, nil
+	case "feuerbach":
+		return Feuerbach, nil
+	default:
+		return Fasanenhof, errors.New("not a valid group")
+	}
+}
+
 const (
 	Fasanenhof Group = iota + 1
 	Esslingen
@@ -30,7 +48,7 @@ type Card struct {
 	Description      string `json:"description"`
 	ImageURL         string `json:"image_url"`
 	ExistingFileHash string `json:"existing_file_hash"`
-	UpdatedAt        int64  `json:"updated_at"`
+	Refreshed        int64  `json:"refreshed"`
 	Food             []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
 }

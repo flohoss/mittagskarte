@@ -10,12 +10,18 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/goodsign/monday"
 	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 	"gorm.io/gorm"
 )
 
 const ConfigLocation = "configs/restaurants/"
-const PublicLocation = "storage/public/"
+const PublicLocation = "storage/public/menus/"
+
+func GetTodayActiveList() []string {
+	today := monday.Format(time.Now(), "Monday", monday.LocaleDeDE)
+	return []string{today, today + " (Vegetarisch)", "Alternative", "Wochen-Renner", "Veggie-Renner"}
+}
 
 func init() {
 	os.MkdirAll(PublicLocation, os.ModePerm)
@@ -57,7 +63,7 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 	defer orm.Save(&card)
 
 	l := new(LiveInformation)
-	err := l.fetchAndStoreHtmlPage(c.Restaurant.PageURL, c.HTTPOne)
+	err := l.fetchAndStoreHtmlPage(c.Restaurant.PageURL, c)
 	if err != nil {
 		return
 	}
@@ -71,7 +77,7 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 		if (i == len(c.RetrieveDownloadUrl)-1) && c.Download.IsFile {
 			card.ExistingFileHash, err = l.fetchAndStoreFile(c.Restaurant.ID, l.DownloadUrl, c.HTTPOne, card.ExistingFileHash)
 		} else {
-			err = l.fetchAndStoreHtmlPage(l.DownloadUrl, c.HTTPOne)
+			err = l.fetchAndStoreHtmlPage(l.DownloadUrl, c)
 		}
 		if err != nil {
 			return
@@ -83,10 +89,13 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 		if err != nil {
 			return
 		}
+		helper.SaveContentAsFile(filepath.Dir(l.FileLocation), &l.RawText)
 		err = l.prepareFileForPublic(c.Restaurant.ID)
 		if err != nil {
 			return
 		}
+		card.Refreshed = time.Now().Unix()
+		card.ImageURL = l.FileLocation
 	}
 
 	var currentFood []Food
@@ -98,11 +107,10 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 			orm.Delete(&currentFood)
 		}
 		card.Food = newFood
+		card.Refreshed = time.Now().Unix()
 	}
 
 	card.Description = c.getDescription(l)
-	card.ImageURL = l.FileLocation
-	card.UpdatedAt = time.Now().Unix()
 }
 
 func (c *Configuration) getDescription(l *LiveInformation) string {

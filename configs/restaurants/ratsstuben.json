@@ -11,40 +11,40 @@
   "retrieve_download_url": [{ "jquery": "div > p > a", "attribute": "href" }],
   "download": {
     "is_file": true,
-    "cropping": [{ "crop": "100x10%+0+600" }, { "crop": "50x65%+0+900" }, { "gravity": "NorthEast", "crop": "50x65%+0+900" }]
+    "cropping": [{ "crop": "100x10%+0+600" }, { "gravity": "NorthEast", "crop": "50x65%+0+900" }, { "crop": "50x65%+0+900" }]
   },
   "menu": {
     "description": { "regex": "Montag.+?Freitag.+?\\d{4}" },
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Montag((?:.|\n)*)Dienstag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Montag(?:.|\n)*Dienstag" }
+        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Montag((?:.|\n)*)\nDienstag" },
+        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Montag(?:.|\n)*\nDienstag" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Dienstag((?:.|\n)*)Mittwoch" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Dienstag(?:.|\n)*Mittwoch" }
+        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Dienstag((?:.|\n)*)\nMittwoch" },
+        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Dienstag(?:.|\n)*\nMittwoch" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Mittwoch((?:.|\n)*)Donnerstag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Mittwoch(?:.|\n)*Donnerstag" }
+        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Mittwoch((?:.|\n)*)\nDonnerstag" },
+        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Mittwoch(?:.|\n)*\nDonnerstag" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Donnerstag((?:.|\n)*)Freitag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Donnerstag(?:.|\n)*Freitag" }
+        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Donnerstag((?:.|\n)*)\nFreitag" },
+        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Donnerstag(?:.|\n)*\nFreitag" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Freitag((?:.|\n)*)" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Freitag(?:.|\n)*" }
+        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Freitag((?:.|\n)*)\nWochen-Renner" },
+        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Freitag(?:.|\n)*\nWochen-Renner" }
       },
       {
         "day": { "fixed": "Wochen-Renner" },
-        "name": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)Veggie-Renner" },
-        "price": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Veggie-Renner" }
+        "name": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)\nVeggie-Renner" },
+        "price": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*\nVeggie-Renner" }
       },
       {
         "day": { "fixed": "Veggie-Renner" },

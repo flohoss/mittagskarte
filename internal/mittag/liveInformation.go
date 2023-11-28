@@ -22,14 +22,16 @@ type LiveInformation struct {
 	RawText      string
 }
 
-func (l *LiveInformation) fetchAndStoreHtmlPage(url string, httpOne bool) error {
-	page, err := fetch.DownloadHtml(url, httpOne)
+func (l *LiveInformation) fetchAndStoreHtmlPage(url string, c *Configuration) error {
+	page, err := fetch.DownloadHtml(url, c.HTTPOne)
 	if err != nil {
 		slog.Error("could not download html page", "url", url, "err", err)
 		return err
 	}
 	l.HTMLPages = append(l.HTMLPages, page)
-	l.RawText += "\n" + page.Text()
+	if !c.Download.IsFile || c.RetrieveDownloadUrl[len(c.RetrieveDownloadUrl)-1].Regex != "" {
+		l.RawText += "\n" + page.Text()
+	}
 	return nil
 }
 

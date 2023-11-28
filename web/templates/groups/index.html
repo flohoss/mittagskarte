@@ -7,11 +7,10 @@
     <div class="flex flex-col items-center gap-5">
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
         <div class="absolute inset-0 rounded-xl bg-cover bg-center" style="background-image: url('/static/images/foodHeader.webp')"></div>
-        <div class="text-center bg-secondary text-secondary-content rounded-xl px-3 py-2 absolute top-1/2 left-1/2 -translate-x-1/2 text-xl md:text-2xl">
+        <div
+          class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl md:text-4xl"
+        >
           {{ .Group }}
-        </div>
-        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute top-2 md:top-6 left-1/2 -translate-x-1/2 text-3xl md:text-4xl">
-          {{ .Day }}
         </div>
       </div>
     </div>
@@ -19,13 +18,14 @@
     <div class="mt-4"></div>
     <div class="flex flex-col gap-1 items-center">
       <div class="w-full max-w-4xl grid gap-4">
-        {{ range .Restaurants }}
-          {{ $restaurant := . }}
-          {{ range .Card.Food }}
-            {{ $link := printf "%s%s" "/restaurants/" $restaurant.ID }}
+        {{ $configurations := .FilteredConfigurations }}
+        {{ range .Cards }}
+          {{ $conf := index $configurations .RestaurantID }}
+          {{ range .Food }}
+            {{ $link := printf "%s%s" "/restaurants/" $conf.Restaurant.ID }}
             <a href="{{ $link }}" class="food-card">
               <div>
-                <div class="text-sm">{{ $restaurant.Name }}</div>
+                <div class="text-sm">{{ $conf.Restaurant.Name }} <span class="text-gray-500">- {{ .Day }}</span></div>
                 <div class="font-bold text-lg">{{ .Name }}</div>
                 {{ if .Description }}<div class="text-sm">{{ .Description }}</div>{{ end }}
               </div>

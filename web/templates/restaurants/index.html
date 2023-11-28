@@ -4,7 +4,7 @@
 
 {{ define "content" }}
   {{ $restDay := isRestDay .Restaurant }}
-  {{ $nothingFound := nothingFound .Restaurant }}
+  {{ $nothingFound := nothingFound .Card }}
   {{ if or $restDay $nothingFound }}
     <div class="z-20 -rotate-12 absolute top-20 left-1/2 transform -translate-x-1/2">
       {{ if $restDay }}
@@ -25,7 +25,7 @@
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
         <div
           class="absolute inset-0 rounded-xl bg-cover bg-center"
-          style="background-image: url('/storage/maps/{{ .Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
+          style="background-image: url('/storage/public/maps/{{ .Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
         ></div>
         <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
           {{ .Restaurant.Name }}
@@ -34,7 +34,7 @@
 
       <div class="flex flex-col gap-1 items-center">
         <div class="flex justify-center gap-1">
-          {{ if and .Restaurant.Card.ImageURL .Restaurant.Card.Food }}
+          {{ if and .Card.ImageURL .Card.Food }}
             <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
                 <path
@@ -64,11 +64,11 @@
         </a>
       </div>
 
-      <div class="text-xl font-bold text-center">{{ .Restaurant.Card.Description }}</div>
+      <div class="text-xl font-bold text-center">{{ .Card.Description }}</div>
 
-      {{ if .Restaurant.Card.Food }}
+      {{ if .Card.Food }}
         <div class="w-full max-w-4xl grid gap-4">
-          {{ range .Restaurant.Card.Food }}
+          {{ range .Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
             <div class="{{ if and $today $notRestDay }}food-card{{ else }}food-card-disabled{{ end }} overflow-hidden">
@@ -85,30 +85,30 @@
             </div>
           {{ end }}
         </div>
-      {{ else if .Restaurant.Card.ImageURL }}
+      {{ else if .Card.ImageURL }}
         <div class="w-full max-w-lg cursor-zoom-in" onclick="my_modal.showModal()">
-          {{ $sizes := imageSize .Restaurant.Card.ImageURL }}
+          {{ $sizes := imageSize .Card.ImageURL }}
           {{ $height := index $sizes 0 }}
           {{ $width := index $sizes 1 }}
-          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .Restaurant.Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
+          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
         </div>
       {{ end }}
 
       {{ if not $nothingFound }}
-        <div class="text-xs text-gray-500">Aktualisiert: {{ .Restaurant.Card.CreatedAt | date "02.01.06 15:04" }}</div>
+        <div class="text-xs text-gray-500">Aktualisiert: {{ .Card.Refreshed | date "02.01.06 15:04" }}</div>
       {{ end }}
     </div>
   </div>
 {{ end }}
 
 {{ define "modal" }}
-  {{ if .Restaurant.Card.ImageURL }}
-    {{ $sizes := imageSize .Restaurant.Card.ImageURL }}
+  {{ if .Card.ImageURL }}
+    {{ $sizes := imageSize .Card.ImageURL }}
     {{ $height := index $sizes 0 }}
     {{ $width := index $sizes 1 }}
     <dialog id="my_modal" class="modal">
       <form method="dialog" class="modal-box p-0 max-w-6xl">
-        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Restaurant.Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
+        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <form method="dialog" class="modal-backdrop">

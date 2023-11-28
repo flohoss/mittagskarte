@@ -5,13 +5,11 @@ import (
 	"html/template"
 	"io"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v4"
-	"gitlab.unjx.de/flohoss/mittag/internal/restaurant"
+	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
 	"golang.org/x/image/webp"
 )
 
@@ -47,16 +45,14 @@ func posInArray(str string, arr []string) int {
 	return -1
 }
 
-func isToday(food restaurant.Food) bool {
-	allowedWords := []string{"Wochen-Renner", "Veggie-Renner"}
-	expr := regexp.MustCompile("(?i)" + monday.Format(time.Now(), "Monday", monday.LocaleDeDE))
-	if food.Day == "" || posInArray(food.Day, allowedWords) != -1 {
+func isToday(food mittag.Food) bool {
+	if food.Day == "" || posInArray(food.Day, mittag.GetTodayActiveList()) != -1 {
 		return true
 	}
-	return expr.MatchString(food.Day)
+	return false
 }
 
-func isRestDay(restaurant restaurant.Restaurant) bool {
+func isRestDay(restaurant mittag.Restaurant) bool {
 	for _, restDay := range restaurant.RestDays {
 		if uint8(time.Now().Weekday()) == restDay {
 			return true
@@ -65,8 +61,8 @@ func isRestDay(restaurant restaurant.Restaurant) bool {
 	return false
 }
 
-func nothingFound(restaurant restaurant.Restaurant) bool {
-	return len(restaurant.Card.Food) == 0 && restaurant.Card.ImageURL == ""
+func nothingFound(card mittag.Card) bool {
+	return len(card.Food) == 0 && card.ImageURL == ""
 }
 
 func imageSize(image string) []int {
@@ -98,7 +94,7 @@ func initTemplates() *Template {
 	templates["countdown"] = generateTemplate("countdown/index.html")
 	templates["settings"] = generateTemplate("settings/index.html")
 	templates["restaurants"] = generateTemplate("restaurants/index.html")
-	templates["foods"] = generateTemplate("foods/index.html")
+	templates["groups"] = generateTemplate("groups/index.html")
 
 	return &Template{templates: templates}
 }

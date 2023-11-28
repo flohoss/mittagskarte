@@ -11,7 +11,7 @@
   "retrieve_download_url": [
     {
       "prefix": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/",
-      "regex": "\"name\".*\"(.+?enbw.+?)\""
+      "regex": "\\\"name\\\".*\\\"(.+?enbw.+?)\\\""
     }
   ],
   "download": {
@@ -19,7 +19,7 @@
   },
   "menu": {
     "description": {
-      "regex": "\\d{2}\\.\\d{2}\\.\\d{2,4}\\s?.+\\s?\\d{2}\\.\\d{2}\\.\\d{2,4}\\s?KW\\s\\d{1,2}"
+      "regex": "\\d{2}[\\.\\,]\\d{2}[\\.\\,]\\d{2,4}.+?\\d{2}[\\.\\,]\\d{2}[\\.\\,]\\d{2,4}"
     }
   }
 }

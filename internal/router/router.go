@@ -13,6 +13,7 @@ func InitRouter() *echo.Echo {
 
 	e.HideBanner = true
 	e.HidePort = true
+	e.Debug = true
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
@@ -27,11 +28,8 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 	static := e.Group("/static", longCacheLifetime)
 	static.Static("/", "web/static")
 
-	storage := e.Group("/storage/downloads", longCacheLifetime)
-	storage.Static("/", "storage/downloads")
-
-	maps := e.Group("/storage/maps", longCacheLifetime)
-	maps.Static("/", "storage/maps")
+	public := e.Group("/storage/public", longCacheLifetime)
+	public.Static("/", "storage/public")
 
 	e.GET("/countdown", ctrl.RenderCountdown)
 	e.GET("/settings", ctrl.RenderSettings)
@@ -42,8 +40,8 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 		return key == adminKey, nil
 	}))
 
-	food := e.Group("/foods")
-	food.GET("/:id", ctrl.RenderFood)
+	groups := e.Group("/groups")
+	groups.GET("/:id", ctrl.RenderGroups)
 
 	e.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
