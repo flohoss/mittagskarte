@@ -10,9 +10,9 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 )
 
-func (s *Selector) regexResult(content *string) string {
+func (s *Selector) regexResult(content string) string {
 	reg := regexp.MustCompile("(?i)" + helper.ReplacePlaceholder(s.Regex))
-	res := reg.FindStringSubmatch(*content)
+	res := reg.FindStringSubmatch(content)
 	if len(res) > 1 {
 		return res[1]
 	}
@@ -23,7 +23,7 @@ func (s *Selector) jQueryResult(doc *goquery.Document) string {
 	return strings.TrimSpace(doc.Find(s.JQuery).First().Text())
 }
 
-func (f *FoodEntry) getDay(content *string, doc *goquery.Document) string {
+func (f *FoodEntry) getDay(content string, doc *goquery.Document) string {
 	if f.Day.Fixed != "" {
 		return f.Day.Fixed
 	} else if f.Day.Regex != "" {
@@ -35,7 +35,7 @@ func (f *FoodEntry) getDay(content *string, doc *goquery.Document) string {
 	}
 }
 
-func (f *FoodEntry) getName(content *string, doc *goquery.Document) string {
+func (f *FoodEntry) getName(content string, doc *goquery.Document) string {
 	if f.Name.Fixed != "" {
 		return f.Name.Fixed
 	} else if f.Name.Regex != "" {
@@ -47,7 +47,7 @@ func (f *FoodEntry) getName(content *string, doc *goquery.Document) string {
 	}
 }
 
-func (f *FoodEntry) getPrice(content *string, doc *goquery.Document) float64 {
+func (f *FoodEntry) getPrice(content string, doc *goquery.Document) float64 {
 	if f.Price.Fixed != "" {
 		return helper.ConvertPrice(f.Price.Fixed)
 	} else if f.Price.Regex != "" {
@@ -59,7 +59,7 @@ func (f *FoodEntry) getPrice(content *string, doc *goquery.Document) float64 {
 	}
 }
 
-func (f *FoodEntry) getDescription(content *string, doc *goquery.Document) string {
+func (f *FoodEntry) getDescription(content string, doc *goquery.Document) string {
 	if f.Description.Fixed != "" {
 		return f.Description.Fixed
 	} else if f.Price.Regex != "" {

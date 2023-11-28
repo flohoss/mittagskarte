@@ -68,7 +68,7 @@ func CropMenu(fileLocation string, resultName string, cropping string, gravity s
 	return result, nil
 }
 
-func ConvertPdfToPng(fileLocation string) (string, error) {
+func ConvertPdfToPng(fileLocation string, removeOld bool) (string, error) {
 	dir := filepath.Dir(fileLocation)
 	ext := filepath.Ext(fileLocation)
 	if ext == ".pdf" {
@@ -77,7 +77,9 @@ func ConvertPdfToPng(fileLocation string) (string, error) {
 		if err != nil {
 			return "", errors.New(string(out))
 		}
-		os.Remove(fileLocation)
+		if removeOld {
+			os.Remove(fileLocation)
+		}
 		return result + ".png", nil
 	}
 	return fileLocation, nil

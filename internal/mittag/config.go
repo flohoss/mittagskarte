@@ -54,7 +54,6 @@ func parseAllConfigs() (map[string]*Configuration, error) {
 func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 	card := Card{RestaurantID: c.Restaurant.ID}
 	orm.FirstOrCreate(&card)
-	card.CheckedAt = time.Now().Unix()
 	defer orm.Save(&card)
 
 	l := new(LiveInformation)
@@ -65,22 +64,22 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 
 	for i := 0; i < len(c.RetrieveDownloadUrl); i++ {
 		var err error
-		err = l.findDownloadUrlInPage(&c.RetrieveDownloadUrl[i])
+		err = l.findUrlInPage(&c.RetrieveDownloadUrl[i])
 		if err != nil {
 			return
 		}
 		if (i == len(c.RetrieveDownloadUrl)-1) && c.Download.IsFile {
-			err = l.fetchAndStoreFile(c.Restaurant.ID, l.FileDownloadUrl, c.HTTPOne)
+			card.ExistingFileHash, err = l.fetchAndStoreFile(c.Restaurant.ID, l.DownloadUrl, c.HTTPOne, card.ExistingFileHash)
 		} else {
-			err = l.fetchAndStoreHtmlPage(l.FileDownloadUrl, c.HTTPOne)
+			err = l.fetchAndStoreHtmlPage(l.DownloadUrl, c.HTTPOne)
 		}
 		if err != nil {
 			return
 		}
 	}
 
-	if l.StoredFileLocation != "" {
-		err := l.parseAndStoreFileText()
+	if l.FileLocation != "" {
+		err := l.parseAndStoreFileText(c)
 		if err != nil {
 			return
 		}
@@ -95,14 +94,15 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 	newFood := c.getAllFood(l)
 
 	if !isEqual(currentFood, newFood) {
-		slog.Debug("new food detected")
 		if len(currentFood) > 0 {
 			orm.Delete(&currentFood)
 		}
-		card.Description = c.getDescription(l)
 		card.Food = newFood
 	}
-	card.ImageURL = l.StoredFileLocation
+
+	card.Description = c.getDescription(l)
+	card.ImageURL = l.FileLocation
+	card.UpdatedAt = time.Now().Unix()
 }
 
 func (c *Configuration) getDescription(l *LiveInformation) string {
@@ -112,14 +112,14 @@ func (c *Configuration) getDescription(l *LiveInformation) string {
 	} else if c.Menu.Description.Regex != "" {
 		replaced := helper.ReplacePlaceholder(c.Menu.Description.Regex)
 		descriptionExpr := regexp.MustCompile("(?i)" + replaced)
-		if l.FileText != "" {
-			description = descriptionExpr.FindString(l.FileText)
+		if len(l.RawText) > 0 {
+			description = descriptionExpr.FindString(l.RawText)
 		} else {
-			description = descriptionExpr.FindString(l.HTMLPages[len(l.HTMLPages)-1].Text())
+			description = descriptionExpr.FindString(l.HTMLPages[0].Text())
 		}
 	} else if c.Menu.Description.JQuery != "" {
 		replaced := helper.ReplacePlaceholder(c.Menu.Description.JQuery)
-		el := l.HTMLPages[len(l.HTMLPages)-1].Find(replaced).First()
+		el := l.HTMLPages[0].Find(replaced).First()
 		if c.Menu.Description.Attribute == "" {
 			description = el.Text()
 		} else {
@@ -135,10 +135,10 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 	for i := 0; i < len(c.Menu.Food); i++ {
 		current := &c.Menu.Food[i]
 		food := Food{
-			Name:        current.getName(&l.FileText, lastestHtmlPage),
-			Day:         current.getDay(&l.FileText, lastestHtmlPage),
-			Price:       current.getPrice(&l.FileText, lastestHtmlPage),
-			Description: current.getDescription(&l.FileText, lastestHtmlPage),
+			Name:        current.getName(l.RawText, lastestHtmlPage),
+			Day:         current.getDay(l.RawText, lastestHtmlPage),
+			Price:       current.getPrice(l.RawText, lastestHtmlPage),
+			Description: current.getDescription(l.RawText, lastestHtmlPage),
 		}
 		appendFood(&allFood, &food)
 	}
@@ -148,7 +148,7 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 			regexStr += "(?i)"
 		}
 		foodRegex := regexp.MustCompile(regexStr)
-		regexResult := foodRegex.FindAllStringSubmatch(l.FileText, -1)
+		regexResult := foodRegex.FindAllStringSubmatch(l.RawText, -1)
 		for _, r := range regexResult {
 			var food Food
 			if c.Menu.OneForAll.PositionFood > 0 && len(r) > int(c.Menu.OneForAll.PositionFood) {

@@ -26,12 +26,13 @@ const (
 )
 
 type Card struct {
-	RestaurantID string `json:"restaurant_id" gorm:"primaryKey"`
-	Description  string `json:"description"`
-	ImageURL     string `json:"image_url"`
-	CheckedAt    int64  `json:"checked_at"`
-	Food         []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	CreatedAt    int64  `json:"created_at" gorm:"autoCreateTime"`
+	RestaurantID     string `json:"restaurant_id" gorm:"primaryKey"`
+	Description      string `json:"description"`
+	ImageURL         string `json:"image_url"`
+	ExistingFileHash string `json:"existing_file_hash"`
+	UpdatedAt        int64  `json:"updated_at"`
+	Food             []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
 }
 type Food struct {
 	ID          uint64  `json:"id" gorm:"primaryKey"`
@@ -53,6 +54,7 @@ type Retrieve struct {
 	JQuery    string `json:"jquery"`
 	Attribute string `json:"attribute"`
 	Prefix    string `json:"prefix"`
+	Regex     string `json:"regex"`
 }
 
 type Download struct {

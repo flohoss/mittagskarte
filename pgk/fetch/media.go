@@ -17,7 +17,7 @@ func init() {
 	os.MkdirAll(DownloadLocation, os.ModePerm)
 }
 
-func GetFilename(id string, fullUrl string) string {
+func ParseFileNameFromUrl(id string, fullUrl string) string {
 	fileURL, _ := url.Parse(fullUrl)
 	path := fileURL.Path
 	folder := DownloadLocation + id
@@ -29,7 +29,7 @@ func GetFilename(id string, fullUrl string) string {
 func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
 	slog.Debug("downloading file", "url", fullUrl)
 
-	fileName := GetFilename(id, fullUrl)
+	fileName := ParseFileNameFromUrl(id, fullUrl)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return "", err

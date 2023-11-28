@@ -17,7 +17,8 @@
     }
   ],
   "download": {
-    "is_file": true
+    "is_file": true,
+    "cropping": [{ "crop": "100x100%+0+0", "keep": true }]
   },
   "menu": {
     "description": { "fixed": "Mittagsangebot" }
