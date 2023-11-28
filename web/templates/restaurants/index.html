@@ -1,10 +1,10 @@
 {{ define "title" }}
-  {{ .Title }}
+  {{ .BaseData.Title }}
 {{ end }}
 
 {{ define "content" }}
-  {{ $restDay := isRestDay .Restaurant }}
-  {{ $nothingFound := nothingFound .Card }}
+  {{ $restDay := isRestDay .RestaurantData.Restaurant }}
+  {{ $nothingFound := nothingFound .RestaurantData.Card }}
   {{ if or $restDay $nothingFound }}
     <div class="z-20 -rotate-12 absolute top-20 left-1/2 transform -translate-x-1/2">
       {{ if $restDay }}
@@ -25,16 +25,27 @@
       <div class="mt-10 relative w-full max-w-4xl h-[150px]">
         <div
           class="absolute inset-0 rounded-xl bg-cover bg-center"
-          style="background-image: url('/storage/public/maps/{{ .Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
+          style="background-image: url('/storage/public/maps/{{ .RestaurantData.Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
         ></div>
         <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
-          {{ .Restaurant.Name }}
+          {{ .RestaurantData.Restaurant.Name }}
         </div>
+
+        {{ if eq .RestaurantData.Restaurant.Group 1 }}
+          <div class="absolute top-8 left-1/2 transform -translate-x-1/2">
+            <div class="badge badge-secondary gap-2">
+              <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg> {{ .RestaurantData.Card.Distance }}
+            </div>
+            <div class="badge badge-secondary gap-2">
+              <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg> {{ .RestaurantData.Card.Duration }}
+            </div>
+          </div>
+        {{ end }}
       </div>
 
       <div class="flex flex-col gap-1 items-center">
         <div class="flex justify-center gap-1">
-          {{ if and .Card.ImageURL .Card.Food }}
+          {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
             <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
                 <path
@@ -44,7 +55,7 @@
               Speisekarte
             </button>
           {{ end }}
-          <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .Restaurant.PageURL }}">
+          <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
               <path
                 d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"
@@ -54,21 +65,21 @@
           </a>
         </div>
 
-        <a href="tel:{{ .Restaurant.Phone }}" class="btn btn-sm gap-2">
+        <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-sm gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-xs" fill="currentColor" viewBox="0 0 512 512">
             <path
               d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"
             />
           </svg>
-          {{ .Restaurant.Phone }}
+          {{ .RestaurantData.Restaurant.Phone }}
         </a>
       </div>
 
-      <div class="text-xl font-bold text-center">{{ .Card.Description }}</div>
+      <div class="text-xl font-bold text-center">{{ .RestaurantData.Card.Description }}</div>
 
-      {{ if .Card.Food }}
+      {{ if .RestaurantData.Card.Food }}
         <div class="w-full max-w-4xl grid gap-4">
-          {{ range .Card.Food }}
+          {{ range .RestaurantData.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
             <div class="{{ if and $today $notRestDay }}food-card{{ else }}food-card-disabled{{ end }} overflow-hidden">
@@ -85,30 +96,30 @@
             </div>
           {{ end }}
         </div>
-      {{ else if .Card.ImageURL }}
+      {{ else if .RestaurantData.Card.ImageURL }}
         <div class="w-full max-w-lg cursor-zoom-in" onclick="my_modal.showModal()">
-          {{ $sizes := imageSize .Card.ImageURL }}
+          {{ $sizes := imageSize .RestaurantData.Card.ImageURL }}
           {{ $height := index $sizes 0 }}
           {{ $width := index $sizes 1 }}
-          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .Card.ImageURL }}" />
+          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .RestaurantData.Card.ImageURL }}" />
         </div>
       {{ end }}
 
       {{ if not $nothingFound }}
-        <div class="text-xs text-gray-500">Aktualisiert: {{ .Card.Refreshed | date "02.01.06 15:04" }}</div>
+        <div class="text-xs text-gray-500">Aktualisiert: {{ .RestaurantData.Card.Refreshed | date "02.01.06 15:04" }}</div>
       {{ end }}
     </div>
   </div>
 {{ end }}
 
 {{ define "modal" }}
-  {{ if .Card.ImageURL }}
-    {{ $sizes := imageSize .Card.ImageURL }}
+  {{ if .RestaurantData.Card.ImageURL }}
+    {{ $sizes := imageSize .RestaurantData.Card.ImageURL }}
     {{ $height := index $sizes 0 }}
     {{ $width := index $sizes 1 }}
     <dialog id="my_modal" class="modal">
       <form method="dialog" class="modal-box p-0 max-w-6xl">
-        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Card.ImageURL }}" />
+        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .RestaurantData.Card.ImageURL }}" />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <form method="dialog" class="modal-backdrop">

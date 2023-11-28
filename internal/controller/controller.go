@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
 )
 
@@ -20,7 +19,7 @@ func NewController(env *env.Env) *Controller {
 	ctrl := new(Controller)
 
 	ctrl.env = env
-	ctrl.mittag = mittag.NewMittag()
+	ctrl.mittag = mittag.NewMittag(env)
 	ctrl.cron = cron.New()
 	ctrl.cron.AddFunc("0,30 10,11 * * *", ctrl.updateAll)
 	ctrl.cron.Start()
@@ -49,15 +48,6 @@ func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 }
 
 func (c *Controller) UpdateMaps(ctx echo.Context) error {
-	requests := []maps.MapRequest{}
-	go func() {
-		for key, val := range c.mittag.Configurations {
-			requests = append(requests, maps.MapRequest{
-				Identifier: key,
-				Address:    val.Restaurant.Address,
-			})
-		}
-		c.mittag.MapsInformation = maps.GetMapInformation(c.env.GoogleAPIKey, requests)
-	}()
+	go c.mittag.UpdateMapsInformation()
 	return ctx.NoContent(http.StatusOK)
 }

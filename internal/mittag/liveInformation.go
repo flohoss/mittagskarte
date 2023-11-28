@@ -126,9 +126,14 @@ func (l *LiveInformation) prepareFileForPublic(id string) error {
 	if err != nil {
 		return err
 	}
-	file := strings.Split(webpFile, "/")
-	newFile := fmt.Sprintf("%s%d%s", PublicLocation, time.Now().Unix(), file[len(file)-1])
-	os.Rename(webpFile, newFile)
+	newFolder := fmt.Sprintf("%s%s", PublicLocation, id)
+	os.MkdirAll(newFolder, os.ModePerm)
+	newFile := fmt.Sprintf("%s/%d.webp", newFolder, time.Now().Unix())
+	err = os.Rename(webpFile, newFile)
+	if err != nil {
+		slog.Error("could not move file", "old", webpFile, "new", newFile)
+		return err
+	}
 	slog.Debug("file moved", "old", webpFile, "new", newFile)
 	l.FileLocation = newFile
 	helper.RemoveAllOtherFiles(newFile)

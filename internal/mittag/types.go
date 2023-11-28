@@ -50,8 +50,11 @@ type Card struct {
 	ExistingFileHash string `json:"existing_file_hash"`
 	Refreshed        int64  `json:"refreshed"`
 	Food             []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Distance         string `json:"distance"`
+	Duration         string `json:"duration"`
 	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
 }
+
 type Food struct {
 	ID          uint64  `json:"id" gorm:"primaryKey"`
 	CardID      string  `json:"card_id"`

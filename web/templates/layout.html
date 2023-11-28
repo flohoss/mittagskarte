@@ -45,8 +45,8 @@
         <label for="drawer" class="drawer-overlay"></label>
         <ul class="menu menu-md p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
           <li class="font-bold">{{ block "link" list "/countdown" "clock" "Countdown" true }}{{ end }}</li>
-          {{ $configurations := .Configurations }}
-          {{ range $key, $group := .Groups }}
+          {{ $configurations := .BaseData.Configurations }}
+          {{ range $key, $group := .BaseData.Groups }}
             <div class="divider m-0"></div>
             {{ $lower := lower $group.String }}
             {{ $link := printf "%s%s" "/groups/" $lower }}
