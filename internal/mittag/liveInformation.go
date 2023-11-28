@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
@@ -126,9 +127,10 @@ func (l *LiveInformation) prepareFileForPublic(id string) error {
 		return err
 	}
 	file := strings.Split(webpFile, "/")
-	newFile := PublicLocation + file[len(file)-1]
+	newFile := fmt.Sprintf("%s%d%s", PublicLocation, time.Now().Unix(), file[len(file)-1])
 	os.Rename(webpFile, newFile)
 	slog.Debug("file moved", "old", webpFile, "new", newFile)
 	l.FileLocation = newFile
+	helper.RemoveAllOtherFiles(newFile)
 	return nil
 }

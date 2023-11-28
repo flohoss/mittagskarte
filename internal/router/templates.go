@@ -66,7 +66,7 @@ func nothingFound(card mittag.Card) bool {
 }
 
 func imageSize(image string) []int {
-	var res []int
+	res := []int{0, 0}
 	img, err := os.Open(image)
 	if err != nil {
 		return res

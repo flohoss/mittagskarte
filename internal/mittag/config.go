@@ -1,6 +1,7 @@
 package mittag
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"os"
@@ -89,7 +90,9 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 		if err != nil {
 			return
 		}
-		helper.SaveContentAsFile(filepath.Dir(l.FileLocation), &l.RawText)
+		if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+			helper.SaveContentAsFile(filepath.Dir(l.FileLocation), &l.RawText)
+		}
 		err = l.prepareFileForPublic(c.Restaurant.ID)
 		if err != nil {
 			return

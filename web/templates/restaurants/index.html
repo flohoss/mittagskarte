@@ -90,7 +90,7 @@
           {{ $sizes := imageSize .Card.ImageURL }}
           {{ $height := index $sizes 0 }}
           {{ $width := index $sizes 1 }}
-          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
+          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .Card.ImageURL }}" />
         </div>
       {{ end }}
 
@@ -108,7 +108,7 @@
     {{ $width := index $sizes 1 }}
     <dialog id="my_modal" class="modal">
       <form method="dialog" class="modal-box p-0 max-w-6xl">
-        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Card.ImageURL }}?{{ now | date "2006-01-02" }}" />
+        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .Card.ImageURL }}" />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <form method="dialog" class="modal-backdrop">
