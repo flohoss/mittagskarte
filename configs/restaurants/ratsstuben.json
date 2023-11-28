@@ -42,12 +42,12 @@
         "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Freitag(?:.|\n)*\nWochen-Renner" }
       },
       {
-        "day": { "fixed": "Wochen-Renner" },
+        "day": { "fixed": "Woche" },
         "name": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)\nVeggie-Renner" },
         "price": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*\nVeggie-Renner" }
       },
       {
-        "day": { "fixed": "Veggie-Renner" },
+        "day": { "fixed": "Vegetarisch" },
         "name": { "regex": "Veggie-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)" },
         "price": { "regex": "Veggie-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*" }
       }

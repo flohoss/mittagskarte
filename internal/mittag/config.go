@@ -21,7 +21,7 @@ const PublicLocation = "storage/public/menus/"
 
 func GetTodayActiveList() []string {
 	today := monday.Format(time.Now(), "Monday", monday.LocaleDeDE)
-	return []string{today, today + " (Vegetarisch)", "Alternative", "Wochen-Renner", "Veggie-Renner"}
+	return []string{today, today + " (Vegetarisch)", "Vegetarisch", "Alternative", "Woche"}
 }
 
 func init() {
@@ -143,16 +143,6 @@ func (c *Configuration) getDescription(l *LiveInformation) string {
 func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 	var allFood []Food
 	lastestHtmlPage := l.HTMLPages[len(l.HTMLPages)-1]
-	for i := 0; i < len(c.Menu.Food); i++ {
-		current := &c.Menu.Food[i]
-		food := Food{
-			Name:        current.getName(l.RawText, lastestHtmlPage),
-			Day:         current.getDay(l.RawText, lastestHtmlPage),
-			Price:       current.getPrice(l.RawText, lastestHtmlPage),
-			Description: current.getDescription(l.RawText, lastestHtmlPage),
-		}
-		appendFood(&allFood, &food)
-	}
 	if c.Menu.OneForAll.Regex != "" {
 		regexStr := helper.ReplacePlaceholder(c.Menu.OneForAll.Regex)
 		if c.Menu.OneForAll.Insensitive {
@@ -195,6 +185,16 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 			}
 			appendFood(&allFood, &food)
 		})
+	}
+	for i := 0; i < len(c.Menu.Food); i++ {
+		current := &c.Menu.Food[i]
+		food := Food{
+			Name:        current.getName(l.RawText, lastestHtmlPage),
+			Day:         current.getDay(l.RawText, lastestHtmlPage),
+			Price:       current.getPrice(l.RawText, lastestHtmlPage),
+			Description: current.getDescription(l.RawText, lastestHtmlPage),
+		}
+		appendFood(&allFood, &food)
 	}
 	return allFood
 }
