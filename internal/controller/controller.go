@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
+	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
 )
 
@@ -44,5 +45,19 @@ func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 	} else {
 		go c.mittag.UpdateRestaurants()
 	}
+	return ctx.NoContent(http.StatusOK)
+}
+
+func (c *Controller) UpdateMaps(ctx echo.Context) error {
+	requests := []maps.MapRequest{}
+	go func() {
+		for key, val := range c.mittag.Configurations {
+			requests = append(requests, maps.MapRequest{
+				Identifier: key,
+				Address:    val.Restaurant.Address,
+			})
+		}
+		c.mittag.MapsInformation = maps.GetMapInformation(c.env.GoogleAPIKey, requests)
+	}()
 	return ctx.NoContent(http.StatusOK)
 }

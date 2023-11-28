@@ -13,7 +13,6 @@ func InitRouter() *echo.Echo {
 
 	e.HideBanner = true
 	e.HidePort = true
-	e.Debug = true
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
@@ -33,6 +32,9 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 
 	e.GET("/countdown", ctrl.RenderCountdown)
 	e.GET("/settings", ctrl.RenderSettings)
+	e.PATCH("/maps", ctrl.UpdateMaps, middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
+		return key == adminKey, nil
+	}))
 
 	restaurants := e.Group("/restaurants")
 	restaurants.GET("/:id", ctrl.RenderRestaurants)

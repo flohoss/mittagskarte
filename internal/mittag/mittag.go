@@ -5,12 +5,14 @@ import (
 	"os"
 
 	"gitlab.unjx.de/flohoss/mittag/internal/database"
+	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gorm.io/gorm"
 )
 
 type Mittag struct {
-	Configurations map[string]*Configuration
-	orm            *gorm.DB
+	Configurations  map[string]*Configuration
+	orm             *gorm.DB
+	MapsInformation map[string]*maps.MapInformation
 }
 
 func NewMittag() *Mittag {

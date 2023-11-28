@@ -20,11 +20,11 @@ func TestPortParser(t *testing.T) {
 
 	os.Setenv(key, "-12")
 	_, err = Parse()
-	assert.Equal(t, err.Error(), "Key: 'Config.Port' Error:Field validation for 'Port' failed on the 'min' tag", "Validation should fail")
+	assert.Equal(t, err.Error(), "Key: 'Env.Port' Error:Field validation for 'Port' failed on the 'min' tag", "Validation should fail")
 
 	os.Setenv(key, "60000")
 	_, err = Parse()
-	assert.Equal(t, err.Error(), "Key: 'Config.Port' Error:Field validation for 'Port' failed on the 'max' tag", "Validation should fail")
+	assert.Equal(t, err.Error(), "Key: 'Env.Port' Error:Field validation for 'Port' failed on the 'max' tag", "Validation should fail")
 
 	os.Setenv(key, "abc")
 	_, err = Parse()
@@ -48,9 +48,9 @@ func TestTimeZoneParser(t *testing.T) {
 
 	os.Setenv(key, "abc")
 	_, err = Parse()
-	assert.Equal(t, err.Error(), "Key: 'Config.TimeZone' Error:Field validation for 'TimeZone' failed on the 'timezone' tag", "Validation should fail")
+	assert.Equal(t, err.Error(), "Key: 'Env.TimeZone' Error:Field validation for 'TimeZone' failed on the 'timezone' tag", "Validation should fail")
 
 	os.Setenv(key, "-1")
 	_, err = Parse()
-	assert.Equal(t, err.Error(), "Key: 'Config.TimeZone' Error:Field validation for 'TimeZone' failed on the 'timezone' tag", "Validation should fail")
+	assert.Equal(t, err.Error(), "Key: 'Env.TimeZone' Error:Field validation for 'TimeZone' failed on the 'timezone' tag", "Validation should fail")
 }

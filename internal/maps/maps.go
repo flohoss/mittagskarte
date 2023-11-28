@@ -19,7 +19,6 @@ func init() {
 }
 
 type MapInformation struct {
-	client     *maps.Client
 	Identifier string
 	Route      *maps.Route
 }
@@ -36,10 +35,6 @@ func GetMapInformation(key string, mapRequests []MapRequest) map[string]*MapInfo
 	}
 	result := make(map[string]*MapInformation)
 	for _, request := range mapRequests {
-		loc := fmt.Sprintf("%s/%s.webp", MapsFolder, request.Identifier)
-		if _, err := os.Stat(loc); err == nil {
-			continue
-		}
 		result[request.Identifier] = &MapInformation{
 			Identifier: request.Identifier,
 			Route:      getRoute(c, request.Address),

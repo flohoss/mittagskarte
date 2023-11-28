@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
 )
 
@@ -17,6 +18,7 @@ type TemplateData struct {
 	Cards                  []mittag.Card
 	Today                  string
 	Group                  string
+	MapsInformation        map[string]*maps.MapInformation
 }
 
 func (c *Controller) RenderSettings(ctx echo.Context) error {
