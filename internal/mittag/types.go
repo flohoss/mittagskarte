@@ -52,6 +52,7 @@ type Card struct {
 	Food             []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Distance         string `json:"distance"`
 	Duration         string `json:"duration"`
+	UpdatedAt        int64  `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
 }
 

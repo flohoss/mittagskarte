@@ -7,7 +7,7 @@
 ```sh
 ./scripts/dev.sh
 docker compose run --rm yarn install --frozen-lockfile
-docker compose up
+docker compose --profile dev up
 ```
 
 ## Build mittag image

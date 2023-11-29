@@ -27,12 +27,12 @@
           class="absolute inset-0 rounded-xl bg-cover bg-center"
           style="background-image: url('/storage/public/maps/{{ .RestaurantData.Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
         ></div>
-        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl">
+        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl whitespace-nowrap">
           {{ .RestaurantData.Restaurant.Name }}
         </div>
 
         {{ if eq .RestaurantData.Restaurant.Group 1 }}
-          <div class="absolute top-8 left-1/2 transform -translate-x-1/2">
+          <div class="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
             <div class="badge badge-secondary gap-2">
               <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg> {{ .RestaurantData.Card.Distance }}
             </div>
@@ -43,28 +43,25 @@
         {{ end }}
       </div>
 
-      <div class="flex flex-col gap-1 items-center">
-        <div class="flex justify-center gap-1">
-          {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
-            <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
-                <path
-                  d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"
-                />
-              </svg>
-              Speisekarte
-            </button>
-          {{ end }}
-          <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
+      <div class="flex justify-center gap-1 items-center flex-wrap">
+        {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
+          <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
               <path
-                d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"
+                d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"
               />
             </svg>
-            Webseite
-          </a>
-        </div>
-
+            Speisekarte
+          </button>
+        {{ end }}
+        <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
+            <path
+              d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"
+            />
+          </svg>
+          Webseite
+        </a>
         <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-sm gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-xs" fill="currentColor" viewBox="0 0 512 512">
             <path
@@ -75,7 +72,16 @@
         </a>
       </div>
 
-      <div class="text-xl font-bold text-center">{{ .RestaurantData.Card.Description }}</div>
+      <div class="grid text-center gap-1">
+        <div class="text-xl font-bold text-center">{{ .RestaurantData.Card.Description }}</div>
+
+        {{ if not $nothingFound }}
+          <div class="flex justify-center gap-1 items-center flex-wrap">
+            <div class="badge bage-xs badge-ghost">Geprüft {{ .RestaurantData.Updated }}</div>
+            <div class="badge bage-xs badge-ghost">Aktualisiert {{ .RestaurantData.Refreshed }}</div>
+          </div>
+        {{ end }}
+      </div>
 
       {{ if .RestaurantData.Card.Food }}
         <div class="w-full max-w-4xl grid gap-4">
@@ -103,10 +109,6 @@
           {{ $width := index $sizes 1 }}
           <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .RestaurantData.Card.ImageURL }}" />
         </div>
-      {{ end }}
-
-      {{ if not $nothingFound }}
-        <div class="text-xs text-gray-500">Aktualisiert: {{ .RestaurantData.Card.Refreshed | date "02.01.06 15:04" }}</div>
       {{ end }}
     </div>
   </div>

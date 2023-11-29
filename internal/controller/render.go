@@ -22,6 +22,8 @@ type BaseData struct {
 type RestaurantData struct {
 	Restaurant mittag.Restaurant
 	Card       mittag.Card
+	Refreshed  string
+	Updated    string
 }
 
 type GroupData struct {
@@ -52,7 +54,7 @@ func (c *Controller) RenderRestaurants(ctx echo.Context) error {
 	c.mittag.GetORM().Where("restaurant_id = ?", conf.Restaurant.ID).Preload("Food").Find(&card)
 	return ctx.Render(http.StatusOK, "restaurants", TemplateData{
 		BaseData:       BaseData{Title: "Mittag - " + conf.Restaurant.Name, Configurations: c.mittag.Configurations, Groups: mittag.Groups},
-		RestaurantData: RestaurantData{Restaurant: conf.Restaurant, Card: card},
+		RestaurantData: RestaurantData{Restaurant: conf.Restaurant, Card: card, Refreshed: c.humanizer.NaturalTime(card.Refreshed), Updated: c.humanizer.NaturalTime(card.UpdatedAt)},
 	})
 }
 

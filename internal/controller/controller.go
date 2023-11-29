@@ -5,14 +5,18 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
+	"github.com/vorlif/spreak/humanize"
+	"github.com/vorlif/spreak/humanize/locale/de"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/mittag"
+	"golang.org/x/text/language"
 )
 
 type Controller struct {
-	env    *env.Env
-	mittag *mittag.Mittag
-	cron   *cron.Cron
+	env       *env.Env
+	mittag    *mittag.Mittag
+	cron      *cron.Cron
+	humanizer *humanize.Humanizer
 }
 
 func NewController(env *env.Env) *Controller {
@@ -23,6 +27,8 @@ func NewController(env *env.Env) *Controller {
 	ctrl.cron = cron.New()
 	ctrl.cron.AddFunc("0,30 10,11 * * *", ctrl.updateAll)
 	ctrl.cron.Start()
+	collection := humanize.MustNew(humanize.WithLocale(de.New()))
+	ctrl.humanizer = collection.CreateHumanizer(language.German)
 
 	return ctrl
 }

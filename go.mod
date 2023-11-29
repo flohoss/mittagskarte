@@ -15,6 +15,7 @@ require (
 	github.com/lmittmann/tint v1.0.3
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.4
+	github.com/vorlif/spreak v0.5.0
 	golang.org/x/image v0.14.0
 	golang.org/x/text v0.14.0
 	googlemaps.github.io/maps v1.5.0
