@@ -63,9 +63,9 @@
         </div>
       </figure>
     </div>
-    <div class="col-span-1 2xl:col-span-3 2xl:mt-20">
+    <div class="col-span-1 2xl:col-span-3">
       {{ if .RestaurantData.Card.Food }}
-        <div class="grid gap-4 py-5 2xl:py-20">
+        <div class="grid gap-4 py-5 2xl:mt-20 2xl:py-20">
           {{ range .RestaurantData.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
