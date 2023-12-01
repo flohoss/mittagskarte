@@ -2,6 +2,16 @@
   {{ .BaseData.Title }}
 {{ end }}
 
+{{ define "style" }}
+  {{ $version := env "APP_VERSION" }}
+  {{ $mapLink := printf "/storage/public/maps/%s.webp?%s" .RestaurantData.Restaurant.ID $version }}
+<style>
+  .map-img {
+    background-image: url("{{ $mapLink }}")
+  }
+</style>
+{{ end }}
+
 {{ define "content" }}
   {{ $restDay := isRestDay .RestaurantData.Restaurant }}
   <div
@@ -24,7 +34,7 @@
     {{ end }}
     <div class="col-span-1 flex flex-col 2xl:h-screen pt-20 2xl:py-20 gap-5 justify-start 2xl:sticky 2xl:top-0">
       <div class="flex flex-col items-end gap-2">
-        <div class="text-4xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
+        <div class="text-3xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
         {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
           <button onclick="my_modal.showModal()" class="btn btn-xs btn-primary gap-2">
             Speisekarte <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg>
@@ -45,27 +55,27 @@
             {{ .RestaurantData.Updated }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#scan"></use></svg>
           </div>
           <div class="badge badge-ghost rounded gap-2">
-            {{ .RestaurantData.Refreshed }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#refresh"></use></svg>
+            {{ .RestaurantData.Refreshed }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#save"></use></svg>
           </div>
         </div>
       </div>
-      <figure
-        class="hidden 2xl:flex flex-1 bg-cover bg-center max-h-[42rem] rounded-lg relative"
-        style="background-image: url('/storage/public/maps/{{ .RestaurantData.Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
-      >
-        <div class="flex flex-col gap-2 items-end absolute right-4 bottom-4">
-          <div class="badge rounded gap-2">
-            {{ .RestaurantData.Card.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
+      <figure class="hidden 2xl:flex flex-1 bg-cover bg-center max-h-[42rem] rounded-lg relative map-img">
+        {{ if eq .RestaurantData.Restaurant.Group 1 }}
+          <div class="flex flex-col gap-2 items-end absolute right-4 bottom-4">
+            <div class="badge rounded gap-2">
+              {{ .RestaurantData.Card.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
+            </div>
+            <div class="badge rounded gap-2">
+              {{ .RestaurantData.Card.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
+            </div>
           </div>
-          <div class="badge rounded gap-2">
-            {{ .RestaurantData.Card.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
-          </div>
-        </div>
+        {{ end }}
       </figure>
     </div>
     <div class="col-span-1 2xl:col-span-3">
       {{ if .RestaurantData.Card.Food }}
         <div class="grid gap-4 py-5 2xl:mt-20 2xl:py-20">
+          <div class="text-xl font-bold ml-4">{{ .RestaurantData.Card.Description }}</div>
           {{ range .RestaurantData.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
