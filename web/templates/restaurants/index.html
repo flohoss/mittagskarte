@@ -4,87 +4,65 @@
 
 {{ define "content" }}
   {{ $restDay := isRestDay .RestaurantData.Restaurant }}
-  {{ $nothingFound := nothingFound .RestaurantData.Card }}
-  {{ if or $restDay $nothingFound }}
-    <div class="z-20 -rotate-12 absolute top-20 left-1/2 transform -translate-x-1/2">
-      {{ if $restDay }}
-        <div class="alert alert-warning shadow-lg">
-          <svg class="icon"><use href="#info"></use></svg>
-          <span>Heute kein Mittagstisch</span>
+  <div
+    class="{{ if $restDay }}
+      grayscale opacity-50 animate-fadeIn50
+    {{ else }}
+      animate-fadeIn
+    {{ end }} container-custom grid grid-cols-1 2xl:grid-cols-4 gap-3 2xl:gap-10 relative"
+  >
+    {{ $nothingFound := nothingFound .RestaurantData.Card }}
+    {{ if or $restDay $nothingFound }}
+      <div class="z-20 -rotate-12 absolute top-40 left-1/2 transform -translate-x-1/2">
+        {{ if $restDay }}
+          <div class="alert alert-warning shadow-lg">
+            <svg class="icon"><use href="#info"></use></svg>
+            <span>Heute Ruhetag</span>
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+    <div class="col-span-1 flex flex-col 2xl:h-screen pt-20 2xl:py-20 gap-5 justify-start 2xl:sticky 2xl:top-0">
+      <div class="flex flex-col items-end gap-2">
+        <div class="text-4xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
+            <button onclick="my_modal.showModal()" class="btn btn-xs btn-primary gap-2">
+              Speisekarte <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg>
+            </button>
+          {{ end }}
+          <a target="_blank" class="btn btn-xs btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
+            Webseite <svg class="inline-block w-4 h-4 stroke-current"><use href="#external"></use></svg>
+          </a>
+
+          <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-xs btn-secondary gap-2">
+            {{ .RestaurantData.Restaurant.Phone }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#phone"></use></svg>
+          </a>
         </div>
-      {{ else }}
-        <div class="alert shadow-lg">
-          <svg class="icon"><use href="#warning"></use></svg>
-          <span>Kein Mittagstisch gefunden</span>
+
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <div class="badge rounded gap-2">
+            {{ .RestaurantData.Card.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
+          </div>
+          <div class="badge rounded gap-2">
+            {{ .RestaurantData.Card.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
+          </div>
+          <div class="badge badge-ghost rounded gap-2">
+            {{ .RestaurantData.Updated }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#scan"></use></svg>
+          </div>
+          <div class="badge badge-ghost rounded gap-2">
+            {{ .RestaurantData.Refreshed }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#refresh"></use></svg>
+          </div>
         </div>
-      {{ end }}
+      </div>
+      <figure
+        class="hidden 2xl:flex flex-1 bg-cover bg-center max-h-[42rem] rounded-lg"
+        style="background-image: url('/storage/public/maps/{{ .RestaurantData.Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
+      ></figure>
     </div>
-  {{ end }}
-  <div class="{{ if or $restDay $nothingFound }}grayscale opacity-50 animate-fadeIn50{{ else }}animate-fadeIn{{ end }} container-custom mt-12 lg:mt-5">
-    <div class="flex flex-col items-center gap-5">
-      <div class="mt-10 relative w-full max-w-4xl h-[150px]">
-        <div
-          class="absolute inset-0 rounded-xl bg-cover bg-center"
-          style="background-image: url('/storage/public/maps/{{ .RestaurantData.Restaurant.ID }}.webp?{{ env "APP_VERSION" }}')"
-        ></div>
-        <div class="text-center bg-primary text-primary-content rounded-xl px-3 py-2 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl whitespace-nowrap">
-          {{ .RestaurantData.Restaurant.Name }}
-        </div>
-
-        {{ if eq .RestaurantData.Restaurant.Group 1 }}
-          <div class="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <div class="badge badge-secondary gap-2">
-              <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg> {{ .RestaurantData.Card.Distance }}
-            </div>
-            <div class="badge badge-secondary gap-2">
-              <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg> {{ .RestaurantData.Card.Duration }}
-            </div>
-          </div>
-        {{ end }}
-      </div>
-
-      <div class="flex justify-center gap-1 items-center flex-wrap">
-        {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
-          <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
-              <path
-                d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"
-              />
-            </svg>
-            Speisekarte
-          </button>
-        {{ end }}
-        <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 512 512">
-            <path
-              d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"
-            />
-          </svg>
-          Webseite
-        </a>
-        <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-sm gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon-xs" fill="currentColor" viewBox="0 0 512 512">
-            <path
-              d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"
-            />
-          </svg>
-          {{ .RestaurantData.Restaurant.Phone }}
-        </a>
-      </div>
-
-      <div class="grid text-center gap-1">
-        <div class="text-xl font-bold text-center">{{ .RestaurantData.Card.Description }}</div>
-
-        {{ if not $nothingFound }}
-          <div class="flex justify-center gap-1 items-center flex-wrap">
-            <div class="badge bage-xs badge-ghost">Geprüft {{ .RestaurantData.Updated }}</div>
-            <div class="badge bage-xs badge-ghost">Aktualisiert {{ .RestaurantData.Refreshed }}</div>
-          </div>
-        {{ end }}
-      </div>
-
+    <div class="col-span-1 2xl:col-span-3">
       {{ if .RestaurantData.Card.Food }}
-        <div class="w-full max-w-4xl grid gap-4">
+        <div class="grid gap-4 py-5 2xl:py-20">
           {{ range .RestaurantData.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
@@ -103,12 +81,20 @@
           {{ end }}
         </div>
       {{ else if .RestaurantData.Card.ImageURL }}
-        <div class="w-full max-w-lg cursor-zoom-in" onclick="my_modal.showModal()">
+        <div class="h-screen py-20">
           {{ $sizes := imageSize .RestaurantData.Card.ImageURL }}
           {{ $height := index $sizes 0 }}
           {{ $width := index $sizes 1 }}
-          <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl" src="/{{ .RestaurantData.Card.ImageURL }}" />
+          <img
+            onclick="my_modal.showModal()"
+            width="{{ $width }}"
+            height="{{ $height }}"
+            class="object-contain object-center 2xl:object-left cursor-zoom-in max-h-full"
+            src="/{{ .RestaurantData.Card.ImageURL }}"
+          />
         </div>
+      {{ else if $nothingFound }}
+        <div class="h-screen flex justify-start items-center text-gray-500">Kein Mittagstisch gefunden</div>
       {{ end }}
     </div>
   </div>

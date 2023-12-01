@@ -90,7 +90,7 @@ func getRoute(c *maps.Client, address string) *maps.Route {
 
 func (m *MapInformation) createMap(c *maps.Client) {
 	r := &maps.StaticMapRequest{
-		Size:      "900x150",
+		Size:      "250x1000",
 		Scale:     4,
 		MapType:   maps.Hybrid,
 		Markers:   m.getMarkers(),
