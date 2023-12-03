@@ -5,11 +5,32 @@
 {{ define "style" }}
   {{ $version := env "APP_VERSION" }}
   {{ $mapLink := printf "/storage/public/maps/%s.webp?%s" .RestaurantData.Restaurant.ID $version }}
-<style>
-  .map-img {
-    background-image: url("{{ $mapLink }}")
-  }
-</style>
+  <style>
+    .map-img {
+      background: url("{{ $mapLink }}") center/cover no-repeat;
+      position: relative;
+      border-radius: 0.5rem;
+      height: 100%;
+      width: 100%;
+    }
+
+    .map-img::before,
+    .map-img::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+      border-radius: 0.5rem;
+    }
+
+    .map-img::after {
+      right: 0;
+      left: auto;
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+    }
+  </style>
 {{ end }}
 
 {{ define "content" }}
@@ -19,11 +40,11 @@
       grayscale opacity-50 animate-fadeIn50
     {{ else }}
       animate-fadeIn
-    {{ end }} container-custom grid grid-cols-1 2xl:grid-cols-4 gap-3 2xl:gap-10 relative"
+    {{ end }} container flex flex-col justify-start h-screen gap-6 py-1 md:py-5"
   >
     {{ $nothingFound := nothingFound .RestaurantData.Card }}
     {{ if or $restDay $nothingFound }}
-      <div class="z-20 -rotate-12 absolute top-40 left-1/2 transform -translate-x-1/2">
+      <div class="z-20 -rotate-12 absolute top-14 left-1/2 transform -translate-x-1/2">
         {{ if $restDay }}
           <div class="alert alert-warning shadow-lg">
             <svg class="icon"><use href="#info"></use></svg>
@@ -32,50 +53,44 @@
         {{ end }}
       </div>
     {{ end }}
-    <div class="col-span-1 flex flex-col 2xl:h-screen pt-20 2xl:py-20 gap-5 justify-start 2xl:sticky 2xl:top-0">
-      <div class="flex flex-col items-end gap-2">
-        <div class="text-3xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
-        {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
-          <button onclick="my_modal.showModal()" class="btn btn-xs btn-primary gap-2">
-            Speisekarte <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg>
-          </button>
-        {{ end }}
-        <div class="flex items-center gap-2 flex-wrap justify-end">
-          <a target="_blank" class="btn btn-xs btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
-            Webseite <svg class="inline-block w-4 h-4 stroke-current"><use href="#external"></use></svg>
+    <header class="h-[9rem]">
+      <figure class="map-img">
+        <div class="flex flex-col gap-2 items-start absolute left-4 bottom-3 z-50">
+          {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
+            <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
+              <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg> Speisekarte
+            </button>
+          {{ end }}
+          <a target="_blank" class="btn btn-sm btn-secondary gap-2" href="{{ .RestaurantData.Restaurant.PageURL }}">
+            <svg class="inline-block w-4 h-4 stroke-current"><use href="#external"></use></svg> Webseite
           </a>
-
-          <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-xs btn-secondary gap-2">
-            {{ .RestaurantData.Restaurant.Phone }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#phone"></use></svg>
+          <a href="tel:{{ .RestaurantData.Restaurant.Phone }}" class="btn btn-sm btn-secondary gap-2">
+            <svg class="inline-block w-4 h-4 stroke-current"><use href="#phone"></use></svg> {{ .RestaurantData.Restaurant.Phone }}
           </a>
         </div>
-
-        <div class="flex flex-col items-end gap-2">
-          <div class="badge badge-ghost rounded gap-2">
+        <div class="hidden md:flex flex-col gap-2 items-end absolute right-4 bottom-3 z-50">
+          <div class="badge badge-lg gap-2">
             {{ .RestaurantData.Updated }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#scan"></use></svg>
           </div>
-          <div class="badge badge-ghost rounded gap-2">
+          <div class="badge badge-lg gap-2">
             {{ .RestaurantData.Refreshed }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#save"></use></svg>
           </div>
-        </div>
-      </div>
-      <figure class="hidden 2xl:flex flex-1 bg-cover bg-center max-h-[42rem] rounded-lg relative map-img">
-        {{ if eq .RestaurantData.Restaurant.Group 1 }}
-          <div class="flex flex-col gap-2 items-end absolute right-4 bottom-4">
-            <div class="badge rounded gap-2">
+          {{ if eq .RestaurantData.Restaurant.Group 1 }}
+            <div class="badge badge-lg gap-2">
               {{ .RestaurantData.Card.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
             </div>
-            <div class="badge rounded gap-2">
+            <div class="badge badge-lg gap-2">
               {{ .RestaurantData.Card.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
             </div>
-          </div>
-        {{ end }}
+          {{ end }}
+        </div>
       </figure>
-    </div>
-    <div class="col-span-1 2xl:col-span-3">
+    </header>
+
+    <main class="flex-1 overflow-hidden">
       {{ if .RestaurantData.Card.Food }}
-        <div class="grid gap-4 py-5 2xl:mt-20 2xl:py-20">
-          <div class="text-xl font-bold ml-4">{{ .RestaurantData.Card.Description }}</div>
+        <div class="grid gap-4 max-h-full overflow-y-auto">
+          <div class="text-3xl font-bold ml-4">{{ .RestaurantData.Card.Description }}</div>
           {{ range .RestaurantData.Card.Food }}
             {{ $today := isToday . }}
             {{ $notRestDay := not $restDay }}
@@ -94,22 +109,14 @@
           {{ end }}
         </div>
       {{ else if .RestaurantData.Card.ImageURL }}
-        <div class="h-screen py-20">
-          {{ $sizes := imageSize .RestaurantData.Card.ImageURL }}
-          {{ $height := index $sizes 0 }}
-          {{ $width := index $sizes 1 }}
-          <img
-            onclick="my_modal.showModal()"
-            width="{{ $width }}"
-            height="{{ $height }}"
-            class="object-contain object-center 2xl:object-left cursor-zoom-in max-h-full"
-            src="/{{ .RestaurantData.Card.ImageURL }}"
-          />
-        </div>
+        {{ $sizes := imageSize .RestaurantData.Card.ImageURL }}
+        {{ $height := index $sizes 0 }}
+        {{ $width := index $sizes 1 }}
+        <img width="{{ $width }}" height="{{ $height }}" class="object-contain object-center rounded-lg" src="/{{ .RestaurantData.Card.ImageURL }}" />
       {{ else if $nothingFound }}
         <div class="h-screen flex justify-start items-center text-gray-500">Kein Mittagstisch gefunden</div>
       {{ end }}
-    </div>
+    </main>
   </div>
 {{ end }}
 
@@ -120,7 +127,7 @@
     {{ $width := index $sizes 1 }}
     <dialog id="my_modal" class="modal">
       <form method="dialog" class="modal-box p-0 max-w-6xl">
-        <img width="{{ $width }}" height="{{ $height }}" class="rounded-xl w-full" src="/{{ .RestaurantData.Card.ImageURL }}" />
+        <img width="{{ $width }}" height="{{ $height }}" class="rounded-lg w-full" src="/{{ .RestaurantData.Card.ImageURL }}" />
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <form method="dialog" class="modal-backdrop">
@@ -145,5 +152,72 @@
         price.innerText = (parsedPrice - priceAdjustment).toFixed(2).replace('.', ',') + ' €';
       }
     }
+
+    const deviceHasPointer = window.matchMedia('(pointer: fine)').matches;
+    const container = document.querySelector('.magnifying-glass');
+    const magnifier = document.querySelector('.magnifying-glass__magnifier');
+    const enlargedImage = document.querySelector('.magnifying-glass__enlarged-image');
+    const speed = 0.2;
+
+    let containerRect = {};
+    let mouse = { x: 0, y: 0 };
+    let glass = { x: 0, y: 0 };
+    let enlargedImagePos = { x: 0, y: 0 };
+    let aboveImage = false;
+    let runMovement = false;
+
+    function init() {
+      if (deviceHasPointer) {
+        containerRect = container.getBoundingClientRect();
+
+        window.addEventListener('mousemove', this.getMousePos);
+        container.addEventListener('mouseenter', this.showGlass);
+        container.addEventListener('mouseleave', this.hideGlass);
+        moveGlass();
+      }
+    }
+
+    function getMousePos(e) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }
+
+    function moveGlass() {
+      // Calculate smooth mouse movement
+      glass.x = lerp(glass.x, mouse.x, speed);
+      glass.y = lerp(glass.y, mouse.y, speed);
+
+      // Calculate enlarged image position
+      enlargedImagePos.x = ((glass.x - containerRect.left) / containerRect.width) * -100;
+      enlargedImagePos.y = ((glass.y - containerRect.top) / containerRect.height) * -100;
+
+      // Set style positions
+      magnifier.style.transform = `translate(calc(${glass.x}px - 50%), calc(${glass.y}px  - 50%))`;
+      enlargedImage.style.transform = `translate(${enlargedImagePos.x}%, ${enlargedImagePos.y}%)`;
+
+      if (runMovement) requestAnimationFrame(moveGlass);
+    }
+
+    function showGlass() {
+      containerRect = container.getBoundingClientRect();
+      aboveImage = true;
+      runMovement = true;
+      magnifier.style.opacity = '1';
+      moveGlass();
+    }
+
+    function hideGlass() {
+      aboveImage = false;
+      magnifier.style.opacity = '0';
+      setTimeout(() => {
+        runMovement = false;
+      }, 250);
+    }
+
+    function lerp(a, b, n) {
+      return (1 - n) * a + n * b;
+    }
+
+    init();
   </script>
 {{ end }}

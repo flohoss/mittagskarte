@@ -3,6 +3,13 @@ module.exports = {
   content: ["./templates/**/*.html"],
   theme: {
     container: {
+      padding: {
+        DEFAULT: '1rem',
+        sm: '4rem',
+        lg: '8rem',
+        xl: '12rem',
+        '2xl': '18rem',
+      },
       center: true
     },
     extend: {

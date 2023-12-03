@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/fogleman/gg"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
@@ -12,7 +13,6 @@ import (
 )
 
 const MapsFolder = "storage/public/maps"
-const originMarkerRange = 5000
 
 func init() {
 	os.MkdirAll(MapsFolder, os.ModePerm)
@@ -53,26 +53,10 @@ func (m *MapInformation) getLeg() *maps.Leg {
 	return &maps.Leg{}
 }
 
-func (m *MapInformation) getPaths() []maps.Path {
-	if m.getLeg().Distance.Meters > originMarkerRange {
-		return []maps.Path{}
-	}
-	latLng, err := m.Route.OverviewPolyline.Decode()
-	if err != nil {
-		return []maps.Path{}
-	}
-	paths := []maps.Path{{Location: latLng, Color: "0xEB932D"}}
-	return paths
-}
-
 func (m *MapInformation) getMarkers() []maps.Marker {
-	markers := []maps.Marker{
-		{LocationAddress: m.getLeg().EndAddress, Size: string(maps.Small), Color: "0xEB932D"},
+	return []maps.Marker{
+		{LocationAddress: m.getLeg().EndAddress, Label: strings.ToUpper(string(m.Identifier[0])), Size: string(maps.Mid), Color: "0xEB932D"},
 	}
-	if m.getLeg().Distance.Meters < originMarkerRange {
-		markers = append(markers, maps.Marker{LocationAddress: m.getLeg().StartAddress, Size: string(maps.Tiny), Color: "0x14468C"})
-	}
-	return markers
 }
 
 func getRoute(c *maps.Client, address string) *maps.Route {
@@ -90,12 +74,12 @@ func getRoute(c *maps.Client, address string) *maps.Route {
 
 func (m *MapInformation) createMap(c *maps.Client) {
 	r := &maps.StaticMapRequest{
-		Size:      "250x1000",
-		Scale:     4,
+		Size:      "640x160",
+		Zoom:      14,
+		Scale:     2,
 		MapType:   maps.Hybrid,
 		Markers:   m.getMarkers(),
-		MapStyles: []string{"feature:poi|visibility:off"},
-		Paths:     m.getPaths(),
+		MapStyles: []string{"feature:all|element:labels|visibility:off"},
 	}
 	img, err := c.StaticMap(context.Background(), r)
 	if err != nil {

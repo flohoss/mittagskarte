@@ -30,7 +30,7 @@ func NewMittag(env *env.Env) *Mittag {
 	}
 	mittag.migrateModels()
 	if !slog.Default().Enabled(context.Background(), slog.LevelDebug) {
-		mittag.UpdateMapsInformation()
+		mittag.UpdateMapsInformation("")
 	}
 	return &mittag
 }
@@ -50,13 +50,20 @@ func (m *Mittag) DoesConfigurationExist(id string) (bool, *Configuration) {
 	return ok, value
 }
 
-func (m *Mittag) UpdateMapsInformation() {
+func (m *Mittag) UpdateMapsInformation(id string) {
 	requests := []maps.MapRequest{}
-	for key, val := range m.Configurations {
+	if id != "" {
 		requests = append(requests, maps.MapRequest{
-			Identifier: key,
-			Address:    val.Restaurant.Address,
+			Identifier: id,
+			Address:    m.Configurations[id].Restaurant.Address,
 		})
+	} else {
+		for key, val := range m.Configurations {
+			requests = append(requests, maps.MapRequest{
+				Identifier: key,
+				Address:    val.Restaurant.Address,
+			})
+		}
 	}
 	info := maps.GetMapInformation(m.env.GoogleAPIKey, requests)
 	for key, val := range info {
