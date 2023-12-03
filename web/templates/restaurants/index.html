@@ -44,7 +44,7 @@
   >
     {{ $nothingFound := nothingFound .RestaurantData.Card }}
     {{ if or $restDay $nothingFound }}
-      <div class="z-20 -rotate-12 absolute top-14 left-1/2 transform -translate-x-1/2">
+      <div class="z-40 -rotate-12 absolute top-14 left-1/2 transform -translate-x-1/2">
         {{ if $restDay }}
           <div class="alert alert-warning shadow-lg">
             <svg class="icon"><use href="#info"></use></svg>
@@ -55,7 +55,7 @@
     {{ end }}
     <header class="h-[9rem]">
       <figure class="map-img">
-        <div class="flex flex-col gap-2 items-start absolute left-4 bottom-3 z-50">
+        <div class="flex flex-col gap-2 items-start absolute left-4 bottom-3 z-30">
           {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
             <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
               <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg> Speisekarte
@@ -68,7 +68,7 @@
             <svg class="inline-block w-4 h-4 stroke-current"><use href="#phone"></use></svg> {{ .RestaurantData.Restaurant.Phone }}
           </a>
         </div>
-        <div class="hidden md:flex flex-col gap-2 items-end absolute right-4 bottom-3 z-50">
+        <div class="hidden md:flex flex-col gap-2 items-end absolute right-4 bottom-3 z-30">
           <div class="badge badge-lg gap-2">
             {{ .RestaurantData.Updated }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#scan"></use></svg>
           </div>
@@ -152,72 +152,5 @@
         price.innerText = (parsedPrice - priceAdjustment).toFixed(2).replace('.', ',') + ' €';
       }
     }
-
-    const deviceHasPointer = window.matchMedia('(pointer: fine)').matches;
-    const container = document.querySelector('.magnifying-glass');
-    const magnifier = document.querySelector('.magnifying-glass__magnifier');
-    const enlargedImage = document.querySelector('.magnifying-glass__enlarged-image');
-    const speed = 0.2;
-
-    let containerRect = {};
-    let mouse = { x: 0, y: 0 };
-    let glass = { x: 0, y: 0 };
-    let enlargedImagePos = { x: 0, y: 0 };
-    let aboveImage = false;
-    let runMovement = false;
-
-    function init() {
-      if (deviceHasPointer) {
-        containerRect = container.getBoundingClientRect();
-
-        window.addEventListener('mousemove', this.getMousePos);
-        container.addEventListener('mouseenter', this.showGlass);
-        container.addEventListener('mouseleave', this.hideGlass);
-        moveGlass();
-      }
-    }
-
-    function getMousePos(e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }
-
-    function moveGlass() {
-      // Calculate smooth mouse movement
-      glass.x = lerp(glass.x, mouse.x, speed);
-      glass.y = lerp(glass.y, mouse.y, speed);
-
-      // Calculate enlarged image position
-      enlargedImagePos.x = ((glass.x - containerRect.left) / containerRect.width) * -100;
-      enlargedImagePos.y = ((glass.y - containerRect.top) / containerRect.height) * -100;
-
-      // Set style positions
-      magnifier.style.transform = `translate(calc(${glass.x}px - 50%), calc(${glass.y}px  - 50%))`;
-      enlargedImage.style.transform = `translate(${enlargedImagePos.x}%, ${enlargedImagePos.y}%)`;
-
-      if (runMovement) requestAnimationFrame(moveGlass);
-    }
-
-    function showGlass() {
-      containerRect = container.getBoundingClientRect();
-      aboveImage = true;
-      runMovement = true;
-      magnifier.style.opacity = '1';
-      moveGlass();
-    }
-
-    function hideGlass() {
-      aboveImage = false;
-      magnifier.style.opacity = '0';
-      setTimeout(() => {
-        runMovement = false;
-      }, 250);
-    }
-
-    function lerp(a, b, n) {
-      return (1 - n) * a + n * b;
-    }
-
-    init();
   </script>
 {{ end }}
