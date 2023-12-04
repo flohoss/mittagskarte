@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/vorlif/spreak/humanize"
 	"gitlab.unjx.de/flohoss/mittag/internal/database"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/maps"
@@ -15,9 +16,10 @@ type Mittag struct {
 	Configurations map[string]*Configuration
 	env            *env.Env
 	orm            *gorm.DB
+	Humanizer      *humanize.Humanizer
 }
 
-func NewMittag(env *env.Env) *Mittag {
+func NewMittag(env *env.Env, humanizer *humanize.Humanizer) *Mittag {
 	c, err := parseAllConfigs()
 	if err != nil {
 		slog.Error("could not parse configurations", "err", err.Error())
@@ -27,9 +29,11 @@ func NewMittag(env *env.Env) *Mittag {
 		Configurations: c,
 		orm:            database.NewDatabaseConnection("sqlite.db"),
 		env:            env,
+		Humanizer:      humanizer,
 	}
 	mittag.migrateModels()
 	if !slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+		mittag.UpdateRestaurants()
 		mittag.UpdateMapsInformation("")
 	}
 	return &mittag
@@ -67,9 +71,10 @@ func (m *Mittag) UpdateMapsInformation(id string) {
 	}
 	info := maps.GetMapInformation(m.env.GoogleAPIKey, requests)
 	for key, val := range info {
-		m.orm.Model(&Card{}).Where("restaurant_id = ?", key).Updates(Card{
-			Distance: val.Route.Legs[len(val.Route.Legs)-1].HumanReadable,
-			Duration: val.Route.Legs[len(val.Route.Legs)-1].Duration.String(),
-		})
+		ma := Map{CardID: key}
+		m.orm.FirstOrCreate(&ma, ma)
+		ma.Distance = val.Route.Legs[len(val.Route.Legs)-1].HumanReadable
+		ma.Duration = m.Humanizer.NaturalTime(val.Route.Legs[len(val.Route.Legs)-1].Duration)
+		m.orm.Save(&ma)
 	}
 }

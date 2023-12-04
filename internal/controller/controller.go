@@ -23,12 +23,12 @@ func NewController(env *env.Env) *Controller {
 	ctrl := new(Controller)
 
 	ctrl.env = env
-	ctrl.mittag = mittag.NewMittag(env)
+	collection := humanize.MustNew(humanize.WithLocale(de.New()))
+	ctrl.humanizer = collection.CreateHumanizer(language.German)
+	ctrl.mittag = mittag.NewMittag(env, ctrl.humanizer)
 	ctrl.cron = cron.New()
 	ctrl.cron.AddFunc("0,30 10,11 * * *", ctrl.updateAll)
 	ctrl.cron.Start()
-	collection := humanize.MustNew(humanize.WithLocale(de.New()))
-	ctrl.humanizer = collection.CreateHumanizer(language.German)
 
 	return ctrl
 }

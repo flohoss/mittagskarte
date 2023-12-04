@@ -55,7 +55,7 @@
     {{ end }}
     <header class="h-[9rem]">
       <figure class="map-img">
-        <div class="flex flex-col gap-2 items-start absolute left-4 bottom-3 z-30">
+        <div class="flex flex-col gap-2 items-start absolute left-5 bottom-3 z-30">
           {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
             <button onclick="my_modal.showModal()" class="btn btn-sm btn-primary gap-2">
               <svg class="inline-block w-4 h-4 stroke-current"><use href="#menu"></use></svg> Speisekarte
@@ -77,17 +77,17 @@
           </div>
           {{ if eq .RestaurantData.Restaurant.Group 1 }}
             <div class="badge badge-lg gap-2">
-              {{ .RestaurantData.Card.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
+              {{ .RestaurantData.Card.Map.Distance }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#sign"></use></svg>
             </div>
             <div class="badge badge-lg gap-2">
-              {{ .RestaurantData.Card.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
+              {{ .RestaurantData.Card.Map.Duration }} <svg class="inline-block w-4 h-4 stroke-current"><use href="#car"></use></svg>
             </div>
           {{ end }}
         </div>
       </figure>
     </header>
 
-    <main class="flex-1 overflow-hidden">
+    <main class="flex-1 overflow-hidden overflow-y-auto">
       {{ if .RestaurantData.Card.Food }}
         <div class="grid gap-4 max-h-full overflow-y-auto">
           <div class="text-3xl font-bold ml-4">{{ .RestaurantData.Card.Description }}</div>
@@ -114,7 +114,7 @@
         {{ $width := index $sizes 1 }}
         <img width="{{ $width }}" height="{{ $height }}" class="object-contain object-center rounded-lg" src="/{{ .RestaurantData.Card.ImageURL }}" />
       {{ else if $nothingFound }}
-        <div class="h-screen flex justify-start items-center text-gray-500">Kein Mittagstisch gefunden</div>
+        <div class="flex justify-center text-gray-500">Kein Mittagstisch gefunden</div>
       {{ end }}
     </main>
   </div>

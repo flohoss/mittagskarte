@@ -51,7 +51,7 @@ func (c *Controller) RenderRestaurants(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 	var card mittag.Card
-	c.mittag.GetORM().Where("restaurant_id = ?", conf.Restaurant.ID).Preload("Food").Find(&card)
+	c.mittag.GetORM().Where("restaurant_id = ?", conf.Restaurant.ID).Preload("Food").Preload("Map").Find(&card)
 	return ctx.Render(http.StatusOK, "restaurants", TemplateData{
 		BaseData:       BaseData{Title: "Mittag - " + conf.Restaurant.Name, Configurations: c.mittag.Configurations, Groups: mittag.Groups},
 		RestaurantData: RestaurantData{Restaurant: conf.Restaurant, Card: card, Refreshed: c.humanizer.NaturalTime(card.Refreshed), Updated: c.humanizer.NaturalTime(card.UpdatedAt)},

@@ -49,11 +49,16 @@ type Card struct {
 	ImageURL         string `json:"image_url"`
 	ExistingFileHash string `json:"existing_file_hash"`
 	Refreshed        int64  `json:"refreshed"`
+	Map              Map    `json:"map" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Food             []Food `json:"food" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Distance         string `json:"distance"`
-	Duration         string `json:"duration"`
 	UpdatedAt        int64  `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
+}
+
+type Map struct {
+	CardID   string `json:"card_id" gorm:"primaryKey"`
+	Distance string `json:"distance"`
+	Duration string `json:"duration"`
 }
 
 type Food struct {
