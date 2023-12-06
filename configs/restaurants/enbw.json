@@ -11,7 +11,7 @@
   "retrieve_download_url": [
     {
       "prefix": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/",
-      "regex": "\\\"name\\\".*\\\"(.+?enbw.+?)\\\""
+      "regex": "\"name\".*\"(.*enbw.*)\""
     }
   ],
   "download": {

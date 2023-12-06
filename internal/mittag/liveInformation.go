@@ -66,7 +66,7 @@ func (l *LiveInformation) findUrlInPage(r *Retrieve) error {
 		replaced := helper.ReplacePlaceholder(r.Regex)
 		expr := regexp.MustCompile("(?i)" + replaced)
 		res := expr.FindStringSubmatch(l.RawText)
-		if len(res) > 1 {
+		if len(res) > 0 {
 			downloadUrl = res[1]
 		}
 	} else {
