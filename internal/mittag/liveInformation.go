@@ -139,3 +139,12 @@ func (l *LiveInformation) prepareFileForPublic(id string) error {
 	helper.RemoveAllOtherFiles(newFile)
 	return nil
 }
+
+func IsRestDay(restaurant Restaurant) bool {
+	for _, restDay := range restaurant.RestDays {
+		if uint8(time.Now().Weekday()) == restDay {
+			return true
+		}
+	}
+	return false
+}

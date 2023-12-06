@@ -67,7 +67,7 @@ func (c *Controller) RenderGroups(ctx echo.Context) error {
 	configurations := make(map[string]*mittag.Configuration)
 	ids := []string{}
 	for key, val := range c.mittag.Configurations {
-		if val.Restaurant.Group == group {
+		if val.Restaurant.Group == group && !mittag.IsRestDay(val.Restaurant) {
 			configurations[key] = val
 			ids = append(ids, val.Restaurant.ID)
 		}

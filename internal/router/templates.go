@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"io"
 	"os"
-	"time"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/labstack/echo/v4"
@@ -52,15 +51,6 @@ func isToday(food mittag.Food) bool {
 	return false
 }
 
-func isRestDay(restaurant mittag.Restaurant) bool {
-	for _, restDay := range restaurant.RestDays {
-		if uint8(time.Now().Weekday()) == restDay {
-			return true
-		}
-	}
-	return false
-}
-
 func nothingFound(card mittag.Card) bool {
 	return len(card.Food) == 0 && card.ImageURL == ""
 }
@@ -82,7 +72,7 @@ func imageSize(image string) []int {
 func generateTemplate(files ...string) *template.Template {
 	return template.Must(template.New("").Funcs(sprig.FuncMap()).Funcs(template.FuncMap{
 		"isToday":      isToday,
-		"isRestDay":    isRestDay,
+		"isRestDay":    mittag.IsRestDay,
 		"imageSize":    imageSize,
 		"nothingFound": nothingFound,
 	}).ParseFiles(templateString(files)...))
