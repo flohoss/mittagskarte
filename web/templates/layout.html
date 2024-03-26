@@ -1,76 +1,96 @@
 <!doctype html>
 <html lang="de" class="bg-base-300">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{{ block "title" . }}Mittag{{ end }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A blazing fast start-page for services written in Go " />
-    <meta name="theme-color" content="#d07915" />
 
-    <link rel="icon" type="image/x-icon" href="/static/favicon/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png" />
-    <link rel="stylesheet" href="/static/css/style.css?v={{ env "APP_VERSION" }}" />
-    {{ block "style". }}{{ end }}
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ block "title" . }}Mittag{{ end }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A blazing fast start-page for services written in Go " />
+  <meta name="theme-color" content="#d07915" />
 
-  <body id="app">
-    {{ block "modal" . }}{{ end }}
-    {{ block "icons" . }}{{ end }}
+  <link rel="icon" type="image/x-icon" href="/static/favicon/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/static/css/style.css?v={{ env " APP_VERSION" }}" />
+  {{ block "style". }}{{ end }}
+</head>
 
-    {{ define "link" }}
-      <a href="{{ index . 0 }}">
-        <svg class="icon-sm {{ if index . 3 }}text-primary{{ end }}">
-          <use href="#{{ index . 1 }}"></use>
-        </svg>
-        {{ index . 2 }}
-      </a>
-    {{ end }}
+<body id="app">
+  {{ block "modal" . }}{{ end }}
+  {{ block "icons" . }}{{ end }}
+
+  {{ define "link" }}
+  <a href="{{ index . 0 }}">
+    <svg class="icon-sm">
+      <use href="#{{ index . 1 }}"></use>
+    </svg>
+    {{ index . 2 }}
+  </a>
+  {{ end }}
 
 
-    <div class="drawer lg:drawer-open">
-      <input id="drawer" type="checkbox" class="drawer-toggle" />
-      <div class="drawer-content">
-        <div class="z-40 flex-none absolute bottom-4 left-4 lg:hidden">
-          <label for="drawer" class="btn btn-square">
-            <svg class="icon">
-              <use href="#bars"></use>
-            </svg>
-          </label>
-        </div>
-        <div class="relative">{{ block "content" . }}{{ end }}</div>
+  <div class="drawer md:drawer-open">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content">
+      <div class="h-screen overflow-y-auto">
+        <label ref="button" for="my-drawer" class="md:hidden btn btn-primary drawer-button absolute bottom-5 right-5">
+          <svg class="icon">
+            <use href="#bars"></use>
+          </svg>
+        </label>
+        {{ block "content" . }}{{ end }}
       </div>
-      <div class="drawer-side z-50">
-        <label for="drawer" class="drawer-overlay"></label>
-        <ul class="menu menu-md p-4 w-72 h-full bg-base-100 text-base-content overflow-y-auto gap-1 flex-nowrap">
-          <li class="font-bold">{{ block "link" list "/countdown" "clock" "Countdown" true }}{{ end }}</li>
-          {{ $configurations := .BaseData.Configurations }}
-          {{ range $key, $group := .BaseData.Groups }}
-            <div class="divider m-0"></div>
-            {{ $lower := lower $group.String }}
-            {{ $link := printf "%s%s" "/groups/" $lower }}
-            <li class="font-bold">{{ block "link" list $link "city" $group true }}{{ end }}</li>
-            {{ range $key, $conf := $configurations }}
+    </div>
+    <div class="drawer-side z-50">
+      <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+
+      <div class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
+        <a href="/" class="inline-flex items-center p-2 gap-2">
+          <svg class="icon text-primary">
+            <use href="#cutlery"></use>
+          </svg>
+          <span class="text-xl font-semibold">MITTAGS<span class="text-primary">TISCH</span></span>
+        </a>
+        {{ $configurations := .BaseData.Configurations }}
+        {{ range $key, $group := .BaseData.Groups }}
+        <ul class="menu p-1">
+          <li>
+            <div class="menu-title flex items-center gap-2 p-2">
+              <svg class="icon-sm">
+                <use href="#city"></use>
+              </svg>
+              <span class="text-primary">{{ $group.String }}</span>
+            </div>
+            <ul class="flex flex-col gap-1 p-0">
+              {{ range $key, $conf := $configurations }}
               {{ if eq $conf.Restaurant.Group $group }}
-                {{ $link := printf "%s%s" "/restaurants/" $conf.Restaurant.ID }}
-                <li class="opacity-90">{{ block "link" list $link "restaurant" $conf.Restaurant.Name false }}{{ end }}</li>
+              {{ $link := printf "%s%s" "/restaurants/" $conf.Restaurant.ID }}
+              <li class="opacity-90">
+                {{ block "link" list $link "restaurant" $conf.Restaurant.Name false }}{{ end }}
+              </li>
               {{ end }}
-            {{ end }}
-          {{ end }}
-          <span class="h-2 shrink-0 flex-grow"></span>
-          <div class="divider m-0"></div>
+              {{ end }}
+            </ul>
+          </li>
+        </ul>
+        {{ end }}
+        <div class="flex-1"></div>
+        <ul class="menu p-1">
           <li class="font-bold">{{ block "link" list "/settings" "system" "Einstellungen" true }}{{ end }}</li>
         </ul>
       </div>
-    </div>
 
-    {{ block "js" . }}{{ end }}
-    <script>
-      const links = document.querySelectorAll(`ul.menu > li > a[href="${location.pathname}"]`);
-      for (const link of links) {
-        link.classList.add('active');
-      }
-    </script>
-  </body>
+    </div>
+  </div>
+
+  {{ block "js" . }}{{ end }}
+  <script>
+    const links = document.querySelectorAll(`ul.menu > li > a[href="${location.pathname}"]`);
+    for (const link of links) {
+      link.classList.add('active');
+    }
+  </script>
+</body>
+
 </html>

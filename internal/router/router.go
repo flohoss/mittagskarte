@@ -13,6 +13,7 @@ func InitRouter() *echo.Echo {
 
 	e.HideBanner = true
 	e.HidePort = true
+	e.Debug = true
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
