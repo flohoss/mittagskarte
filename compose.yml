@@ -1,75 +1,52 @@
 services:
-  mittag:
-    profiles: [build]
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      args:
-        - GOLANG_VERSION=${GOLANG_VERSION}
-        - DEBIAN_VERSION=${DEBIAN_VERSION}
-        - NODE_VERSION=${NODE_VERSION}
-        - ALPINE_VERSION=${ALPINE_VERSION}
-
   backend:
-    profiles: [dev]
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
       args:
-        - GOLANG_VERSION=${GOLANG_VERSION}
+        - V_GOLANG=${V_GOLANG}
     command: air -c .air.toml
     environment:
       - TZ=Europe/Berlin
       - LOG_LEVEL=debug
       - APP_VERSION=v0.0.1-dev
-      - BUILD_TIME=2023-04-05T20:48:07Z
       - GOOGLE_API_KEY=AIzaSyCPVvOqLQTWu3_2Chr_9eqfZefxolRrUc8
     ports:
       - 4000:4000
     volumes:
       - .:/app/
 
-  backend-debug:
-    profiles: [debug]
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile.dev
-      args:
-        - GOLANG_VERSION=${GOLANG_VERSION}
-    command: scripts/debug.sh
-    environment:
-      - TZ=Europe/Berlin
-      - LOG_LEVEL=debug
-      - APP_VERSION=v0.0.1-dev
-      - BUILD_TIME=2023-04-05T20:48:07Z
-      - GOOGLE_API_KEY=AIzaSyCPVvOqLQTWu3_2Chr_9eqfZefxolRrUc8
-    ports:
-      - 4001:4001
-      - 4000:4000
-    volumes:
-      - ./:/app/
-
-  frontend:
-    profiles: [dev, debug]
-    image: node:${NODE_VERSION}-alpine
+  tailwind:
+    image: node:${V_NODE}-alpine
     working_dir: /app/web
-    command: yarn run tailwind:dev
+    command: yarn tw:dev
     tty: true
     volumes:
       - .:/app/
 
-  go:
+  mittag:
+    profiles: [build]
+    image: ${CURRENT_IMAGE}
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - V_GOLANG=${V_GOLANG}
+        - V_DEBIAN=${V_DEBIAN}
+        - V_NODE=${V_NODE}
+        - V_ALPINE=${V_ALPINE}
+        - APP_VERSION=${CI_COMMIT_TAG}
+
+  golang:
     profiles: [install]
-    image: golang:${GOLANG_VERSION}
+    image: golang:${V_GOLANG}-alpine
     working_dir: /app
-    entrypoint: go
     volumes:
       - .:/app/
 
-  yarn:
+  node:
     profiles: [install]
-    image: node:${NODE_VERSION}-alpine
+    image: node:${V_NODE}-alpine
     working_dir: /app/web
-    entrypoint: yarn
     volumes:
       - .:/app/

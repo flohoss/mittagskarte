@@ -1,8 +1,8 @@
-ARG GOLANG_VERSION
-ARG DEBIAN_VERSION
-ARG NODE_VERSION
-ARG ALPINE_VERSION
-FROM golang:${GOLANG_VERSION} AS goBuilder
+ARG V_GOLANG
+ARG V_DEBIAN
+ARG V_NODE
+ARG V_ALPINE
+FROM golang:${V_GOLANG} AS goBuilder
 RUN apt-get update -qq
 RUN apt-get install -y libtesseract-dev libleptonica-dev
 
@@ -14,18 +14,18 @@ RUN go mod download
 COPY . .
 RUN go build -tags ocr -ldflags="-s -w" cmd/mittag/mittag.go
 
-FROM node:${NODE_VERSION}-alpine AS nodeBuilder
+FROM node:${V_NODE}-alpine AS nodeBuilder
 WORKDIR /web
 
 COPY ./web .
 RUN yarn install --frozen-lockfile
-RUN yarn run tailwind:build
+RUN yarn run tw:build
 
-FROM alpine:${ALPINE_VERSION} AS logo
+FROM alpine:${V_ALPINE} AS logo
 RUN apk add figlet
 RUN figlet Mittag > logo.txt
 
-FROM debian:${DEBIAN_VERSION}-slim AS final
+FROM debian:${V_DEBIAN}-slim AS final
 RUN apt-get update -qq
 RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
@@ -45,7 +45,5 @@ COPY ./configs/ ./configs/
 # Envs
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
-ARG BUILD_TIME
-ENV BUILD_TIME=$BUILD_TIME
 
 ENTRYPOINT ["/app/entrypoint.sh"]
