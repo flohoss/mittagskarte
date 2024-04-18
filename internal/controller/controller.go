@@ -52,15 +52,3 @@ func (c *Controller) UpdateRestaurants(ctx echo.Context) error {
 	}
 	return ctx.NoContent(http.StatusOK)
 }
-
-func (c *Controller) UpdateMaps(ctx echo.Context) error {
-	id := ctx.QueryParam("id")
-	if id != "" {
-		exists, _ := c.mittag.DoesConfigurationExist(id)
-		if !exists {
-			return ctx.NoContent(http.StatusNotFound)
-		}
-	}
-	go c.mittag.UpdateMapsInformation(id)
-	return ctx.NoContent(http.StatusOK)
-}

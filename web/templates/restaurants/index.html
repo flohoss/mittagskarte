@@ -24,7 +24,8 @@
   {{ end }}
   <header>
     <div class="flex gap-5 growing-padding">
-      <div class="rounded-xl bg-primary w-[150px] h-[150px]"></div>
+      <div class="rounded-xl bg-primary w-[150px] h-[150px]"
+        style="background-image: url({{ .RestaurantData.Restaurant.Thumbnail }});"></div>
 
       <div class="flex flex-col gap-4 p-4">
         <div class="text-2xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
