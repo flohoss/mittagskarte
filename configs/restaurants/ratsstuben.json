@@ -18,38 +18,38 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Montag((?:.|\n)*)\nDienstag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Montag(?:.|\n)*\nDienstag" }
+        "name": { "regex": "Tagessessen(?:.|\n)*Montag\\s((?:.|\n)*)\nDienstag" },
+        "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Dienstag((?:.|\n)*)\nMittwoch" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Dienstag(?:.|\n)*\nMittwoch" }
+        "name": { "regex": "Tagessessen(?:.|\n)*Dienstag\\s((?:.|\n)*)\nMittwoch" },
+        "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Mittwoch((?:.|\n)*)\nDonnerstag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Mittwoch(?:.|\n)*\nDonnerstag" }
+        "name": { "regex": "Tagessessen(?:.|\n)*Mittwoch\\s((?:.|\n)*)\nDonnerstag" },
+        "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Donnerstag((?:.|\n)*)\nFreitag" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Donnerstag(?:.|\n)*\nFreitag" }
+        "name": { "regex": "Tagessessen(?:.|\n)*Donnerstag\\s((?:.|\n)*)\nFreitag" },
+        "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "name": { "regex": "Tagesessen\\s?€\\s?\\d{1,2},\\d{1,2}\\s?(?:.|\n)*Freitag((?:.|\n)*)\nWochen-Renner" },
-        "price": { "regex": "Tagesessen\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*Freitag(?:.|\n)*\nWochen-Renner" }
+        "name": { "regex": "Tagessessen(?:.|\n)*nFreitag\\s((?:.|\n)*)\n(?:neservierungen|reservierungen)" },
+        "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Woche" },
-        "name": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)\nVeggie-Renner" },
-        "price": { "regex": "Wochen-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*\nVeggie-Renner" }
+        "name": { "regex": "Wochen-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)Veggie" },
+        "price": { "regex": "Wochen-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Vegetarisch" },
-        "name": { "regex": "Veggie-Renner\\s?.*\\s?€\\s?\\d{1,2},\\d{1,2}\\s?((?:.|\n)*)" },
-        "price": { "regex": "Veggie-Renner\\s?.*\\s?€\\s?(\\d{1,2},\\d{1,2})\\s?(?:.|\n)*" }
+        "name": { "regex": "Veggie-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)" },
+        "price": { "regex": "Veggie-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       }
     ]
   }

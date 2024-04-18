@@ -8,7 +8,7 @@
     "phone": "+49 157 30664255",
     "group": 1
   },
-  "retrieve_download_url": [{ "jquery": "div#Speisekarte > a > span > img", "attribute": "src" }],
+  "retrieve_download_url": [{ "jquery": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']", "attribute": "src" }],
   "download": {
     "is_file": true,
     "cropping": [
