@@ -13,6 +13,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goodsign/monday"
 	"gitlab.unjx.de/flohoss/mittag/internal/helper"
+	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 	"gorm.io/gorm"
 )
 
@@ -85,13 +86,14 @@ func (c *Configuration) UpdateInformation(orm *gorm.DB) {
 		}
 	}
 
+	if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+		helper.SaveContentAsFile(fetch.DownloadLocation+c.Restaurant.ID, &l.RawText)
+	}
+
 	if l.FileLocation != "" {
 		err := l.parseAndStoreFileText(c)
 		if err != nil {
 			return
-		}
-		if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
-			helper.SaveContentAsFile(filepath.Dir(l.FileLocation), &l.RawText)
 		}
 		err = l.prepareFileForPublic(c.Restaurant.ID)
 		if err != nil {

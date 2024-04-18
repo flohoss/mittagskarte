@@ -9,27 +9,27 @@
     "group": 1
   },
   "menu": {
-    "description": { "regex": "Tageskarte.*" },
+    "description": { "regex": "Mittagessen.+?\\d{1,2}.+?\\d{4}" },
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "name": { "regex": "Tageskarte[\\s\\S]*?Montag\\s*?([a-zA-Z].*)" },
-        "price": { "fixed": "10.9" }
+        "name": { "regex": "Montag\\s*?([a-zA-Z].*)" },
+        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "name": { "regex": "Tageskarte[\\s\\S]*?Dienstag\\s*?([a-zA-Z].*)" },
-        "price": { "fixed": "10.9" }
+        "name": { "regex": "Dienstag\\s*?([a-zA-Z].*)" },
+        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "name": { "regex": "Tageskarte[\\s\\S]*?Mittwoch\\s*?([a-zA-Z].*)" },
-        "price": { "fixed": "10.9" }
+        "name": { "regex": "Mittwoch\\s*?([a-zA-Z].*)" },
+        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "name": { "regex": "Tageskarte[\\s\\S]*?Donnerstag\\s*?([a-zA-Z].*)" },
-        "price": { "fixed": "10.9" }
+        "name": { "regex": "Donnerstag\\s*?([a-zA-Z].*)" },
+        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
       }
     ]
   }
