@@ -3,7 +3,9 @@ package mittag
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -45,6 +47,8 @@ func parseConfig(path string) (Configuration, error) {
 }
 
 func parseAllConfigs() (map[string]*Configuration, error) {
+	thumbnails := getThumbnails()
+
 	configurations := make(map[string]*Configuration)
 	err := filepath.WalkDir(ConfigLocation, func(path string, info os.DirEntry, err error) error {
 		if info.Type().IsRegular() {
@@ -53,9 +57,11 @@ func parseAllConfigs() (map[string]*Configuration, error) {
 				return err
 			}
 			configurations[config.Restaurant.ID] = &config
+			configurations[config.Restaurant.ID].Restaurant.Thumbnail = thumbnails[config.Restaurant.ID]
 		}
 		return nil
 	})
+
 	return configurations, err
 }
 
@@ -199,4 +205,29 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 		appendFood(&allFood, &food)
 	}
 	return allFood
+}
+
+func getThumbnails() map[string]string {
+	thumbnails := make(map[string]string)
+	url := "https://db.unjx.de/items/restaurants?fields=id%2Cthumbnail"
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("User-Agent", "insomnia/8.6.1")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return thumbnails
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return thumbnails
+	}
+
+	var data ThumbnailData
+	json.Unmarshal([]byte(body), &data)
+
+	for _, item := range data.Data {
+		thumbnails[item.ID] = "https://db.unjx.de/assets/" + item.Thumbnail + "?key=optimized"
+	}
+	return thumbnails
 }

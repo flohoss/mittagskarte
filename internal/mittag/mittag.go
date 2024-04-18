@@ -8,7 +8,6 @@ import (
 	"github.com/vorlif/spreak/humanize"
 	"gitlab.unjx.de/flohoss/mittag/internal/database"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/maps"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +33,6 @@ func NewMittag(env *env.Env, humanizer *humanize.Humanizer) *Mittag {
 	mittag.migrateModels()
 	if !slog.Default().Enabled(context.Background(), slog.LevelDebug) {
 		mittag.UpdateRestaurants()
-		mittag.UpdateMapsInformation("")
 	}
 	return &mittag
 }
@@ -52,29 +50,4 @@ func (m *Mittag) UpdateRestaurants() {
 func (m *Mittag) DoesConfigurationExist(id string) (bool, *Configuration) {
 	value, ok := m.Configurations[id]
 	return ok, value
-}
-
-func (m *Mittag) UpdateMapsInformation(id string) {
-	requests := []maps.MapRequest{}
-	if id != "" {
-		requests = append(requests, maps.MapRequest{
-			Identifier: id,
-			Address:    m.Configurations[id].Restaurant.Address,
-		})
-	} else {
-		for key, val := range m.Configurations {
-			requests = append(requests, maps.MapRequest{
-				Identifier: key,
-				Address:    val.Restaurant.Address,
-			})
-		}
-	}
-	info := maps.GetMapInformation(m.env.GoogleAPIKey, requests)
-	for key, val := range info {
-		ma := Map{CardID: key}
-		m.orm.FirstOrCreate(&ma, ma)
-		ma.Distance = val.Route.Legs[len(val.Route.Legs)-1].HumanReadable
-		ma.Duration = m.Humanizer.NaturalTime(val.Route.Legs[len(val.Route.Legs)-1].Duration)
-		m.orm.Save(&ma)
-	}
 }

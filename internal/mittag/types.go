@@ -6,14 +6,15 @@ import (
 )
 
 type Restaurant struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	PageURL  string  `json:"page_url"`
-	Address  string  `json:"address"`
-	Selected bool    `json:"selected"`
-	RestDays []uint8 `json:"rest_day"`
-	Phone    string  `json:"phone"`
-	Group    Group   `json:"group"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	PageURL   string  `json:"page_url"`
+	Address   string  `json:"address"`
+	Selected  bool    `json:"selected"`
+	RestDays  []uint8 `json:"rest_day"`
+	Phone     string  `json:"phone"`
+	Group     Group   `json:"group"`
+	Thumbnail string  `json:"thumbnail"`
 }
 
 type Group uint8
@@ -133,4 +134,13 @@ type Configuration struct {
 	RetrieveDownloadUrl []Retrieve `json:"retrieve_download_url"`
 	Download            Download   `json:"download"`
 	Menu                Menu       `json:"menu"`
+}
+
+type ThumbnailItem struct {
+	ID        string `json:"id"`
+	Thumbnail string `json:"thumbnail"`
+}
+
+type ThumbnailData struct {
+	Data []ThumbnailItem `json:"data"`
 }
