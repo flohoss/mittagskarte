@@ -8,7 +8,7 @@
       grayscale opacity-50
     {{ else }}
       animate-fadeIn
-    {{ end }} container flex flex-col justify-start h-[99vh] gap-6 py-1 md:py-5 px-2">
+    {{ end }} container flex flex-col justify-start gap-6 py-1 md:py-5 px-2">
   {{ $nothingFound := nothingFound .RestaurantData.Card }}
   {{ if or $restDay $nothingFound }}
   <div class="z-40 -rotate-12 absolute top-14 left-1/2 transform -translate-x-1/2">
