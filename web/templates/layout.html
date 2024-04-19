@@ -60,11 +60,11 @@
           <li>
             <div class="menu-title flex items-center gap-3 p-2">
               <iconify-icon class="text-sm" icon="fa6-solid:city"></iconify-icon>
-              <span class="text-primary">{{ $group.String }}</span>
+              <span class="text-primary">{{ $group }}</span>
             </div>
             <ul class="flex flex-col gap-1 p-0">
               {{ range $key, $conf := $configurations }}
-              {{ if eq $conf.Restaurant.Group $group }}
+              {{ if eq $conf.Restaurant.Directus.Group $group }}
               {{ $link := printf "%s%s" "/restaurants/" $conf.Restaurant.ID }}
               <li class="opacity-90">
                 {{ block "link" list $link $conf.Restaurant.Directus.Icon $conf.Restaurant.Name false }}{{ end }}
@@ -90,6 +90,12 @@
   </div>
 
   {{ block "js" . }}{{ end }}
+  <script>
+    const links = document.querySelectorAll(`ul > li > a[href="${location.pathname}"]`);
+    for (const link of links) {
+      link.classList.add('active');
+    }
+  </script>
 </body>
 
 </html>
