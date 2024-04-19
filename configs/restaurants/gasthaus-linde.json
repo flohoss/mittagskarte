@@ -1,7 +1,7 @@
 {
   "restaurant": {
-    "id": "linde",
-    "name": "Linde",
+    "id": "gasthaus-linde",
+    "name": "Gasthaus Linde",
     "page_url": "https://www.gasthauslinde.de/Mittagstisch",
     "address": "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen",
     "rest_day": [0, 1, 6],

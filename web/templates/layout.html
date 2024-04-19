@@ -13,18 +13,23 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png" />
   <link rel="stylesheet" href="/static/css/style.css?v={{ env " APP_VERSION" }}" />
+  <script src="/modules/iconify-icon/dist/iconify-icon.min.js"></script>
   {{ block "style". }}{{ end }}
+  <style>
+    iconify-icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+    }
+  </style>
 </head>
 
 <body id="app">
   {{ block "modal" . }}{{ end }}
-  {{ block "icons" . }}{{ end }}
 
   {{ define "link" }}
   <a href="{{ index . 0 }}">
-    <svg class="icon-sm">
-      <use href="#{{ index . 1 }}"></use>
-    </svg>
+    <iconify-icon class="text-sm" {{index . 1}}></iconify-icon>
     {{ index . 2 }}
   </a>
   {{ end }}
@@ -34,10 +39,9 @@
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <div class="h-screen overflow-y-auto">
-        <label ref="button" for="my-drawer" class="md:hidden btn btn-primary drawer-button absolute bottom-5 right-5">
-          <svg class="icon">
-            <use href="#bars"></use>
-          </svg>
+        <label ref="button" for="my-drawer"
+          class="z-50 md:hidden btn btn-primary drawer-button absolute bottom-5 right-5">
+          <iconify-icon class="text-2xl" icon="fa6-solid:bars"></iconify-icon>
         </label>
         {{ block "content" . }}{{ end }}
       </div>
@@ -47,19 +51,15 @@
 
       <div class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
         <a href="/" class="inline-flex items-center p-2 gap-2">
-          <svg class="icon text-primary">
-            <use href="#cutlery"></use>
-          </svg>
+          <iconify-icon class="text-primary text-2xl" icon="mdi:cutlery"></iconify-icon>
           <span class="text-xl font-semibold">MITTAGS<span class="text-primary">TISCH</span></span>
         </a>
         {{ $configurations := .BaseData.Configurations }}
         {{ range $key, $group := .BaseData.Groups }}
         <ul class="menu p-1">
           <li>
-            <div class="menu-title flex items-center gap-2 p-2">
-              <svg class="icon-sm">
-                <use href="#city"></use>
-              </svg>
+            <div class="menu-title flex items-center gap-3 p-2">
+              <iconify-icon class="text-sm" icon="fa6-solid:city"></iconify-icon>
               <span class="text-primary">{{ $group.String }}</span>
             </div>
             <ul class="flex flex-col gap-1 p-0">
@@ -67,7 +67,7 @@
               {{ if eq $conf.Restaurant.Group $group }}
               {{ $link := printf "%s%s" "/restaurants/" $conf.Restaurant.ID }}
               <li class="opacity-90">
-                {{ block "link" list $link "restaurant" $conf.Restaurant.Name false }}{{ end }}
+                {{ block "link" list $link $conf.Restaurant.Directus.Icon $conf.Restaurant.Name false }}{{ end }}
               </li>
               {{ end }}
               {{ end }}
@@ -77,7 +77,12 @@
         {{ end }}
         <div class="flex-1"></div>
         <ul class="menu p-1">
-          <li class="font-bold">{{ block "link" list "/settings" "system" "Einstellungen" true }}{{ end }}</li>
+          <li>
+            <a href="/settings" class="menu-title flex items-center gap-2 p-2">
+              <iconify-icon class="text-lg" icon='mdi:cog'></iconify-icon>
+              <span class="text-primary">Einstellungen</span>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -85,12 +90,6 @@
   </div>
 
   {{ block "js" . }}{{ end }}
-  <script>
-    const links = document.querySelectorAll(`ul.menu > li > a[href="${location.pathname}"]`);
-    for (const link of links) {
-      link.classList.add('active');
-    }
-  </script>
 </body>
 
 </html>

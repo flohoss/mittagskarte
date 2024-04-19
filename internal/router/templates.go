@@ -27,7 +27,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 func templateString(files []string) []string {
 	templatesFolder := "web/templates/"
-	baseTemplates := []string{templatesFolder + "layout.html", templatesFolder + "icons.html"}
+	baseTemplates := []string{templatesFolder + "layout.html"}
 	for i := 0; i < len(files); i++ {
 		files[i] = templatesFolder + files[i]
 	}

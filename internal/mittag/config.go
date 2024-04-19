@@ -3,6 +3,7 @@ package mittag
 import (
 	"context"
 	"encoding/json"
+	"html/template"
 	"io"
 	"log/slog"
 	"net/http"
@@ -57,7 +58,7 @@ func parseAllConfigs() (map[string]*Configuration, error) {
 				return err
 			}
 			configurations[config.Restaurant.ID] = &config
-			configurations[config.Restaurant.ID].Restaurant.Thumbnail = thumbnails[config.Restaurant.ID]
+			configurations[config.Restaurant.ID].Restaurant.Directus = thumbnails[config.Restaurant.ID]
 		}
 		return nil
 	})
@@ -207,27 +208,30 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 	return allFood
 }
 
-func getThumbnails() map[string]string {
-	thumbnails := make(map[string]string)
-	url := "https://db.unjx.de/items/restaurants?fields=id%2Cthumbnail"
+func getThumbnails() map[string]DirectusItem {
+	info := make(map[string]DirectusItem)
+	url := "https://db.unjx.de/items/restaurants?fields=id%2Cthumbnail%2Cicon"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("User-Agent", "insomnia/8.6.1")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return thumbnails
+		return info
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return thumbnails
+		return info
 	}
 
-	var data ThumbnailData
+	var data DirectusData
 	json.Unmarshal([]byte(body), &data)
 
 	for _, item := range data.Data {
-		thumbnails[item.ID] = "https://db.unjx.de/assets/" + item.Thumbnail + "?key=optimized"
+		info[item.ID] = DirectusItem{
+			Thumbnail: "https://db.unjx.de/assets/" + item.Thumbnail + "?key=optimized",
+			Icon:      template.HTMLAttr("icon=" + item.Icon),
+		}
 	}
-	return thumbnails
+	return info
 }
