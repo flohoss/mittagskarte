@@ -208,9 +208,9 @@ func (c *Configuration) getAllFood(l *LiveInformation) []Food {
 	return allFood
 }
 
-func getThumbnails() map[string]DirectusItem {
-	info := make(map[string]DirectusItem)
-	url := "https://db.unjx.de/items/restaurants?fields=id%2Cthumbnail%2Cicon"
+func getThumbnails() map[string]Directus {
+	info := make(map[string]Directus)
+	url := "https://db.unjx.de/items/restaurants?fields=id%2Cthumbnail%2Cicon%2Cgroup.*"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("User-Agent", "insomnia/8.6.1")
@@ -228,9 +228,10 @@ func getThumbnails() map[string]DirectusItem {
 	json.Unmarshal([]byte(body), &data)
 
 	for _, item := range data.Data {
-		info[item.ID] = DirectusItem{
-			Thumbnail: "https://db.unjx.de/assets/" + item.Thumbnail + "?key=optimized",
+		info[item.ID] = Directus{
+			Thumbnail: template.HTMLAttr("style=background-image:url(https://db.unjx.de/assets/" + item.Thumbnail + "?key=optimized);"),
 			Icon:      template.HTMLAttr("icon=" + item.Icon),
+			Group:     item.Group.Description,
 		}
 	}
 	return info

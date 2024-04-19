@@ -16,7 +16,7 @@ type TemplateData struct {
 type BaseData struct {
 	Title          string
 	Configurations map[string]*mittag.Configuration
-	Groups         []mittag.Group
+	Groups         []string
 }
 
 type RestaurantData struct {
@@ -55,27 +55,5 @@ func (c *Controller) RenderRestaurants(ctx echo.Context) error {
 	return ctx.Render(http.StatusOK, "restaurants", TemplateData{
 		BaseData:       BaseData{Title: "Mittag - " + conf.Restaurant.Name, Configurations: c.mittag.Configurations, Groups: mittag.Groups},
 		RestaurantData: RestaurantData{Restaurant: conf.Restaurant, Card: card, Refreshed: c.humanizer.NaturalTime(card.Refreshed), Updated: c.humanizer.NaturalTime(card.UpdatedAt)},
-	})
-}
-
-func (c *Controller) RenderGroups(ctx echo.Context) error {
-	group, err := mittag.StringToGroup(ctx.Param("id"))
-	if err != nil {
-		ctx.Redirect(http.StatusTemporaryRedirect, "/")
-	}
-
-	configurations := make(map[string]*mittag.Configuration)
-	ids := []string{}
-	for key, val := range c.mittag.Configurations {
-		if val.Restaurant.Group == group && !mittag.IsRestDay(val.Restaurant) {
-			configurations[key] = val
-			ids = append(ids, val.Restaurant.ID)
-		}
-	}
-	var cards []mittag.Card
-	c.mittag.GetORM().Where("restaurant_id IN ?", ids).Preload("Food", "Day IN ?", mittag.GetTodayActiveList()).Find(&cards)
-	return ctx.Render(http.StatusOK, "groups", TemplateData{
-		BaseData:  BaseData{Title: "Mittag - " + group.String(), Configurations: c.mittag.Configurations, Groups: mittag.Groups},
-		GroupData: GroupData{FilteredConfigurations: configurations, Cards: cards, Group: group.String()},
 	})
 }

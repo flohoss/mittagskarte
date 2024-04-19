@@ -22,8 +22,8 @@
   {{ end }}
   <header>
     <div class="flex items-center gap-5 growing-padding">
-      <div class="rounded-xl bg-primary w-[120px] h-[120px] hidden md:block"
-        style="background-image: url({{ .RestaurantData.Restaurant.Directus.Thumbnail }});"></div>
+      <div class="rounded-xl bg-primary w-[120px] h-[120px] hidden md:block" {{
+        .RestaurantData.Restaurant.Directus.Thumbnail }}></div>
 
       <div class="flex flex-col items-start gap-2 p-2 flex-wrap overflow-hidden">
         <div class="text-2xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>

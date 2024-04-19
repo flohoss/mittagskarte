@@ -1,49 +1,29 @@
 package mittag
 
 import (
-	"errors"
 	"html/template"
-	"strings"
 )
 
 type Restaurant struct {
-	ID       string       `json:"id"`
-	Name     string       `json:"name"`
-	PageURL  string       `json:"page_url"`
-	Address  string       `json:"address"`
-	Selected bool         `json:"selected"`
-	RestDays []uint8      `json:"rest_day"`
-	Phone    string       `json:"phone"`
-	Group    Group        `json:"group"`
-	Directus DirectusItem `json:"Directus"`
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	PageURL  string   `json:"page_url"`
+	Address  string   `json:"address"`
+	Selected bool     `json:"selected"`
+	RestDays []uint8  `json:"rest_day"`
+	Phone    string   `json:"phone"`
+	Group    uint8    `json:"group"`
+	Directus Directus `json:"Directus"`
 }
 
-type Group uint8
-
-var Groups = []Group{
-	Fasanenhof,
-	Esslingen,
-	Feuerbach,
+var Groups = []string{
+	"Degerloch",
+	"Fasanenhof",
+	"Feuerbach",
+	"Köngen",
+	"Leinfelden-Echterdingen",
+	"Nürtingen",
 }
-
-func StringToGroup(s string) (Group, error) {
-	switch strings.ToLower(s) {
-	case "fasanenhof":
-		return Fasanenhof, nil
-	case "esslingen":
-		return Esslingen, nil
-	case "feuerbach":
-		return Feuerbach, nil
-	default:
-		return Fasanenhof, errors.New("not a valid group")
-	}
-}
-
-const (
-	Fasanenhof Group = iota + 1
-	Esslingen
-	Feuerbach
-)
 
 type Card struct {
 	RestaurantID     string `json:"restaurant_id" gorm:"primaryKey"`
@@ -138,9 +118,19 @@ type Configuration struct {
 }
 
 type DirectusItem struct {
-	ID        string            `json:"id"`
-	Thumbnail string            `json:"thumbnail"`
+	ID        string `json:"id"`
+	Thumbnail string `json:"thumbnail"`
+	Icon      string `json:"icon"`
+	Group     struct {
+		ID          uint8  `json:"id"`
+		Description string `json:"description"`
+	} `json:"group"`
+}
+
+type Directus struct {
+	Thumbnail template.HTMLAttr `json:"thumbnail"`
 	Icon      template.HTMLAttr `json:"icon"`
+	Group     string            `json:"group"`
 }
 
 type DirectusData struct {
