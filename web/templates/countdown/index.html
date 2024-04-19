@@ -1,90 +1,90 @@
 {{ define "title" }}
-  {{ .BaseData.Title }}
+{{ .BaseData.Title }}
 {{ end }}
 
 {{ define "content" }}
-  <div class="flex flex-col gap-10 min-h-screen items-center justify-center">
-    <div class="grid grid-flow-col gap-5 text-center auto-cols-max">
-      <div class="flex flex-col">
-        <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.hour)">
-          <span :style="timerStyle(countdown.hour)"></span>
-        </span>
-        <span class="text-gray-500">Stunden</span>
-      </div>
-      <div class="flex flex-col">
-        <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.minute)">
-          <span :style="timerStyle(countdown.minute)"></span>
-        </span>
-        <span class="text-gray-500">Minuten</span>
-      </div>
-      <div class="flex flex-col">
-        <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.second)">
-          <span :style="timerStyle(countdown.second)"></span>
-        </span>
-        <span class="text-gray-500">Sekunden</span>
-      </div>
+<div class="flex flex-col gap-10 min-h-screen items-center justify-center">
+  <div class="grid grid-flow-col gap-5 text-center auto-cols-max">
+    <div class="flex flex-col">
+      <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.hour)">
+        <span :style="timerStyle(countdown.hour)"></span>
+      </span>
+      <span class="text-gray-500">Stunden</span>
+    </div>
+    <div class="flex flex-col">
+      <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.minute)">
+        <span :style="timerStyle(countdown.minute)"></span>
+      </span>
+      <span class="text-gray-500">Minuten</span>
+    </div>
+    <div class="flex flex-col">
+      <span class="countdown font-mono text-6xl lg:text-7xl" :class="timerClass(countdown.second)">
+        <span :style="timerStyle(countdown.second)"></span>
+      </span>
+      <span class="text-gray-500">Sekunden</span>
     </div>
   </div>
+</div>
 {{ end }}
 
 {{ define "js" }}
-  <script type="text/javascript" src="/static/js/moment.min.js"></script>
-  <script type="module">
-    import { createApp } from '/static/js/vue.esm-browser.prod.js';
+<script type="text/javascript" src="/modules/moment/min/moment.min.js"></script>
+<script type="module">
+  import { createApp } from '/modules/vue/dist/vue.esm-browser.prod.js';
 
-    const SETTINGS_LOCAL_STORAGE = 'mittag_settings';
+  const SETTINGS_LOCAL_STORAGE = 'mittag_settings';
 
-    const app = createApp({
-      data() {
-        return {
-          settings: { selectedTime: '1300' },
-          countdownStatus: { almostDone: false, over: false },
-          countdown: { hour: 0, minute: 0, second: 0 },
-        };
+  const app = createApp({
+    data() {
+      return {
+        settings: { selectedTime: '1300' },
+        countdownStatus: { almostDone: false, over: false },
+        countdown: { hour: 0, minute: 0, second: 0 },
+      };
+    },
+    mounted() {
+      const ls = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+      if (ls) {
+        const parsed = JSON.parse(ls);
+        this.settings.selectedTime = parsed.selectedTime;
+      }
+      this.update();
+      setInterval(() => this.update(), 1000);
+    },
+    computed: {
+      midday() {
+        const hour = parseInt(this.settings.selectedTime.substring(0, 2));
+        const minute = parseInt(this.settings.selectedTime.substring(2, 4));
+        return moment().hours(hour).minute(minute).second(0);
       },
-      mounted() {
-        const ls = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
-        if (ls) {
-          const parsed = JSON.parse(ls);
-          this.settings.selectedTime = parsed.selectedTime;
+    },
+    methods: {
+      timerStyle(value) {
+        return '--value:' + value + ';';
+      },
+      timerClass(value) {
+        if (this.countdownStatus.almostDone && !this.countdownStatus.over) return 'text-warning';
+        else if (this.countdownStatus.over) return 'text-error';
+        else return '';
+      },
+      update() {
+        const diff = this.midday.diff(moment());
+        if (diff <= 0) {
+          this.countdownStatus.over = true;
+          this.countdown.hour = 0;
+          this.countdown.minute = 0;
+          this.countdown.second = 0;
+        } else {
+          this.countdownStatus.over && (countdownStatus.over = false);
+          this.countdownStatus.almostDone = diff > 0 && diff <= 3600000 ? true : false;
+          this.countdown.hour = Math.floor((diff % 86400000) / 3600000);
+          this.countdown.minute = Math.floor((diff % 3600000) / 60000);
+          this.countdown.second = Math.floor((diff % 60000) / 1000);
         }
-        this.update();
-        setInterval(() => this.update(), 1000);
       },
-      computed: {
-        midday() {
-          const hour = parseInt(this.settings.selectedTime.substring(0, 2));
-          const minute = parseInt(this.settings.selectedTime.substring(2, 4));
-          return moment().hours(hour).minute(minute).second(0);
-        },
-      },
-      methods: {
-        timerStyle(value) {
-          return '--value:' + value + ';';
-        },
-        timerClass(value) {
-          if (this.countdownStatus.almostDone && !this.countdownStatus.over) return 'text-warning';
-          else if (this.countdownStatus.over) return 'text-error';
-          else return '';
-        },
-        update() {
-          const diff = this.midday.diff(moment());
-          if (diff <= 0) {
-            this.countdownStatus.over = true;
-            this.countdown.hour = 0;
-            this.countdown.minute = 0;
-            this.countdown.second = 0;
-          } else {
-            this.countdownStatus.over && (countdownStatus.over = false);
-            this.countdownStatus.almostDone = diff > 0 && diff <= 3600000 ? true : false;
-            this.countdown.hour = Math.floor((diff % 86400000) / 3600000);
-            this.countdown.minute = Math.floor((diff % 3600000) / 60000);
-            this.countdown.second = Math.floor((diff % 60000) / 1000);
-          }
-        },
-      },
-    });
-    app.config.compilerOptions.delimiters = ['${', '}'];
-    app.mount('#app');
-  </script>
+    },
+  });
+  app.config.compilerOptions.delimiters = ['${', '}'];
+  app.mount('#app');
+</script>
 {{ end }}

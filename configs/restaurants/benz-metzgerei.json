@@ -1,7 +1,7 @@
 {
   "restaurant": {
-    "id": "benz",
-    "name": "Benz",
+    "id": "benz-metzgerei",
+    "name": "Benz Metzgerei",
     "page_url": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
     "address": "Hirschstraße 18, 73257 Köngen",
     "rest_day": [0, 6],

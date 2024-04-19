@@ -39,6 +39,11 @@ COPY scripts/entrypoint.sh .
 COPY --from=logo /logo.txt .
 COPY --from=nodeBuilder /web/static/ ./web/static/
 COPY --from=nodeBuilder /web/templates ./web/templates/
+# node modules
+COPY --from=nodeBuilder /web/node_modules/vue/dist/vue.esm-browser.prod.js ./web/node_modules/vue/dist/vue.esm-browser.prod.js
+COPY --from=nodeBuilder /web/node_modules/moment/min/moment.min.js ./web/node_modules/moment/min/moment.min.js
+COPY --from=nodeBuilder /web/node_modules/iconify-icon/dist/iconify-icon.min.js ./web/node_modules/iconify-icon/dist/iconify-icon.min.js
+# binary go file
 COPY --from=goBuilder /app/mittag .
 COPY ./configs/ ./configs/
 

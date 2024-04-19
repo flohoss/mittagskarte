@@ -14,44 +14,40 @@
   <div class="z-40 -rotate-12 absolute top-14 left-1/2 transform -translate-x-1/2">
     {{ if $restDay }}
     <div class="alert alert-warning shadow-lg">
-      <svg class="icon">
-        <use href="#info"></use>
-      </svg>
+      <iconify-icon class="text-sm" icon="mdi:circle-info"></iconify-icon>
       <span>Heute Ruhetag</span>
     </div>
     {{ end }}
   </div>
   {{ end }}
   <header>
-    <div class="flex gap-5 growing-padding">
-      <div class="rounded-xl bg-primary w-[150px] h-[150px]"
-        style="background-image: url({{ .RestaurantData.Restaurant.Thumbnail }});"></div>
+    <div class="flex items-center gap-5 growing-padding">
+      <div class="rounded-xl bg-primary w-[120px] h-[120px] hidden md:block"
+        style="background-image: url({{ .RestaurantData.Restaurant.Directus.Thumbnail }});"></div>
 
-      <div class="flex flex-col gap-4 p-4">
+      <div class="flex flex-col items-start gap-2 p-2 flex-wrap overflow-hidden">
         <div class="text-2xl font-bold">{{ .RestaurantData.Restaurant.Name }}</div>
-        <a class="flex items-center gap-2"
+        <a class="btn btn-sm overflow-hidden"
           href="https://www.google.com/maps/search/?api=1&query={{ .RestaurantData.Restaurant.Address }}"
           target="_blank">
-          <svg class="inline-block w-4 h-4 stroke-current">
-            <use href="#map"></use>
-          </svg> {{ .RestaurantData.Restaurant.Address }}
+          <div class="truncate">
+            <iconify-icon class="text-sm" icon="fa6-solid:map-pin"></iconify-icon>
+            <span class='truncate'>{{ .RestaurantData.Restaurant.Address }}</span>
+          </div>
         </a>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
           <a class="btn btn-sm" href="tel:{{ .RestaurantData.Restaurant.Phone }}">
-            <svg class="inline-block w-4 h-4 stroke-current">
-              <use href="#phone"></use>
-            </svg> {{ .RestaurantData.Restaurant.Phone }}
+            <iconify-icon class="text-sm" icon="fa6-solid:phone"></iconify-icon>
+            {{ .RestaurantData.Restaurant.Phone }}
           </a>
           <a class="btn btn-sm" href="{{ .RestaurantData.Restaurant.PageURL }}">
-            <svg class="inline-block w-4 h-4 stroke-current">
-              <use href="#external"></use>
-            </svg> Webseite
+            <iconify-icon class="text-sm" icon="fa6-solid:arrow-up-right-from-square"></iconify-icon>
+            Webseite
           </a>
           {{ if and .RestaurantData.Card.ImageURL .RestaurantData.Card.Food }}
           <div onclick="my_modal.showModal()" class="btn btn-sm btn-primary">
-            <svg class="inline-block w-4 h-4 stroke-current">
-              <use href="#menu"></use>
-            </svg> Speisekarte
+            <iconify-icon class="text-sm" icon="fa6-solid:image"></iconify-icon>
+            Speisekarte
           </div>
           {{end}}
         </div>
@@ -84,9 +80,8 @@
     <div class="text-gray-500 font-semibold">Speisekarte konnte nicht geparsed werden</div>
     {{ if .RestaurantData.Card.ImageURL }}
     <div onclick="my_modal.showModal()" class="btn btn-sm btn-primary">
-      <svg class="inline-block w-4 h-4 stroke-current">
-        <use href="#menu"></use>
-      </svg> Speisekarte
+      <iconify-icon class="text-sm" icon="fa6-solid:image"></iconify-icon>
+      Speisekarte
     </div>
     {{end}}
     {{ else if $nothingFound }}

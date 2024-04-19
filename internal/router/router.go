@@ -31,6 +31,9 @@ func SetupRoutes(e *echo.Echo, ctrl *controller.Controller, adminKey string) {
 	public := e.Group("/storage/public", longCacheLifetime)
 	public.Static("/", "storage/public")
 
+	modules := e.Group("/modules", longCacheLifetime)
+	modules.Static("/", "web/node_modules")
+
 	e.GET("/countdown", ctrl.RenderCountdown)
 	e.GET("/settings", ctrl.RenderSettings)
 

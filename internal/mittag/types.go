@@ -2,19 +2,20 @@ package mittag
 
 import (
 	"errors"
+	"html/template"
 	"strings"
 )
 
 type Restaurant struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	PageURL   string  `json:"page_url"`
-	Address   string  `json:"address"`
-	Selected  bool    `json:"selected"`
-	RestDays  []uint8 `json:"rest_day"`
-	Phone     string  `json:"phone"`
-	Group     Group   `json:"group"`
-	Thumbnail string  `json:"thumbnail"`
+	ID       string       `json:"id"`
+	Name     string       `json:"name"`
+	PageURL  string       `json:"page_url"`
+	Address  string       `json:"address"`
+	Selected bool         `json:"selected"`
+	RestDays []uint8      `json:"rest_day"`
+	Phone    string       `json:"phone"`
+	Group    Group        `json:"group"`
+	Directus DirectusItem `json:"Directus"`
 }
 
 type Group uint8
@@ -136,11 +137,12 @@ type Configuration struct {
 	Menu                Menu       `json:"menu"`
 }
 
-type ThumbnailItem struct {
-	ID        string `json:"id"`
-	Thumbnail string `json:"thumbnail"`
+type DirectusItem struct {
+	ID        string            `json:"id"`
+	Thumbnail string            `json:"thumbnail"`
+	Icon      template.HTMLAttr `json:"icon"`
 }
 
-type ThumbnailData struct {
-	Data []ThumbnailItem `json:"data"`
+type DirectusData struct {
+	Data []DirectusItem `json:"data"`
 }
