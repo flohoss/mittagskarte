@@ -1,26 +1,23 @@
 {
-  "restaurant": {
-    "id": "delta",
-    "name": "Delta",
-    "page_url": "https://www.delta-koengen.de/menü/",
-    "address": "Plochinger Straße 22, 73257 Köngen",
-    "rest_day": [0, 1, 6],
-    "phone": "+49 7024 466833",
-    "group": 2
-  },
-  "http_one": true,
-  "retrieve_download_url": [
-    {
-      "jquery": "div.cc-m-hgrid-column:contains('Mittagskarte') a.cc-m-download-link",
-      "attribute": "href",
-      "prefix": "https://www.delta-koengen.de"
-    }
-  ],
-  "download": {
+  "id": "delta",
+  "icon": "streamline:food-kitchenware-bowl-chop-stick-cook-soup-bowl-chopsticks-cooking-nutrition-asian-food",
+  "name": "Delta",
+  "page_url": "https://www.delta-koengen.de/menü/",
+  "address": "Plochinger Straße 22, 73257 Köngen",
+  "rest_day": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 7024 466833",
+  "group": "Köngen",
+  "parse": {
+    "http_version": "HTTP/1.1",
+    "description": { "fixed": "Mittagsangebot" },
+    "navigate": [
+      {
+        "jquery": "div.cc-m-hgrid-column:contains('Mittagskarte') a.cc-m-download-link",
+        "attribute": "href",
+        "prefix": "https://www.delta-koengen.de"
+      }
+    ],
     "is_file": true,
-    "cropping": [{ "crop": "100x100%+0+0", "keep": true }]
-  },
-  "menu": {
-    "description": { "fixed": "Mittagsangebot" }
+    "crop": [{ "crop": "100x100%+0+0" }]
   }
 }

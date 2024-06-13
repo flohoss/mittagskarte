@@ -6,7 +6,7 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 RUN apt-get install -y libtesseract-dev libleptonica-dev
 RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu
 
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@latest
 COPY ./.air.toml .
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
