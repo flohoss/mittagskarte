@@ -1,0 +1,77 @@
+{
+  "id": "string",
+  "icon": "string",
+  "name": "string",
+  "page_url": "string",
+  "address": "string",
+  "rest_days": ["DayOfWeek1", "DayOfWeek2"],
+  "phone": "string",
+  "group": {
+    "Field1": "value",
+    "Field2": "value"
+  },
+  "parse": {
+    "http_version": "HTTPVersion",
+    "description": {
+      "fixed": "string",
+      "regex": "string",
+      "jquery": "string",
+      "attribute": "string",
+      "prefix": "string"
+    },
+    "navigate": [
+      {
+        "fixed": "string",
+        "regex": "string",
+        "jquery": "string",
+        "attribute": "string",
+        "prefix": "string"
+      }
+    ],
+    "is_file": false,
+    "crop": {
+      "crop": "string",
+      "gravity": "string"
+    },
+    "one_for_all": {
+      "fixed_price": 0.0,
+      "regex": "string",
+      "pos_day": 0,
+      "pos_food": 0,
+      "pos_price": 0,
+      "pos_description": 0
+    },
+    "food": [
+      {
+        "day": {
+          "fixed": "string",
+          "regex": "string",
+          "jquery": "string",
+          "attribute": "string",
+          "prefix": "string"
+        },
+        "name": {
+          "fixed": "string",
+          "regex": "string",
+          "jquery": "string",
+          "attribute": "string",
+          "prefix": "string"
+        },
+        "price": {
+          "fixed": "string",
+          "regex": "string",
+          "jquery": "string",
+          "attribute": "string",
+          "prefix": "string"
+        },
+        "description": {
+          "fixed": "string",
+          "regex": "string",
+          "jquery": "string",
+          "attribute": "string",
+          "prefix": "string"
+        }
+      }
+    ]
+  }
+}
