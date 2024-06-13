@@ -1,14 +1,14 @@
 {
-  "restaurant": {
-    "id": "blessing-kurz",
-    "name": "Blessing-Kurz",
-    "page_url": "https://blessing-kurz.de/Tagesessen/",
-    "address": "Unterdorfstraße 1, 73257 Köngen",
-    "rest_day": [0, 6],
-    "phone": "+49 7024 989895",
-    "group": 2
-  },
-  "menu": {
+  "id": "blessing-kurz",
+  "icon": "game-icons:meat-cleaver",
+  "name": "Blessing-Kurz",
+  "page_url": "https://blessing-kurz.de/Tagesessen/",
+  "address": "Unterdorfstraße 1, 73257 Köngen",
+  "rest_day": ["Sunday", "Monday"],
+  "phone": "+49 7024 989895",
+  "group": "Köngen",
+  "parse": {
+    "http_version": "HTTP/1.1",
     "description": { "jquery": "h3:contains('Köngen')" },
     "food": [
       {
