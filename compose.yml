@@ -9,18 +9,8 @@ services:
     environment:
       - TZ=Europe/Berlin
       - LOG_LEVEL=debug
-      - APP_VERSION=v0.0.1-dev
-      - GOOGLE_API_KEY=AIzaSyCPVvOqLQTWu3_2Chr_9eqfZefxolRrUc8
     ports:
       - 4000:4000
-    volumes:
-      - .:/app/
-
-  tailwind:
-    image: node:${V_NODE}-alpine
-    working_dir: /app/web
-    command: yarn tw:dev
-    tty: true
     volumes:
       - .:/app/
 
