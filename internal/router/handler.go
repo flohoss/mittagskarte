@@ -17,6 +17,11 @@ func NewHandler(restaurants map[string]*config.Restaurant) *Handler {
 	}
 }
 
+// GetAllRestaurants
+//
+//	@Produce	json
+//	@Success	200	{object}	Restaurant	"ok"
+//	@Router		/restaurants [get]
 func (h *Handler) GetAllRestaurants(ctx echo.Context) error {
 	restaurants := make(map[string]*Restaurant)
 	for _, restaurant := range h.restaurants {
@@ -25,11 +30,18 @@ func (h *Handler) GetAllRestaurants(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, restaurants)
 }
 
+// GetRestaurant
+//
+//	@Produce	json
+//	@Param		id	path		string			true	"Restaurant ID"
+//	@Success	200	{object}	Restaurant		"ok"
+//	@Failure	404	{object}	echo.HTTPError	"Can not find ID"
+//	@Router		/restaurants/{id} [get]
 func (h *Handler) GetRestaurant(ctx echo.Context) error {
 	id := ctx.Param("id")
 	restaurant, ok := h.restaurants[id]
 	if !ok {
-		return ctx.JSON(http.StatusNotFound, nil)
+		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
 	}
 	return ctx.JSON(http.StatusOK, ReduceRestaurant(restaurant))
 }
