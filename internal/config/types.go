@@ -18,7 +18,7 @@ type Parse struct {
 	Description Selector     `json:"description"`
 	Navigate    []Selector   `json:"navigate"`
 	IsFile      bool         `json:"is_file"`
-	Crop        Crop         `json:"crop"`
+	Crop        []Crop       `json:"crop"`
 	OneForAll   OneForAll    `json:"one_for_all"`
 	Food        []FoodParser `json:"food"`
 }
