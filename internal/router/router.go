@@ -2,9 +2,12 @@ package router
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
+	_ "gitlab.unjx.de/flohoss/mittag/docs"
 )
 
 type Router struct {
@@ -18,7 +21,11 @@ func NewRouter(handler *Handler) *Router {
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
-	e.Use(middleware.Gzip())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Skipper: func(c echo.Context) bool {
+			return strings.Contains(c.Request().URL.Path, "docs")
+		},
+	}))
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	r := &Router{
@@ -33,6 +40,11 @@ func (r *Router) SetupRoutes() {
 	public := r.Echo.Group("/storage/public", longCacheLifetime)
 	public.Static("/", "storage/public")
 
+	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
+	r.Echo.GET("api/docs", func(ctx echo.Context) error {
+		return ctx.Redirect(http.StatusTemporaryRedirect, "/api/docs/index.html")
+	})
+
 	api := r.Echo.Group("/api/v1")
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
@@ -41,6 +53,6 @@ func (r *Router) SetupRoutes() {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusTemporaryRedirect, "/docs/swagger")
+		return ctx.Redirect(http.StatusTemporaryRedirect, "/api/docs/index.html")
 	})
 }

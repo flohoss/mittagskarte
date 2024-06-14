@@ -13,6 +13,13 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/service"
 )
 
+// @title			Mittagstisch API
+// @version			1.0
+// @license.name	Apache 2.0
+// @license.url		http://www.apache.org/licenses/LICENSE-2.0.html
+// @host			mittag.unjx.de
+// @schemes			https
+// @BasePath		/api/v1
 func main() {
 	env, err := env.Parse()
 	if err != nil {

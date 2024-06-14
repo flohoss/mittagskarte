@@ -1,0 +1,195 @@
+{
+    "schemes": [
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "title": "Mittagstisch API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "mittag.unjx.de",
+    "basePath": "/api/v1",
+    "paths": {
+        "/restaurants": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/router.Restaurant"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurants/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/router.Restaurant"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "config.DayOfWeek": {
+            "type": "string",
+            "enum": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
+        },
+        "config.FoodEntry": {
+            "type": "object",
+            "properties": {
+                "day": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "config.Group": {
+            "type": "string",
+            "enum": [
+                "Degerloch",
+                "Fasanenhof",
+                "Feuerbach",
+                "Köngen",
+                "Leinfelden-Echterdingen",
+                "Nürtingen"
+            ],
+            "x-enum-varnames": [
+                "Degerloch",
+                "Fasanenhof",
+                "Feuerbach",
+                "Koengen",
+                "LeinfeldenEchterdingen",
+                "Nuertingen"
+            ]
+        },
+        "config.Menu": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "food": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.FoodEntry"
+                    }
+                }
+            }
+        },
+        "echo.HTTPError": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {}
+            }
+        },
+        "router.Restaurant": {
+            "type": "object",
+            "required": [
+                "address",
+                "group",
+                "icon",
+                "id",
+                "menu",
+                "name",
+                "page_url",
+                "phone",
+                "rest_days"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "group": {
+                    "$ref": "#/definitions/config.Group"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "menu": {
+                    "$ref": "#/definitions/config.Menu"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page_url": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "rest_days": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.DayOfWeek"
+                    }
+                }
+            }
+        }
+    }
+}
