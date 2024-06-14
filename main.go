@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -24,10 +23,9 @@ func main() {
 	for _, config := range config.Restaurants {
 		crawl := crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate, config.Parse.IsFile)
 		if config.Parse.IsFile {
-			parser := parse.NewParser(config.ID, crawl.FinalUrl, config.Parse.HTTPVersion)
-			if parser.Content != "" {
-				fmt.Println(parser.DownloadedFile)
-			}
+			parse.NewFileParser(config.ID, crawl.FinalUrl, config.Parse.HTTPVersion)
+		} else {
+			parse.NewHTMLParser()
 		}
 	}
 }
