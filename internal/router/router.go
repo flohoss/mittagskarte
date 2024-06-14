@@ -37,7 +37,7 @@ func NewRouter(handler *Handler) *Router {
 }
 
 func (r *Router) SetupRoutes() {
-	public := r.Echo.Group("/storage/public", longCacheLifetime)
+	public := r.Echo.Group("/public", longCacheLifetime)
 	public.Static("/", "storage/public")
 
 	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
