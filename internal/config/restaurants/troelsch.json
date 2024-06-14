@@ -4,7 +4,7 @@
     "name": "Troelsch",
     "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
     "address": "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach",
-    "rest_day": [0, 6],
+    "rest_days": [0, 6],
     "phone": "+49 711 85680030",
     "group": 3
   },

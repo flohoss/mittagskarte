@@ -4,7 +4,7 @@
     "name": "Paulaner",
     "page_url": "https://paulaner-le.de/speisen-getraenke/mittagstisch.html",
     "address": "Burgstraße 4, 70771 Leinfelden-Echterdingen",
-    "rest_day": [0, 1, 6],
+    "rest_days": [0, 1, 6],
     "phone": "+49 711 7944180",
     "group": 1
   },

@@ -4,7 +4,7 @@
     "name": "Munz",
     "page_url": "https://www.hoflieferant-munz.de/aktuelles",
     "address": "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach",
-    "rest_day": [0, 6],
+    "rest_days": [0, 6],
     "phone": "+49 711 36591400",
     "group": 3
   },

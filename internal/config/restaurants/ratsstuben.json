@@ -4,7 +4,7 @@
     "name": "Ratsstuben",
     "page_url": "https://ratsstuben.de/wochenkarte/",
     "address": "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen",
-    "rest_day": [0, 6],
+    "rest_days": [0, 6],
     "phone": "+49 711 791725",
     "group": 1
   },

@@ -4,7 +4,7 @@
     "name": "Fass",
     "page_url": "http://www.gasthaus-fass.de/mittagstisch/index.php",
     "address": "Bahnhofstraße 10, 72644 Oberboihingen",
-    "rest_day": [0, 2, 6],
+    "rest_days": [0, 2, 6],
     "phone": "+49 7022 61185",
     "group": 2
   },

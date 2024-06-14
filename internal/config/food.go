@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/PuerkitoBio/goquery"
-	"gitlab.unjx.de/flohoss/mittag/internal/helper"
+	"gitlab.unjx.de/flohoss/mittag/pgk/convert"
 )
 
 func (f *FoodParser) GetDay(content string, doc *goquery.Document) string {
@@ -31,11 +31,11 @@ func (f *FoodParser) GetName(content string, doc *goquery.Document) string {
 
 func (f *FoodParser) GetPrice(content string, doc *goquery.Document) float64 {
 	if f.Price.Fixed != "" {
-		return helper.ConvertPrice(f.Price.Fixed)
+		return convert.ConvertPrice(f.Price.Fixed)
 	} else if f.Price.Regex != "" {
-		return helper.ConvertPrice(f.Price.RegexResult(content))
+		return convert.ConvertPrice(f.Price.RegexResult(content))
 	} else if f.Price.JQuery != "" {
-		return helper.ConvertPrice(f.Price.JQueryResult(doc))
+		return convert.ConvertPrice(f.Price.JQueryResult(doc))
 	} else {
 		return 0
 	}

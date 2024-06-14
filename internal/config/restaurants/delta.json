@@ -4,7 +4,7 @@
   "name": "Delta",
   "page_url": "https://www.delta-koengen.de/menü/",
   "address": "Plochinger Straße 22, 73257 Köngen",
-  "rest_day": ["Sunday", "Monday", "Saturday"],
+  "rest_days": ["Sunday", "Monday", "Saturday"],
   "phone": "+49 7024 466833",
   "group": "Köngen",
   "parse": {

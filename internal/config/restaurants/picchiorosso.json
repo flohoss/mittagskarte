@@ -4,7 +4,7 @@
     "name": "Picchiorosso",
     "page_url": "https://picchiorosso.de/tageskarte/",
     "address": "Zettachring 12, 70567 Stuttgart-Fasanenhof",
-    "rest_day": [0, 6],
+    "rest_days": [0, 6],
     "phone": "+49 711 7156767",
     "group": 1
   },
