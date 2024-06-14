@@ -2,4 +2,4 @@
 bin = "tmp/mittag"
 pre_cmd = ["/go/bin/swag init --parseDependency --requiredByDefault", "/go/bin/swag fmt"]
 cmd = "go build -o tmp/mittag -tags ocr main.go"
-exclude_dir = [".gitlab", "docker", "scripts", "web/node_modules", "web/static", "storage", "tmp"]
+exclude_dir = [".gitlab", "docker", "scripts", "web/node_modules", "web/static", "storage", "tmp", "docs"]
