@@ -41,7 +41,7 @@ func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion) *F
 		return p
 	}
 	p.checkIfNew()
-	if !p.IsNew {
+	if !p.IsNew || p.FileContent != "" {
 		return p
 	}
 	p.parse()
@@ -75,12 +75,12 @@ func (p *FileParser) checkIfNew() {
 		return
 	}
 
-	if oldHash == newHash {
-		slog.Debug("file is new", "oldHash", oldHash, "newHash", newHash, "file", p.DownloadedFile)
+	if oldHash != newHash {
+		slog.Debug("file is not new", "oldHash", oldHash, "newHash", newHash, "file", p.DownloadedFile)
 		p.IsNew = false
 		return
 	}
-	slog.Debug("file is not new", "oldHash", oldHash, "newHash", newHash, "file", p.DownloadedFile)
+	slog.Debug("file is new", "oldHash", oldHash, "newHash", newHash, "file", p.DownloadedFile)
 	p.IsNew = true
 }
 
@@ -94,6 +94,7 @@ func (p *FileParser) moveToPublicFolder() error {
 		return err
 	}
 	slog.Debug("moved file to public folder", "file", p.DownloadedFile, "public", publicFile)
+	p.DownloadedFile = publicFile
 	return nil
 }
 
