@@ -4,7 +4,7 @@
     "name": "Schwedenscheuer",
     "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
     "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
-    "rest_day": [0, 6],
+    "rest_days": [0, 6],
     "phone": "+49 711 7978527",
     "group": 1
   },

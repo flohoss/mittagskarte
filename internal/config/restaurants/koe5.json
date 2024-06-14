@@ -4,7 +4,7 @@
     "name": "KÖ5",
     "page_url": "https://koe5.de/",
     "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
-    "rest_day": [0, 5, 6],
+    "rest_days": [0, 5, 6],
     "phone": "+49 711 99772624",
     "group": 1
   },

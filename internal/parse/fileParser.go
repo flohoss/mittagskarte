@@ -8,7 +8,7 @@ import (
 	"code.sajari.com/docconv"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
-	"gitlab.unjx.de/flohoss/mittag/pgk/fetch/files"
+	"gitlab.unjx.de/flohoss/mittag/pgk/files"
 )
 
 const PublicLocation = "storage/public/menus/"

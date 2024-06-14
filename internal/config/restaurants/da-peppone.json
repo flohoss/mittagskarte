@@ -4,7 +4,7 @@
   "name": "Da Peppone",
   "page_url": "https://dapeppone-restaurant.de/",
   "address": "Bopseräcker 1, 70597 Stuttgart-Degerloch",
-  "rest_day": ["Sunday", "Monday", "Saturday"],
+  "rest_days": ["Sunday", "Monday", "Saturday"],
   "phone": "+49 711 78784911",
   "group": "Degerloch",
   "parse": {
