@@ -7,16 +7,16 @@ import (
 	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
+	"gitlab.unjx.de/flohoss/mittag/internal/config"
 )
 
-func DownloadHtml(url string, http_one bool) (*goquery.Document, error) {
-	slog.Debug("downloading html", "url", url)
-
+func DownloadHtml(url string, httpVersion config.HTTPVersion) (*goquery.Document, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", "Custom Agent")
 	client := http.DefaultClient
-	if http_one {
-		slog.Debug("requesting with HTTP/1.1", "url", url)
+
+	slog.Debug("requesting html page", "url", url, "httpVersion", httpVersion)
+	if httpVersion == config.HTTP1_0 || httpVersion == config.HTTP1_1 {
 		client = &http.Client{
 			Transport: &http.Transport{
 				TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},

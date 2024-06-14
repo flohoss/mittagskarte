@@ -14,14 +14,12 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	c := &Config{
+	return &Config{
 		Restaurants: parseConfigFiles(),
 	}
-	return c
 }
 
 func parseConfigFile(path string) (Restaurant, error) {
-	slog.Debug("parsing config file", "path", path)
 	var restaurant Restaurant
 
 	content, err := os.ReadFile(path)

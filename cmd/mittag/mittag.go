@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
+	"gitlab.unjx.de/flohoss/mittag/internal/crawl"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/logger"
 )
@@ -19,5 +20,8 @@ func main() {
 	slog.SetDefault(logger.NewLogger(env.LogLevel))
 
 	config := config.NewConfig()
-	fmt.Println(config)
+	for _, config := range config.Restaurants {
+		crawler := crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate)
+		fmt.Println(crawler.FinalUrl)
+	}
 }
