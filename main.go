@@ -9,6 +9,7 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/crawl"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/logger"
+	"gitlab.unjx.de/flohoss/mittag/internal/parse"
 )
 
 func main() {
@@ -21,7 +22,12 @@ func main() {
 
 	config := config.NewConfig()
 	for _, config := range config.Restaurants {
-		crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate, config.Parse.IsFile)
+		crawl := crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate, config.Parse.IsFile)
+		if config.Parse.IsFile {
+			parser := parse.NewParser(config.ID, crawl.FinalUrl, config.Parse.HTTPVersion)
+			if parser.Content != "" {
+				fmt.Println(parser.DownloadedFile)
+			}
+		}
 	}
-	fmt.Println("done")
 }

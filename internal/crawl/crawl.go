@@ -39,7 +39,7 @@ func (c *Crawler) Crawl() error {
 			}
 		}
 	}
-	slog.Info("crawled information of restaurant", "url", c.FinalUrl, "isFile", c.isFile, "pages", len(c.DocStorage))
+	slog.Debug("crawled information of restaurant", "url", c.FinalUrl, "isFile", c.isFile, "pages", len(c.DocStorage))
 	return nil
 }
 
