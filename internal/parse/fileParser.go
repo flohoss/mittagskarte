@@ -17,17 +17,17 @@ func init() {
 	os.MkdirAll(PublicLocation, os.ModePerm)
 }
 
-type Parser struct {
+type FileParser struct {
 	id             string
 	fileUrl        string
 	httpVersion    config.HTTPVersion
 	IsNew          bool
 	DownloadedFile string
-	Content        string
+	FileContent    string
 }
 
-func NewParser(id string, fileUrl string, httpVersion config.HTTPVersion) *Parser {
-	p := &Parser{
+func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion) *FileParser {
+	p := &FileParser{
 		id:          id,
 		fileUrl:     fileUrl,
 		httpVersion: httpVersion,
@@ -49,7 +49,7 @@ func NewParser(id string, fileUrl string, httpVersion config.HTTPVersion) *Parse
 	return p
 }
 
-func (p *Parser) download() error {
+func (p *FileParser) download() error {
 	var err error
 	p.DownloadedFile, err = fetch.DownloadFile(p.id, p.fileUrl, p.httpVersion)
 	if err != nil {
@@ -60,7 +60,7 @@ func (p *Parser) download() error {
 	return nil
 }
 
-func (p *Parser) checkIfNew() {
+func (p *FileParser) checkIfNew() {
 	newHash, err := files.GenerateHash(p.DownloadedFile)
 	if err != nil {
 		p.IsNew = true
@@ -84,7 +84,7 @@ func (p *Parser) checkIfNew() {
 	p.IsNew = true
 }
 
-func (p *Parser) moveToPublicFolder() error {
+func (p *FileParser) moveToPublicFolder() error {
 	_, name, ext := files.GetPathInformation(p.DownloadedFile)
 	publicFile := filepath.Join(PublicLocation, name, name+ext)
 	os.MkdirAll(filepath.Join(PublicLocation, name), os.ModePerm)
@@ -97,7 +97,7 @@ func (p *Parser) moveToPublicFolder() error {
 	return nil
 }
 
-func (p *Parser) renameDownloadedFile() error {
+func (p *FileParser) renameDownloadedFile() error {
 	dir, _, ext := files.GetPathInformation(p.DownloadedFile)
 	newName := p.id + ext
 	newPath := filepath.Join(dir, newName)
@@ -111,12 +111,12 @@ func (p *Parser) renameDownloadedFile() error {
 	return nil
 }
 
-func (p *Parser) parse() {
+func (p *FileParser) parse() {
 	ocr, err := docconv.ConvertPath(p.DownloadedFile)
 	if err != nil {
 		slog.Error("could not parse file", "file", p.DownloadedFile)
 		return
 	}
 	slog.Debug("parsed file", "file", p.DownloadedFile)
-	p.Content = ocr.Body
+	p.FileContent = ocr.Body
 }
