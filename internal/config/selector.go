@@ -17,14 +17,13 @@ func (s *Selector) RegexResult(content string) string {
 	return ""
 }
 
-func (s *Selector) JQueryAttributeResult(doc *goquery.Document) string {
-	res, present := doc.Find(helper.ReplacePlaceholder(s.JQuery)).First().Attr(s.Attribute)
-	if present {
-		return strings.TrimSpace(res)
-	}
-	return ""
-}
-
 func (s *Selector) JQueryResult(doc *goquery.Document) string {
+	if s.Attribute != "" {
+		res, present := doc.Find(helper.ReplacePlaceholder(s.JQuery)).First().Attr(s.Attribute)
+		if present {
+			return strings.TrimSpace(res)
+		}
+		return ""
+	}
 	return strings.TrimSpace(doc.Find(s.JQuery).First().Text())
 }

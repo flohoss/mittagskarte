@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+
+	"gitlab.unjx.de/flohoss/mittag/internal/config"
 )
 
 const DownloadLocation = "storage/downloads/"
@@ -26,7 +28,7 @@ func ParseFileNameFromUrl(id string, fullUrl string) string {
 	return fmt.Sprintf("%s/%s", folder, segments[len(segments)-1])
 }
 
-func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
+func DownloadFile(id string, fullUrl string, httpVersion config.HTTPVersion) (string, error) {
 	slog.Debug("downloading file", "url", fullUrl)
 
 	fileName := ParseFileNameFromUrl(id, fullUrl)
@@ -38,7 +40,7 @@ func DownloadFile(id string, fullUrl string, http_one bool) (string, error) {
 	req, _ := http.NewRequest("GET", fullUrl, nil)
 	req.Header.Set("User-Agent", "Custom Agent")
 	client := http.DefaultClient
-	if http_one {
+	if httpVersion == config.HTTP1_0 || httpVersion == config.HTTP1_1 {
 		client = &http.Client{
 			Transport: &http.Transport{
 				TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},

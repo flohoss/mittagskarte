@@ -21,7 +21,7 @@ func main() {
 
 	config := config.NewConfig()
 	for _, config := range config.Restaurants {
-		crawler := crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate)
-		fmt.Println(crawler.FinalUrl)
+		crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate, config.Parse.IsFile)
 	}
+	fmt.Println("done")
 }
