@@ -11,6 +11,7 @@ import (
 
 	"code.sajari.com/docconv"
 	"github.com/PuerkitoBio/goquery"
+	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/convert"
 	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
@@ -36,7 +37,7 @@ func (l *LiveInformation) fetchAndStoreHtmlPage(url string, c *Configuration) er
 	return nil
 }
 
-func (l *LiveInformation) fetchAndStoreFile(id string, url string, httpOne bool, existingFileHash string) (string, error) {
+func (l *LiveInformation) fetchAndStoreFile(id string, url string, httpOne config.HTTPVersion, existingFileHash string) (string, error) {
 	file, err := fetch.DownloadFile(id, url, httpOne)
 	if err != nil {
 		slog.Error("could not download file", "url", url, "err", err)

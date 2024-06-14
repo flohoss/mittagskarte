@@ -2,6 +2,8 @@ package mittag
 
 import (
 	"html/template"
+
+	"gitlab.unjx.de/flohoss/mittag/internal/config"
 )
 
 type Restaurant struct {
@@ -110,11 +112,11 @@ type Menu struct {
 }
 
 type Configuration struct {
-	Restaurant          Restaurant `json:"restaurant"`
-	HTTPOne             bool       `json:"http_one"`
-	RetrieveDownloadUrl []Retrieve `json:"retrieve_download_url"`
-	Download            Download   `json:"download"`
-	Menu                Menu       `json:"menu"`
+	Restaurant          Restaurant         `json:"restaurant"`
+	HTTPOne             config.HTTPVersion `json:"http_one"`
+	RetrieveDownloadUrl []Retrieve         `json:"retrieve_download_url"`
+	Download            Download           `json:"download"`
+	Menu                Menu               `json:"menu"`
 }
 
 type DirectusItem struct {
