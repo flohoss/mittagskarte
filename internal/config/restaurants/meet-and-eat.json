@@ -9,6 +9,7 @@
   "phone": "+49 157 30664255",
   "group": "Fasanenhof",
   "parse": {
+    "http_version": "HTTP/1.1",
     "description": { "regex": "Speisekarte.*" },
     "navigate": [
       {

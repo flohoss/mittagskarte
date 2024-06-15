@@ -9,6 +9,7 @@
   "phone": "+49 711 62042252",
   "group": "Fasanenhof",
   "parse": {
+    "http_version": "HTTP/2.0",
     "description": { "jquery": "h4:contains('Wochenkarte')" },
     "food": [
       {
