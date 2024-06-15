@@ -32,11 +32,22 @@ GroupsService.getGroups()
           :to="'/' + restaurant.id"
           active-class="my-menu-link"
         >
-          <q-item-section avatar>
-            <q-icon :name="restaurant.icon" />
+          <q-item-section top avatar>
+            <q-avatar><q-icon :name="restaurant.icon" /></q-avatar>
           </q-item-section>
 
-          <q-item-section>{{ restaurant.name }}</q-item-section>
+          <q-item-section>
+            <q-item-label>{{ restaurant.name }}</q-item-label>
+            <q-item-label caption lines="1">
+              {{ restaurant.description }}
+            </q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-item-label caption
+              ><q-icon name="fa-solid fa-circle-check"
+            /></q-item-label>
+          </q-item-section>
         </q-item>
       </template>
     </q-list>

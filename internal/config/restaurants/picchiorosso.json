@@ -1,14 +1,14 @@
 {
-  "restaurant": {
-    "id": "picchiorosso",
-    "name": "Picchiorosso",
-    "page_url": "https://picchiorosso.de/tageskarte/",
-    "address": "Zettachring 12, 70567 Stuttgart-Fasanenhof",
-    "rest_days": [0, 6],
-    "phone": "+49 711 7156767",
-    "group": 1
-  },
-  "menu": {
+  "id": "picchiorosso",
+  "icon": "fa-solid fa-pizza-slice",
+  "name": "Picchiorosso",
+  "description": "Pizzeria",
+  "page_url": "https://picchiorosso.de/tageskarte/",
+  "address": "Zettachring 12, 70567 Stuttgart-Fasanenhof",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 7156767",
+  "group": "Fasanenhof",
+  "parse": {
     "description": { "regex": "Mittagskarte\\,?\\s?[a-zA-Z].*" },
     "one_for_all": {
       "regex": "([A-Z ]+?)(\\d{1,2}.\\d{1,2})\\s?€\\s(.+?)\\d",

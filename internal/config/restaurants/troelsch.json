@@ -1,25 +1,23 @@
 {
-  "restaurant": {
-    "id": "troelsch",
-    "name": "Troelsch",
-    "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
-    "address": "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach",
-    "rest_days": [0, 6],
-    "phone": "+49 711 85680030",
-    "group": 3
-  },
-  "retrieve_download_url": [
-    {
-      "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
-      "attribute": "href"
-    }
-  ],
-  "download": {
-    "is_file": true
-  },
-  "menu": {
+  "id": "troelsch",
+  "icon": "fa-solid fa-utensils",
+  "name": "Troelsch",
+  "description": "Bäckerei",
+  "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
+  "address": "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 85680030",
+  "group": "Feuerbach",
+  "parse": {
     "description": {
       "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
-    }
+    },
+    "navigate": [
+      {
+        "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
+        "attribute": "href"
+      }
+    ],
+    "is_file": true
   }
 }

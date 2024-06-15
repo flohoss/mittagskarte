@@ -2,12 +2,10 @@
   "id": "enbw",
   "icon": "fa-solid fa-building",
   "name": "EnBW",
+  "description": "Kantine",
   "page_url": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/",
   "address": "Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof",
-  "rest_days": [
-    "Sunday",
-    "Monday"
-  ],
+  "rest_days": ["Sunday", "Monday"],
   "phone": "+49 721 72586001",
   "group": "Fasanenhof",
   "parse": {

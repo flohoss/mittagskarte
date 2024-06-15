@@ -1,55 +1,75 @@
 {
-  "restaurant": {
-    "id": "ratsstuben",
-    "name": "Ratsstuben",
-    "page_url": "https://ratsstuben.de/wochenkarte/",
-    "address": "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen",
-    "rest_days": [0, 6],
-    "phone": "+49 711 791725",
-    "group": 1
-  },
-  "retrieve_download_url": [{ "jquery": "div > p > a", "attribute": "href" }],
-  "download": {
-    "is_file": true,
-    "cropping": [{ "crop": "100x10%+0+600" }, { "gravity": "NorthEast", "crop": "50x65%+0+900" }, { "crop": "50x65%+0+900" }]
-  },
-  "menu": {
+  "id": "ratsstuben",
+  "icon": "fa-solid fa-utensils",
+  "name": "Ratsstuben",
+  "description": "Deutsches Gasthaus",
+  "page_url": "https://ratsstuben.de/wochenkarte/",
+  "address": "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 791725",
+  "group": "Leinfelden-Echterdingen",
+  "parse": {
     "description": { "regex": "Montag.+?Freitag.+?\\d{4}" },
+    "navigate": [{ "jquery": "div > p > a", "attribute": "href" }],
+    "is_file": true,
+    "crop": [
+      { "crop": "100x10%+0+600" },
+      { "gravity": "NorthEast", "crop": "50x65%+0+900" },
+      { "crop": "50x65%+0+900" }
+    ],
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "name": { "regex": "Tagessessen(?:.|\n)*Montag\\s((?:.|\n)*)\nDienstag" },
+        "name": {
+          "regex": "Tagessessen(?:.|\n)*Montag\\s((?:.|\n)*)\nDienstag"
+        },
         "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "name": { "regex": "Tagessessen(?:.|\n)*Dienstag\\s((?:.|\n)*)\nMittwoch" },
+        "name": {
+          "regex": "Tagessessen(?:.|\n)*Dienstag\\s((?:.|\n)*)\nMittwoch"
+        },
         "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "name": { "regex": "Tagessessen(?:.|\n)*Mittwoch\\s((?:.|\n)*)\nDonnerstag" },
+        "name": {
+          "regex": "Tagessessen(?:.|\n)*Mittwoch\\s((?:.|\n)*)\nDonnerstag"
+        },
         "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "name": { "regex": "Tagessessen(?:.|\n)*Donnerstag\\s((?:.|\n)*)\nFreitag" },
+        "name": {
+          "regex": "Tagessessen(?:.|\n)*Donnerstag\\s((?:.|\n)*)\nFreitag"
+        },
         "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Freitag" },
-        "name": { "regex": "Tagessessen(?:.|\n)*nFreitag\\s((?:.|\n)*)\n(?:neservierungen|reservierungen)" },
+        "name": {
+          "regex": "Tagessessen(?:.|\n)*nFreitag\\s((?:.|\n)*)\n(?:neservierungen|reservierungen)"
+        },
         "price": { "regex": "Tagessessen\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
       },
       {
         "day": { "fixed": "Woche" },
-        "name": { "regex": "Wochen-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)Veggie" },
-        "price": { "regex": "Wochen-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
+        "name": {
+          "regex": "Wochen-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)Veggie"
+        },
+        "price": {
+          "regex": "Wochen-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})"
+        }
       },
       {
         "day": { "fixed": "Vegetarisch" },
-        "name": { "regex": "Veggie-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)" },
-        "price": { "regex": "Veggie-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})" }
+        "name": {
+          "regex": "Veggie-Renner\nMontag-Freitag\n€\\s\\d{1,2}\\,?\\d{1,2}((?:.|\n)*)"
+        },
+        "price": {
+          "regex": "Veggie-Renner\n?Montag-Freitag\n*€\\s?(\\d{1,2}\\,?\\d{1,2})"
+        }
       }
     ]
   }

@@ -1,15 +1,17 @@
 {
-  "restaurant": {
-    "id": "schwedenscheuer",
-    "name": "Schwedenscheuer",
-    "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
-    "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
-    "rest_days": [0, 6],
-    "phone": "+49 711 7978527",
-    "group": 1
-  },
-  "menu": {
-    "description": { "regex": "Tagesessen.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}" },
+  "id": "schwedenscheuer",
+  "icon": "fa-solid fa-utensils",
+  "name": "Schwedenscheuer",
+  "description": "Deutsches Gasthaus",
+  "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
+  "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 7978527",
+  "group": "Leinfelden-Echterdingen",
+  "parse": {
+    "description": {
+      "regex": "Tagesessen.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}"
+    },
     "one_for_all": {
       "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",
       "pos_day": 1,
@@ -21,12 +23,18 @@
       {
         "day": { "fixed": "Alternative" },
         "name": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
-        "price": { "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
+        "price": {
+          "regex": "Mo\\.\\s?-\\s?Fr\\.:[\\s\\S]*?(\\d{1,2},\\d{1,2})"
+        }
       },
       {
         "day": { "fixed": "Alternative" },
-        "name": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?TE\\s?\\d\\s?(.*)" },
-        "price": { "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?(\\d{1,2},\\d{1,2})" }
+        "name": {
+          "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?TE\\s?\\d\\s?(.*)"
+        },
+        "price": {
+          "regex": "Mo\\.\\s?\\-\\s?Fr\\.:[\\s\\S]*?TE[\\s\\S]*?(\\d{1,2},\\d{1,2})"
+        }
       }
     ]
   }

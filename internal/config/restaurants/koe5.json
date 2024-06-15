@@ -1,14 +1,14 @@
 {
-  "restaurant": {
-    "id": "koe5",
-    "name": "KÖ5",
-    "page_url": "https://koe5.de/",
-    "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
-    "rest_days": [0, 5, 6],
-    "phone": "+49 711 99772624",
-    "group": 1
-  },
-  "menu": {
+  "id": "koe5",
+  "icon": "fa-solid fa-utensils",
+  "name": "KÖ5",
+  "description": "Deutsches Gasthaus",
+  "page_url": "https://koe5.de/",
+  "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
+  "rest_days": ["Sunday", "Friday", "Saturday"],
+  "phone": "+49 711 99772624",
+  "group": "Fasanenhof",
+  "parse": {
     "description": { "regex": "Mittagessen.+?\\d{1,2}.+?\\d{4}" },
     "food": [
       {

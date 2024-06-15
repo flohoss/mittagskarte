@@ -1,16 +1,17 @@
 package config
 
 type Restaurant struct {
-	ID       string      `json:"id"`
-	Icon     string      `json:"icon"`
-	Name     string      `json:"name"`
-	PageURL  string      `json:"page_url"`
-	Address  string      `json:"address"`
-	RestDays []DayOfWeek `json:"rest_days"`
-	Phone    string      `json:"phone"`
-	Group    Group       `json:"group"`
-	Parse    Parse       `json:"parse"`
-	Menu     Menu
+	ID          string      `json:"id"`
+	Icon        string      `json:"icon"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	PageURL     string      `json:"page_url"`
+	Address     string      `json:"address"`
+	RestDays    []DayOfWeek `json:"rest_days"`
+	Phone       string      `json:"phone"`
+	Group       Group       `json:"group"`
+	Parse       Parse       `json:"parse"`
+	Menu        Menu
 }
 
 type Parse struct {
