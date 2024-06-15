@@ -19,16 +19,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/restaurants": {
+        "/groups": {
             "get": {
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "groups"
                 ],
                 "responses": {
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/router.Restaurant"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/handler.Restaurant"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurants": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "restaurants"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/handler.Restaurant"
+                            }
                         }
                     }
                 }
@@ -38,6 +68,9 @@ const docTemplate = `{
             "get": {
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "restaurants"
                 ],
                 "parameters": [
                     {
@@ -52,7 +85,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/router.Restaurant"
+                            "$ref": "#/definitions/handler.Restaurant"
                         }
                     },
                     "404": {
@@ -149,7 +182,7 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "router.Restaurant": {
+        "handler.Restaurant": {
             "type": "object",
             "required": [
                 "address",

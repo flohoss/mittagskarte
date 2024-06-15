@@ -1,4 +1,4 @@
-package router
+package handler
 
 import "gitlab.unjx.de/flohoss/mittag/internal/config"
 
@@ -14,8 +14,8 @@ type Restaurant struct {
 	Menu     config.Menu        `json:"menu"`
 }
 
-func ReduceRestaurant(restaurant *config.Restaurant) *Restaurant {
-	return &Restaurant{
+func ReduceRestaurant(restaurant *config.Restaurant) Restaurant {
+	return Restaurant{
 		ID:       restaurant.ID,
 		Icon:     restaurant.Icon,
 		Name:     restaurant.Name,

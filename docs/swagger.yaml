@@ -62,7 +62,7 @@ definitions:
     required:
     - message
     type: object
-  router.Restaurant:
+  handler.Restaurant:
     properties:
       address:
         type: string
@@ -104,6 +104,21 @@ info:
   title: Mittagstisch API
   version: "1.0"
 paths:
+  /groups:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/handler.Restaurant'
+              type: array
+            type: object
+      tags:
+      - groups
   /restaurants:
     get:
       produces:
@@ -112,7 +127,11 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/router.Restaurant'
+            additionalProperties:
+              $ref: '#/definitions/handler.Restaurant'
+            type: object
+      tags:
+      - restaurants
   /restaurants/{id}:
     get:
       parameters:
@@ -127,11 +146,13 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/router.Restaurant'
+            $ref: '#/definitions/handler.Restaurant'
         "404":
           description: Can not find ID
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      tags:
+      - restaurants
 schemes:
 - https
 swagger: "2.0"
