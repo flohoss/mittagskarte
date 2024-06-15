@@ -66,6 +66,8 @@ definitions:
     properties:
       address:
         type: string
+      description:
+        type: string
       group:
         $ref: '#/definitions/config.Group'
       icon:
@@ -86,6 +88,7 @@ definitions:
         type: array
     required:
     - address
+    - description
     - group
     - icon
     - id

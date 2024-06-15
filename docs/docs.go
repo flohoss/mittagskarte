@@ -186,6 +186,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "address",
+                "description",
                 "group",
                 "icon",
                 "id",
@@ -197,6 +198,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "address": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "group": {

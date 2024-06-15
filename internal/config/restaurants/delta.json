@@ -2,6 +2,7 @@
   "id": "delta",
   "icon": "fa-solid fa-bowl-rice",
   "name": "Delta",
+  "description": "Thailändisch",
   "page_url": "https://www.delta-koengen.de/menü/",
   "address": "Plochinger Straße 22, 73257 Köngen",
   "rest_days": ["Sunday", "Monday", "Saturday"],

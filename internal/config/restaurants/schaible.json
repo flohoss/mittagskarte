@@ -1,22 +1,22 @@
 {
-  "restaurant": {
-    "id": "schaible",
-    "name": "Schaible",
-    "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
-    "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
-    "rest_days": [0, 6],
-    "phone": "+49 711 8104528",
-    "group": 3
-  },
-  "retrieve_download_url": [
-    {
-      "jquery": "a:contains('Schaible')",
-      "attribute": "href",
-      "prefix": "https://www.feuerbach.de"
-    }
-  ],
-  "menu": {
+  "id": "schaible",
+  "icon": "fa-solid fa-cow",
+  "name": "Schaible",
+  "description": "Metzgerei",
+  "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
+  "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 8104528",
+  "group": "Feuerbach",
+  "parse": {
     "description": { "regex": "Mittagstisch.+?vom.+?\\d{4}" },
+    "navigate": [
+      {
+        "jquery": "a:contains('Schaible')",
+        "attribute": "href",
+        "prefix": "https://www.feuerbach.de"
+      }
+    ],
     "food": [
       {
         "day": { "fixed": "Montag" },

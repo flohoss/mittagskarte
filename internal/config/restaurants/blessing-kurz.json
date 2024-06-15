@@ -2,12 +2,10 @@
   "id": "blessing-kurz",
   "icon": "fa-solid fa-cow",
   "name": "Blessing-Kurz",
+  "description": "Metzgerei",
   "page_url": "https://blessing-kurz.de/Tagesessen/",
   "address": "Unterdorfstraße 1, 73257 Köngen",
-  "rest_days": [
-    "Sunday",
-    "Monday"
-  ],
+  "rest_days": ["Sunday", "Monday"],
   "phone": "+49 7024 989895",
   "group": "Köngen",
   "parse": {
@@ -17,9 +15,7 @@
     },
     "food": [
       {
-        "day": {
-          "fixed": "Montag"
-        },
+        "day": { "fixed": "Montag" },
         "name": {
           "jquery": "div.mod_tagesessen_table_hg:contains('Montag') .mod_tagesessen_titel p strong"
         },
@@ -31,9 +27,7 @@
         }
       },
       {
-        "day": {
-          "fixed": "Dienstag"
-        },
+        "day": { "fixed": "Dienstag" },
         "name": {
           "jquery": "div.mod_tagesessen_table_hg:contains('Dienstag') .mod_tagesessen_titel p strong"
         },
@@ -45,9 +39,7 @@
         }
       },
       {
-        "day": {
-          "fixed": "Mittwoch"
-        },
+        "day": { "fixed": "Mittwoch" },
         "name": {
           "jquery": "div.mod_tagesessen_table_hg:contains('Mittwoch') .mod_tagesessen_titel p strong"
         },
@@ -59,9 +51,7 @@
         }
       },
       {
-        "day": {
-          "fixed": "Donnerstag"
-        },
+        "day": { "fixed": "Donnerstag" },
         "name": {
           "jquery": "div.mod_tagesessen_table_hg:contains('Donnerstag') .mod_tagesessen_titel p strong"
         },
@@ -73,9 +63,7 @@
         }
       },
       {
-        "day": {
-          "fixed": "Freitag"
-        },
+        "day": { "fixed": "Freitag" },
         "name": {
           "jquery": "div.mod_tagesessen_table_hg:contains('Freitag') .mod_tagesessen_titel p strong"
         },
