@@ -9,6 +9,7 @@
   "phone": "+49 711 85680030",
   "group": "Feuerbach",
   "parse": {
+    "http_version": "HTTP/2.0",
     "description": {
       "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
     },
