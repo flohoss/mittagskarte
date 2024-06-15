@@ -16,7 +16,7 @@ const (
 	Nuertingen             Group = "Nürtingen"
 )
 
-var allGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
+var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
 func (g *Group) UnmarshalJSON(data []byte) error {
 	var group string
@@ -24,7 +24,7 @@ func (g *Group) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	for _, validGroup := range allGroups {
+	for _, validGroup := range AllGroups {
 		if Group(group) == validGroup {
 			*g = Group(group)
 			return nil

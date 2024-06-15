@@ -8,14 +8,15 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "gitlab.unjx.de/flohoss/mittag/docs"
+	"gitlab.unjx.de/flohoss/mittag/internal/handler"
 )
 
 type Router struct {
 	Echo    *echo.Echo
-	handler *Handler
+	handler *handler.RestaurantHandler
 }
 
-func NewRouter(handler *Handler) *Router {
+func NewRouter(handler *handler.RestaurantHandler) *Router {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -50,6 +51,7 @@ func (r *Router) SetupRoutes() {
 	})
 
 	api := r.Echo.Group("/api/v1")
+	api.GET("/groups", r.handler.GetAllRestaurantsGrouped)
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
 
