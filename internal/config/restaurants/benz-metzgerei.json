@@ -5,7 +5,7 @@
   "description": "Metzgerei",
   "page_url": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
   "address": "Hirschstraße 18, 73257 Köngen",
-  "rest_days": ["Sunday", "Monday"],
+  "rest_days": ["Sunday", "Monday", "Saturday"],
   "phone": "+49 7024 81488",
   "group": "Köngen",
   "parse": {

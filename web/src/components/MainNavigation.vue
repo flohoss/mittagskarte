@@ -17,17 +17,24 @@ GroupsService.getGroups()
   .catch((err) => {
     console.log(err);
   });
+
+const isIpen = (closedDays: string[]) => {
+  const now = new Date();
+  const currentDay = now.toLocaleString('en-us', { weekday: 'long' });
+  return closedDays.includes(currentDay);
+};
 </script>
 
 <template>
   <div>
-    <q-list padding class="text-primary">
+    <q-list padding>
       <template v-for="(restaurants, key) in groups" :key="key">
         <q-item-label header>{{ key }}</q-item-label>
         <q-item
           v-for="(restaurant, index) in restaurants"
           :key="index"
           clickable
+          :disable="isIpen(restaurant.rest_days)"
           :active="active(restaurant.id)"
           :to="'/' + restaurant.id"
           active-class="my-menu-link"
@@ -44,9 +51,12 @@ GroupsService.getGroups()
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label caption
-              ><q-icon name="fa-solid fa-circle-check"
-            /></q-item-label>
+            <q-item-label caption>
+              <q-icon
+                v-if="isIpen(restaurant.rest_days)"
+                name="fa-solid fa-shop-lock"
+              />
+            </q-item-label>
           </q-item-section>
         </q-item>
       </template>
