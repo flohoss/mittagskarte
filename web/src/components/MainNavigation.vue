@@ -36,8 +36,8 @@ const isIpen = (closedDays: string[]) => {
           clickable
           :disable="isIpen(restaurant.rest_days)"
           :active="active(restaurant.id)"
-          :to="'/' + restaurant.id"
-          active-class="my-menu-link"
+          :to="'/restaurants/' + restaurant.id"
+          active-class="text-secondary"
         >
           <q-item-section top avatar>
             <q-avatar><q-icon :name="restaurant.icon" /></q-avatar>
