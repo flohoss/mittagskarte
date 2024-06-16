@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { GroupsService, handler_Restaurant } from 'src/openapi';
-import { ref } from 'vue';
+import { useRestaurantStore } from 'src/stores/restaurants';
+import { ComputedRef, computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
 const active = (link: string) => {
   return router.currentRoute.value.path.includes(link);
 };
 
-const groups = ref<Record<string, handler_Restaurant[]>>();
-GroupsService.getGroups()
-  .then((res) => {
-    groups.value = res;
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+const store = useRestaurantStore();
+const groups: ComputedRef<Record<string, handler_Restaurant[]>> = computed(
+  () => store.grouped
+);
 
 const isIpen = (closedDays: string[]) => {
   const now = new Date();
