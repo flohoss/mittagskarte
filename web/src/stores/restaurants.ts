@@ -9,13 +9,16 @@ export const useRestaurantStore = defineStore('restaurant', {
   getters: {
     grouped() {
       const groupMap: Record<string, handler_Restaurant[]> = {};
-      for (const [key, value] of Object.entries(this.restaurants)) {
-        if (!groupMap[key]) {
-          groupMap[key] = [];
-        }
-        groupMap[key].push(value);
+      for (const value of Object.values(this.restaurants)) {
+        const group = value.group;
+        groupMap[group] = groupMap[group] || [];
+        groupMap[group].push(value);
       }
-      return groupMap;
+      const sortedGroupMap: Record<string, handler_Restaurant[]> = {};
+      for (const [group, restaurants] of Object.entries(groupMap).sort()) {
+        sortedGroupMap[group] = restaurants;
+      }
+      return sortedGroupMap;
     },
   },
   actions: {

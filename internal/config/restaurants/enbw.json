@@ -5,7 +5,7 @@
   "description": "Kantine",
   "page_url": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/",
   "address": "Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof",
-  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 721 72586001",
   "group": "Fasanenhof",
   "parse": {

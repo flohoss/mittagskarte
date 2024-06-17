@@ -2,7 +2,7 @@
   "id": "da-peppone",
   "icon": "fa-solid fa-pizza-slice",
   "name": "Da Peppone",
-  "description": "Pizzeria",
+  "description": "Italienisch",
   "page_url": "https://dapeppone-restaurant.de/",
   "address": "Bopseräcker 1, 70597 Stuttgart-Degerloch",
   "rest_days": ["Sunday", "Monday", "Saturday"],

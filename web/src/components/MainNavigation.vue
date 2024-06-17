@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { GroupsService, handler_Restaurant } from 'src/openapi';
+import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { ComputedRef, computed, ref } from 'vue';
+import { ComputedRef, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

@@ -2,7 +2,7 @@
   "id": "paulaner",
   "icon": "fa-solid fa-beer-mug-empty",
   "name": "Paulaner",
-  "description": "Deutsches Gasthaus",
+  "description": "Deutsch",
   "page_url": "https://paulaner-le.de/speisen-getraenke/mittagstisch.html",
   "address": "Burgstraße 4, 70771 Leinfelden-Echterdingen",
   "rest_days": ["Sunday", "Monday", "Saturday"],
