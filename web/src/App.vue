@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { Loading } from 'quasar';
 import { OpenAPI } from './openapi';
 import { useRestaurantStore } from './stores/restaurants';
 
-OpenAPI.BASE = 'http://localhost:4000/api/v1';
+OpenAPI.BASE = process.env.API_URL || '';
 
 defineOptions({
   name: 'App',
   preFetch() {
+    Loading.show();
     const store = useRestaurantStore();
-    store.getRestaurants();
+    store.getRestaurants().then(() => Loading.hide());
   },
 });
 </script>

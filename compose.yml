@@ -1,5 +1,13 @@
+networks:
+  net:
+    external: false
+
+volumes:
+  redis: null
+
 services:
   backend:
+    container_name: backend
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
@@ -9,19 +17,35 @@ services:
     environment:
       - TZ=Europe/Berlin
       - LOG_LEVEL=debug
-    ports:
-      - 4000:4000
     volumes:
       - .:/app/
+    ports:
+      - 4000:4000
+    networks:
+      - net
+
+  redis:
+    container_name: redis
+    image: redis:${V_REDIS}-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis:/data
+    expose:
+      - 6379
+    networks:
+      - net
 
   frontend:
+    container_name: frontend
     image: node:${V_NODE}
     working_dir: /app/web
     command: yarn dev --host
-    ports:
-      - 9000:9000
     volumes:
       - .:/app/
+    ports:
+      - 9000:9000
+    networks:
+      - net
 
   mittag:
     profiles: [ build ]

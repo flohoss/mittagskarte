@@ -22,6 +22,7 @@ func NewRouter(handler *handler.RestaurantHandler) *Router {
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
@@ -43,7 +44,8 @@ func NewRouter(handler *handler.RestaurantHandler) *Router {
 
 func (r *Router) SetupRoutes() {
 	public := r.Echo.Group("/public", longCacheLifetime)
-	public.Static("/", "storage/public")
+	public.Static("/menus", "storage/public/menus")
+	public.Static("/thumbnails", "internal/config/restaurants/thumbnails")
 
 	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
 	r.Echo.GET("api/docs", func(ctx echo.Context) error {
