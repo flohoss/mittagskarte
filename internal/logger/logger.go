@@ -8,7 +8,7 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-func NewLogger(logLevel string) *slog.Logger {
+func New(logLevel string) *slog.Logger {
 	w := os.Stderr
 
 	lvl := new(slog.Level)

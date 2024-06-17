@@ -17,6 +17,7 @@ services:
     environment:
       - TZ=Europe/Berlin
       - LOG_LEVEL=debug
+      - REDIS_HOST=redis
     volumes:
       - .:/app/
     ports:
@@ -64,12 +65,14 @@ services:
     profiles: [ install ]
     image: golang:${V_GOLANG}
     working_dir: /app
+    entrypoint: go
     volumes:
       - .:/app/
 
-  node:
+  yarn:
     profiles: [ install ]
     image: node:${V_NODE}
+    entrypoint: yarn
     working_dir: /app/web
     volumes:
       - .:/app/

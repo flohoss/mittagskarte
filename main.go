@@ -9,6 +9,7 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/handler"
+	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 	"gitlab.unjx.de/flohoss/mittag/internal/logger"
 	"gitlab.unjx.de/flohoss/mittag/internal/router"
 	"gitlab.unjx.de/flohoss/mittag/internal/service"
@@ -27,12 +28,13 @@ func main() {
 		slog.Error("cannot parse environment variables", "err", err)
 		os.Exit(1)
 	}
-	slog.SetDefault(logger.NewLogger(env.LogLevel))
+	slog.SetDefault(logger.New(env.LogLevel))
 
-	config := config.NewConfig()
-	service.NewUpdateService(config)
-	handler := handler.NewHandler(config.Restaurants)
-	router := router.NewRouter(handler)
+	config := config.New()
+	imdb := imdb.New(env.RedisHost, env.RedisPort)
+	service.New(config, imdb)
+	handler := handler.New(config.Restaurants, imdb)
+	router := router.New(handler)
 
 	slog.Info("starting server", "url", fmt.Sprintf("http://localhost:%d", env.Port))
 	if err := router.Echo.Start(fmt.Sprintf(":%d", env.Port)); err != http.ErrServerClosed {

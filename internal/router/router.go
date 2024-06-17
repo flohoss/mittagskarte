@@ -16,13 +16,12 @@ type Router struct {
 	handler *handler.RestaurantHandler
 }
 
-func NewRouter(handler *handler.RestaurantHandler) *Router {
+func New(handler *handler.RestaurantHandler) *Router {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
@@ -45,7 +44,7 @@ func NewRouter(handler *handler.RestaurantHandler) *Router {
 func (r *Router) SetupRoutes() {
 	public := r.Echo.Group("/public", longCacheLifetime)
 	public.Static("/menus", "storage/public/menus")
-	public.Static("/thumbnails", "internal/config/restaurants/thumbnails")
+	public.Static("/thumbnails", "internal/config/thumbnails")
 
 	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
 	r.Echo.GET("api/docs", func(ctx echo.Context) error {
