@@ -13,7 +13,7 @@ type Config struct {
 	Restaurants map[string]*Restaurant
 }
 
-func NewConfig() *Config {
+func New() *Config {
 	return &Config{
 		Restaurants: parseConfigFiles(),
 	}

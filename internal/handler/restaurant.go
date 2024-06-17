@@ -5,15 +5,18 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
+	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 )
 
 type RestaurantHandler struct {
 	restaurants map[string]*config.Restaurant
+	imdb        *imdb.IMDb
 }
 
-func NewHandler(restaurants map[string]*config.Restaurant) *RestaurantHandler {
+func New(restaurants map[string]*config.Restaurant, imdb *imdb.IMDb) *RestaurantHandler {
 	return &RestaurantHandler{
 		restaurants: restaurants,
+		imdb:        imdb,
 	}
 }
 
