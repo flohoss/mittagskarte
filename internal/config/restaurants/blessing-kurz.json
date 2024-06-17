@@ -5,7 +5,7 @@
   "description": "Metzgerei",
   "page_url": "https://blessing-kurz.de/Tagesessen/",
   "address": "Unterdorfstraße 1, 73257 Köngen",
-  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 7024 989895",
   "group": "Köngen",
   "parse": {

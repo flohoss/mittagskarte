@@ -2,7 +2,7 @@
   "id": "picchiorosso",
   "icon": "fa-solid fa-pizza-slice",
   "name": "Picchiorosso",
-  "description": "Pizzeria",
+  "description": "Italienisch",
   "page_url": "https://picchiorosso.de/tageskarte/",
   "address": "Zettachring 12, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday"],

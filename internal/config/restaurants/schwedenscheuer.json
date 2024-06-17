@@ -2,7 +2,7 @@
   "id": "schwedenscheuer",
   "icon": "fa-solid fa-utensils",
   "name": "Schwedenscheuer",
-  "description": "Deutsches Gasthaus",
+  "description": "Deutsch",
   "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
   "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
   "rest_days": ["Sunday", "Saturday"],

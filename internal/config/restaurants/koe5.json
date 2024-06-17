@@ -2,7 +2,7 @@
   "id": "koe5",
   "icon": "fa-solid fa-utensils",
   "name": "KÖ5",
-  "description": "Deutsches Gasthaus",
+  "description": "Deutsch",
   "page_url": "https://koe5.de/",
   "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Friday", "Saturday"],
