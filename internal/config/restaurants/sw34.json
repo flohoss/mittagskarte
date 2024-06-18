@@ -1,6 +1,7 @@
 {
   "id": "sw34",
-  "icon": "fa-solid fa-utensils",
+  "icon": "fa-solid fa-shrimp",
+  "price": 3,
   "name": "SW34",
   "description": "Eventlocation",
   "page_url": "https://sw34.restaurant/essen-trinken/",

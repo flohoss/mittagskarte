@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type config_FoodEntry = {
-    day?: string;
-    description?: string;
-    name?: string;
-    price?: number;
+    day: string;
+    description: string;
+    name: string;
+    price: number;
 };
 

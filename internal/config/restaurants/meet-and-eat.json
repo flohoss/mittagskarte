@@ -1,6 +1,7 @@
 {
   "id": "meet-and-eat",
-  "icon": "fa-solid fa-utensils",
+  "icon": "fa-solid fa-hotdog",
+  "price": 1,
   "name": "Meet & Eat",
   "description": "Tankstelle",
   "page_url": "http://meetundeat.com/#Speisekarte",

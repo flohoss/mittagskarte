@@ -1,6 +1,7 @@
 {
   "id": "da-peppone",
   "icon": "fa-solid fa-pizza-slice",
+  "price": 2,
   "name": "Da Peppone",
   "description": "Italienisch",
   "page_url": "https://dapeppone-restaurant.de/",

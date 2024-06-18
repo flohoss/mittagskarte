@@ -28,6 +28,11 @@ definitions:
         type: string
       price:
         type: number
+    required:
+    - day
+    - description
+    - name
+    - price
     type: object
   config.Group:
     enum:
@@ -55,6 +60,10 @@ definitions:
         items:
           $ref: '#/definitions/config.FoodEntry'
         type: array
+    required:
+    - card
+    - description
+    - food
     type: object
   echo.HTTPError:
     properties:
@@ -82,6 +91,8 @@ definitions:
         type: string
       phone:
         type: string
+      price:
+        type: integer
       rest_days:
         items:
           $ref: '#/definitions/config.DayOfWeek'
@@ -96,6 +107,7 @@ definitions:
     - name
     - page_url
     - phone
+    - price
     - rest_days
     type: object
 host: mittag.unjx.de

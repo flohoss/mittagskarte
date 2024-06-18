@@ -118,6 +118,12 @@
         },
         "config.FoodEntry": {
             "type": "object",
+            "required": [
+                "day",
+                "description",
+                "name",
+                "price"
+            ],
             "properties": {
                 "day": {
                     "type": "string"
@@ -154,6 +160,11 @@
         },
         "config.Menu": {
             "type": "object",
+            "required": [
+                "card",
+                "description",
+                "food"
+            ],
             "properties": {
                 "card": {
                     "type": "string"
@@ -190,6 +201,7 @@
                 "name",
                 "page_url",
                 "phone",
+                "price",
                 "rest_days"
             ],
             "properties": {
@@ -219,6 +231,9 @@
                 },
                 "phone": {
                     "type": "string"
+                },
+                "price": {
+                    "type": "integer"
                 },
                 "rest_days": {
                     "type": "array",

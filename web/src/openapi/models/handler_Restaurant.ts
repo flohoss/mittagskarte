@@ -15,6 +15,7 @@ export type handler_Restaurant = {
     name: string;
     page_url: string;
     phone: string;
+    price: number;
     rest_days: Array<config_DayOfWeek>;
 };
 

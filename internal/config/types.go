@@ -2,6 +2,7 @@ package config
 
 type Restaurant struct {
 	ID          string      `json:"id"`
+	Price       uint8       `json:"price"`
 	Icon        string      `json:"icon"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
@@ -11,7 +12,7 @@ type Restaurant struct {
 	Phone       string      `json:"phone"`
 	Group       Group       `json:"group"`
 	Parse       Parse       `json:"parse"`
-	Menu        Menu
+	Menu        Menu        `json:"menu"`
 }
 
 type Parse struct {
@@ -47,21 +48,21 @@ type OneForAll struct {
 }
 
 type FoodParser struct {
-	Day         Selector
-	Name        Selector
-	Price       Selector
-	Description Selector
+	Day         Selector `json:"day"`
+	Name        Selector `json:"name"`
+	Price       Selector `json:"price"`
+	Description Selector `json:"description"`
 }
 
 type FoodEntry struct {
-	Day         string
-	Name        string
-	Price       float64
-	Description string
+	Day         string  `json:"day"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Description string  `json:"description"`
 }
 
 type Menu struct {
-	Description string
-	Card        string
-	Food        []FoodEntry
+	Description string      `json:"description"`
+	Card        string      `json:"card"`
+	Food        []FoodEntry `json:"food"`
 }

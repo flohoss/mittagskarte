@@ -4,6 +4,7 @@ import "gitlab.unjx.de/flohoss/mittag/internal/config"
 
 type Restaurant struct {
 	ID          string             `json:"id"`
+	Price       uint8              `json:"price"`
 	Icon        string             `json:"icon"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
@@ -18,6 +19,7 @@ type Restaurant struct {
 func ReduceRestaurant(restaurant *config.Restaurant) Restaurant {
 	return Restaurant{
 		ID:          restaurant.ID,
+		Price:       restaurant.Price,
 		Icon:        restaurant.Icon,
 		Name:        restaurant.Name,
 		Description: restaurant.Description,
