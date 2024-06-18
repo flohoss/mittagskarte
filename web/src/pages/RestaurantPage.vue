@@ -28,38 +28,51 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
   style: 'currency',
   currency: 'EUR',
 });
+const googleSearch = computed(
+  () =>
+    'https://www.google.com/maps/search/?api=1&query=' +
+    restaurant.value.address
+);
 </script>
 
 <template>
   <q-page class="row align-start justify-center" padding>
-    <div class="container">
-      <q-card flat v-if="restaurant.name != ''">
+    <div class="container" v-if="restaurant.name != ''">
+      <div class="full-width row no-wrap items-center q-gutter-md">
         <q-img
           :src="thumbnail"
           fit="cover"
-          style="max-height: 10rem; border-radius: 0.5rem"
+          style="max-height: 10rem; max-width: 10rem; border-radius: 0.5rem"
         />
-
-        <q-card-section>
-          <q-btn
-            fab
-            color="primary"
-            icon="fa-solid fa-location-dot"
-            class="absolute"
-            style="top: 0; right: 12px; transform: translateY(-50%)"
-          />
-
-          <div class="row no-wrap items-center">
-            <div class="col text-h5 ellipsis">{{ restaurant.name }}</div>
+        <div class="column q-gutter-y-sm">
+          <div class="text-h4 ellipsis">{{ restaurant.name }}</div>
+          <div class="row wrap q-gutter-x-sm">
+            <q-btn
+              outline
+              color="secondary"
+              icon="fa-solid fa-map-marker-alt"
+              :href="googleSearch"
+            />
+            <q-btn
+              outline
+              color="secondary"
+              icon="fa-solid fa-phone"
+              :href="'tel:' + restaurant.phone"
+            />
+            <q-btn
+              outline
+              color="secondary"
+              icon="fa-solid fa-globe"
+              :href="restaurant.page_url"
+            />
           </div>
-          <div class="text-subtitle1">
+          <div class="text-subtitle">
             <span v-for="i in restaurant.price" :key="i">€</span>
             ・{{ restaurant.description }}
           </div>
-        </q-card-section>
-
-        <q-separator />
-
+        </div>
+      </div>
+      <q-card flat>
         <q-card-actions>
           <q-list style="width: 100%">
             <q-item v-for="(entry, id) in restaurant.menu.food" :key="id">
