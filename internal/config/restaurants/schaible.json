@@ -1,6 +1,7 @@
 {
   "id": "schaible",
   "icon": "fa-solid fa-cow",
+  "price": 1,
   "name": "Schaible",
   "description": "Metzgerei",
   "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",

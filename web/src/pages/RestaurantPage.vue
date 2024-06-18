@@ -23,42 +23,60 @@ const thumbnail = computed(
   () =>
     process.env.BASE_URL + '/public/thumbnails/' + restaurant.value.id + '.webp'
 );
+
+const euroFormatter = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+});
 </script>
 
 <template>
   <q-page class="row align-start justify-center" padding>
     <div class="container">
-      <div class="q-pa-md example-row-equal-width">
-        <div class="row">
-          <div class="col-3">
-            <q-img
-              :src="thumbnail"
-              fit="cover"
-              style="max-height: 12rem; border-radius: 0.5rem"
-            />
+      <q-card flat v-if="restaurant.name != ''">
+        <q-img
+          :src="thumbnail"
+          fit="cover"
+          style="max-height: 10rem; border-radius: 0.5rem"
+        />
+
+        <q-card-section>
+          <q-btn
+            fab
+            color="primary"
+            icon="fa-solid fa-location-dot"
+            class="absolute"
+            style="top: 0; right: 12px; transform: translateY(-50%)"
+          />
+
+          <div class="row no-wrap items-center">
+            <div class="col text-h5 ellipsis">{{ restaurant.name }}</div>
           </div>
-          <div class="col">
-            <q-chip
-              :icon="restaurant.icon"
-              :label="restaurant.name"
-            />
-            <q-btn
-              selectable
-              round
-              tabindex="100"
-              color="primary"
-              icon="fa-solid fa-location-dot"
-              :href="
-                'https://www.google.com/maps/search/?api=1&query=' +
-                restaurant.address
-              "
-            />
+          <div class="text-subtitle1">
+            <span v-for="i in restaurant.price" :key="i">€</span>
+            ・{{ restaurant.description }}
           </div>
-        </div>
-      </div>
-      <q-card-actions>
-        {{ restaurant.menu }}
-      </q-card-actions>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-actions>
+          <q-list style="width: 100%">
+            <q-item v-for="(entry, id) in restaurant.menu.food" :key="id">
+              <q-item-section>
+                <q-item-label>{{ entry.name }}</q-item-label>
+                <q-item-label caption>{{ entry.description }}</q-item-label>
+              </q-item-section>
+
+              <q-item-section side top>
+                <q-item-label caption>
+                  {{ euroFormatter.format(restaurant.price) }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-actions>
+      </q-card>
     </div>
   </q-page>
 </template>

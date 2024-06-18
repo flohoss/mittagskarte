@@ -1,9 +1,31 @@
 import { defineStore } from 'pinia';
-import { RestaurantsService, handler_Restaurant } from 'src/openapi';
+import {
+  RestaurantsService,
+  config_Group,
+  handler_Restaurant,
+} from 'src/openapi';
+
+const emptyRestaurant: handler_Restaurant = {
+  address: '',
+  description: '',
+  group: config_Group.Degerloch,
+  icon: '',
+  id: '',
+  menu: {
+    card: '',
+    description: '',
+    food: [],
+  },
+  name: '',
+  page_url: '',
+  phone: '',
+  price: 0,
+  rest_days: [],
+};
 
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
-    restaurant: {} as handler_Restaurant,
+    restaurant: emptyRestaurant as handler_Restaurant,
     restaurants: {} as Record<string, handler_Restaurant>,
   }),
   getters: {

@@ -1,6 +1,7 @@
 {
   "id": "schwedenscheuer",
   "icon": "fa-solid fa-utensils",
+  "price": 2,
   "name": "Schwedenscheuer",
   "description": "Deutsch",
   "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",

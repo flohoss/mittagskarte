@@ -59,10 +59,10 @@ module.exports = configure(function (/* ctx */) {
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
-      // minify: false,
+      minify: true,
       // polyfillModulePreload: true,
       // distDir
-
+      sourcemap: true,
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
 
@@ -92,6 +92,7 @@ module.exports = configure(function (/* ctx */) {
     framework: {
       config: {
         dark: 'auto',
+        loading: { delay: 300 },
       },
 
       iconSet: 'fontawesome-v6', // Quasar icon set
@@ -105,7 +106,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['Loading'],
     },
 
     // animations: 'all', // --- includes all animations

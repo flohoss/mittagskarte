@@ -122,6 +122,12 @@ const docTemplate = `{
         },
         "config.FoodEntry": {
             "type": "object",
+            "required": [
+                "day",
+                "description",
+                "name",
+                "price"
+            ],
             "properties": {
                 "day": {
                     "type": "string"
@@ -158,6 +164,11 @@ const docTemplate = `{
         },
         "config.Menu": {
             "type": "object",
+            "required": [
+                "card",
+                "description",
+                "food"
+            ],
             "properties": {
                 "card": {
                     "type": "string"
@@ -194,6 +205,7 @@ const docTemplate = `{
                 "name",
                 "page_url",
                 "phone",
+                "price",
                 "rest_days"
             ],
             "properties": {
@@ -223,6 +235,9 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
+                },
+                "price": {
+                    "type": "integer"
                 },
                 "rest_days": {
                     "type": "array",

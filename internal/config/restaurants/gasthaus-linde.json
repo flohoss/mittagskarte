@@ -1,6 +1,7 @@
 {
   "id": "gasthaus-linde",
   "icon": "fa-solid fa-cow",
+  "price": 1,
   "name": "Gasthaus Linde",
   "description": "Metzgerei",
   "page_url": "https://www.gasthauslinde.de/Mittagstisch",

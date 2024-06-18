@@ -4,8 +4,8 @@
 /* eslint-disable */
 import type { config_FoodEntry } from './config_FoodEntry';
 export type config_Menu = {
-    card?: string;
-    description?: string;
-    food?: Array<config_FoodEntry>;
+    card: string;
+    description: string;
+    food: Array<config_FoodEntry>;
 };
 

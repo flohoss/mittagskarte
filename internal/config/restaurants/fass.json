@@ -1,6 +1,7 @@
 {
   "id": "fass",
   "icon": "fa-solid fa-utensils",
+  "price": 1,
   "name": "Fass",
   "description": "Deutsch",
   "page_url": "http://www.gasthaus-fass.de/mittagstisch/index.php",
