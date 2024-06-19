@@ -11,7 +11,7 @@
   "group": "Fasanenhof",
   "parse": {
     "http_version": "HTTP/2.0",
-    "description": { "jquery": "h4:contains('Wochenkarte')" },
+    "description": { "regex": "(Wochenkarte vom \\d{1,2}\\.\\s?bis.+?\\d{4,4})" },
     "food": [
       {
         "day": { "fixed": "Montag" },
