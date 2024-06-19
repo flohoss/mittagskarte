@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log/slog"
-
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/crawl"
@@ -48,10 +46,7 @@ func (u *UpdateService) updateAll() {
 			fileContent = parse.FileContent
 		}
 		parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &config.Parse, card)
-		if len(parser.Menu.Food) > 0 {
-			config.Menu = *parser.Menu
-			config.SaveMenu(u.imdb)
-			slog.Info("found new menu", "restaurant", config.Name, "card", config.Menu.Card)
-		}
+		config.Menu = *parser.Menu
+		config.SaveMenu(u.imdb)
 	}
 }

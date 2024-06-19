@@ -107,8 +107,8 @@ func (p *FileParser) renameDownloadedFile() error {
 		slog.Error("could not rename file", "file", p.DownloadedFile)
 		return err
 	}
-	slog.Debug("renamed file", "file", p.DownloadedFile)
 	p.DownloadedFile = newPath
+	slog.Debug("renamed file", "file", p.DownloadedFile)
 	return nil
 }
 

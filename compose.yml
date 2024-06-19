@@ -40,7 +40,7 @@ services:
     container_name: frontend
     image: node:${V_NODE}
     working_dir: /app/web
-    command: yarn dev --host
+    command: ../scripts/yarn.sh
     volumes:
       - .:/app/
     ports:
@@ -62,7 +62,7 @@ services:
         - APP_VERSION=${CI_COMMIT_TAG}
 
   golang:
-    profiles: [ install ]
+    profiles: [install]
     image: golang:${V_GOLANG}
     working_dir: /app
     entrypoint: go
@@ -70,7 +70,7 @@ services:
       - .:/app/
 
   yarn:
-    profiles: [ install ]
+    profiles: [install]
     image: node:${V_NODE}
     entrypoint: yarn
     working_dir: /app/web
