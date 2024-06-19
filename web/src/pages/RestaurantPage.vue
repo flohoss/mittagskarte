@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Loading } from 'quasar';
+import WeeklyFood from 'src/components/WeeklyFood.vue';
 import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { ComputedRef, computed } from 'vue';
+import { ComputedRef, computed, ref } from 'vue';
 
 const store = useRestaurantStore();
 const restaurant: ComputedRef<handler_Restaurant> = computed(
@@ -24,25 +25,23 @@ const thumbnail = computed(
     process.env.BASE_URL + '/public/thumbnails/' + restaurant.value.id + '.webp'
 );
 
-const euroFormatter = new Intl.NumberFormat('de-DE', {
-  style: 'currency',
-  currency: 'EUR',
-});
 const googleSearch = computed(
   () =>
     'https://www.google.com/maps/search/?api=1&query=' +
     restaurant.value.address
 );
+
+const menu = ref(true);
 </script>
 
 <template>
-  <q-page class="row align-start justify-center" padding>
+  <q-page class="row align-start justify-center" style="padding-top: 1rem">
     <div class="container" v-if="restaurant.name != ''">
       <div class="full-width row no-wrap items-center q-gutter-md">
         <q-img
           :src="thumbnail"
           fit="cover"
-          style="max-height: 10rem; max-width: 10rem; border-radius: 0.5rem"
+          style="max-height: 8rem; max-width: 8rem; border-radius: 0.5rem"
         />
         <div class="column q-gutter-y-sm">
           <div class="text-h4 ellipsis">{{ restaurant.name }}</div>
@@ -65,33 +64,43 @@ const googleSearch = computed(
               icon="fa-solid fa-globe"
               :href="restaurant.page_url"
             />
+            <q-btn
+              v-if="restaurant.menu.card"
+              outline
+              color="primary"
+              icon="fa-solid fa-rectangle-list"
+              label="Menu"
+              :href="restaurant.menu.card"
+            />
           </div>
           <div class="text-subtitle">
+            {{ restaurant.description }}
             <span v-for="i in restaurant.price" :key="i">€</span>
-            ・{{ restaurant.description }}
           </div>
         </div>
       </div>
-      <q-card flat>
-        <q-card-actions>
-          <q-list style="width: 100%">
-            <q-item v-for="(entry, id) in restaurant.menu.food" :key="id">
-              <q-item-section>
-                <q-item-label>{{ entry.name }}</q-item-label>
-                <q-item-label caption>{{ entry.description }}</q-item-label>
-              </q-item-section>
-
-              <q-item-section side top>
-                <q-item-label caption>
-                  {{ euroFormatter.format(restaurant.price) }}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-actions>
-      </q-card>
+      <WeeklyFood :restaurant="restaurant" />
     </div>
   </q-page>
+
+  <q-dialog v-model="menu">
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">Alert</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
+        repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
+        perferendis totam, ea at omnis vel numquam exercitationem aut, natus
+        minima, porro labore.
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="OK" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style lang="scss">

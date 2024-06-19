@@ -10,7 +10,7 @@ const toggleLeftDrawer = () => {
 </script>
 
 <template>
-  <q-layout view="hHh LpR fFf">
+  <q-layout view="lHh LpR lFf">
     <q-header class="bg-dark text-white">
       <q-toolbar>
         <q-btn dense flat round icon="fa-solid fa-bars" @click="toggleLeftDrawer" />
@@ -24,7 +24,7 @@ const toggleLeftDrawer = () => {
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left">
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
       <MainNavigation />
     </q-drawer>
 
