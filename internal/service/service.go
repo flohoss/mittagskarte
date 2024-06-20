@@ -22,7 +22,7 @@ func New(config *config.Config, imdb *imdb.IMDb) *UpdateService {
 	}
 	u.RestoreMenus()
 	u.cron.AddFunc("0,30 10,11 * * *", u.updateAll)
-	u.UpdateSingle(u.config.Restaurants["delta"])
+	u.updateAll()
 	u.cron.Start()
 	return u
 }

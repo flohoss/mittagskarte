@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -12,7 +11,7 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 )
 
-const PublicLocation = "public/menus/"
+const PublicLocation = "storage/menus/"
 
 func init() {
 	os.MkdirAll(PublicLocation, os.ModePerm)
@@ -29,7 +28,6 @@ func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion) *F
 		slog.Error("could not download file", "url", fileUrl, "err", err)
 		return nil
 	}
-	fmt.Println(downloadedFile)
 
 	base := filepath.Base(downloadedFile)
 	publicFile := filepath.Join(PublicLocation, base)
