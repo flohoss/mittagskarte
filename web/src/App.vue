@@ -3,7 +3,8 @@ import { Loading } from 'quasar';
 import { OpenAPI } from './openapi';
 import { useRestaurantStore } from './stores/restaurants';
 
-OpenAPI.BASE = process.env.API_URL || '';
+const BASE_URL = process.env.BASE_URL || '';
+OpenAPI.BASE = BASE_URL + 'api/v1';
 
 defineOptions({
   name: 'App',

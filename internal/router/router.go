@@ -16,14 +16,14 @@ type Router struct {
 	handler *handler.RestaurantHandler
 }
 
-func New(handler *handler.RestaurantHandler) *Router {
+func New(handler *handler.RestaurantHandler, allowedHosts []string) *Router {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
+		AllowOrigins: allowedHosts,
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
@@ -31,7 +31,7 @@ func New(handler *handler.RestaurantHandler) *Router {
 			return strings.Contains(c.Request().URL.Path, "docs")
 		},
 	}))
-	e.Pre(middleware.RemoveTrailingSlash())
+	e.Renderer = initTemplates()
 
 	r := &Router{
 		Echo:    e,
@@ -61,7 +61,11 @@ func (r *Router) SetupRoutes() {
 	r.Echo.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})
+
+	// Quasar will handle this
+	r.Echo.Static("/assets", "web/assets")
+	r.Echo.Static("/favicon", "web/favicon")
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusTemporaryRedirect, "/api/docs/index.html")
+		return ctx.Render(http.StatusOK, "index.html", nil)
 	})
 }

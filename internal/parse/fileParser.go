@@ -43,7 +43,7 @@ func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion, ne
 	publicFile := filepath.Join(PublicLocation, base)
 	os.Rename(downloadedFile, publicFile)
 
-	var ocr string
+	ocr := ""
 	if needsParsing {
 		ocr, err = requestOCR(publicFile)
 		if err != nil {
