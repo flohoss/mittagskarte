@@ -22,7 +22,7 @@ defineOptions({
 
 const thumbnail = computed(
   () =>
-    process.env.BASE_URL + '/public/thumbnails/' + restaurant.value.id + '.webp'
+    process.env.BASE_URL + '/config/thumbnails/' + restaurant.value.id + '.webp'
 );
 const cardUrl = computed(
   () => process.env.BASE_URL + '/' + restaurant.value.menu.card
@@ -68,7 +68,7 @@ const menu = ref(false);
               :href="restaurant.page_url"
             />
             <q-btn
-              v-if="restaurant.menu.card"
+              v-if="restaurant.menu.card && restaurant.menu.food.length > 0"
               outline
               color="primary"
               icon="fa-solid fa-rectangle-list"

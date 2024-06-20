@@ -60,7 +60,7 @@ func (c *Crawler) searchFinalUrl(index int) string {
 	selector := c.navigate[index]
 	if selector.Regex != "" {
 		slog.Debug("searching for final url", "regex", selector.Regex)
-		url = selector.RegexResult(c.DocStorage[len(c.DocStorage)-1].Text())
+		url = selector.RegexResult(c.DocStorage[len(c.DocStorage)-1].Text(), nil)
 	} else if c.navigate[index].JQuery != "" {
 		slog.Debug("searching for final url", "jquery", selector.JQuery, "attribute", selector.Attribute)
 		url = selector.JQueryResult(c.DocStorage[len(c.DocStorage)-1])
