@@ -6,7 +6,7 @@
   "description": "Metzgerei",
   "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
   "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
-  "rest_days": ["Sunday", "Saturday"],
+  "rest_days": ["Sunday", "Monday", "Saturday"],
   "phone": "+49 711 8104528",
   "group": "Feuerbach",
   "parse": {
@@ -20,11 +20,6 @@
       }
     ],
     "food": [
-      {
-        "day": { "fixed": "Montag" },
-        "name": { "regex": "Mo[.:\\s]{1,2}\\s?(.+?)\\d" },
-        "price": { "fixed": "7.5" }
-      },
       {
         "day": { "fixed": "Dienstag" },
         "name": { "regex": "Di[.:\\s]{1,2}\\s?(.+?)\\d" },

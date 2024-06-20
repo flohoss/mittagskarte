@@ -87,25 +87,16 @@ const menu = ref(false);
         :restaurant="restaurant"
       />
       <q-img
-        width="50rem"
+        width="100%"
         style="border-radius: 1em; margin: 2rem 1rem"
-        round
         v-else-if="cardUrl"
         :src="cardUrl"
       />
     </div>
   </q-page>
 
-  <q-dialog v-model="menu">
-    <div class="q-pa-md">
-      <q-img
-        v-if="cardUrl"
-        width="50rem"
-        style="border-radius: 1em; margin: 2rem 1rem"
-        round
-        :src="cardUrl"
-      />
-    </div>
+  <q-dialog v-model="menu" full-height>
+    <q-img v-if="cardUrl" :src="cardUrl" />
   </q-dialog>
 </template>
 

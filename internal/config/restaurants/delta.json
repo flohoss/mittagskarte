@@ -19,7 +19,6 @@
         "prefix": "https://www.delta-koengen.de"
       }
     ],
-    "is_file": true,
-    "crop": [{ "crop": "100x100%+0+0" }]
+    "is_file": true
   }
 }
