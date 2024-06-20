@@ -15,23 +15,23 @@
     "food": [
       {
         "day": { "fixed": "Montag" },
-        "name": { "regex": "Montag\\s*?([a-zA-Z].*)" },
-        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
+        "name": { "regex": "Montag\\s?(.*\\s?)Dienstag" },
+        "price": { "fixed": "11" }
       },
       {
         "day": { "fixed": "Dienstag" },
-        "name": { "regex": "Dienstag\\s*?([a-zA-Z].*)" },
-        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
+        "name": { "regex": "Dienstag\\s?(.*\\s?)Mittwoch" },
+        "price": { "fixed": "11" }
       },
       {
         "day": { "fixed": "Mittwoch" },
-        "name": { "regex": "Mittwoch\\s*?([a-zA-Z].*)" },
-        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
+        "name": { "regex": "Mittwoch\\s?(.*\\s?)Donnerstag" },
+        "price": { "fixed": "11" }
       },
       {
         "day": { "fixed": "Donnerstag" },
-        "name": { "regex": "Donnerstag\\s*?([a-zA-Z].*)" },
-        "price": { "regex": "Mittagessen.+?(\\d{1,2},\\d{1,2})" }
+        "name": { "regex": "Donnerstag\\s?(.*\\s?)Freitag" },
+        "price": { "fixed": "11" }
       }
     ]
   }

@@ -8,9 +8,15 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 )
 
-func (s *Selector) RegexResult(content string) string {
+func (s *Selector) RegexResult(content string, doc *goquery.Document) string {
 	reg := regexp.MustCompile("(?i)" + helper.ReplacePlaceholder(s.Regex))
 	res := reg.FindStringSubmatch(content)
+	if len(res) > 1 {
+		return res[1]
+	}
+	if doc != nil {
+		res = reg.FindStringSubmatch(doc.Text())
+	}
 	if len(res) > 1 {
 		return res[1]
 	}
