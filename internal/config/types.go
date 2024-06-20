@@ -20,7 +20,6 @@ type Parse struct {
 	Description Selector     `json:"description"`
 	Navigate    []Selector   `json:"navigate"`
 	IsFile      bool         `json:"is_file"`
-	Crop        []Crop       `json:"crop"`
 	OneForAll   OneForAll    `json:"one_for_all"`
 	Food        []FoodParser `json:"food"`
 }
@@ -31,11 +30,6 @@ type Selector struct {
 	JQuery    string `json:"jquery"`
 	Attribute string `json:"attribute"`
 	Prefix    string `json:"prefix"`
-}
-
-type Crop struct {
-	Crop    string `json:"crop"`
-	Gravity string `json:"gravity"`
 }
 
 type OneForAll struct {

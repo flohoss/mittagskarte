@@ -29,10 +29,6 @@
       }
     ],
     "is_file": false,
-    "crop": {
-      "crop": "string",
-      "gravity": "string"
-    },
     "one_for_all": {
       "fixed_price": 0.0,
       "regex": "string",
