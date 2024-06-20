@@ -10,7 +10,7 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
 </script>
 
 <template>
-  <q-timeline color="secondary" style="margin: 2rem 1rem">
+  <q-timeline color="secondary" class="q-pa-md">
     <q-timeline-entry heading>
       <span class="text-h4">{{ restaurant.menu.description }}</span>
     </q-timeline-entry>

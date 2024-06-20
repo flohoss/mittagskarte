@@ -22,10 +22,10 @@ defineOptions({
 
 const thumbnail = computed(
   () =>
-    process.env.BASE_URL + '/config/thumbnails/' + restaurant.value.id + '.webp'
+    process.env.BASE_URL + 'config/thumbnails/' + restaurant.value.id + '.webp'
 );
 const cardUrl = computed(
-  () => process.env.BASE_URL + '/' + restaurant.value.menu.card
+  () => process.env.BASE_URL + restaurant.value.menu.card
 );
 
 const googleSearch = computed(
@@ -48,7 +48,7 @@ const menu = ref(false);
         />
         <div class="column q-gutter-y-sm">
           <div class="text-h4 ellipsis">{{ restaurant.name }}</div>
-          <div class="row wrap q-gutter-x-sm">
+          <div class="row wrap q-gutter-xs">
             <q-btn
               outline
               color="secondary"
@@ -87,8 +87,9 @@ const menu = ref(false);
         :restaurant="restaurant"
       />
       <q-img
-        width="100%"
-        style="border-radius: 1em; margin: 2rem 1rem"
+      class="q-ma-md"
+        width="95%"
+        style="border-radius: 1em"
         v-else-if="cardUrl"
         :src="cardUrl"
       />

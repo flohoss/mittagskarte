@@ -9,11 +9,12 @@ import (
 )
 
 type Env struct {
-	TimeZone  string `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
-	Port      int    `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
-	LogLevel  string `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
-	RedisHost string `env:"REDIS_HOST" envDefault:"localhost" validate:"hostname"`
-	RedisPort int    `env:"REDIS_PORT" envDefault:"6379" validate:"min=1024,max=49151"`
+	TimeZone     string   `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
+	Port         int      `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
+	LogLevel     string   `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
+	RedisHost    string   `env:"REDIS_HOST" envDefault:"redis" validate:"hostname"`
+	RedisPort    int      `env:"REDIS_PORT" envDefault:"6379" validate:"min=1024,max=49151"`
+	AllowedHosts []string `env:"ALLOWED_HOSTS" envDefault:"*" envSeparator:","`
 }
 
 var errParse = errors.New("error parsing environment variables")

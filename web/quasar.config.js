@@ -10,7 +10,7 @@
 
 const { configure } = require('quasar/wrappers');
 
-module.exports = configure(function (/* ctx */) {
+module.exports = configure(function (ctx) {
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     preFetch: true,
@@ -51,11 +51,10 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: '/',
+      publicPath: '/',
       // analyze: true,
       env: {
-        BASE_URL: 'http://localhost:4000',
-        API_URL: 'http://localhost:4000/api/v1',
+        BASE_URL: ctx.dev ? 'http://localhost:4000/' : '/'
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

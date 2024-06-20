@@ -13,14 +13,12 @@ const toggleLeftDrawer = () => {
   <q-layout view="lHh LpR lFf">
     <q-header class="bg-dark text-white">
       <q-toolbar>
-        <q-btn dense flat round icon="fa-solid fa-bars" @click="toggleLeftDrawer" />
+        <q-btn flat round icon="fa-solid fa-bars" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title>
-          <q-avatar>
-            <img src="/favicon/android-chrome-192x192.png" />
-          </q-avatar>
-          Mittagstisch
-        </q-toolbar-title>
+        <q-space />
+
+        <q-btn flat round icon="fa-solid fa-clock" to="/" />
+        <q-btn flat round icon="fa-solid fa-gear" to="/settings" />
       </q-toolbar>
     </q-header>
 
