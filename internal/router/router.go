@@ -42,9 +42,11 @@ func New(handler *handler.RestaurantHandler) *Router {
 }
 
 func (r *Router) SetupRoutes() {
-	public := r.Echo.Group("/public", longCacheLifetime)
-	public.Static("/menus", "storage/public/menus")
+	public := r.Echo.Group("/config", longCacheLifetime)
 	public.Static("/thumbnails", "internal/config/thumbnails")
+
+	storage := r.Echo.Group("/storage", longCacheLifetime)
+	storage.Static("/menus", "storage/menus")
 
 	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
 	r.Echo.GET("api/docs", func(ctx echo.Context) error {
