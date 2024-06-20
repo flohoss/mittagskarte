@@ -24,6 +24,9 @@ const thumbnail = computed(
   () =>
     process.env.BASE_URL + '/public/thumbnails/' + restaurant.value.id + '.webp'
 );
+const cardUrl = computed(
+  () => process.env.BASE_URL + '/' + restaurant.value.menu.card
+);
 
 const googleSearch = computed(
   () =>
@@ -31,7 +34,7 @@ const googleSearch = computed(
     restaurant.value.address
 );
 
-const menu = ref(true);
+const menu = ref(false);
 </script>
 
 <template>
@@ -70,7 +73,7 @@ const menu = ref(true);
               color="primary"
               icon="fa-solid fa-rectangle-list"
               label="Menu"
-              :href="restaurant.menu.card"
+              @click="menu = true"
             />
           </div>
           <div class="text-subtitle">
@@ -79,27 +82,30 @@ const menu = ref(true);
           </div>
         </div>
       </div>
-      <WeeklyFood :restaurant="restaurant" />
+      <WeeklyFood
+        v-if="restaurant.menu.food.length > 0"
+        :restaurant="restaurant"
+      />
+      <q-img
+        width="50rem"
+        style="border-radius: 1em; margin: 2rem 1rem"
+        round
+        v-else-if="cardUrl"
+        :src="cardUrl"
+      />
     </div>
   </q-page>
 
   <q-dialog v-model="menu">
-    <q-card>
-      <q-card-section>
-        <div class="text-h6">Alert</div>
-      </q-card-section>
-
-      <q-card-section class="q-pt-none">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-        repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
-        perferendis totam, ea at omnis vel numquam exercitationem aut, natus
-        minima, porro labore.
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="OK" color="primary" v-close-popup />
-      </q-card-actions>
-    </q-card>
+    <div class="q-pa-md">
+      <q-img
+        v-if="cardUrl"
+        width="50rem"
+        style="border-radius: 1em; margin: 2rem 1rem"
+        round
+        :src="cardUrl"
+      />
+    </div>
   </q-dialog>
 </template>
 

@@ -19,7 +19,6 @@ func (r *Restaurant) SaveMenu(imdb *imdb.IMDb) {
 	if err != nil {
 		slog.Error("could not save menu", "key", key, "value", menu, "err", err)
 	}
-	slog.Debug("menu saved", "key", key, "value", menu)
 }
 
 func (r *Restaurant) RestoreMenu(imdb *imdb.IMDb) {
@@ -33,5 +32,4 @@ func (r *Restaurant) RestoreMenu(imdb *imdb.IMDb) {
 	if err != nil {
 		slog.Error("could not unmarshal menu", "restaurant", r.Name, "err", err)
 	}
-	slog.Debug("menu restored", "key", key, "value", value)
 }

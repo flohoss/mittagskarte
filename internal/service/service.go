@@ -22,7 +22,7 @@ func New(config *config.Config, imdb *imdb.IMDb) *UpdateService {
 	}
 	u.RestoreMenus()
 	u.cron.AddFunc("0,30 10,11 * * *", u.updateAll)
-	//u.updateAll()
+	u.UpdateSingle(u.config.Restaurants["delta"])
 	u.cron.Start()
 	return u
 }
@@ -35,18 +35,20 @@ func (u *UpdateService) RestoreMenus() {
 
 func (u *UpdateService) updateAll() {
 	for _, config := range u.config.Restaurants {
-		crawl := crawl.NewCrawler(config.PageURL, config.Parse.HTTPVersion, config.Parse.Navigate, config.Parse.IsFile)
-		var fileContent, card string
-		if config.Parse.IsFile {
-			parse := parse.NewFileParser(config.ID, crawl.FinalUrl, config.Parse.HTTPVersion)
-			if !parse.IsNew {
-				continue
-			}
-			card = parse.DownloadedFile
-			fileContent = parse.FileContent
-		}
-		parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &config.Parse, card)
-		config.Menu = *parser.Menu
-		config.SaveMenu(u.imdb)
+		u.UpdateSingle(config)
 	}
+}
+
+func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
+	crawl := crawl.NewCrawler(restaurant.PageURL, restaurant.Parse.HTTPVersion, restaurant.Parse.Navigate, restaurant.Parse.IsFile)
+	var fileContent, card string
+	if restaurant.Parse.IsFile {
+		p := parse.NewFileParser(restaurant.ID, crawl.FinalUrl, restaurant.Parse.HTTPVersion)
+		card = p.OutputFileLocation
+		fileContent = p.OutputFileContent
+	}
+	parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &restaurant.Parse, card)
+	restaurant.Menu = *parser.Menu
+	restaurant.SaveMenu(u.imdb)
+	return
 }

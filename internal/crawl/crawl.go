@@ -27,9 +27,10 @@ func NewCrawler(initialUrl string, httpVersion config.HTTPVersion, navigate []co
 	return c
 }
 
-func (c *Crawler) Crawl() error {
+func (c *Crawler) Crawl() {
 	if err := c.downloadHtml(-1); err != nil {
-		return err
+		slog.Error("could not download html", "url", c.FinalUrl, "err", err)
+		return
 	}
 	for i := 0; i < len(c.navigate); i++ {
 		c.FinalUrl = c.searchFinalUrl(i)
@@ -39,8 +40,6 @@ func (c *Crawler) Crawl() error {
 			}
 		}
 	}
-	slog.Debug("crawled information of restaurant", "url", c.FinalUrl, "isFile", c.isFile, "pages", len(c.DocStorage))
-	return nil
 }
 
 func (c *Crawler) downloadHtml(round int) error {
@@ -48,7 +47,6 @@ func (c *Crawler) downloadHtml(round int) error {
 	if err != nil {
 		return err
 	}
-	slog.Debug("downloaded html", "url", c.FinalUrl)
 	if round < 0 {
 		c.DocStorage = []*goquery.Document{doc}
 	} else {
@@ -67,6 +65,11 @@ func (c *Crawler) searchFinalUrl(index int) string {
 		slog.Debug("searching for final url", "jquery", selector.JQuery, "attribute", selector.Attribute)
 		url = selector.JQueryResult(c.DocStorage[len(c.DocStorage)-1])
 	}
-	slog.Debug("found final url", "url", url)
-	return selector.Prefix + url
+	if url == "" {
+		slog.Warn("could not find final url")
+		return c.FinalUrl
+	}
+	url = selector.Prefix + url
+	slog.Debug("found url", "url", url)
+	return url
 }
