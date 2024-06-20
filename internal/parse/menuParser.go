@@ -56,6 +56,7 @@ func (p *MenuParser) ParseDescription() {
 	}
 	if p.Menu.Description == "" {
 		slog.Warn("could not parse description")
+		return
 	}
 	slog.Debug("parsed description", "description", p.Menu.Description)
 }

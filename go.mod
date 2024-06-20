@@ -6,8 +6,10 @@ require (
 	code.sajari.com/docconv v1.3.8
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/caarlos0/env/v8 v8.0.0
+	github.com/gen2brain/go-fitz v1.23.7
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/goodsign/monday v1.0.2
+	github.com/kolesa-team/go-webp v1.0.4
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lmittmann/tint v1.0.4
 	github.com/redis/go-redis/v9 v9.5.3

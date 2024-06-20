@@ -21,7 +21,6 @@ func New() *Config {
 
 func parseConfigFile(path string) (Restaurant, error) {
 	var restaurant Restaurant
-
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return restaurant, err
@@ -30,8 +29,6 @@ func parseConfigFile(path string) (Restaurant, error) {
 	if err != nil {
 		return restaurant, err
 	}
-
-	slog.Debug("config successfully parsed", "path", path)
 	return restaurant, nil
 }
 
