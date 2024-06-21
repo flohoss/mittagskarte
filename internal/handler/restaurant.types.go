@@ -14,6 +14,7 @@ type Restaurant struct {
 	Phone       string             `json:"phone"`
 	Group       config.Group       `json:"group"`
 	Menu        config.Menu        `json:"menu"`
+	Manually    bool               `json:"manually"`
 }
 
 func ReduceRestaurant(restaurant *config.Restaurant) Restaurant {
@@ -29,5 +30,6 @@ func ReduceRestaurant(restaurant *config.Restaurant) Restaurant {
 		Phone:       restaurant.Phone,
 		Group:       restaurant.Group,
 		Menu:        restaurant.Menu,
+		Manually:    restaurant.Parse.Manually,
 	}
 }

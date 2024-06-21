@@ -45,12 +45,6 @@ func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
 }
 
 func (r *Router) SetupRoutes() {
-	public := r.Echo.Group("/config", longCacheLifetime)
-	public.Static("/thumbnails", "internal/config/thumbnails")
-
-	storage := r.Echo.Group("/storage", longCacheLifetime)
-	storage.Static("/menus", "storage/menus")
-
 	r.Echo.GET("/api/docs/*", echoSwagger.WrapHandler)
 	r.Echo.GET("api/docs", func(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusTemporaryRedirect, "/api/docs/index.html")
@@ -71,7 +65,10 @@ func (r *Router) SetupRoutes() {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})
 
-	// Quasar will handle this
+	public := r.Echo.Group("/config", longCacheLifetime)
+	public.Static("/thumbnails", "internal/config/thumbnails")
+
+	r.Echo.Static("/storage/menus", "storage/menus")
 	r.Echo.Static("/assets", "web/assets")
 	r.Echo.Static("/favicon", "web/favicon")
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {

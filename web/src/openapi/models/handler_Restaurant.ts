@@ -11,6 +11,7 @@ export type handler_Restaurant = {
     group: config_Group;
     icon: string;
     id: string;
+    manually: boolean;
     menu: config_Menu;
     name: string;
     page_url: string;

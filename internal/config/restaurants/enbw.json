@@ -10,16 +10,6 @@
   "phone": "+49 721 72586001",
   "group": "Fasanenhof",
   "parse": {
-    "http_version": "HTTP/1.1",
-    "description": {
-      "regex": "\\d{2}[\\.\\,]\\d{2}[\\.\\,]\\d{2,4}.+?\\d{2}[\\.\\,]\\d{2}[\\.\\,]\\d{2,4}"
-    },
-    "navigate": [
-      {
-        "prefix": "https://filedn.eu/lhdsENsife1QUzPddOpRjb5/mittag/",
-        "regex": "\"name\".*\"(.*enbw.*)\""
-      }
-    ],
-    "is_file": true
+    "manually": true
   }
 }

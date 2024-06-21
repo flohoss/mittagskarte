@@ -22,6 +22,7 @@ const emptyRestaurant: handler_Restaurant = {
   phone: '',
   price: 0,
   rest_days: [],
+  manually: false,
 };
 
 export const ReductionKey = 'mittag_reduction';

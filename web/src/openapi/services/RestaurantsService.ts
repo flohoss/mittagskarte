@@ -45,8 +45,8 @@ export class RestaurantsService {
      */
     public static postRestaurants(
         id: string,
-        file: string,
-        token: Blob,
+        file: Blob,
+        token: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
