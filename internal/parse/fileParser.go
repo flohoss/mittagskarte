@@ -39,29 +39,33 @@ func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion, ne
 		return nil
 	}
 
+	ocr, outputFileLocation := MoveAndParse(downloadedFile, needsParsing)
+
+	return &FileParser{
+		OutputFileLocation: outputFileLocation,
+		OutputFileContent:  ocr,
+	}
+}
+
+func MoveAndParse(downloadedFile string, needsParsing bool) (string, string) {
 	base := filepath.Base(downloadedFile)
 	publicFile := filepath.Join(PublicLocation, base)
 	os.Rename(downloadedFile, publicFile)
 
+	var err error
 	ocr := ""
 	if needsParsing {
 		ocr, err = requestOCR(publicFile)
 		if err != nil {
 			slog.Error("could not parse file", "file", publicFile, "err", err)
-			return nil
 		}
 	}
 
 	outputFileLocation, err := convert.ConvertToWebP(publicFile, false)
 	if err != nil {
 		slog.Error("could not convert file to webp", "file", publicFile, "err", err)
-		return nil
 	}
-
-	return &FileParser{
-		OutputFileLocation: outputFileLocation,
-		OutputFileContent:  ocr,
-	}
+	return ocr, outputFileLocation
 }
 
 func requestOCR(fileLocation string) (string, error) {

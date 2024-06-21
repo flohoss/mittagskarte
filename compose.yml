@@ -17,7 +17,7 @@ services:
     environment:
       - TZ=Europe/Berlin
       - LOG_LEVEL=debug
-      - REDIS_HOST=redis
+      - API_TOKEN=123456
     volumes:
       - .:/app/
     ports:

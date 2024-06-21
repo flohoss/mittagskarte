@@ -8,22 +8,24 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "gitlab.unjx.de/flohoss/mittag/docs"
+	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/handler"
 )
 
 type Router struct {
 	Echo    *echo.Echo
 	handler *handler.RestaurantHandler
+	env     *env.Env
 }
 
-func New(handler *handler.RestaurantHandler, allowedHosts []string) *Router {
+func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: allowedHosts,
+		AllowOrigins: env.AllowedHosts,
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
@@ -36,6 +38,7 @@ func New(handler *handler.RestaurantHandler, allowedHosts []string) *Router {
 	r := &Router{
 		Echo:    e,
 		handler: handler,
+		env:     env,
 	}
 	r.SetupRoutes()
 	return r
@@ -57,6 +60,12 @@ func (r *Router) SetupRoutes() {
 	api.GET("/groups", r.handler.GetAllRestaurantsGrouped)
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
+	api.POST("/restaurants/:id", r.handler.UploadMenu, middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+		KeyLookup: "form:token",
+		Validator: func(key string, c echo.Context) (bool, error) {
+			return key == r.env.APIToken, nil
+		},
+	}))
 
 	r.Echo.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
