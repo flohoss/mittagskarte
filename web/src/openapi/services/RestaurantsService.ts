@@ -36,4 +36,31 @@ export class RestaurantsService {
             },
         });
     }
+    /**
+     * @param id Restaurant ID
+     * @param file Menu File
+     * @param token API-Token
+     * @returns any ok
+     * @throws ApiError
+     */
+    public static postRestaurants(
+        id: string,
+        file: string,
+        token: Blob,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/restaurants/{id}',
+            path: {
+                'id': id,
+            },
+            formData: {
+                'file': file,
+                'token': token,
+            },
+            errors: {
+                404: `Can not find ID`,
+            },
+        });
+    }
 }

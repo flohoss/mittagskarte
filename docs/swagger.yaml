@@ -168,6 +168,34 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       tags:
       - restaurants
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Menu File
+        in: formData
+        name: file
+        required: true
+        type: string
+      - description: API-Token
+        in: formData
+        name: token
+        required: true
+        type: file
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      tags:
+      - restaurants
 schemes:
 - https
 swagger: "2.0"

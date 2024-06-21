@@ -77,11 +77,11 @@ func (h *RestaurantHandler) GetRestaurant(ctx echo.Context) error {
 //
 //	@Accept		multipart/form-data
 //	@Tags		restaurants
-//	@Param		id	path		string			true	"Restaurant ID"
-//	@Param		file	mpfd		string			true	"Menu File"
-//	@Param		token	mpfd		string			true	"API-Token"
-//	@Success	200	{object}	nil		"ok"
-//	@Failure	404	{object}	echo.HTTPError	"Can not find ID"
+//	@Param		id		path		string			true	"Restaurant ID"
+//	@Param		file	formData	string			true	"Menu File"
+//	@Param		token	formData	file			true	"API-Token"
+//	@Success	200		{object}	nil				"ok"
+//	@Failure	404		{object}	echo.HTTPError	"Can not find ID"
 //	@Router		/restaurants/{id} [post]
 func (h *RestaurantHandler) UploadMenu(ctx echo.Context) error {
 	id := ctx.Param("id")
