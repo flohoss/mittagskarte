@@ -38,6 +38,22 @@ export class RestaurantsService {
     }
     /**
      * @param id Restaurant ID
+     * @returns any ok
+     * @throws ApiError
+     */
+    public static putRestaurants(
+        id: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/restaurants/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
+    /**
+     * @param id Restaurant ID
      * @param file Menu File
      * @param token API-Token
      * @returns any ok

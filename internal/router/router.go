@@ -13,9 +13,10 @@ import (
 )
 
 type Router struct {
-	Echo    *echo.Echo
-	handler *handler.RestaurantHandler
-	env     *env.Env
+	Echo       *echo.Echo
+	handler    *handler.RestaurantHandler
+	formAuth   echo.MiddlewareFunc
+	bearerAuth echo.MiddlewareFunc
 }
 
 func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
@@ -38,7 +39,15 @@ func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
 	r := &Router{
 		Echo:    e,
 		handler: handler,
-		env:     env,
+		formAuth: middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+			KeyLookup: "form:token",
+			Validator: func(key string, c echo.Context) (bool, error) {
+				return key == env.APIToken, nil
+			},
+		}),
+		bearerAuth: middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
+			return key == env.APIToken, nil
+		}),
 	}
 	r.SetupRoutes()
 	return r
@@ -51,15 +60,10 @@ func (r *Router) SetupRoutes() {
 	})
 
 	api := r.Echo.Group("/api/v1")
-	api.GET("/groups", r.handler.GetAllRestaurantsGrouped)
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
-	api.POST("/restaurants/:id", r.handler.UploadMenu, middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-		KeyLookup: "form:token",
-		Validator: func(key string, c echo.Context) (bool, error) {
-			return key == r.env.APIToken, nil
-		},
-	}))
+	api.PUT("/restaurants/:id", r.handler.UpdateRestaurant, r.bearerAuth)
+	api.POST("/restaurants/:id", r.handler.UploadMenu, r.formAuth)
 
 	r.Echo.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")

@@ -14,5 +14,4 @@ export type { config_Menu } from './models/config_Menu';
 export type { echo_HTTPError } from './models/echo_HTTPError';
 export type { handler_Restaurant } from './models/handler_Restaurant';
 
-export { GroupsService } from './services/GroupsService';
 export { RestaurantsService } from './services/RestaurantsService';
