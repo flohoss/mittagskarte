@@ -122,21 +122,6 @@ info:
   title: Mittagstisch API
   version: "1.0"
 paths:
-  /groups:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            additionalProperties:
-              items:
-                $ref: '#/definitions/handler.Restaurant'
-              type: array
-            type: object
-      tags:
-      - groups
   /restaurants:
     get:
       produces:
@@ -197,6 +182,25 @@ paths:
           description: Can not find ID
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      tags:
+      - restaurants
+    put:
+      parameters:
+      - description: Bearer <Add access token here>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
       tags:
       - restaurants
 schemes:

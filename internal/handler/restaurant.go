@@ -8,20 +8,20 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
-	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 	"gitlab.unjx.de/flohoss/mittag/internal/parse"
+	"gitlab.unjx.de/flohoss/mittag/internal/service"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 )
 
 type RestaurantHandler struct {
 	restaurants map[string]*config.Restaurant
-	imdb        *imdb.IMDb
+	service     *service.UpdateService
 }
 
-func New(restaurants map[string]*config.Restaurant, imdb *imdb.IMDb) *RestaurantHandler {
+func New(restaurants map[string]*config.Restaurant, service *service.UpdateService) *RestaurantHandler {
 	return &RestaurantHandler{
 		restaurants: restaurants,
-		imdb:        imdb,
+		service:     service,
 	}
 }
 
@@ -39,23 +39,6 @@ func (h *RestaurantHandler) GetAllRestaurants(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, restaurants)
 }
 
-// GetAllRestaurantsGrouped
-//
-//	@Produce	json
-//	@Tags		groups
-//	@Success	200	{object}	map[config.Group][]Restaurant	"ok"
-//	@Router		/groups [get]
-func (h *RestaurantHandler) GetAllRestaurantsGrouped(ctx echo.Context) error {
-	groups := make(map[config.Group][]Restaurant)
-	for _, group := range config.AllGroups {
-		groups[group] = []Restaurant{}
-	}
-	for _, restaurant := range h.restaurants {
-		groups[restaurant.Group] = append(groups[restaurant.Group], ReduceRestaurant(restaurant))
-	}
-	return ctx.JSON(http.StatusOK, groups)
-}
-
 // GetRestaurant
 //
 //	@Produce	json
@@ -71,6 +54,24 @@ func (h *RestaurantHandler) GetRestaurant(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
 	}
 	return ctx.JSON(http.StatusOK, ReduceRestaurant(restaurant))
+}
+
+// UpdateRestaurant
+//
+//	@Produce	json
+//	@Tags		restaurants
+//	@Param		Authorization	header		string	true	"Bearer <Add access token here>"
+//	@Param		id				path		string	true	"Restaurant ID"
+//	@Success	200				{object}	nil		"ok"
+//	@Router		/restaurants/{id} [put]
+func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
+	id := ctx.Param("id")
+	restaurant, ok := h.restaurants[id]
+	if !ok {
+		h.service.UpdateAll()
+	}
+	h.service.UpdateSingle(restaurant)
+	return ctx.NoContent(http.StatusOK)
 }
 
 // UploadMenu
@@ -118,7 +119,7 @@ func (h *RestaurantHandler) UploadMenu(ctx echo.Context) error {
 		parser := parse.NewMenuParser(nil, ocr, &restaurant.Parse, outputFileLocation)
 
 		restaurant.Menu = *parser.Menu
-		restaurant.SaveMenu(h.imdb)
+		restaurant.SaveMenu(h.service.Imdb)
 	}()
 
 	return ctx.NoContent(http.StatusOK)

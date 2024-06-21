@@ -13,7 +13,7 @@ import (
 type UpdateService struct {
 	cron   *cron.Cron
 	config *config.Config
-	imdb   *imdb.IMDb
+	Imdb   *imdb.IMDb
 	env    *env.Env
 }
 
@@ -21,23 +21,22 @@ func New(config *config.Config, imdb *imdb.IMDb, env *env.Env) *UpdateService {
 	u := &UpdateService{
 		cron:   cron.New(),
 		config: config,
-		imdb:   imdb,
+		Imdb:   imdb,
 		env:    env,
 	}
 	u.RestoreMenus()
-	u.cron.AddFunc("0,30 10,11 * * *", u.updateAll)
-	//u.updateAll()
+	u.cron.AddFunc("0,30 10,11 * * *", u.UpdateAll)
 	u.cron.Start()
 	return u
 }
 
 func (u *UpdateService) RestoreMenus() {
 	for _, config := range u.config.Restaurants {
-		config.RestoreMenu(u.imdb)
+		config.RestoreMenu(u.Imdb)
 	}
 }
 
-func (u *UpdateService) updateAll() {
+func (u *UpdateService) UpdateAll() {
 	for _, config := range u.config.Restaurants {
 		u.UpdateSingle(config)
 	}
@@ -62,5 +61,5 @@ func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
 	parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &restaurant.Parse, card)
 
 	restaurant.Menu = *parser.Menu
-	restaurant.SaveMenu(u.imdb)
+	restaurant.SaveMenu(u.Imdb)
 }
