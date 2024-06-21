@@ -61,11 +61,11 @@ func (h *RestaurantHandler) GetRestaurant(ctx echo.Context) error {
 //	@Produce	json
 //	@Tags		restaurants
 //	@Param		Authorization	header		string	true	"Bearer <Add access token here>"
-//	@Param		id				path		string	true	"Restaurant ID"
+//	@Param		id				query		string	true	"Restaurant ID"
 //	@Success	200				{object}	nil		"ok"
-//	@Router		/restaurants/{id} [put]
+//	@Router		/restaurants [patch]
 func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
-	id := ctx.Param("id")
+	id := ctx.QueryParam("id")
 	restaurant, ok := h.restaurants[id]
 	if !ok {
 		h.service.UpdateAll()

@@ -61,8 +61,8 @@ func (r *Router) SetupRoutes() {
 
 	api := r.Echo.Group("/api/v1")
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
+	api.PATCH("/restaurants", r.handler.UpdateRestaurant, r.bearerAuth)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
-	api.PUT("/restaurants/:id", r.handler.UpdateRestaurant, r.bearerAuth)
 	api.POST("/restaurants/:id", r.handler.UploadMenu, r.formAuth)
 
 	r.Echo.GET("/robots.txt", func(ctx echo.Context) error {

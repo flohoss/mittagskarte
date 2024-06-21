@@ -135,6 +135,25 @@ paths:
             type: object
       tags:
       - restaurants
+    patch:
+      parameters:
+      - description: Bearer <Add access token here>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Restaurant ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      tags:
+      - restaurants
   /restaurants/{id}:
     get:
       parameters:
@@ -182,25 +201,6 @@ paths:
           description: Can not find ID
           schema:
             $ref: '#/definitions/echo.HTTPError'
-      tags:
-      - restaurants
-    put:
-      parameters:
-      - description: Bearer <Add access token here>
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Restaurant ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
       tags:
       - restaurants
 schemes:
