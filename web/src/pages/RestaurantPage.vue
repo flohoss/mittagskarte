@@ -68,6 +68,7 @@ const menu = ref(false);
               :href="'tel:' + restaurant.phone"
             />
             <q-btn
+              v-if="restaurant.page_url"
               outline
               color="secondary"
               icon="fa-solid fa-globe"
