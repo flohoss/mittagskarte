@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MainNavigation from 'components/MainNavigation.vue';
+import SettingsForm from 'components/SettingsForm.vue';
 import { ref } from 'vue';
 
 const leftDrawerOpen = ref(false);
@@ -7,6 +8,8 @@ const leftDrawerOpen = ref(false);
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
+
+const dialog = ref(false);
 </script>
 
 <template>
@@ -18,7 +21,7 @@ const toggleLeftDrawer = () => {
         <q-space />
 
         <q-btn flat round icon="fa-solid fa-clock" to="/" />
-        <q-btn flat round icon="fa-solid fa-gear" to="/settings" />
+        <q-btn flat round icon="fa-solid fa-gear" @click="dialog = true" />
       </q-toolbar>
     </q-header>
 
@@ -29,5 +32,9 @@ const toggleLeftDrawer = () => {
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-dialog v-model="dialog">
+      <SettingsForm @close="dialog = false" />
+    </q-dialog>
   </q-layout>
 </template>

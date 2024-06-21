@@ -4,6 +4,7 @@ import {
   config_Group,
   handler_Restaurant,
 } from 'src/openapi';
+import { LocalStorage } from 'quasar';
 
 const emptyRestaurant: handler_Restaurant = {
   address: '',
@@ -23,10 +24,13 @@ const emptyRestaurant: handler_Restaurant = {
   rest_days: [],
 };
 
+export const ReductionKey = 'mittag_reduction';
+
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
     restaurant: emptyRestaurant as handler_Restaurant,
     restaurants: {} as Record<string, handler_Restaurant>,
+    reduction: LocalStorage.getItem(ReductionKey),
   }),
   getters: {
     grouped() {
@@ -51,6 +55,10 @@ export const useRestaurantStore = defineStore('restaurant', {
     async getRestaurants() {
       const response = await RestaurantsService.getRestaurants();
       this.$state.restaurants = response;
+    },
+    setReduction(reduction: number) {
+      this.$state.reduction = reduction;
+      LocalStorage.setItem(ReductionKey, reduction);
     },
   },
 });
