@@ -65,7 +65,10 @@ func (p *MenuParser) ParseDescription() {
 }
 
 func (p *MenuParser) ParseFood() {
-	lastestHtmlPage := p.docStorage[len(p.docStorage)-1]
+	var lastestHtmlPage *goquery.Document
+	if len(p.docStorage) > 0 {
+		lastestHtmlPage = p.docStorage[len(p.docStorage)-1]
+	}
 
 	if p.parse.OneForAll.Regex != "" {
 		regexStr := helper.ReplacePlaceholder(p.parse.OneForAll.Regex) + "(?i)"

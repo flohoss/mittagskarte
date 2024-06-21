@@ -16,6 +16,7 @@ type Restaurant struct {
 }
 
 type Parse struct {
+	Manually    bool         `json:"manually"`
 	HTTPVersion HTTPVersion  `json:"http_version"`
 	Description Selector     `json:"description"`
 	Navigate    []Selector   `json:"navigate"`

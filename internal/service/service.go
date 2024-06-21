@@ -26,7 +26,7 @@ func New(config *config.Config, imdb *imdb.IMDb, env *env.Env) *UpdateService {
 	}
 	u.RestoreMenus()
 	u.cron.AddFunc("0,30 10,11 * * *", u.updateAll)
-	u.updateAll()
+	//u.updateAll()
 	u.cron.Start()
 	return u
 }
@@ -44,6 +44,10 @@ func (u *UpdateService) updateAll() {
 }
 
 func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
+	if restaurant.Parse.Manually {
+		return
+	}
+
 	crawl := crawl.NewCrawler(restaurant.PageURL, restaurant.Parse.HTTPVersion, restaurant.Parse.Navigate, restaurant.Parse.IsFile)
 	var fileContent, card string
 	if restaurant.Parse.IsFile {

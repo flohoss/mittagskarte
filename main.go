@@ -34,7 +34,7 @@ func main() {
 	imdb := imdb.New(env.RedisHost, env.RedisPort)
 	service.New(config, imdb, env)
 	handler := handler.New(config.Restaurants, imdb)
-	router := router.New(handler, env.AllowedHosts)
+	router := router.New(handler, env)
 
 	slog.Info("starting server", "url", fmt.Sprintf("http://localhost:%d", env.Port))
 	if err := router.Echo.Start(fmt.Sprintf(":%d", env.Port)); err != http.ErrServerClosed {
