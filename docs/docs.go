@@ -38,6 +38,35 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "restaurants"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003cAdd access token here\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
             }
         },
         "/restaurants/{id}": {
@@ -69,35 +98,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
-                    }
-                }
-            },
-            "put": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "restaurants"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003cAdd access token here\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Restaurant ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok"
                     }
                 }
             },

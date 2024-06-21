@@ -18,6 +18,27 @@ export class RestaurantsService {
         });
     }
     /**
+     * @param authorization Bearer <Add access token here>
+     * @param id Restaurant ID
+     * @returns any ok
+     * @throws ApiError
+     */
+    public static patchRestaurants(
+        authorization: string,
+        id: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/restaurants',
+            headers: {
+                'Authorization': authorization,
+            },
+            query: {
+                'id': id,
+            },
+        });
+    }
+    /**
      * @param id Restaurant ID
      * @returns handler_Restaurant ok
      * @throws ApiError
@@ -33,22 +54,6 @@ export class RestaurantsService {
             },
             errors: {
                 404: `Can not find ID`,
-            },
-        });
-    }
-    /**
-     * @param id Restaurant ID
-     * @returns any ok
-     * @throws ApiError
-     */
-    public static putRestaurants(
-        id: string,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/restaurants/{id}',
-            path: {
-                'id': id,
             },
         });
     }
