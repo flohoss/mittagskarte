@@ -18,7 +18,7 @@ defineOptions({
     const store = useRestaurantStore();
     store
       .getRestaurant(currentRoute.params.name as string)
-      .then(() => Loading.hide());
+      .finally(() => Loading.hide());
   },
 });
 
@@ -106,10 +106,3 @@ const menu = ref(false);
     <q-img v-if="cardUrl" :src="cardUrl" />
   </q-dialog>
 </template>
-
-<style lang="scss">
-.container {
-  width: 100%;
-  max-width: $breakpoint-sm-max;
-}
-</style>

@@ -3,6 +3,7 @@ import MainNavigation from 'components/MainNavigation.vue';
 import SettingsForm from 'components/SettingsForm.vue';
 import UploadForm from 'src/components/UploadForm.vue';
 import { ref } from 'vue';
+import { Dark } from 'quasar';
 
 const leftDrawerOpen = ref(false);
 
@@ -16,7 +17,10 @@ const upload = ref(false);
 
 <template>
   <q-layout view="lHh LpR lFf">
-    <q-header class="bg-dark text-white">
+    <q-header
+      class="bg-transparent"
+      :class="{ 'text-white': Dark.isActive, 'text-black': !Dark.isActive }"
+    >
       <q-toolbar>
         <q-btn flat round icon="fa-solid fa-bars" @click="toggleLeftDrawer" />
 

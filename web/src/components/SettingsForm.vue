@@ -4,13 +4,13 @@ import { ref } from 'vue';
 import { Notify } from 'quasar';
 
 const store = useRestaurantStore();
-const reduction = ref(store.reduction);
+const reduction = ref(store.reduction || 0);
 
 const onSubmit = () => {
   Notify.create({
+    type: 'positive',
     group: false,
     message: 'Preisreduzierung gespeichert',
-    icon: 'fa-solid fa-check',
   });
   store.setReduction(reduction.value);
 };
