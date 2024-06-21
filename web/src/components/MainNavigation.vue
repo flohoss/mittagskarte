@@ -30,10 +30,10 @@ const isIpen = (closedDays: string[]) => {
           v-for="(restaurant, index) in restaurants"
           :key="index"
           clickable
+          dense
           :disable="isIpen(restaurant.rest_days)"
           :active="active(restaurant.id)"
-          :to="'/restaurants/' + restaurant.id"
-          active-class="text-secondary"
+           :to="'/restaurants/' + restaurant.id"
         >
           <q-item-section top avatar>
             <q-avatar><q-icon :name="restaurant.icon" /></q-avatar>
@@ -41,9 +41,6 @@ const isIpen = (closedDays: string[]) => {
 
           <q-item-section>
             <q-item-label>{{ restaurant.name }}</q-item-label>
-            <q-item-label caption lines="1">
-              {{ restaurant.description }}
-            </q-item-label>
           </q-item-section>
 
           <q-item-section side>

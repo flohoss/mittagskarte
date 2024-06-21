@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { handler_Restaurant } from 'src/openapi';
+import { LocalStorage } from 'quasar';
+import { ref } from 'vue';
+import { ReductionKey } from 'src/stores/restaurants';
 
 defineProps<{ restaurant: handler_Restaurant }>();
 
@@ -7,6 +10,13 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
   style: 'currency',
   currency: 'EUR',
 });
+
+const reduction = ref<number>(LocalStorage.getItem(ReductionKey) || 0);
+
+const calcPrice = (price: number) => {
+  const result = price + reduction.value;
+  return euroFormatter.format(result);
+};
 </script>
 
 <template>
@@ -20,9 +30,22 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
       :subtitle="entry.day"
     >
       <template v-slot:title>
-        <div class="row justify-between">
-          <div>{{ entry.name }}</div>
-          <div>{{ euroFormatter.format(entry.price) }}</div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            min-width: 0;
+            gap: 1rem;
+          "
+        >
+          <div style="white-space: nowrap" class="ellipsis">
+            {{ entry.name }}
+          </div>
+          <div style="flex-shrink: 0">
+            <q-chip color="primary" text-color="white">
+              {{ calcPrice(entry.price) }}
+            </q-chip>
+          </div>
         </div>
       </template>
       {{ entry.description }}
