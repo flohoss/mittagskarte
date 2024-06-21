@@ -11,7 +11,7 @@ defineOptions({
   preFetch() {
     Loading.show();
     const store = useRestaurantStore();
-    store.getRestaurants().then(() => Loading.hide());
+    store.getRestaurants().finally(() => Loading.hide());
   },
 });
 </script>
@@ -19,3 +19,10 @@ defineOptions({
 <template>
   <router-view />
 </template>
+
+<style lang="scss">
+.container {
+  width: 100%;
+  max-width: $breakpoint-sm-max;
+}
+</style>
