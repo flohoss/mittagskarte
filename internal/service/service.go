@@ -4,6 +4,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/crawl"
+	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 	"gitlab.unjx.de/flohoss/mittag/internal/parse"
 )
@@ -12,13 +13,15 @@ type UpdateService struct {
 	cron   *cron.Cron
 	config *config.Config
 	imdb   *imdb.IMDb
+	env    *env.Env
 }
 
-func New(config *config.Config, imdb *imdb.IMDb) *UpdateService {
+func New(config *config.Config, imdb *imdb.IMDb, env *env.Env) *UpdateService {
 	u := &UpdateService{
 		cron:   cron.New(),
 		config: config,
 		imdb:   imdb,
+		env:    env,
 	}
 	u.RestoreMenus()
 	u.cron.AddFunc("0,30 10,11 * * *", u.updateAll)
@@ -51,5 +54,4 @@ func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
 	parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &restaurant.Parse, card)
 	restaurant.Menu = *parser.Menu
 	restaurant.SaveMenu(u.imdb)
-	return
 }

@@ -16,11 +16,11 @@ import (
 )
 
 // @title			Mittagstisch API
-// @version		1.0
+// @version			1.0
 // @license.name	Apache 2.0
-// @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+// @license.url		http://www.apache.org/licenses/LICENSE-2.0.html
 // @host			mittag.unjx.de
-// @schemes		https
+// @schemes			https
 // @BasePath		/api/v1
 func main() {
 	env, err := env.Parse()
@@ -32,7 +32,7 @@ func main() {
 
 	config := config.New()
 	imdb := imdb.New(env.RedisHost, env.RedisPort)
-	service.New(config, imdb)
+	service.New(config, imdb, env)
 	handler := handler.New(config.Restaurants, imdb)
 	router := router.New(handler, env.AllowedHosts)
 
