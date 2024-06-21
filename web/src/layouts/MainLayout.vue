@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MainNavigation from 'components/MainNavigation.vue';
 import SettingsForm from 'components/SettingsForm.vue';
+import UploadForm from 'src/components/UploadForm.vue';
 import { ref } from 'vue';
 
 const leftDrawerOpen = ref(false);
@@ -9,7 +10,8 @@ const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
 
-const dialog = ref(false);
+const settings = ref(false);
+const upload = ref(false);
 </script>
 
 <template>
@@ -20,8 +22,8 @@ const dialog = ref(false);
 
         <q-space />
 
-        <q-btn flat round icon="fa-solid fa-clock" to="/" />
-        <q-btn flat round icon="fa-solid fa-gear" @click="dialog = true" />
+        <q-btn flat round icon="fa-solid fa-upload" @click="upload = true" />
+        <q-btn flat round icon="fa-solid fa-gear" @click="settings = true" />
       </q-toolbar>
     </q-header>
 
@@ -33,8 +35,11 @@ const dialog = ref(false);
       <router-view />
     </q-page-container>
 
-    <q-dialog v-model="dialog">
-      <SettingsForm @close="dialog = false" />
+    <q-dialog v-model="settings">
+      <SettingsForm @close="settings = false" />
+    </q-dialog>
+    <q-dialog v-model="upload">
+      <UploadForm @close="upload = false" />
     </q-dialog>
   </q-layout>
 </template>
