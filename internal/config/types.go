@@ -20,6 +20,7 @@ type Parse struct {
 	Description Selector     `json:"description"`
 	Navigate    []Selector   `json:"navigate"`
 	IsFile      bool         `json:"is_file"`
+	IsSMTP      bool         `json:"is_smtp"`
 	OneForAll   OneForAll    `json:"one_for_all"`
 	Food        []FoodParser `json:"food"`
 }

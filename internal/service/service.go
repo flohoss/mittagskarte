@@ -5,6 +5,7 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/crawl"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
+	"gitlab.unjx.de/flohoss/mittag/internal/helper"
 	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 	"gitlab.unjx.de/flohoss/mittag/internal/parse"
 )
@@ -51,7 +52,11 @@ func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
 		card = p.OutputFileLocation
 		fileContent = p.OutputFileContent
 	}
+	if restaurant.Parse.IsSMTP {
+		parse.NewSMTPParser(u.env, helper.ReplacePlaceholder("Wochenkarte KW%KW+%"))
+	}
 	parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &restaurant.Parse, card)
+
 	restaurant.Menu = *parser.Menu
 	restaurant.SaveMenu(u.imdb)
 }
