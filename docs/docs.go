@@ -112,14 +112,14 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "Menu File",
                         "name": "file",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "file",
+                        "type": "string",
                         "description": "API-Token",
                         "name": "token",
                         "in": "formData",
@@ -243,6 +243,7 @@ const docTemplate = `{
                 "group",
                 "icon",
                 "id",
+                "manually",
                 "menu",
                 "name",
                 "page_url",
@@ -265,6 +266,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "manually": {
+                    "type": "boolean"
                 },
                 "menu": {
                     "$ref": "#/definitions/config.Menu"

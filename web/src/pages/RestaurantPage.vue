@@ -4,7 +4,9 @@ import WeeklyFood from 'src/components/WeeklyFood.vue';
 import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import { ComputedRef, computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const store = useRestaurantStore();
 const restaurant: ComputedRef<handler_Restaurant> = computed(
   () => store.restaurant
@@ -24,9 +26,13 @@ const thumbnail = computed(
   () =>
     process.env.BASE_URL + 'config/thumbnails/' + restaurant.value.id + '.webp'
 );
-const cardUrl = computed(
-  () => process.env.BASE_URL + restaurant.value.menu.card
-);
+const cardUrl = computed(() => {
+  let url = process.env.BASE_URL + restaurant.value.menu.card;
+  if (route.query.cache !== undefined) {
+    url += '?rnd=' + route.query.cache;
+  }
+  return url;
+});
 
 const googleSearch = computed(
   () =>
@@ -87,7 +93,7 @@ const menu = ref(false);
         :restaurant="restaurant"
       />
       <q-img
-      class="q-ma-md"
+        class="q-ma-md"
         width="95%"
         style="border-radius: 1em"
         v-else-if="cardUrl"

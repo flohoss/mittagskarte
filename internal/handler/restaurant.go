@@ -78,8 +78,8 @@ func (h *RestaurantHandler) GetRestaurant(ctx echo.Context) error {
 //	@Accept		multipart/form-data
 //	@Tags		restaurants
 //	@Param		id		path		string			true	"Restaurant ID"
-//	@Param		file	formData	string			true	"Menu File"
-//	@Param		token	formData	file			true	"API-Token"
+//	@Param		file	formData	file			true	"Menu File"
+//	@Param		token	formData	string			true	"API-Token"
 //	@Success	200		{object}	nil				"ok"
 //	@Failure	404		{object}	echo.HTTPError	"Can not find ID"
 //	@Router		/restaurants/{id} [post]
@@ -111,8 +111,10 @@ func (h *RestaurantHandler) UploadMenu(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
+	ocr, outputFileLocation := parse.MoveAndParse(fileName, true)
+	restaurant.Menu.Card = outputFileLocation
+
 	go func() {
-		ocr, outputFileLocation := parse.MoveAndParse(fileName, true)
 		parser := parse.NewMenuParser(nil, ocr, &restaurant.Parse, outputFileLocation)
 
 		restaurant.Menu = *parser.Menu

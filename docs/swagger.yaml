@@ -83,6 +83,8 @@ definitions:
         type: string
       id:
         type: string
+      manually:
+        type: boolean
       menu:
         $ref: '#/definitions/config.Menu'
       name:
@@ -103,6 +105,7 @@ definitions:
     - group
     - icon
     - id
+    - manually
     - menu
     - name
     - page_url
@@ -181,12 +184,12 @@ paths:
         in: formData
         name: file
         required: true
-        type: string
+        type: file
       - description: API-Token
         in: formData
         name: token
         required: true
-        type: file
+        type: string
       responses:
         "200":
           description: ok

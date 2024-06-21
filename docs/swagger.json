@@ -108,14 +108,14 @@
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "Menu File",
                         "name": "file",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "file",
+                        "type": "string",
                         "description": "API-Token",
                         "name": "token",
                         "in": "formData",
@@ -239,6 +239,7 @@
                 "group",
                 "icon",
                 "id",
+                "manually",
                 "menu",
                 "name",
                 "page_url",
@@ -261,6 +262,9 @@
                 },
                 "id": {
                     "type": "string"
+                },
+                "manually": {
+                    "type": "boolean"
                 },
                 "menu": {
                     "$ref": "#/definitions/config.Menu"

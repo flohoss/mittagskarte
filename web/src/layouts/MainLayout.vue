@@ -36,10 +36,10 @@ const upload = ref(false);
     </q-page-container>
 
     <q-dialog v-model="settings">
-      <SettingsForm @close="settings = false" />
+      <SettingsForm />
     </q-dialog>
-    <q-dialog v-model="upload">
-      <UploadForm @close="upload = false" />
+    <q-dialog v-model="upload" no-esc-dismiss no-backdrop-dismiss>
+      <UploadForm @uploaded="upload = false" />
     </q-dialog>
   </q-layout>
 </template>
