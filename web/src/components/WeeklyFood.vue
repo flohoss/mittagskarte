@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { handler_Restaurant } from 'src/openapi';
-import { LocalStorage } from 'quasar';
-import { ref } from 'vue';
-import { ReductionKey } from 'src/stores/restaurants';
+import { Screen } from 'quasar';
+import { computed } from 'vue';
+import { useRestaurantStore } from 'src/stores/restaurants';
 
 defineProps<{ restaurant: handler_Restaurant }>();
+const store = useRestaurantStore();
 
 const euroFormatter = new Intl.NumberFormat('de-DE', {
   style: 'currency',
   currency: 'EUR',
 });
+33;
 
-const reduction = ref<number>(LocalStorage.getItem(ReductionKey) || 0);
+const reductionLocalStorage = computed(() => store.reduction);
 
 const calcPrice = (price: number) => {
-  const result = price + reduction.value;
+  const result = price + reductionLocalStorage.value;
   return euroFormatter.format(result);
 };
 </script>
@@ -22,7 +24,9 @@ const calcPrice = (price: number) => {
 <template>
   <q-timeline color="secondary" class="q-pa-md">
     <q-timeline-entry heading>
-      <span class="text-h4">{{ restaurant.menu.description }}</span>
+      <span :class="{ 'text-h5': Screen.lt.sm, 'text-h4': Screen.gt.xs }">
+        {{ restaurant.menu.description }}
+      </span>
     </q-timeline-entry>
     <q-timeline-entry
       v-for="(entry, id) in restaurant.menu.food"

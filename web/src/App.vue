@@ -24,5 +24,6 @@ defineOptions({
 .container {
   width: 100%;
   max-width: $breakpoint-sm-max;
+  padding-top: 1rem;
 }
 </style>
