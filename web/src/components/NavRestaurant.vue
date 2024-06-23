@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { config_DayOfWeek, handler_Restaurant } from 'src/openapi';
 
-const props = defineProps<{ restaurant: handler_Restaurant }>();
+const props = defineProps<{
+  restaurant: handler_Restaurant;
+  search: boolean;
+}>();
 
 const isClosed = () => {
   const now = new Date();
@@ -12,6 +15,7 @@ const isClosed = () => {
 
 <template>
   <q-item
+    :class="{ 'q-px-none q-py-sm': search }"
     dense
     clickable
     :disable="isClosed()"
@@ -24,6 +28,7 @@ const isClosed = () => {
 
     <q-item-section>
       <q-item-label>{{ restaurant.name }}</q-item-label>
+      <q-item-label class="text-caption">Geschlossen</q-item-label>
     </q-item-section>
   </q-item>
 </template>

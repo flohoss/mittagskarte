@@ -33,6 +33,7 @@ const defaultOpened = ['Fasanenhof', 'Leinfelden-Echterdingen'];
         v-for="(restaurant, index) in restaurants"
         :key="index"
         :restaurant="restaurant"
+        :search="false"
       />
     </q-expansion-item>
   </q-list>
