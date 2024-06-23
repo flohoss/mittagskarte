@@ -13,12 +13,12 @@ const search = ref('');
   <q-input
     v-model="search"
     standout
+    dense
     readonly
     square
     placeholder="Suchen"
     :autofocus="false"
     @click="dialog = true"
-    style="width: 100%; max-width: 20rem;"
   >
     <template v-slot:prepend><q-icon name="fa-solid fa-search" /></template>
   </q-input>
@@ -34,7 +34,7 @@ const search = ref('');
           placeholder="Suchen"
           @keyup.esc="store.search = ''"
         >
-          <template v-slot:append>
+          <template v-slot:prepend>
             <q-icon name="fa-solid fa-search" />
           </template>
         </q-input>
