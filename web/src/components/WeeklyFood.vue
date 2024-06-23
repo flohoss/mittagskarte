@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { handler_Restaurant } from 'src/openapi';
-import { Screen } from 'quasar';
 import { computed } from 'vue';
 import { useRestaurantStore } from 'src/stores/restaurants';
 
@@ -24,7 +23,7 @@ const calcPrice = (price: number) => {
 <template>
   <q-timeline color="secondary" class="q-pa-md">
     <q-timeline-entry heading>
-      <span :class="{ 'text-h5': Screen.lt.sm, 'text-h4': Screen.gt.xs }">
+      <span :class="{ 'text-h5': $q.screen.lt.sm, 'text-h4': $q.screen.gt.xs }">
         {{ restaurant.menu.description }}
       </span>
     </q-timeline-entry>
