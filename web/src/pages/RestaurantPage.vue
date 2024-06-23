@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Loading } from 'quasar';
+import RestaurantHeader from 'src/components/RestaurantHeader.vue';
 import WeeklyFood from 'src/components/WeeklyFood.vue';
 import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
@@ -22,10 +23,6 @@ defineOptions({
   },
 });
 
-const thumbnail = computed(
-  () =>
-    process.env.BASE_URL + 'config/thumbnails/' + restaurant.value.id + '.webp'
-);
 const cardUrl = computed(() => {
   let url = process.env.BASE_URL + restaurant.value.menu.card;
   if (route.query.cache !== undefined) {
@@ -34,68 +31,19 @@ const cardUrl = computed(() => {
   return url;
 });
 
-const googleSearch = computed(
-  () =>
-    'https://www.google.com/maps/search/?api=1&query=' +
-    restaurant.value.address
-);
-
 const menu = ref(false);
 </script>
 
 <template>
   <q-page class="row align-start justify-center" style="padding-top: 1rem">
     <div class="container" v-if="restaurant.name != ''">
-      <div class="full-width row no-wrap items-center q-gutter-md">
-        <q-img
-          :src="thumbnail"
-          fit="cover"
-          style="max-height: 8rem; max-width: 8rem; border-radius: 0.5rem"
-        />
-        <div class="column q-gutter-y-sm">
-          <div class="text-h4 ellipsis">{{ restaurant.name }}</div>
-          <div class="row wrap q-gutter-xs">
-            <q-btn
-              outline
-              color="secondary"
-              icon="fa-solid fa-map-marker-alt"
-              :href="googleSearch"
-            />
-            <q-btn
-              outline
-              color="secondary"
-              icon="fa-solid fa-phone"
-              :href="'tel:' + restaurant.phone"
-            />
-            <q-btn
-              v-if="restaurant.page_url"
-              outline
-              color="secondary"
-              icon="fa-solid fa-globe"
-              :href="restaurant.page_url"
-            />
-            <q-btn
-              v-if="restaurant.menu.card && restaurant.menu.food.length > 0"
-              outline
-              color="primary"
-              icon="fa-solid fa-rectangle-list"
-              label="Menu"
-              @click="menu = true"
-            />
-          </div>
-          <div class="text-subtitle">
-            {{ restaurant.description }}
-            <span v-for="i in restaurant.price" :key="i">€</span>
-          </div>
-        </div>
-      </div>
+      <RestaurantHeader :restaurant="restaurant" @openMenu="menu = true" />
       <WeeklyFood
         v-if="restaurant.menu.food.length > 0"
         :restaurant="restaurant"
       />
       <q-img
         class="q-ma-md"
-        width="95%"
         style="border-radius: 1em"
         v-else-if="cardUrl"
         :src="cardUrl"
