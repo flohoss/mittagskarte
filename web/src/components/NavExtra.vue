@@ -25,10 +25,15 @@ const upload = ref(false);
     </q-item>
   </q-list>
 
-  <q-dialog v-model="settings">
+  <q-dialog v-model="settings" backdrop-filter="blur(4px) saturate(150%)">
     <SettingsForm />
   </q-dialog>
-  <q-dialog v-model="upload" no-esc-dismiss no-backdrop-dismiss>
+  <q-dialog
+    v-model="upload"
+    no-esc-dismiss
+    no-backdrop-dismiss
+    backdrop-filter="blur(4px) saturate(150%)"
+  >
     <UploadForm @uploaded="upload = false" />
   </q-dialog>
 </template>
