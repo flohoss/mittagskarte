@@ -113,7 +113,9 @@ func (h *RestaurantHandler) UploadMenu(ctx echo.Context) error {
 	}
 
 	ocr, outputFileLocation := parse.MoveAndParse(fileName, true)
-	restaurant.Menu.Card = outputFileLocation
+	restaurant.Menu = config.Menu{
+		Card: outputFileLocation,
+	}
 
 	go func() {
 		parser := parse.NewMenuParser(nil, ocr, &restaurant.Parse, outputFileLocation)
