@@ -23,7 +23,7 @@ const text = computed(() => {
 
 <template>
   <q-layout view="hHr Lpr fFr">
-    <q-header :class="bgAndText">
+    <q-header :class="bgAndText" :bordered="!Dark.isActive">
       <q-toolbar>
         <q-toolbar-title>
           <NavTitle />
@@ -41,7 +41,11 @@ const text = computed(() => {
       <router-view />
     </q-page-container>
 
-    <q-footer v-if="$q.screen.lt.md" :class="bgAndText">
+    <q-footer
+      v-if="$q.screen.lt.md"
+      :class="bgAndText"
+      :bordered="!Dark.isActive"
+    >
       <q-toolbar>
         <q-btn
           flat

@@ -60,7 +60,7 @@ const googleSearch = computed(
         v-if="restaurant.menu.card && restaurant.menu.food.length > 0"
         outline
         round
-        color="primary"
+        color="accent"
         icon="fa-solid fa-file"
         @click="emit('openMenu')"
       />
