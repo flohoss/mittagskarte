@@ -45,7 +45,7 @@ const onSubmit = () => {
 </script>
 
 <template>
-  <q-card style="min-width: 50vw" class="q-pa-md">
+  <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
     <q-card-section class="row items-center q-pb-none">
       <div class="text-h6">Neues Menü hochladen</div>
       <q-space />

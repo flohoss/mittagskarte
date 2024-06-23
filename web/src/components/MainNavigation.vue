@@ -3,8 +3,6 @@ import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import { ComputedRef, computed } from 'vue';
 import NavRestaurant from './NavRestaurant.vue';
-import NavTitle from './NavTitle.vue';
-import NavExtra from './NavExtra.vue';
 
 const store = useRestaurantStore();
 const groups: ComputedRef<Record<string, handler_Restaurant[]>> = computed(
@@ -16,12 +14,11 @@ const amountOfRestaurants = (restaurants: handler_Restaurant[]) => {
   return amount === 1 ? amount + ' Restaurant' : amount + ' Restaurants';
 };
 
-const defaultOpened = ['Fasanenhof', 'Leinfelden-Echterdingen'];
+const defaultOpened = ['Fasanenhof', 'Leinfelden-Echterdingen', 'Degerloch'];
 </script>
 
 <template>
   <q-list>
-    <NavTitle />
     <q-expansion-item
       v-for="(restaurants, key) in groups"
       :key="key"
@@ -37,5 +34,4 @@ const defaultOpened = ['Fasanenhof', 'Leinfelden-Echterdingen'];
       />
     </q-expansion-item>
   </q-list>
-  <NavExtra />
 </template>

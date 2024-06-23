@@ -13,8 +13,8 @@ const search = ref('');
   <q-input
     v-model="search"
     standout
-    dense
     readonly
+    dense
     square
     placeholder="Suchen"
     :autofocus="false"
@@ -24,7 +24,7 @@ const search = ref('');
   </q-input>
 
   <q-dialog v-model="dialog" backdrop-filter="blur(4px) saturate(150%)">
-    <q-card style="width: 700px; max-width: 80vw">
+    <q-card style="width: 700px; max-width: 90vw">
       <q-card-section>
         <q-input
           v-model="store.search"

@@ -26,4 +26,10 @@ defineOptions({
   max-width: $breakpoint-sm-max;
   padding-top: 1rem;
 }
+.no-hover-effect:hover {
+  background-color: inherit !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
 </style>
