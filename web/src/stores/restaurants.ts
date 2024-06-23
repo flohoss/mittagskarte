@@ -32,6 +32,7 @@ export const useRestaurantStore = defineStore('restaurant', {
     restaurant: emptyRestaurant as handler_Restaurant,
     restaurants: {} as Record<string, handler_Restaurant>,
     reduction: LocalStorage.getItem(ReductionKey),
+    search: '',
   }),
   getters: {
     grouped() {
@@ -46,6 +47,21 @@ export const useRestaurantStore = defineStore('restaurant', {
         sortedGroupMap[group] = restaurants;
       }
       return sortedGroupMap;
+    },
+    result(): handler_Restaurant[] {
+      if (this.search === '') {
+        return [];
+      }
+      const lowerCaseSearch = this.search.toLowerCase();
+      return Object.values(this.restaurants).filter((restaurant) => {
+        return (
+          restaurant.id.toLowerCase().includes(lowerCaseSearch) ||
+          restaurant.name.toLowerCase().includes(lowerCaseSearch) ||
+          restaurant.description.toLowerCase().includes(lowerCaseSearch) ||
+          restaurant.address.toLowerCase().includes(lowerCaseSearch) ||
+          restaurant.group.toLowerCase().includes(lowerCaseSearch)
+        );
+      });
     },
   },
   actions: {

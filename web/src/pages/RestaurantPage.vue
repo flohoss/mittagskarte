@@ -35,7 +35,7 @@ const menu = ref(false);
 </script>
 
 <template>
-  <q-page class="row align-start justify-center" style="padding-top: 1rem">
+  <q-page class="row align-start justify-center q-pt-md">
     <div class="container" v-if="restaurant.name != ''">
       <RestaurantHeader :restaurant="restaurant" @openMenu="menu = true" />
       <WeeklyFood

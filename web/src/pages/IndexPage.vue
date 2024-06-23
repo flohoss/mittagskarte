@@ -1,24 +1,27 @@
 <script setup lang="ts">
-import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
+import { computed, ref } from 'vue';
+
+const search = ref('');
 
 const store = useRestaurantStore();
-const thumbnail = (restaurant: handler_Restaurant) =>
-  process.env.BASE_URL + 'config/thumbnails/' + restaurant.id + '.webp';
+const res = computed(() => store.result);
 </script>
 
 <template>
-  <q-page class="row justify-center items-center" style="padding-top: 1rem">
-    <q-item
-      :to="'/restaurants/' + restaurant.id"
-      v-for="restaurant in store.restaurants"
-      :key="restaurant.id"
+  <q-page class="row justify-center items-start q-pt-md">
+    <q-input
+      filled
+      v-model="store.search"
+      label="Suchen"
+      @keyup.esc="store.search = ''"
     >
-      <q-img :src="thumbnail(restaurant)" width="13rem" height="13rem">
-        <div class="absolute-bottom text-subtitle2 text-center">
-          {{ restaurant.name }}
-        </div>
-      </q-img>
-    </q-item>
+      <template v-slot:append>
+        <q-icon v-if="search === ''" name="fa-solid fa-search" />
+      </template>
+    </q-input>
+    <div v-if="res.length > 0">
+      {{ res }}
+    </div>
   </q-page>
 </template>
