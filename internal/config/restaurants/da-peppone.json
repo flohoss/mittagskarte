@@ -1,0 +1,25 @@
+{
+  "id": "da-peppone",
+  "icon": "fa-solid fa-pizza-slice",
+  "price": 2,
+  "name": "Da Peppone",
+  "description": "Italienisch",
+  "page_url": "https://dapeppone-restaurant.de/",
+  "address": "Bopseräcker 1, 70597 Stuttgart-Degerloch",
+  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 711 78784911",
+  "group": "Degerloch",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": { "jquery": "a:contains('Mittagskarte vom')" },
+    "navigate": [
+      { "jquery": "a:contains('Mittagskarte vom')", "attribute": "href" }
+    ],
+    "is_file": true,
+    "one_for_all": {
+      "regex": "Gericht\\s?.{1,5}\\s(.*\\s.*)\\s?€\\s?(\\d{1,2}\\,\\d{1,2})",
+      "pos_food": 1,
+      "pos_price": 2
+    }
+  }
+}

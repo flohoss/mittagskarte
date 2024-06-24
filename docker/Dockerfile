@@ -4,7 +4,8 @@ ARG V_NODE
 ARG V_ALPINE
 FROM golang:${V_GOLANG} AS goBuilder
 RUN apt-get update -qq
-RUN apt-get install -y libtesseract-dev libleptonica-dev
+# Image to webp convertion
+RUN apt-get install -y libwebp-dev
 
 WORKDIR /app
 COPY ./go.mod .
@@ -12,14 +13,14 @@ COPY ./go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -tags ocr -ldflags="-s -w" cmd/mittag/mittag.go
+RUN go build -ldflags="-s -w"
 
 FROM node:${V_NODE}-alpine AS nodeBuilder
 WORKDIR /web
 
 COPY ./web .
 RUN yarn install --frozen-lockfile
-RUN yarn run tw:build
+RUN yarn run build
 
 FROM alpine:${V_ALPINE} AS logo
 RUN apk add figlet
@@ -27,28 +28,17 @@ RUN figlet Mittag > logo.txt
 
 FROM debian:${V_DEBIAN}-slim AS final
 RUN apt-get update -qq
-RUN apt-get install -y imagemagick poppler-utils wv unrtf tidy
-RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
-RUN apt-get install -y libtesseract-dev libleptonica-dev
-RUN apt-get install -y tesseract-ocr-eng tesseract-ocr-deu
+# Image to webp convertion
+RUN apt-get install -y libwebp-dev ca-certificates
 
 # Mittag
 WORKDIR /app
 COPY scripts/entrypoint.sh .
 
 COPY --from=logo /logo.txt .
-COPY --from=nodeBuilder /web/static/ ./web/static/
-COPY --from=nodeBuilder /web/templates ./web/templates/
-# node modules
-COPY --from=nodeBuilder /web/node_modules/vue/dist/vue.esm-browser.prod.js ./web/node_modules/vue/dist/vue.esm-browser.prod.js
-COPY --from=nodeBuilder /web/node_modules/moment/min/moment.min.js ./web/node_modules/moment/min/moment.min.js
-COPY --from=nodeBuilder /web/node_modules/iconify-icon/dist/iconify-icon.min.js ./web/node_modules/iconify-icon/dist/iconify-icon.min.js
-# binary go file
+COPY --from=nodeBuilder /web/dist/spa/ ./web/
 COPY --from=goBuilder /app/mittag .
-COPY ./configs/ ./configs/
-
-# Envs
-ARG APP_VERSION
-ENV APP_VERSION=$APP_VERSION
+COPY ./internal/config/restaurants ./internal/config/restaurants
+COPY ./internal/config/thumbnails ./internal/config/thumbnails
 
 ENTRYPOINT ["/app/entrypoint.sh"]

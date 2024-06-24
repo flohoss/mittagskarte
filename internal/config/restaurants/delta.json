@@ -1,0 +1,24 @@
+{
+  "id": "delta",
+  "icon": "fa-solid fa-bowl-rice",
+  "price": 1,
+  "name": "Delta",
+  "description": "Thailändisch",
+  "page_url": "https://www.delta-koengen.de/menü/",
+  "address": "Plochinger Straße 22, 73257 Köngen",
+  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 7024 466833",
+  "group": "Köngen",
+  "parse": {
+    "http_version": "HTTP/1.1",
+    "description": { "fixed": "Mittagsangebot" },
+    "navigate": [
+      {
+        "jquery": "div.cc-m-hgrid-column:contains('Mittagskarte') a.cc-m-download-link",
+        "attribute": "href",
+        "prefix": "https://www.delta-koengen.de"
+      }
+    ],
+    "is_file": true
+  }
+}

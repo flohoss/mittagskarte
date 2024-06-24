@@ -3,8 +3,8 @@ stages:
   - deploy
 
 variables:
-  LATEST_IMAGE: '$CI_REGISTRY_IMAGE:latest'
-  PRODUCTION_URL: 'https://mittag.unjx.de'
+  LATEST_IMAGE: "$CI_REGISTRY_IMAGE:latest"
+  PRODUCTION_URL: "https://mittag.unjx.de"
 
 image: docker:$V_DOCKER-git
 
@@ -23,7 +23,7 @@ build:
   stage: build
   variables:
     DOCKER_BUILDKIT: 1
-    CURRENT_IMAGE: '$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG'
+    CURRENT_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
   before_script:
     - !reference [.auth_gitlab, before_script]
   script:
@@ -33,23 +33,3 @@ build:
     - docker push $LATEST_IMAGE
   after_script:
     - !reference [.auth_gitlab, after_script]
-
-deploy:
-  rules: !reference [.rules:deploy, rules]
-  stage: deploy
-  image: debian:${V_DEBIAN}-slim
-  id_tokens:
-    TBOT_GITLAB_JWT:
-      aud: tp.unjx.de
-  script:
-    - apt-get update && apt-get install curl -y
-    - cp tbot.yml /tmp
-    - cd /tmp
-    - 'curl -O https://cdn.teleport.dev/teleport-v${V_TELEPORT}-linux-amd64-bin.tar.gz'
-    - tar -xvf teleport-v${V_TELEPORT}-linux-amd64-bin.tar.gz
-    - ./teleport/install
-    - 'tbot start -c tbot.yml'
-    - 'tsh -i /tmp/machine-id/identity --proxy tp.unjx.de:443 ssh gitlab@berg "docker compose -f /opt/docker/mittag/compose.yml up mittag -d --pull always && docker system prune --force"'
-  environment:
-    name: production
-    url: $PRODUCTION_URL

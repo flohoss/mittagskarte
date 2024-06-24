@@ -9,12 +9,19 @@ import (
 )
 
 type Env struct {
-	TimeZone     string `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
-	Port         int    `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
-	LogLevel     string `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
-	AdminKey     string `env:"ADMIN_KEY" envDefault:"admin"`
-	Version      string `env:"APP_VERSION" envDefault:"v0.0.0"`
-	GoogleAPIKey string `env:"GOOGLE_API_KEY"`
+	TimeZone     string   `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
+	Port         int      `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
+	LogLevel     string   `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
+	AllowedHosts []string `env:"ALLOWED_HOSTS" envDefault:"*" envSeparator:","`
+	APIToken     string   `env:"API_TOKEN,required,unset"`
+
+	RedisHost string `env:"REDIS_HOST" envDefault:"redis" validate:"hostname"`
+	RedisPort int    `env:"REDIS_PORT" envDefault:"6379" validate:"min=1024,max=49151"`
+
+	SMTPHost     string `env:"SMTP_HOST" envDefault:"mail.your-server.de" validate:"hostname"`
+	SMTPPort     int    `env:"SMTP_PORT" envDefault:"587" validate:"min=1,max=49151"`
+	SMTPPassword string `env:"SMTP_PASSWORD,unset"`
+	SMTPUsername string `env:"SMTP_USERNAME"`
 }
 
 var errParse = errors.New("error parsing environment variables")
