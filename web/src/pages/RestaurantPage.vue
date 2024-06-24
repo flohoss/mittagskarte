@@ -42,13 +42,25 @@ const menu = ref(false);
         v-if="restaurant.menu.food.length > 0"
         :restaurant="restaurant"
       />
-      <q-img
-        class="q-ma-md"
-        style="border-radius: 1em"
+      <div
         v-else-if="cardUrl"
-        :src="cardUrl"
-      />
+        class="q-pa-md"
+        :style="{
+          'border-radius': '0.5rem',
+          width: '100%',
+          'max-width': $q.screen.sizes.md + 'px',
+        }"
+      >
+        <q-img
+          :src="cardUrl"
+          :style="{
+            'border-radius': '0.5rem',
+            width: '100%',
+          }"
+        />
+      </div>
     </div>
+    {{ $q.screen.sizes.sm }}
   </q-page>
 
   <q-dialog v-model="menu" full-height>
