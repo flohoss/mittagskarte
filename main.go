@@ -33,7 +33,7 @@ func main() {
 	config := config.New()
 	imdb := imdb.New(env.RedisHost, env.RedisPort)
 	service := service.New(config, imdb, env)
-	handler := handler.New(config.Restaurants, service)
+	handler := handler.New(config.Restaurants, service, env)
 	router := router.New(handler, env)
 
 	slog.Info("starting server", "url", fmt.Sprintf("http://localhost:%d", env.Port))

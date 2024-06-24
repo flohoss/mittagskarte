@@ -12,7 +12,7 @@
   "parse": {
     "http_version": "HTTP/2.0",
     "description": {
-      "regex": "Tagesessen.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}.*?(?:\\d{1,2}\\.){1,2}\\d{1,4}"
+      "regex": "Tagesessen.*?((?:\\d{1,2}\\.){1,2}\\d{1,4}.*?(?:\\d{1,2}\\.){1,2}\\d{1,4})"
     },
     "one_for_all": {
       "regex": "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Oder)\\:?[.\\s]+?TE\\s?\\d?\\s?(.*)[.\\s]+?(\\d{1,2}[\\,\\.]\\d{1,2})",

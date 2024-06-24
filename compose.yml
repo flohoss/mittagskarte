@@ -31,16 +31,16 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis:/data
-    expose:
-      - 6379
+    ports:
+      - 6379:6379
     networks:
       - net
 
   ocrserver:
     container_name: ocrserver
     image: otiai10/ocrserver
-    expose:
-      - 8000
+    ports:
+      - 8080:8080
     networks:
       - net
 
@@ -48,8 +48,8 @@ services:
     container_name: docd
     image: sajari/docd:1
     command: -addr 0.0.0.0:8888
-    expose:
-      - 8888
+    ports:
+      - 8888:8888
     networks:
       - net
 
@@ -66,7 +66,7 @@ services:
       - net
 
   mittag:
-    profiles: [ build ]
+    profiles: [build]
     image: ${CURRENT_IMAGE}
     build:
       context: .
@@ -79,7 +79,7 @@ services:
         - APP_VERSION=${CI_COMMIT_TAG}
 
   golang:
-    profiles: [ install ]
+    profiles: [install]
     image: golang:${V_GOLANG}
     working_dir: /app
     entrypoint: go
@@ -87,7 +87,7 @@ services:
       - .:/app/
 
   yarn:
-    profiles: [ install ]
+    profiles: [install]
     image: node:${V_NODE}
     entrypoint: yarn
     working_dir: /app/web

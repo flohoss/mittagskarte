@@ -18,6 +18,12 @@ type Env struct {
 	RedisHost string `env:"REDIS_HOST" envDefault:"redis" validate:"hostname"`
 	RedisPort int    `env:"REDIS_PORT" envDefault:"6379" validate:"min=1024,max=49151"`
 
+	OCRHost string `env:"OCR_HOST" envDefault:"ocrserver" validate:"hostname"`
+	OCRPort int    `env:"OCR_PORT" envDefault:"8080" validate:"min=1024,max=49151"`
+
+	DocHost string `env:"DOC_HOST" envDefault:"docd" validate:"hostname"`
+	DocPort int    `env:"DOC_PORT" envDefault:"8888" validate:"min=1024,max=49151"`
+
 	SMTPHost     string `env:"SMTP_HOST" envDefault:"mail.your-server.de" validate:"hostname"`
 	SMTPPort     int    `env:"SMTP_PORT" envDefault:"587" validate:"min=1,max=49151"`
 	SMTPPassword string `env:"SMTP_PASSWORD,unset"`

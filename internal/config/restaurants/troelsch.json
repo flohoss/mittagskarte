@@ -12,7 +12,7 @@
   "parse": {
     "http_version": "HTTP/2.0",
     "description": {
-      "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+      "regex": "(Von (?:Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*)"
     },
     "navigate": [
       {

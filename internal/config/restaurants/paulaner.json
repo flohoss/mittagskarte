@@ -12,7 +12,7 @@
   "parse": {
     "http_version": "HTTP/2.0",
     "description": {
-      "regex": "\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}.+?\\d{2,4}"
+      "regex": "(\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}.+?\\d{2,4})"
     },
     "navigate": [
       {
