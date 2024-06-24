@@ -3,6 +3,7 @@ package parse
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"mime/multipart"
@@ -13,6 +14,7 @@ import (
 	"code.sajari.com/docconv/client"
 
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
+	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/pgk/convert"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 )
@@ -32,14 +34,14 @@ type OCRResponse struct {
 	Result string `json:"result"`
 }
 
-func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion, needsParsing bool) *FileParser {
+func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion, needsParsing bool, env *env.Env) *FileParser {
 	downloadedFile, err := fetch.DownloadFile(id, fileUrl, httpVersion)
 	if err != nil {
 		slog.Error("could not download file", "url", fileUrl, "err", err)
 		return nil
 	}
 
-	ocr, outputFileLocation := MoveAndParse(downloadedFile, needsParsing)
+	ocr, outputFileLocation := MoveAndParse(downloadedFile, needsParsing, env)
 
 	return &FileParser{
 		OutputFileLocation: outputFileLocation,
@@ -47,7 +49,7 @@ func NewFileParser(id string, fileUrl string, httpVersion config.HTTPVersion, ne
 	}
 }
 
-func MoveAndParse(downloadedFile string, needsParsing bool) (string, string) {
+func MoveAndParse(downloadedFile string, needsParsing bool, env *env.Env) (string, string) {
 	base := filepath.Base(downloadedFile)
 	publicFile := filepath.Join(PublicLocation, base)
 	os.Rename(downloadedFile, publicFile)
@@ -55,7 +57,7 @@ func MoveAndParse(downloadedFile string, needsParsing bool) (string, string) {
 	var err error
 	ocr := ""
 	if needsParsing {
-		ocr, err = requestOCR(publicFile)
+		ocr, err = requestOCR(publicFile, env)
 		if err != nil {
 			slog.Error("could not parse file", "file", publicFile, "err", err)
 		}
@@ -68,23 +70,23 @@ func MoveAndParse(downloadedFile string, needsParsing bool) (string, string) {
 	return ocr, outputFileLocation
 }
 
-func requestOCR(fileLocation string) (string, error) {
+func requestOCR(fileLocation string, env *env.Env) (string, error) {
 	ext := filepath.Ext(fileLocation)
 	switch ext {
 	case ".pdf":
-		c := client.New(client.WithEndpoint("docd:8888"))
+		c := client.New(client.WithEndpoint(fmt.Sprintf("%s:%d", env.DocHost, env.DocPort)))
 		res, err := client.ConvertPath(c, fileLocation)
 		if err != nil {
 			return "", err
 		}
 		return res.Body, nil
 	case ".jpg", ".jpeg", ".png":
-		return makeOcrResuest(fileLocation)
+		return makeOcrRequest(fileLocation, env.OCRHost, env.OCRPort)
 	}
 	return "", nil
 }
 
-func makeOcrResuest(fileLocation string) (string, error) {
+func makeOcrRequest(fileLocation string, host string, port int) (string, error) {
 	file, err := os.Open(fileLocation)
 	if err != nil {
 		return "", err
@@ -109,7 +111,7 @@ func makeOcrResuest(fileLocation string) (string, error) {
 		return "", err
 	}
 
-	req, err := http.NewRequest("POST", "http://ocrserver:8080/file", &requestBody)
+	req, err := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/file", host, port), &requestBody)
 	if err != nil {
 		return "", err
 	}

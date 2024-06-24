@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
+	"gitlab.unjx.de/flohoss/mittag/internal/env"
 	"gitlab.unjx.de/flohoss/mittag/internal/parse"
 	"gitlab.unjx.de/flohoss/mittag/internal/service"
 	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
@@ -16,12 +17,14 @@ import (
 type RestaurantHandler struct {
 	restaurants map[string]*config.Restaurant
 	service     *service.UpdateService
+	env         *env.Env
 }
 
-func New(restaurants map[string]*config.Restaurant, service *service.UpdateService) *RestaurantHandler {
+func New(restaurants map[string]*config.Restaurant, service *service.UpdateService, env *env.Env) *RestaurantHandler {
 	return &RestaurantHandler{
 		restaurants: restaurants,
 		service:     service,
+		env:         env,
 	}
 }
 
@@ -69,8 +72,9 @@ func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
 	restaurant, ok := h.restaurants[id]
 	if !ok {
 		h.service.UpdateAll()
+	} else {
+		h.service.UpdateSingle(restaurant)
 	}
-	h.service.UpdateSingle(restaurant)
 	return ctx.NoContent(http.StatusOK)
 }
 
@@ -112,7 +116,7 @@ func (h *RestaurantHandler) UploadMenu(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	ocr, outputFileLocation := parse.MoveAndParse(fileName, true)
+	ocr, outputFileLocation := parse.MoveAndParse(fileName, true, h.env)
 	restaurant.Menu = config.Menu{
 		Card: outputFileLocation,
 	}

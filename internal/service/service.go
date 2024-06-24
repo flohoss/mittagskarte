@@ -51,7 +51,7 @@ func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
 	var fileContent, card string
 	if restaurant.Parse.IsFile {
 		needsParsing := restaurant.Parse.OneForAll.Regex != "" || len(restaurant.Parse.Food) > 0
-		p := parse.NewFileParser(restaurant.ID, crawl.FinalUrl, restaurant.Parse.HTTPVersion, needsParsing)
+		p := parse.NewFileParser(restaurant.ID, crawl.FinalUrl, restaurant.Parse.HTTPVersion, needsParsing, u.env)
 		card = p.OutputFileLocation
 		fileContent = p.OutputFileContent
 	}

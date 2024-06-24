@@ -12,7 +12,10 @@
       "program": "${workspaceFolder}/",
       "env": {
         "LOG_LEVEL": "debug",
-        "API_TOKEN": "12345"
+        "API_TOKEN": "123456",
+        "REDIS_HOST": "localhost",
+        "DOC_HOST": "localhost",
+        "OCR_HOST": "localhost",
       }
     }
   ]

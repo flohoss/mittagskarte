@@ -11,7 +11,7 @@
   "group": "Feuerbach",
   "parse": {
     "http_version": "HTTP/2.0",
-    "description": { "regex": "Mittagstisch.+?vom.+?\\d{4}" },
+    "description": { "regex": "(Mittagstisch.+?vom.+?\\d{4})" },
     "navigate": [
       {
         "jquery": "a:contains('Schaible')",
