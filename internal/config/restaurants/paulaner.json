@@ -1,0 +1,26 @@
+{
+  "id": "paulaner",
+  "icon": "fa-solid fa-beer-mug-empty",
+  "price": 2,
+  "name": "Paulaner",
+  "description": "Deutsch",
+  "page_url": "https://paulaner-le.de/speisen-getraenke/mittagstisch.html",
+  "address": "Burgstraße 4, 70771 Leinfelden-Echterdingen",
+  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 711 7944180",
+  "group": "Leinfelden-Echterdingen",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": {
+      "regex": "\\d{1,2}\\.?\\s?%month%\\s?bis\\s?\\d{1,2}.+?\\d{2,4}"
+    },
+    "navigate": [
+      {
+        "jquery": "a:contains('Zum Mittagsangebot')",
+        "attribute": "href",
+        "prefix": "https://paulaner-le.de"
+      }
+    ],
+    "is_file": true
+  }
+}

@@ -1,0 +1,208 @@
+basePath: /api/v1
+definitions:
+  config.DayOfWeek:
+    enum:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    type: string
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+  config.FoodEntry:
+    properties:
+      day:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - day
+    - description
+    - name
+    - price
+    type: object
+  config.Group:
+    enum:
+    - Degerloch
+    - Fasanenhof
+    - Feuerbach
+    - Köngen
+    - Leinfelden-Echterdingen
+    - Nürtingen
+    type: string
+    x-enum-varnames:
+    - Degerloch
+    - Fasanenhof
+    - Feuerbach
+    - Koengen
+    - LeinfeldenEchterdingen
+    - Nuertingen
+  config.Menu:
+    properties:
+      card:
+        type: string
+      description:
+        type: string
+      food:
+        items:
+          $ref: '#/definitions/config.FoodEntry'
+        type: array
+    required:
+    - card
+    - description
+    - food
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    required:
+    - message
+    type: object
+  handler.Restaurant:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      group:
+        $ref: '#/definitions/config.Group'
+      icon:
+        type: string
+      id:
+        type: string
+      manually:
+        type: boolean
+      menu:
+        $ref: '#/definitions/config.Menu'
+      name:
+        type: string
+      page_url:
+        type: string
+      phone:
+        type: string
+      price:
+        type: integer
+      rest_days:
+        items:
+          $ref: '#/definitions/config.DayOfWeek'
+        type: array
+    required:
+    - address
+    - description
+    - group
+    - icon
+    - id
+    - manually
+    - menu
+    - name
+    - page_url
+    - phone
+    - price
+    - rest_days
+    type: object
+host: mittag.unjx.de
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Mittagstisch API
+  version: "1.0"
+paths:
+  /restaurants:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/handler.Restaurant'
+            type: object
+      tags:
+      - restaurants
+    patch:
+      parameters:
+      - description: Bearer <Add access token here>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Restaurant ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      tags:
+      - restaurants
+  /restaurants/{id}:
+    get:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/handler.Restaurant'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      tags:
+      - restaurants
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Menu File
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: API-Token
+        in: formData
+        name: token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      tags:
+      - restaurants
+schemes:
+- https
+swagger: "2.0"

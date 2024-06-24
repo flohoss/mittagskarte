@@ -1,0 +1,26 @@
+{
+  "id": "hoflieferant-munz",
+  "icon": "fa-solid fa-cow",
+  "price": 1,
+  "name": "Munz",
+  "description": "Metzgerei",
+  "page_url": "https://www.hoflieferant-munz.de/aktuelles",
+  "address": "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 36591400",
+  "group": "Feuerbach",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": {
+      "regex": "\\d{1,2}\\.\\s?-\\s?(?:\\d{1,2}\\.){2}\\d{4}"
+    },
+    "navigate": [
+      {
+        "jquery": "a:contains('Download pdf')",
+        "attribute": "href",
+        "prefix": "https://www.hoflieferant-munz.de/"
+      }
+    ],
+    "is_file": true
+  }
+}

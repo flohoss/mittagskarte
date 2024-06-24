@@ -1,0 +1,45 @@
+{
+  "id": "schaible",
+  "icon": "fa-solid fa-cow",
+  "price": 1,
+  "name": "Schaible",
+  "description": "Metzgerei",
+  "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
+  "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 711 8104528",
+  "group": "Feuerbach",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": { "regex": "Mittagstisch.+?vom.+?\\d{4}" },
+    "navigate": [
+      {
+        "jquery": "a:contains('Schaible')",
+        "attribute": "href",
+        "prefix": "https://www.feuerbach.de"
+      }
+    ],
+    "food": [
+      {
+        "day": { "fixed": "Dienstag" },
+        "name": { "regex": "Di[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "price": { "fixed": "7.5" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "name": { "regex": "Mi[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "price": { "fixed": "7.5" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "name": { "regex": "Do[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "price": { "fixed": "7.5" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "name": { "regex": "Fr[.:\\s]{1,2}\\s?(.+?)\\d" },
+        "price": { "fixed": "7.5" }
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "meet-and-eat",
+  "icon": "fa-solid fa-hotdog",
+  "price": 1,
+  "name": "Meet & Eat",
+  "description": "Tankstelle",
+  "page_url": "http://meetundeat.com/#Speisekarte",
+  "address": "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 157 30664255",
+  "group": "Fasanenhof",
+  "parse": {
+    "http_version": "HTTP/1.1",
+    "description": { "regex": "Speisekarte.*" },
+    "navigate": [
+      {
+        "jquery": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']",
+        "attribute": "src"
+      }
+    ],
+    "is_file": true
+  }
+}

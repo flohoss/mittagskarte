@@ -1,0 +1,38 @@
+{
+  "id": "fass",
+  "icon": "fa-solid fa-utensils",
+  "price": 1,
+  "name": "Fass",
+  "description": "Deutsch",
+  "page_url": "http://www.gasthaus-fass.de/mittagstisch/index.php",
+  "address": "Bahnhofstraße 10, 72644 Oberboihingen",
+  "rest_days": ["Sunday", "Tuesday", "Saturday"],
+  "phone": "+49 7022 61185",
+  "group": "Nürtingen",
+  "parse": {
+    "hhtp_version": "HTTP/1.1",
+    "description": { "jquery": "h2:contains('KW %KW%')" },
+    "food": [
+      {
+        "day": { "fixed": "Montag" },
+        "name": { "jquery": "tr:contains('MONTAG') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Mittwoch" },
+        "name": { "jquery": "tr:contains('MITTWOCH') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Donnerstag" },
+        "name": { "jquery": "tr:contains('DONNERSTAG') td:last-child" },
+        "price": { "fixed": "10" }
+      },
+      {
+        "day": { "fixed": "Freitag" },
+        "name": { "jquery": "tr:contains('FREITAG') td:last-child" },
+        "price": { "fixed": "10" }
+      }
+    ]
+  }
+}

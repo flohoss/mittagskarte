@@ -1,0 +1,25 @@
+{
+  "id": "troelsch",
+  "icon": "fa-solid fa-bread-slice",
+  "price": 1,
+  "name": "Troelsch",
+  "description": "Bäckerei",
+  "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
+  "address": "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 85680030",
+  "group": "Feuerbach",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": {
+      "regex": "Von (Montag|Dienstag|Mittwoch|Donnerstag|Freitag).*"
+    },
+    "navigate": [
+      {
+        "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
+        "attribute": "href"
+      }
+    ],
+    "is_file": true
+  }
+}
