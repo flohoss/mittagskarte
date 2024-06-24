@@ -28,7 +28,7 @@ const isClosed = () => {
 
     <q-item-section>
       <q-item-label>{{ restaurant.name }}</q-item-label>
-      <q-item-label class="text-caption">Geschlossen</q-item-label>
+      <q-item-label v-if="isClosed()" class="text-caption">Geschlossen</q-item-label>
     </q-item-section>
   </q-item>
 </template>
