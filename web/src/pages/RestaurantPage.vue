@@ -60,7 +60,6 @@ const menu = ref(false);
         />
       </div>
     </div>
-    {{ $q.screen.sizes.sm }}
   </q-page>
 
   <q-dialog v-model="menu" full-height>
