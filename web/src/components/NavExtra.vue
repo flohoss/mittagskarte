@@ -10,8 +10,16 @@ const upload = ref(false);
 
 <template>
   <div class="row q-gutter-x-xs">
-    <q-btn size="sm" flat icon="fa-solid fa-upload" @click="upload = true" />
-    <q-btn size="sm" flat icon="fa-solid fa-gear" @click="settings = true" />
+    <q-btn size="sm" flat icon="fa-solid fa-upload" @click="upload = true">
+      <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
+        Menü hochladen
+      </q-tooltip>
+    </q-btn>
+    <q-btn size="sm" flat icon="fa-solid fa-gear" @click="settings = true">
+      <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
+        Einstellungen
+      </q-tooltip>
+    </q-btn>
     <GlobalSearch v-if="$q.screen.gt.sm" />
   </div>
 
