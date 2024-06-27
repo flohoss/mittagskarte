@@ -18,10 +18,10 @@ const onSubmit = () => {
 
 <template>
   <q-card style="min-width: 50vw; width: 100%" class="q-pa-md">
-    <q-card-section class="row items-center q-pb-none">
+    <q-card-section class="row items-center">
       <div class="text-h6">Preisreduzierung</div>
       <q-space />
-      <q-btn icon="fa-solid fa-xmark" flat round v-close-popup />
+      <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section>
       <div class="text-h4">{{ reduction }} €</div>

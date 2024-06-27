@@ -46,10 +46,10 @@ const onSubmit = () => {
 
 <template>
   <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
-    <q-card-section class="row items-center q-pb-none">
+    <q-card-section class="row items-center">
       <div class="text-h6">Neues Menü hochladen</div>
       <q-space />
-      <q-btn icon="fa-solid fa-xmark" flat round v-close-popup />
+      <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section class="column q-gutter-md">
       <q-select
