@@ -19,6 +19,8 @@ const amountOfRestaurants = (restaurants: handler_Restaurant[]) => {
       :caption="amountOfRestaurants(Object.values(store.favorites))"
       v-if="store.favorites.length > 0"
       default-opened
+      hide-expand-icon
+      expand-icon-toggle
     >
       <transition-group
         appear
