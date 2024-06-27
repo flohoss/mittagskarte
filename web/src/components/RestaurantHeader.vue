@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { handler_Restaurant } from 'src/openapi';
 import { computed } from 'vue';
+import FavStar from './FavStar.vue';
 
 const props = defineProps<{ restaurant: handler_Restaurant }>();
 const emit = defineEmits(['openMenu']);
@@ -25,11 +26,12 @@ const googleSearch = computed(
         fit="cover"
         style="height: 5rem; width: 5rem; border-radius: 0.5rem"
       />
-      <div>
+      <div class="column justify-start">
         <div class="text-h4 ellipsis">{{ restaurant.name }}</div>
-        <div class="text-caption">
-          {{ restaurant.description }}
-          <span v-for="i in restaurant.price" :key="i">€</span>
+        <div class="text-caption row items-baseline q-gutter-x-sm">
+          <FavStar :restaurant="restaurant" />
+          <div>{{ restaurant.description }}</div>
+          <div><span v-for="i in restaurant.price" :key="i">€</span></div>
         </div>
       </div>
     </div>

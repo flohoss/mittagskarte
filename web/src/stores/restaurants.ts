@@ -26,6 +26,7 @@ const emptyRestaurant: handler_Restaurant = {
 };
 
 export const ReductionKey = 'mittag_reduction';
+export const FavoriteKey = 'mittag_favorites';
 
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
@@ -33,8 +34,16 @@ export const useRestaurantStore = defineStore('restaurant', {
     restaurants: {} as Record<string, handler_Restaurant>,
     reduction: LocalStorage.getItem(ReductionKey),
     search: '',
+    favorites: LocalStorage.getItem(FavoriteKey) || ([] as string[]),
   }),
   getters: {
+    favoriteRestaurants() {
+      const res = [] as handler_Restaurant[];
+      for (const value of Object.values(this.restaurants)) {
+        if (this.favorites.includes(value.id)) res.push(value);
+      }
+      return res;
+    },
     grouped() {
       const groupMap: Record<string, handler_Restaurant[]> = {};
       for (const value of Object.values(this.restaurants)) {
@@ -65,6 +74,14 @@ export const useRestaurantStore = defineStore('restaurant', {
     },
   },
   actions: {
+    toggleFavorite(restaurant: handler_Restaurant) {
+      if (this.favorites.includes(restaurant.id)) {
+        this.favorites.splice(this.favorites.indexOf(restaurant.id), 1);
+      } else {
+        this.favorites.push(restaurant.id);
+      }
+      LocalStorage.set(FavoriteKey, this.favorites);
+    },
     async getRestaurant(name: string) {
       const response = await RestaurantsService.getRestaurants1(name);
       this.$state.restaurant = response;

@@ -1,36 +1,51 @@
 <script setup lang="ts">
 import { handler_Restaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { ComputedRef, computed } from 'vue';
 import NavRestaurant from './NavRestaurant.vue';
 
 const store = useRestaurantStore();
-const groups: ComputedRef<Record<string, handler_Restaurant[]>> = computed(
-  () => store.grouped
-);
 
 const amountOfRestaurants = (restaurants: handler_Restaurant[]) => {
   const amount = restaurants.length;
   return amount === 1 ? amount + ' Restaurant' : amount + ' Restaurants';
 };
-
-const defaultOpened = ['Fasanenhof', 'Leinfelden-Echterdingen', 'Degerloch'];
 </script>
 
 <template>
   <q-list>
     <q-expansion-item
-      v-for="(restaurants, key) in groups"
+      class="q-pb-md"
+      label="Favoriten"
+      :caption="amountOfRestaurants(Object.values(store.favorites))"
+      v-if="store.favorites.length > 0"
+      default-opened
+    >
+      <transition-group
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOutLeft"
+      >
+        <NavRestaurant
+          v-for="restaurant in store.favoriteRestaurants"
+          :key="'fav-' + restaurant.id"
+          :restaurant="restaurant"
+          :search="false"
+          show-star
+        />
+      </transition-group>
+    </q-expansion-item>
+    <q-expansion-item
+      v-for="(restaurants, key) in store.grouped"
       :key="key"
       :label="key"
       :caption="amountOfRestaurants(restaurants)"
-      :default-opened="defaultOpened.includes(key)"
     >
       <NavRestaurant
-        v-for="(restaurant, index) in restaurants"
-        :key="index"
+        v-for="restaurant in restaurants"
+        :key="restaurant.id"
         :restaurant="restaurant"
         :search="false"
+        show-star
       />
     </q-expansion-item>
   </q-list>

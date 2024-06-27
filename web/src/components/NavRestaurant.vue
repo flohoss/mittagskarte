@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { config_DayOfWeek, handler_Restaurant } from 'src/openapi';
+import FavStar from './FavStar.vue';
 
 const props = defineProps<{
   restaurant: handler_Restaurant;
   search: boolean;
+  showStar?: boolean;
 }>();
 
 const isClosed = () => {
@@ -28,7 +30,15 @@ const isClosed = () => {
 
     <q-item-section>
       <q-item-label>{{ restaurant.name }}</q-item-label>
-      <q-item-label v-if="isClosed()" class="text-caption">Geschlossen</q-item-label>
+      <q-item-label v-if="isClosed()" class="text-caption"
+        >Geschlossen</q-item-label
+      >
+    </q-item-section>
+
+    <q-item-section v-if="showStar" side>
+      <q-item-label>
+        <FavStar :restaurant="restaurant" />
+      </q-item-label>
     </q-item-section>
   </q-item>
 </template>

@@ -78,7 +78,7 @@ services:
         - V_ALPINE=${V_ALPINE}
         - APP_VERSION=${CI_COMMIT_TAG}
 
-  golang:
+  go:
     profiles: [install]
     image: golang:${V_GOLANG}
     working_dir: /app

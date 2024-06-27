@@ -32,4 +32,7 @@ defineOptions({
   box-shadow: none !important;
   border-color: inherit !important;
 }
+.q-btn.btn--no-hover .q-focus-helper {
+  display: none;
+}
 </style>
