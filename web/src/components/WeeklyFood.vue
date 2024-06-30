@@ -10,7 +10,6 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
   style: 'currency',
   currency: 'EUR',
 });
-33;
 
 const reductionLocalStorage = computed(() => store.reduction);
 
