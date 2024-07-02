@@ -41,7 +41,7 @@ function generateMiddayOptions() {
 </script>
 
 <template>
-  <q-card style="min-width: 50vw; width: 100%" class="q-pa-md">
+  <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
     <q-card-section class="row items-center">
       <div class="text-h6">Einstellungen</div>
       <q-space />
