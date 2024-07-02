@@ -14,7 +14,7 @@ const euroFormatter = new Intl.NumberFormat('de-DE', {
 const reductionLocalStorage = computed(() => store.reduction);
 
 const calcPrice = (price: number) => {
-  const result = price + reductionLocalStorage.value;
+  const result = price - reductionLocalStorage.value;
   return euroFormatter.format(result);
 };
 </script>
