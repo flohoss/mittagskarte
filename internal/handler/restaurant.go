@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/internal/config"
@@ -64,16 +65,24 @@ func (h *RestaurantHandler) GetRestaurant(ctx echo.Context) error {
 //	@Produce	json
 //	@Tags		restaurants
 //	@Param		Authorization	header		string	true	"Bearer <Add access token here>"
-//	@Param		id				query		string	true	"Restaurant ID"
+//	@Param		id				query		string	false	"Restaurant ID"
+//	@Param		clear			query		bool	false	"Clear menu?"
 //	@Success	200				{object}	nil		"ok"
 //	@Router		/restaurants [patch]
 func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
 	id := ctx.QueryParam("id")
+	clear, _ := strconv.ParseBool(ctx.QueryParam("clear"))
 	restaurant, ok := h.restaurants[id]
-	if !ok {
+	if !ok && !clear {
 		h.service.UpdateAll()
-	} else {
+	} else if !ok && clear {
+		h.service.ClearMenus()
+	} else if ok && !clear {
 		h.service.UpdateSingle(restaurant)
+	} else if ok && clear {
+		h.service.ClearMenu(restaurant)
+	} else {
+		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
 	}
 	return ctx.NoContent(http.StatusOK)
 }

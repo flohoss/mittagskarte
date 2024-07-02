@@ -145,8 +145,11 @@ paths:
       - description: Restaurant ID
         in: query
         name: id
-        required: true
         type: string
+      - description: Clear menu?
+        in: query
+        name: clear
+        type: boolean
       produces:
       - application/json
       responses:
