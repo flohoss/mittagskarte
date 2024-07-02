@@ -27,12 +27,14 @@ const emptyRestaurant: handler_Restaurant = {
 
 export const ReductionKey = 'mittag_reduction';
 export const FavoriteKey = 'mittag_favorites';
+export const MiddayKey = 'mittag_midday';
 
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
     restaurant: emptyRestaurant as handler_Restaurant,
     restaurants: {} as Record<string, handler_Restaurant>,
-    reduction: LocalStorage.getItem(ReductionKey),
+    reduction: LocalStorage.getItem(ReductionKey || 0),
+    midday: LocalStorage.getItem(MiddayKey) || '1300',
     search: '',
     favorites: LocalStorage.getItem(FavoriteKey) || ([] as string[]),
   }),
@@ -93,6 +95,10 @@ export const useRestaurantStore = defineStore('restaurant', {
     setReduction(reduction: number) {
       this.$state.reduction = reduction;
       LocalStorage.setItem(ReductionKey, reduction);
+    },
+    setMidday(midday: string) {
+      this.$state.midday = midday;
+      LocalStorage.setItem(MiddayKey, midday);
     },
   },
 });

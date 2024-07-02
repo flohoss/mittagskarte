@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import moment from 'moment';
-import { LocalStorage } from 'quasar';
+import { useRestaurantStore } from 'src/stores/restaurants';
 import { computed, onMounted, reactive, ref } from 'vue';
+
+const store = useRestaurantStore();
 
 const countdown = reactive({ hour: 0, minute: 0, second: 0 });
 const countdownStatus = reactive({ almostDone: false, over: false });
-const selectedTime = ref(
-  (LocalStorage.getItem('mittag_time') as string) || '1300'
-);
+const selectedTime = ref(store.midday);
 
 const midday = computed(() => {
   const hour = parseInt(selectedTime.value.substring(0, 2));
