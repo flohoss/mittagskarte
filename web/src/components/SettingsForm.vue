@@ -24,13 +24,16 @@ const onSubmit = () => {
       <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section>
-      <div class="text-h4">{{ reduction }} €</div>
-      <q-slider
-        v-model.number="reduction"
-        :min="-10"
-        :max="0"
-        :step="0.05"
-        @change="onSubmit"
+      <q-input
+        filled
+        v-model="reduction"
+        mask="#.##"
+        fill-mask="0"
+        suffix="€"
+        clearable
+        input-class="text-right"
+        reverse-fill-mask
+        @blur="onSubmit"
       />
     </q-card-section>
   </q-card>
