@@ -74,11 +74,11 @@ func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
 	clear, _ := strconv.ParseBool(ctx.QueryParam("clear"))
 	restaurant, ok := h.restaurants[id]
 	if !ok && !clear {
-		h.service.UpdateAll()
+		go h.service.UpdateAll()
 	} else if !ok && clear {
 		h.service.ClearMenus()
 	} else if ok && !clear {
-		h.service.UpdateSingle(restaurant)
+		go h.service.UpdateSingle(restaurant)
 	} else if ok && clear {
 		h.service.ClearMenu(restaurant)
 	} else {
