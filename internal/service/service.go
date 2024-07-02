@@ -26,6 +26,7 @@ func New(config *config.Config, imdb *imdb.IMDb, env *env.Env) *UpdateService {
 	}
 	u.RestoreMenus()
 	u.cron.AddFunc("0,30 10,11 * * *", u.UpdateAll)
+	u.cron.AddFunc("0 0 * * 0", u.ClearMenus)
 	u.cron.Start()
 	return u
 }
@@ -39,6 +40,12 @@ func (u *UpdateService) RestoreMenus() {
 func (u *UpdateService) UpdateAll() {
 	for _, config := range u.config.Restaurants {
 		u.UpdateSingle(config)
+	}
+}
+
+func (u *UpdateService) ClearMenus() {
+	for _, config := range u.config.Restaurants {
+		u.ClearMenu(config)
 	}
 }
 
@@ -61,5 +68,14 @@ func (u *UpdateService) UpdateSingle(restaurant *config.Restaurant) {
 	parser := parse.NewMenuParser(crawl.DocStorage, fileContent, &restaurant.Parse, card)
 
 	restaurant.Menu = *parser.Menu
+	restaurant.SaveMenu(u.Imdb)
+}
+
+func (u *UpdateService) ClearMenu(restaurant *config.Restaurant) {
+	restaurant.Menu = config.Menu{
+		Description: "",
+		Card:        "",
+		Food:        []config.FoodEntry{},
+	}
 	restaurant.SaveMenu(u.Imdb)
 }

@@ -58,8 +58,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Restaurant ID",
                         "name": "id",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Clear menu?",
+                        "name": "clear",
+                        "in": "query"
                     }
                 ],
                 "responses": {
