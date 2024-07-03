@@ -9,7 +9,13 @@ import (
 )
 
 func (s *Selector) RegexResult(content string, doc *goquery.Document) string {
-	reg := regexp.MustCompile("(?i)" + helper.ReplacePlaceholder(s.Regex))
+	flags := "(?"
+	if s.RegexFlags != "" {
+		flags += s.RegexFlags + ")"
+	} else {
+		flags += "i)"
+	}
+	reg := regexp.MustCompile(flags + helper.ReplacePlaceholder(s.Regex))
 	res := reg.FindStringSubmatch(content)
 	if len(res) > 1 {
 		return res[1]
@@ -31,5 +37,5 @@ func (s *Selector) JQueryResult(doc *goquery.Document) string {
 		}
 		return ""
 	}
-	return strings.TrimSpace(doc.Find(s.JQuery).First().Text())
+	return strings.TrimSpace(doc.Find(helper.ReplacePlaceholder(s.JQuery)).First().Text())
 }

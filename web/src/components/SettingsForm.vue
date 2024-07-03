@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { ref } from 'vue';
 import { Notify } from 'quasar';
 import moment from 'moment';
 
 const store = useRestaurantStore();
-const reduction = ref(store.reduction);
-const midday = ref(store.midday);
 
 const onReductionChanged = () => {
   Notify.create({
     type: 'positive',
     group: false,
-    message: 'Preisreduzierung gespeichert',
+    message: 'Preisreduzierung gespeichert: ' + store.reduction + '€',
   });
-  store.setReduction(reduction.value);
+  store.setReduction(store.reduction);
 };
 
 const onMiddayChanged = () => {
@@ -23,7 +20,7 @@ const onMiddayChanged = () => {
     group: false,
     message: 'Mittagszeit gespeichert',
   });
-  store.setMidday(midday.value);
+  store.setMidday(store.midday);
 };
 
 function generateMiddayOptions() {
@@ -50,7 +47,7 @@ function generateMiddayOptions() {
     <q-card-section class="q-gutter-md">
       <q-input
         filled
-        v-model="reduction"
+        v-model="store.reduction"
         mask="#.##"
         fill-mask="0"
         suffix="€"
@@ -58,13 +55,13 @@ function generateMiddayOptions() {
         input-class="text-right"
         reverse-fill-mask
         label="Preisreduzierung"
-        @blur="onReductionChanged"
-        @keyup.enter="onReductionChanged"
+        @update:model-value="onReductionChanged"
+        debounce="700"
       />
 
       <q-select
         filled
-        v-model="midday"
+        v-model="store.midday"
         :options="generateMiddayOptions()"
         label="Mittagszeit"
         emit-value

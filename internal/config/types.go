@@ -27,11 +27,12 @@ type Parse struct {
 }
 
 type Selector struct {
-	Fixed     string `json:"fixed"`
-	Regex     string `json:"regex"`
-	JQuery    string `json:"jquery"`
-	Attribute string `json:"attribute"`
-	Prefix    string `json:"prefix"`
+	Fixed      string `json:"fixed"`
+	Regex      string `json:"regex"`
+	RegexFlags string `json:"regex_flags"`
+	JQuery     string `json:"jquery"`
+	Attribute  string `json:"attribute"`
+	Prefix     string `json:"prefix"`
 }
 
 type OneForAll struct {
