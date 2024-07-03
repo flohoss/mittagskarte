@@ -48,7 +48,7 @@ func (p *MenuParser) ParseDescription() {
 		}
 	} else if p.parse.Description.Regex != "" {
 		for i := 0; i < len(p.docStorage); i++ {
-			p.Menu.Description = p.parse.Description.RegexResult(p.docStorage[i].Text(), nil)
+			p.Menu.Description = p.parse.Description.RegexResult("", p.docStorage[i])
 			if p.Menu.Description != "" {
 				break
 			}

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import moment from 'moment';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 
 const store = useRestaurantStore();
 
 const countdown = reactive({ hour: 0, minute: 0, second: 0 });
 const countdownStatus = reactive({ almostDone: false, over: false });
-const selectedTime = ref(store.midday);
+const selectedTime = computed(() => store.midday);
 
 const midday = computed(() => {
   const hour = parseInt(selectedTime.value.substring(0, 2));

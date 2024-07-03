@@ -11,7 +11,7 @@
   "group": "Fasanenhof",
   "parse": {
     "http_version": "HTTP/1.1",
-    "description": { "regex": "(Speisekarte.*)" },
+    "description": { "regex": "((?:\\d{1,2}\\.){2}.+?(?:\\d{1,2}\\.){2})" },
     "navigate": [
       {
         "jquery": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']",
