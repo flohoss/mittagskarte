@@ -75,8 +75,10 @@ func (p *MenuParser) ParseFood() {
 		foodRegex := regexp.MustCompile(regexStr)
 		regexResult := foodRegex.FindAllStringSubmatch(p.fileContent, -1)
 		p.ProcessRegexResult(regexResult)
-		regexResult = foodRegex.FindAllStringSubmatch(p.docStorage[len(p.docStorage)-1].Text(), -1)
-		p.ProcessRegexResult(regexResult)
+		if len(p.docStorage) > 0 {
+			regexResult = foodRegex.FindAllStringSubmatch(p.docStorage[len(p.docStorage)-1].Text(), -1)
+			p.ProcessRegexResult(regexResult)
+		}
 	}
 
 	for i := 0; i < len(p.parse.Food); i++ {
