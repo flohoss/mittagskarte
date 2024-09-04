@@ -19,7 +19,8 @@ func DownloadHtml(url string, httpVersion config.HTTPVersion) (*goquery.Document
 	if httpVersion == config.HTTP1_0 || httpVersion == config.HTTP1_1 {
 		client = &http.Client{
 			Transport: &http.Transport{
-				TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},
+				TLSNextProto:      map[string]func(authority string, c *tls.Conn) http.RoundTripper{},
+				ForceAttemptHTTP2: false,
 			},
 		}
 	}
