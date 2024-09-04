@@ -37,5 +37,12 @@ func (s *Selector) JQueryResult(doc *goquery.Document) string {
 		}
 		return ""
 	}
-	return strings.TrimSpace(doc.Find(helper.ReplacePlaceholder(s.JQuery)).First().Text())
+	if len(s.JQuery) == 0 {
+		return ""
+	}
+	sel := doc.Find(helper.ReplacePlaceholder(s.JQuery))
+	if sel.Length() == 0 {
+		return ""
+	}
+	return strings.TrimSpace(sel.First().Text())
 }
