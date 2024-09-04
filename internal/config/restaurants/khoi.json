@@ -1,0 +1,25 @@
+{
+  "id": "khoi",
+  "icon": "fa-solid fa-bowl-rice",
+  "price": 2,
+  "name": "Khoi",
+  "description": "Vietnamesisch",
+  "page_url": "https://www.khoi-restaurant.de/speisekarte/",
+  "address": "Europaplatz 12, 70565 Stuttgart-Vaihingen",
+  "rest_days": ["Sunday", "Saturday", "Monday"],
+  "phone": "+49 711 56619918",
+  "group": "Vaihingen",
+  "parse": {
+    "http_version": "HTTP/2.0",
+    "description": {
+      "fixed": "Mittagskarte"
+    },
+    "navigate": [
+      {
+        "jquery": "a:contains('Mittagskarte PDF')",
+        "attribute": "href"
+      }
+    ],
+    "is_file": true
+  }
+}
