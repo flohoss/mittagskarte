@@ -5,10 +5,10 @@
   "name": "Khoi",
   "description": "Vietnamesisch",
   "page_url": "https://www.khoi-restaurant.de/speisekarte/",
-  "address": "Europaplatz 12, 70565 Stuttgart-Vaihingen",
+  "address": "Europaplatz 12, 70565 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday", "Monday"],
   "phone": "+49 711 56619918",
-  "group": "Vaihingen",
+  "group": "Fasanenhof",
   "parse": {
     "http_version": "HTTP/2.0",
     "description": {

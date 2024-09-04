@@ -14,10 +14,9 @@ const (
 	Koengen                Group = "Köngen"
 	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
 	Nuertingen             Group = "Nürtingen"
-	Vaihingen              Group = "Vaihingen"
 )
 
-var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen, Vaihingen}
+var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
 func (g *Group) UnmarshalJSON(data []byte) error {
 	var group string
