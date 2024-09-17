@@ -73,16 +73,16 @@ func (h *RestaurantHandler) UpdateRestaurant(ctx echo.Context) error {
 	id := ctx.QueryParam("id")
 	clear, _ := strconv.ParseBool(ctx.QueryParam("clear"))
 	restaurant, ok := h.restaurants[id]
-	if !ok && !clear {
-		go h.service.UpdateAll()
-	} else if !ok && clear {
-		h.service.ClearMenus()
-	} else if ok && !clear {
-		go h.service.UpdateSingle(restaurant)
-	} else if ok && clear {
+	if !ok {
+		if clear {
+			h.service.ClearMenus()
+		} else {
+			go h.service.UpdateAll()
+		}
+	} else if clear {
 		h.service.ClearMenu(restaurant)
 	} else {
-		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
+		go h.service.UpdateSingle(restaurant)
 	}
 	return ctx.NoContent(http.StatusOK)
 }

@@ -1,7 +1,6 @@
 package fetch
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,7 +18,10 @@ func init() {
 }
 
 func DownloadFile(id string, fullUrl string, httpVersion config.HTTPVersion) (string, error) {
-	fileURL, _ := url.Parse(fullUrl)
+	fileURL, err := url.Parse(fullUrl)
+	if err != nil {
+		return "", err
+	}
 	ext := filepath.Ext(fileURL.Path)
 	fileName := filepath.Join(DownloadLocation, id+ext)
 	file, err := os.Create(fileName)
@@ -28,26 +30,16 @@ func DownloadFile(id string, fullUrl string, httpVersion config.HTTPVersion) (st
 	}
 	defer file.Close()
 
-	req, _ := http.NewRequest("GET", fullUrl, nil)
-	req.Header.Set("User-Agent", "Custom Agent")
-	client := http.DefaultClient
-	if httpVersion == config.HTTP1_0 || httpVersion == config.HTTP1_1 {
-		client = &http.Client{
-			Transport: &http.Transport{
-				TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},
-			},
-		}
-	}
-	resp, err := client.Do(req)
+	res, err := http.Get(fullUrl)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("no 200 html status, status: %d", resp.StatusCode)
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("no 200 html status, status: %d", res.StatusCode)
 	}
 
-	_, err = io.Copy(file, resp.Body)
+	_, err = io.Copy(file, res.Body)
 	if err != nil {
 		return "", err
 	}
