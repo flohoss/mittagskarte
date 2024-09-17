@@ -26,6 +26,7 @@ services:
       - net
 
   redis:
+    profiles: [ old ]
     container_name: redis
     image: redis:${V_REDIS}-alpine
     command: redis-server --save 60 1 --loglevel warning
@@ -37,6 +38,7 @@ services:
       - net
 
   ocrserver:
+    profiles: [ old ]
     container_name: ocrserver
     image: otiai10/ocrserver
     ports:
@@ -45,6 +47,7 @@ services:
       - net
 
   docd:
+    profiles: [ old ]
     container_name: docd
     image: sajari/docd:1
     command: -addr 0.0.0.0:8888
@@ -54,6 +57,7 @@ services:
       - net
 
   frontend:
+    profiles: [ old ]
     container_name: frontend
     image: node:${V_NODE}
     working_dir: /app/web
@@ -66,7 +70,7 @@ services:
       - net
 
   mittag:
-    profiles: [build]
+    profiles: [ build ]
     image: ${CURRENT_IMAGE}
     build:
       context: .
@@ -79,7 +83,7 @@ services:
         - APP_VERSION=${CI_COMMIT_TAG}
 
   go:
-    profiles: [install]
+    profiles: [ install ]
     image: golang:${V_GOLANG}
     working_dir: /app
     entrypoint: go
@@ -87,7 +91,7 @@ services:
       - .:/app/
 
   yarn:
-    profiles: [install]
+    profiles: [ install ]
     image: node:${V_NODE}
     entrypoint: yarn
     working_dir: /app/web

@@ -19,7 +19,7 @@
       "attribute": "string",
       "prefix": "string"
     },
-    "navigate": [
+    "navigate":[
       {
         "fixed": "string",
         "regex": "string",

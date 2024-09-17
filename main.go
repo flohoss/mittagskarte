@@ -1,27 +1,21 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 
-	"gitlab.unjx.de/flohoss/mittag/internal/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/handler"
-	"gitlab.unjx.de/flohoss/mittag/internal/imdb"
 	"gitlab.unjx.de/flohoss/mittag/internal/logger"
-	"gitlab.unjx.de/flohoss/mittag/internal/router"
-	"gitlab.unjx.de/flohoss/mittag/internal/service"
+	"gitlab.unjx.de/flohoss/mittag/services"
 )
 
-//	@title			Mittagstisch API
-//	@version		1.0
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-//	@host			mittag.unjx.de
-//	@schemes		https
-//	@BasePath		/api/v1
+// @title			Mittagstisch API
+// @version		1.0
+// @license.name	Apache 2.0
+// @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+// @host			mittag.unjx.de
+// @schemes		https
+// @BasePath		/api/v1
 func main() {
 	env, err := env.Parse()
 	if err != nil {
@@ -30,15 +24,7 @@ func main() {
 	}
 	slog.SetDefault(logger.New(env.LogLevel))
 
-	config := config.New()
-	imdb := imdb.New(env.RedisHost, env.RedisPort)
-	service := service.New(config, imdb, env)
-	handler := handler.New(config.Restaurants, service, env)
-	router := router.New(handler, env)
-
-	slog.Info("starting server", "url", fmt.Sprintf("http://localhost:%d", env.Port))
-	if err := router.Echo.Start(fmt.Sprintf(":%d", env.Port)); err != http.ErrServerClosed {
-		slog.Error("cannot start server", "err", err)
-		os.Exit(1)
-	}
+	c := services.NewConfigParser()
+	r := services.NewRestaurantHandler(c.Restaurants)
+	defer r.Close()
 }
