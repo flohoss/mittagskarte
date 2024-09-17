@@ -27,9 +27,12 @@ RUN apk add figlet
 RUN figlet Mittag > logo.txt
 
 FROM debian:${V_DEBIAN}-slim AS final
-RUN apt-get update -qq
-# Image to webp convertion
-RUN apt-get install -y libwebp-dev ca-certificates
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libwebp-dev ca-certificates && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN update-ca-certificates
 
 # Mittag
 WORKDIR /app
