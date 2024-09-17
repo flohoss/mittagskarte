@@ -10,11 +10,9 @@
   "phone": "+49 7022 62306",
   "group": "Nürtingen",
   "parse": {
-    "hhtp_version": "HTTP/2.0",
-    "description": { "regex": "(%month%\\s?\\d{1,4})" },
-    "navigate": [
+    "navigate":[
       {
-        "jquery": "td:contains('%month%') > a",
+        "jquery": "//a[contains(text(), 'Speisekarte')]",
         "attribute": "href",
         "prefix": "https://www.gasthauslinde.de"
       }

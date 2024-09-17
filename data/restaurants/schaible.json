@@ -1,0 +1,33 @@
+{
+  "id": "schaible",
+  "icon": "fa-solid fa-cow",
+  "price": 1,
+  "name": "Schaible",
+  "description": "Metzgerei",
+  "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
+  "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
+  "rest_days": ["Sunday", "Monday", "Saturday"],
+  "phone": "+49 711 8104528",
+  "group": "Feuerbach",
+  "parse": {
+    "hide": ["document.querySelector('#cookie-bar').style.display = 'none';"],
+    "navigate": [
+      {
+        "jquery": "//a[contains(text(), 'Schaible')]",
+        "attribute": "href",
+        "prefix": "https://www.feuerbach.de"
+      }
+    ],
+    "scan": {
+      "crop": {
+        "width": 730,
+        "height": 450,
+        "offset_x": 22,
+        "offset_y": 180
+      },
+      "chrome": {
+        "width": 768
+      }
+    }
+  }
+}

@@ -10,13 +10,9 @@
   "phone": "+49 711 36591400",
   "group": "Feuerbach",
   "parse": {
-    "http_version": "HTTP/2.0",
-    "description": {
-      "regex": "(\\d{1,2}\\.\\s?-\\s?(?:\\d{1,2}\\.){2}\\d{4})"
-    },
-    "navigate": [
+    "navigate":[
       {
-        "jquery": "a:contains('Download pdf')",
+        "jquery": "//a[contains(text(), 'Download pdf')]",
         "attribute": "href",
         "prefix": "https://www.hoflieferant-munz.de/"
       }

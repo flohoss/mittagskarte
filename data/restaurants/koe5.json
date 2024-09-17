@@ -1,0 +1,25 @@
+{
+  "id": "koe5",
+  "icon": "fa-solid fa-utensils",
+  "price": 1,
+  "name": "KÖ5",
+  "description": "Deutsch",
+  "page_url": "https://koe5.de/",
+  "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
+  "rest_days": ["Sunday", "Friday", "Saturday"],
+  "phone": "+49 711 99772624",
+  "group": "Fasanenhof",
+  "parse": {
+    "scan": {
+      "crop": {
+        "width": 940,
+        "height": 650,
+        "offset_x": 20,
+        "offset_y": 950
+      },
+      "chrome": {
+        "width": 1000
+      }
+    }
+  }
+}

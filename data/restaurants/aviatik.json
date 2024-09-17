@@ -7,8 +7,5 @@
   "address": "Vor Dem Lauch 20, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 711 7255601",
-  "group": "Fasanenhof",
-  "parse": {
-    "manually": true
-  }
+  "group": "Fasanenhof"
 }

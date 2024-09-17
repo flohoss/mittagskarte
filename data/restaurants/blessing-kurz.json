@@ -1,0 +1,25 @@
+{
+  "id": "blessing-kurz",
+  "icon": "fa-solid fa-cow",
+  "price": 1,
+  "name": "Blessing-Kurz",
+  "description": "Metzgerei",
+  "page_url": "https://blessing-kurz.de/Tagesessen/",
+  "address": "Unterdorfstraße 1, 73257 Köngen",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 7024 989895",
+  "group": "Köngen",
+  "parse": {
+    "scan": {
+      "crop": {
+        "width": 991,
+        "height": 564,
+        "offset_x": 0,
+        "offset_y": 748
+      },
+      "chrome": {
+        "width": 991
+      }
+    }
+  }
+}
