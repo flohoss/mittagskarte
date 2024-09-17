@@ -39,7 +39,7 @@ const menu = ref(false);
     <div class="container" v-if="restaurant.name != ''">
       <RestaurantHeader :restaurant="restaurant" @openMenu="menu = true" />
       <WeeklyFood
-        v-if="restaurant.menu.food.length > 0"
+        v-if="restaurant.menu.food && restaurant.menu.food.length > 0"
         :restaurant="restaurant"
       />
       <div
