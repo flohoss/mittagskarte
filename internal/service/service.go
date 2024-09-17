@@ -25,7 +25,7 @@ func New(config *config.Config, imdb *imdb.IMDb, env *env.Env) *UpdateService {
 		env:    env,
 	}
 	u.RestoreMenus()
-	u.cron.AddFunc("0,30 10,11 * * *", u.UpdateAll)
+	u.cron.AddFunc("0 11,12 * * *", u.UpdateAll)
 	u.cron.AddFunc("0 0 * * 0", u.ClearMenus)
 	u.cron.Start()
 	return u
