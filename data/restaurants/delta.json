@@ -10,11 +10,9 @@
   "phone": "+49 7024 466833",
   "group": "Köngen",
   "parse": {
-    "http_version": "HTTP/1.1",
-    "description": { "fixed": "Mittagsangebot" },
-    "navigate": [
+    "navigate":[
       {
-        "jquery": "div.cc-m-hgrid-column:contains('Mittagskarte') a.cc-m-download-link",
+        "jquery": "//a[contains(text(), 'Download')]",
         "attribute": "href",
         "prefix": "https://www.delta-koengen.de"
       }

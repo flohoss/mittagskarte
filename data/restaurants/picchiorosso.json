@@ -1,0 +1,30 @@
+{
+  "id": "picchiorosso",
+  "icon": "fa-solid fa-pizza-slice",
+  "price": 2,
+  "name": "Picchiorosso",
+  "description": "Italienisch",
+  "page_url": "https://picchiorosso.de/tageskarte/",
+  "address": "Zettachring 12, 70567 Stuttgart-Fasanenhof",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 711 7156767",
+  "group": "Fasanenhof",
+  "parse": {
+    "hide": [
+      "document.querySelector('div.avia-cookie-consent').style.display = 'none';",
+      "document.querySelector('#after_section_1 > div > div > div > div > div.avia-button-wrap.avia-button-center.avia-builder-el-8.el_after_av_hr.el_before_av_button > a').style.display = 'none';",
+      "document.querySelector('#after_section_1 > div > div > div > div > div.avia-button-wrap.avia-button-center.avia-builder-el-9.el_after_av_button.el_before_av_heading > a').style.display = 'none';"
+    ],
+    "scan": {
+      "crop": {
+        "width": 780,
+        "height": 1820,
+        "offset_x": 330,
+        "offset_y": 350
+      },
+      "chrome": {
+        "width": 1400
+      }
+    }
+  }
+}
