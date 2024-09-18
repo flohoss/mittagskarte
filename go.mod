@@ -6,10 +6,10 @@ require (
 	code.sajari.com/docconv v1.3.8
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/caarlos0/env/v8 v8.0.0
-	github.com/chromedp/chromedp v0.10.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/gen2brain/go-fitz v1.23.7
 	github.com/go-playground/validator/v10 v10.22.1
+	github.com/go-rod/rod v0.116.2
 	github.com/goodsign/monday v1.0.2
 	github.com/kolesa-team/go-webp v1.0.4
 	github.com/labstack/echo/v4 v4.12.0
@@ -18,6 +18,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
+	github.com/ysmood/gson v0.7.3
 	golang.org/x/text v0.18.0
 	gopkg.in/gographics/imagick.v2 v2.7.0
 )
@@ -26,8 +27,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/chromedp/cdproto v0.0.0-20240801214329-3f85d328b335 // indirect
-	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
@@ -38,9 +37,6 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/gobwas/httphead v0.1.0 // indirect
-	github.com/gobwas/pool v0.2.1 // indirect
-	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
@@ -51,6 +47,10 @@ require (
 	github.com/swaggo/files/v2 v2.0.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	github.com/ysmood/fetchup v0.2.3 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/got v0.40.0 // indirect
+	github.com/ysmood/leakless v0.9.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
