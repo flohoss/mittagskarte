@@ -83,7 +83,6 @@ type Restaurant struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	PageUrl     string      `json:"page_url"`
-	FinalUrl    string      `json:"final_url"`
 	Address     string      `json:"address"`
 	RestDays    []DayOfWeek `json:"rest_days"`
 	Phone       string      `json:"phone"`
@@ -93,10 +92,10 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	Hide     []string   `json:"hide"`
-	Navigate []Selector `json:"navigate"`
-	IsFile   bool       `json:"is_file"`
-	Scan     Scan       `json:"scan"`
+	Click    []string `json:"click"`
+	Navigate []string `json:"navigate"`
+	IsFile   bool     `json:"is_file"`
+	Scan     Scan     `json:"scan"`
 }
 
 type Scan struct {
@@ -105,7 +104,7 @@ type Scan struct {
 }
 
 type Chrome struct {
-	Width int64 `json:"width"`
+	Width int `json:"width"`
 }
 
 type Crop struct {
@@ -113,12 +112,6 @@ type Crop struct {
 	Height  uint `json:"height"`
 	OffsetX int  `json:"offset_x"`
 	OffsetY int  `json:"offset_y"`
-}
-
-type Selector struct {
-	JQuery    string `json:"jquery"`
-	Attribute string `json:"attribute"`
-	Prefix    string `json:"prefix"`
 }
 
 func (g *Group) UnmarshalJSON(data []byte) error {
