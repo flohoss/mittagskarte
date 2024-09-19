@@ -11,6 +11,7 @@ import (
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/go-rod/rod/lib/utils"
+	"gitlab.unjx.de/flohoss/mittag/pgk/fetch"
 )
 
 type SearchBy string
@@ -103,17 +104,19 @@ func (cdp *Scraper) Screenshot(url string, filePath string, parse Parse) error {
 }
 
 func (cdp *Scraper) DownloadFile(url string, filePath string, parse Parse) error {
-	page := cdp.browser.MustPage(url).Timeout(30 * time.Second).MustWaitStable()
+	page := cdp.browser.MustPage(url).Timeout(2 * time.Minute).MustWaitStable()
+	info := page.MustInfo()
 
 	for _, n := range parse.Navigate {
-		slog.Debug("navigating", "url", page.MustInfo().URL)
-		page.MustSearch(n.Search).MustClick().MustWaitStable()
-	}
-
-	wait := cdp.browser.MustWaitDownload()
-
-	if err := utils.OutputFile(filePath, wait); err != nil {
-		return err
+		if n.Attribute != "" {
+			slog.Debug("downloading file", "url", info.URL)
+			link := selectTheRightMethod(page, n).MustAttribute(n.Attribute)
+			fetch.DownloadFile(filePath, fmt.Sprintf("%s%s", n.Prefix, *link))
+		} else {
+			slog.Debug("navigating", "url", info.URL)
+			selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1)
+			page.MustWaitStable()
+		}
 	}
 	return nil
 }

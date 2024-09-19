@@ -6,6 +6,7 @@ require (
 	code.sajari.com/docconv v1.3.8
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/caarlos0/env/v8 v8.0.0
+	github.com/chai2010/webp v1.1.1
 	github.com/emersion/go-imap v1.2.1
 	github.com/gen2brain/go-fitz v1.23.7
 	github.com/go-playground/validator/v10 v10.22.1
@@ -18,7 +19,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
-	github.com/ysmood/gson v0.7.3
 	golang.org/x/text v0.18.0
 	gopkg.in/gographics/imagick.v2 v2.7.0
 )
@@ -50,6 +50,7 @@ require (
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.40.0 // indirect
+	github.com/ysmood/gson v0.7.3 // indirect
 	github.com/ysmood/leakless v0.9.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
