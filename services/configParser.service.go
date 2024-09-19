@@ -13,20 +13,22 @@ type DayOfWeek string
 type Group string
 
 const (
-	configLocation         string    = "data/restaurants/"
-	Sunday                 DayOfWeek = "Sunday"
-	Monday                 DayOfWeek = "Monday"
-	Tuesday                DayOfWeek = "Tuesday"
-	Wednesday              DayOfWeek = "Wednesday"
-	Thursday               DayOfWeek = "Thursday"
-	Friday                 DayOfWeek = "Friday"
-	Saturday               DayOfWeek = "Saturday"
-	Degerloch              Group     = "Degerloch"
-	Fasanenhof             Group     = "Fasanenhof"
-	Feuerbach              Group     = "Feuerbach"
-	Koengen                Group     = "Köngen"
-	LeinfeldenEchterdingen Group     = "Leinfelden-Echterdingen"
-	Nuertingen             Group     = "Nürtingen"
+	configLocation string = "data/restaurants/"
+
+	Sunday    DayOfWeek = "Sunday"
+	Monday    DayOfWeek = "Monday"
+	Tuesday   DayOfWeek = "Tuesday"
+	Wednesday DayOfWeek = "Wednesday"
+	Thursday  DayOfWeek = "Thursday"
+	Friday    DayOfWeek = "Friday"
+	Saturday  DayOfWeek = "Saturday"
+
+	Degerloch              Group = "Degerloch"
+	Fasanenhof             Group = "Fasanenhof"
+	Feuerbach              Group = "Feuerbach"
+	Koengen                Group = "Köngen"
+	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
+	Nuertingen             Group = "Nürtingen"
 )
 
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
@@ -92,19 +94,24 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	Click    []string `json:"click"`
-	Navigate []string `json:"navigate"`
-	IsFile   bool     `json:"is_file"`
-	Scan     Scan     `json:"scan"`
+	Navigate []Selector `json:"navigate"`
+	IsFile   bool       `json:"is_file"`
+	Scan     Scan       `json:"scan"`
+}
+
+type Selector struct {
+	SearchBy  SearchBy `json:"search_by"`
+	Search    string   `json:"search"`
+	Regex     string   `json:"regex"`
+	Attribute string   `json:"attribute"`
+	Prefix    string   `json:"prefix"`
 }
 
 type Scan struct {
-	Crop   Crop   `json:"crop"`
-	Chrome Chrome `json:"chrome"`
-}
-
-type Chrome struct {
-	Width int `json:"width"`
+	Crop          Crop    `json:"crop"`
+	FixedTop      float64 `json:"fixed_top"`
+	FixedBottom   float64 `json:"fixed_bottom"`
+	ViewportWidth int     `json:"viewport_width"`
 }
 
 type Crop struct {

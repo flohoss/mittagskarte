@@ -1,7 +1,7 @@
 package services
 
 import (
-	"os"
+	"log/slog"
 
 	"gopkg.in/gographics/imagick.v2/imagick"
 )
@@ -41,12 +41,13 @@ func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) erro
 	if err := ic.mw.ReadImage(oldFilePath); err != nil {
 		return err
 	}
+	slog.Debug("size of image", "width", ic.mw.GetImageWidth(), "height", ic.mw.GetImageHeight())
 	if err := ic.mw.SetImageFormat("webp"); err != nil {
 		return err
 	}
 	if err := ic.mw.WriteImage(newFilePath); err != nil {
 		return err
 	}
-	os.Remove(oldFilePath)
+	//os.Remove(oldFilePath)
 	return nil
 }

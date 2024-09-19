@@ -13,7 +13,7 @@ const (
 )
 
 func init() {
-	os.MkdirAll(downloadLocation, os.ModePerm)
+	os.MkdirAll(rawLocation, os.ModePerm)
 }
 
 type RestaurantHandler struct {
