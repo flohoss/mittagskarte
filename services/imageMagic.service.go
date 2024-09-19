@@ -48,6 +48,5 @@ func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) erro
 	if err := ic.mw.WriteImage(newFilePath); err != nil {
 		return err
 	}
-	//os.Remove(oldFilePath)
 	return nil
 }
