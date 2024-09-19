@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -31,7 +32,7 @@ func NewScraper() *Scraper {
 		Logger(utils.Log(func(args ...interface{}) {
 			switch v := args[0].(type) {
 			case *cdp.Request:
-				slog.Debug("Request", "ID", v.ID, "method", v.Method, "url", v.Params)
+				slog.Debug(fmt.Sprintf("%d request: ", v.ID), "method", v.Method, "params", v.Params)
 			}
 		})).
 		Start(cdp.MustConnectWS(launcher.New().MustLaunch()))
