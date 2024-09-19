@@ -10,9 +10,11 @@
   "phone": "+49 711 7944180",
   "group": "Leinfelden-Echterdingen",
   "parse": {
-    "navigate":[
+    "pdf": true,
+    "navigate": [
       {
-        "jquery": "//a[contains(text(), 'Zum Mittagsangebot')]",
+        "search_by": "x-path",
+        "search": "//a[contains(text(), 'Zum Mittagsangebot')]",
         "attribute": "href",
         "prefix": "https://paulaner-le.de"
       }

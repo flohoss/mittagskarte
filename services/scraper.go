@@ -33,7 +33,7 @@ func NewScraper() *Scraper {
 		Logger(utils.Log(func(args ...interface{}) {
 			switch v := args[0].(type) {
 			case *cdp.Request:
-				slog.Debug(fmt.Sprintf("%d request: ", v.ID), "method", v.Method, "params", v.Params)
+				slog.Debug(fmt.Sprintf("%3d", v.ID), "method", v.Method, "params", v.Params)
 			}
 		})).
 		Start(cdp.MustConnectWS(launcher.New().MustLaunch()))
@@ -77,13 +77,31 @@ func selectTheRightMethod(page *rod.Page, selector Selector) *rod.Element {
 }
 
 func (cdp *Scraper) Screenshot(url string, filePath string, parse Parse) error {
-	page := cdp.browser.MustPage(url).Timeout(2 * time.Minute).MustWaitStable()
-	info := page.MustInfo()
+	opts := proto.TargetCreateTarget{
+		URL: url,
+	}
+	page, err := cdp.browser.Page(opts)
+	if err != nil {
+		return fmt.Errorf("failed to get page: %w", err)
+	}
+
+	if err := page.Timeout(2 * time.Minute).WaitStable(5 * time.Second); err != nil {
+		return fmt.Errorf("failed to wait for page stability: %w", err)
+	}
+
+	info, err := page.Info()
+	if err != nil {
+		return fmt.Errorf("failed to get page info: %w", err)
+	}
 
 	for _, n := range parse.Navigate {
 		slog.Debug("navigating", "url", info.URL)
-		selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1)
-		page.MustWaitStable()
+		if err := selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1); err != nil {
+			return fmt.Errorf("failed to click element: %w", err)
+		}
+		if err := page.WaitStable(5 * time.Second); err != nil {
+			return fmt.Errorf("failed to wait for page stability after click: %w", err)
+		}
 	}
 
 	slog.Debug("making screenshot", "url", info.URL)
@@ -93,29 +111,55 @@ func (cdp *Scraper) Screenshot(url string, filePath string, parse Parse) error {
 		FixedBottom: parse.Scan.FixedBottom,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to take screenshot: %w", err)
 	}
 
 	slog.Debug("saving screenshot", "filePath", filePath)
 	if err := utils.OutputFile(filePath, img); err != nil {
-		return err
+		return fmt.Errorf("failed to save screenshot to file: %w", err)
 	}
 	return nil
 }
 
 func (cdp *Scraper) DownloadFile(url string, filePath string, parse Parse) error {
-	page := cdp.browser.MustPage(url).Timeout(2 * time.Minute).MustWaitStable()
-	info := page.MustInfo()
+	opts := proto.TargetCreateTarget{
+		URL: url,
+	}
+
+	page, err := cdp.browser.Page(opts)
+	if err != nil {
+		return fmt.Errorf("failed to get page: %w", err)
+	}
+
+	if err := page.Timeout(2 * time.Minute).WaitStable(5 * time.Second); err != nil {
+		return fmt.Errorf("failed to wait for page stability: %w", err)
+	}
+
+	info, err := page.Info()
+	if err != nil {
+		return fmt.Errorf("failed to get page info: %w", err)
+	}
 
 	for _, n := range parse.Navigate {
 		if n.Attribute != "" {
 			slog.Debug("downloading file", "url", info.URL)
-			link := selectTheRightMethod(page, n).MustAttribute(n.Attribute)
-			fetch.DownloadFile(filePath, fmt.Sprintf("%s%s", n.Prefix, *link))
+			attrValue, err := selectTheRightMethod(page, n).Attribute(n.Attribute)
+			if err != nil {
+				return fmt.Errorf("failed to get attribute %s: %w", n.Attribute, err)
+			}
+
+			fullURL := fmt.Sprintf("%s%s", n.Prefix, *attrValue)
+			if err := fetch.DownloadFile(filePath, fullURL); err != nil {
+				return fmt.Errorf("failed to download file from URL %s: %w", fullURL, err)
+			}
 		} else {
 			slog.Debug("navigating", "url", info.URL)
-			selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1)
-			page.MustWaitStable()
+			if err := selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1); err != nil {
+				return fmt.Errorf("failed to click element: %w", err)
+			}
+			if err := page.WaitStable(5 * time.Second); err != nil {
+				return fmt.Errorf("failed to wait for page stability after click: %w", err)
+			}
 		}
 	}
 	return nil
