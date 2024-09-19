@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 golang:${V_GOLANG}
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https ca-certificates curl gnupg libmagickwand-dev
+    apt-transport-https ca-certificates curl gnupg libmagickwand-dev libmagickcore-dev imagemagick
 
 RUN curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-archive-keyring.gpg
 RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-archive-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
