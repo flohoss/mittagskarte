@@ -15,9 +15,9 @@
       "fixed_top": 158,
       "viewport_width": 1400,
       "crop": {
-        "width": 1170,
+        "width": 900,
         "height": 2010,
-        "offset_x": 115,
+        "offset_x": 165,
         "offset_y": 2212
       }
     }
