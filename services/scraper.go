@@ -85,7 +85,7 @@ func (cdp *Scraper) Screenshot(url string, filePath string, parse Parse) error {
 		return fmt.Errorf("failed to get page: %w", err)
 	}
 
-	if err := page.Timeout(2 * time.Minute).WaitStable(5 * time.Second); err != nil {
+	if err := page.Timeout(1 * time.Minute).WaitStable(5 * time.Second); err != nil {
 		return fmt.Errorf("failed to wait for page stability: %w", err)
 	}
 
@@ -131,7 +131,7 @@ func (cdp *Scraper) DownloadFile(url string, filePath string, parse Parse) error
 		return fmt.Errorf("failed to get page: %w", err)
 	}
 
-	if err := page.Timeout(2 * time.Minute).WaitStable(5 * time.Second); err != nil {
+	if err := page.Timeout(1 * time.Minute).WaitStable(5 * time.Second); err != nil {
 		return fmt.Errorf("failed to wait for page stability: %w", err)
 	}
 

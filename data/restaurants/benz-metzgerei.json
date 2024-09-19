@@ -10,7 +10,13 @@
   "phone": "+49 7024 81488",
   "group": "Köngen",
   "parse": {
-    "navigate":[{ "jquery": ".mb-0 > p:nth-child(4) > a:nth-child(1)", "attribute": "href" }],
+    "navigate": [
+      {
+        "search_by": "css",
+        "search": ".mb-0 > p:nth-child(4) > a:nth-child(1)",
+        "attribute": "href"
+      }
+    ],
     "is_file": true
   }
 }
