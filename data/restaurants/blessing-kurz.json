@@ -10,15 +10,14 @@
   "phone": "+49 7024 989895",
   "group": "Köngen",
   "parse": {
+    "navigate": [{ "search_by": "regex", "search": "button", "regex": "BESTÄTIGEN" }],
     "scan": {
+      "viewport_width": 991,
       "crop": {
         "width": 991,
         "height": 564,
         "offset_x": 0,
         "offset_y": 748
-      },
-      "chrome": {
-        "width": 991
       }
     }
   }

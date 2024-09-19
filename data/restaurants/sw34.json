@@ -10,15 +10,15 @@
   "phone": "+49 711 62042252",
   "group": "Fasanenhof",
   "parse": {
+    "navigate": [{ "search_by": "name", "search": "Nur notwendige Cookies verwenden" }],
     "scan": {
+      "fixed_top": 158,
+      "viewport_width": 1400,
       "crop": {
         "width": 1170,
-        "height": 2100,
+        "height": 2010,
         "offset_x": 115,
-        "offset_y": 2280
-      },
-      "chrome": {
-        "width": 1400
+        "offset_y": 2212
       }
     }
   }
