@@ -49,21 +49,6 @@ func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) erro
 	return nil
 }
 
-func (ic *ImageMagic) Negate(filePath string) error {
-	mw := imagick.NewMagickWand()
-	defer mw.Destroy()
-	if err := mw.ReadImage(filePath); err != nil {
-		return err
-	}
-	if err := mw.NegateImage(true); err != nil {
-		return err
-	}
-	if err := mw.WriteImage(filePath); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (ic *ImageMagic) Trim(filePath string) error {
 	mw := imagick.NewMagickWand()
 	defer mw.Destroy()

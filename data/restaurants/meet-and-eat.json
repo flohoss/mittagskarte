@@ -10,10 +10,11 @@
   "phone": "+49 157 30664255",
   "group": "Fasanenhof",
   "parse": {
-    "navigate":[
+    "navigate": [
       {
-        "jquery": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']",
-        "attribute": "src"
+        "search_by": "css",
+        "search": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']",
+        "attribute":"src"
       }
     ],
     "is_file": true

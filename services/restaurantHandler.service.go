@@ -84,7 +84,7 @@ func (r *RestaurantHandler) getImageUrls() {
 		}
 
 		if err := r.im.Trim(filePath); err != nil {
-			slog.Error("cannot remove white", "id", id, "err", err)
+			slog.Error("cannot trim image", "id", id, "err", err)
 			continue
 		}
 		r.restaurants[id].ImageUrl = filePath
