@@ -81,6 +81,7 @@ func (cdp *Scraper) Screenshot(url string, filePath string, parse Parse) error {
 	for _, n := range parse.Navigate {
 		slog.Debug("navigating", "url", info.URL)
 		selectTheRightMethod(page, n).Click(proto.InputMouseButtonLeft, 1)
+		page.MustWaitStable()
 	}
 
 	slog.Debug("making screenshot", "url", info.URL)

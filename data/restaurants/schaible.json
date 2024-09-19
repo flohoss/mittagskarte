@@ -10,23 +10,17 @@
   "phone": "+49 711 8104528",
   "group": "Feuerbach",
   "parse": {
-    "hide": ["document.querySelector('#cookie-bar').style.display = 'none';"],
     "navigate": [
-      {
-        "jquery": "//a[contains(text(), 'Schaible')]",
-        "attribute": "href",
-        "prefix": "https://www.feuerbach.de"
-      }
+      { "search_by": "css", "search": "#cookie-bar" },
+      { "search_by": "x-path", "search": "//a[contains(text(), 'Schaible')]" }
     ],
     "scan": {
+      "viewport_width": 768,
       "crop": {
-        "width": 730,
+        "width": 705,
         "height": 450,
         "offset_x": 22,
-        "offset_y": 180
-      },
-      "chrome": {
-        "width": 768
+        "offset_y": 205
       }
     }
   }

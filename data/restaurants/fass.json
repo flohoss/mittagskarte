@@ -11,14 +11,13 @@
   "group": "Nürtingen",
   "parse": {
     "scan": {
+      "viewport_width": 1000,
+      "fixed_top": 108,
       "crop": {
         "width": 1000,
-        "height": 1320,
+        "height": 1340,
         "offset_x": 0,
         "offset_y": 1130
-      },
-      "chrome": {
-        "width": 1000
       }
     }
   }
