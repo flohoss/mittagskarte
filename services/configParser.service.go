@@ -96,6 +96,7 @@ type Restaurant struct {
 type Parse struct {
 	Navigate []Selector `json:"navigate"`
 	IsFile   bool       `json:"is_file"`
+	PDF      bool       `json:"pdf"`
 	Scan     Scan       `json:"scan"`
 }
 

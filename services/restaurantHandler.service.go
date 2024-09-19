@@ -31,7 +31,9 @@ func NewRestaurantHandler(restaurants map[string]*Restaurant) *RestaurantHandler
 }
 
 func (r *RestaurantHandler) Close() {
-	r.im.Close()
+	if r.im != nil {
+		r.im.Close()
+	}
 }
 
 func (r *RestaurantHandler) getImageUrls() {
@@ -56,29 +58,35 @@ func (r *RestaurantHandler) getImageUrls() {
 				cdp.Close()
 				continue
 			}
-			if err := r.im.ConvertToWebp(rawPath, filePath); err != nil {
-				slog.Error("cannot convert to webp", "id", id, "err", err)
-				cdp.Close()
-				continue
-			}
 		} else {
 			if err := cdp.Screenshot(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
 				slog.Error("cannot take screenshot", "id", id, "err", err)
 				cdp.Close()
 				continue
 			}
-			if err := r.im.ConvertToWebp(rawPath, filePath); err != nil {
-				slog.Error("cannot convert to webp", "id", id, "err", err)
-				cdp.Close()
-				continue
-			}
-			if err := r.im.Crop(filePath, r.restaurants[id].Parse.Scan.Crop); err != nil {
+			if err := r.im.Crop(rawPath, r.restaurants[id].Parse.Scan.Crop); err != nil {
 				slog.Error("cannot crop image", "id", id, "err", err)
 				cdp.Close()
 				continue
 			}
 		}
 		cdp.Close()
+
+		var err error
+		if r.restaurants[id].Parse.PDF {
+			err = convertPdfToWebp(rawPath, filePath)
+		} else {
+			err = r.im.ConvertToWebp(rawPath, filePath)
+		}
+		if err != nil {
+			slog.Error("cannot convert to webp", "id", id, "err", err)
+			continue
+		}
+
+		if err := r.im.Trim(filePath); err != nil {
+			slog.Error("cannot remove white", "id", id, "err", err)
+			continue
+		}
 		r.restaurants[id].ImageUrl = filePath
 	}
 }

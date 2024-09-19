@@ -1,21 +1,15 @@
 package services
 
 import (
-	"log/slog"
-
 	"gopkg.in/gographics/imagick.v2/imagick"
 )
 
 type ImageMagic struct {
-	mw *imagick.MagickWand
 }
 
 func NewimageMagic() *ImageMagic {
 	imagick.Initialize()
-	mw := imagick.NewMagickWand()
-	return &ImageMagic{
-		mw: mw,
-	}
+	return &ImageMagic{}
 }
 
 func (ic *ImageMagic) Close() {
@@ -25,27 +19,61 @@ func (ic *ImageMagic) Close() {
 }
 
 func (ic *ImageMagic) Crop(filePath string, crop Crop) error {
-	if err := ic.mw.ReadImage(filePath); err != nil {
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(filePath); err != nil {
 		return err
 	}
-	if err := ic.mw.CropImage(crop.Width, crop.Height, crop.OffsetX, crop.OffsetY); err != nil {
+	if err := mw.CropImage(crop.Width, crop.Height, crop.OffsetX, crop.OffsetY); err != nil {
 		return err
 	}
-	if err := ic.mw.WriteImage(filePath); err != nil {
+	if err := mw.WriteImage(filePath); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) error {
-	if err := ic.mw.ReadImage(oldFilePath); err != nil {
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(oldFilePath); err != nil {
 		return err
 	}
-	slog.Debug("size of image", "width", ic.mw.GetImageWidth(), "height", ic.mw.GetImageHeight())
-	if err := ic.mw.SetImageFormat("webp"); err != nil {
+	if err := mw.SetImageFormat("webp"); err != nil {
 		return err
 	}
-	if err := ic.mw.WriteImage(newFilePath); err != nil {
+	mw.SetCompressionQuality(100)
+	if err := mw.WriteImage(newFilePath); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ic *ImageMagic) Negate(filePath string) error {
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(filePath); err != nil {
+		return err
+	}
+	if err := mw.NegateImage(true); err != nil {
+		return err
+	}
+	if err := mw.WriteImage(filePath); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ic *ImageMagic) Trim(filePath string) error {
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(filePath); err != nil {
+		return err
+	}
+	if err := mw.TrimImage(0); err != nil {
+		return err
+	}
+	if err := mw.WriteImage(filePath); err != nil {
 		return err
 	}
 	return nil
