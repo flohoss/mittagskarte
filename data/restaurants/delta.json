@@ -10,9 +10,11 @@
   "phone": "+49 7024 466833",
   "group": "Köngen",
   "parse": {
-    "navigate":[
+    "pdf": true,
+    "navigate": [
       {
-        "jquery": "//a[contains(text(), 'Download')]",
+        "search_by": "css",
+        "search": "#cc-m-12173753360 > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > a:nth-child(1)",
         "attribute": "href",
         "prefix": "https://www.delta-koengen.de"
       }

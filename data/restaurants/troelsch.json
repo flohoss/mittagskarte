@@ -10,9 +10,11 @@
   "phone": "+49 711 85680030",
   "group": "Feuerbach",
   "parse": {
-    "navigate":[
+    "pdf": true,
+    "navigate": [
       {
-        "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
+        "search_by": "x-path",
+        "search": "//*[contains(text(), 'Feuerbach')]//a[contains(text(), 'Mittagskarte')]",
         "attribute": "href"
       }
     ],
