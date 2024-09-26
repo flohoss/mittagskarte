@@ -51,14 +51,20 @@ func (r *Mittag) getImageUrls() {
 		filePath := downloadLocation + id + ".webp"
 		if _, err := os.Stat(rawPath); os.IsNotExist(err) {
 			cdp := NewScraper()
+			err := cdp.navigateToFirstPage(r.restaurants[id].PageUrl)
+			if err != nil {
+				slog.Error("cannot navigate to first page", "id", id, "err", err)
+				cdp.Close()
+				continue
+			}
 			if r.restaurants[id].Parse.IsFile {
-				if err := cdp.DownloadFile(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
+				if err := cdp.downloadFile(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
 					slog.Error("cannot handle file", "id", id, "err", err)
 					cdp.Close()
 					continue
 				}
 			} else {
-				if err := cdp.Screenshot(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
+				if err := cdp.screenshot(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
 					slog.Error("cannot take screenshot", "id", id, "err", err)
 					cdp.Close()
 					continue
