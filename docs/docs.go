@@ -27,49 +27,16 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Get all restaurants",
                 "responses": {
                     "200": {
                         "description": "ok",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/handler.Restaurant"
+                                "$ref": "#/definitions/services.Restaurant"
                             }
                         }
-                    }
-                }
-            },
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "restaurants"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003cAdd access token here\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Restaurant ID",
-                        "name": "id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Clear menu?",
-                        "name": "clear",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok"
                     }
                 }
             }
@@ -82,6 +49,7 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Get a single restaurant",
                 "parameters": [
                     {
                         "type": "string",
@@ -95,7 +63,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/handler.Restaurant"
+                            "$ref": "#/definitions/services.Restaurant"
                         }
                     },
                     "404": {
@@ -113,7 +81,15 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Upload a menu",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003cAdd access token here\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Restaurant ID",
@@ -151,7 +127,39 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "config.DayOfWeek": {
+        "echo.HTTPError": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {}
+            }
+        },
+        "services.Crop": {
+            "type": "object",
+            "required": [
+                "height",
+                "offset_x",
+                "offset_y",
+                "width"
+            ],
+            "properties": {
+                "height": {
+                    "type": "integer"
+                },
+                "offset_x": {
+                    "type": "integer"
+                },
+                "offset_y": {
+                    "type": "integer"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.DayOfWeek": {
             "type": "string",
             "enum": [
                 "Sunday",
@@ -172,30 +180,7 @@ const docTemplate = `{
                 "Saturday"
             ]
         },
-        "config.FoodEntry": {
-            "type": "object",
-            "required": [
-                "day",
-                "description",
-                "name",
-                "price"
-            ],
-            "properties": {
-                "day": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                }
-            }
-        },
-        "config.Group": {
+        "services.Group": {
             "type": "string",
             "enum": [
                 "Degerloch",
@@ -214,38 +199,33 @@ const docTemplate = `{
                 "Nuertingen"
             ]
         },
-        "config.Menu": {
+        "services.Parse": {
             "type": "object",
             "required": [
-                "card",
-                "description",
-                "food"
+                "is_file",
+                "navigate",
+                "pdf",
+                "scan"
             ],
             "properties": {
-                "card": {
-                    "type": "string"
+                "is_file": {
+                    "type": "boolean"
                 },
-                "description": {
-                    "type": "string"
-                },
-                "food": {
+                "navigate": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/config.FoodEntry"
+                        "$ref": "#/definitions/services.Selector"
                     }
+                },
+                "pdf": {
+                    "type": "boolean"
+                },
+                "scan": {
+                    "$ref": "#/definitions/services.Scan"
                 }
             }
         },
-        "echo.HTTPError": {
-            "type": "object",
-            "required": [
-                "message"
-            ],
-            "properties": {
-                "message": {}
-            }
-        },
-        "handler.Restaurant": {
+        "services.Restaurant": {
             "type": "object",
             "required": [
                 "address",
@@ -253,10 +233,10 @@ const docTemplate = `{
                 "group",
                 "icon",
                 "id",
-                "manually",
-                "menu",
+                "image_url",
                 "name",
                 "page_url",
+                "parse",
                 "phone",
                 "price",
                 "rest_days"
@@ -269,7 +249,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "group": {
-                    "$ref": "#/definitions/config.Group"
+                    "$ref": "#/definitions/services.Group"
                 },
                 "icon": {
                     "type": "string"
@@ -277,17 +257,17 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "manually": {
-                    "type": "boolean"
-                },
-                "menu": {
-                    "$ref": "#/definitions/config.Menu"
+                "image_url": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "page_url": {
                     "type": "string"
+                },
+                "parse": {
+                    "$ref": "#/definitions/services.Parse"
                 },
                 "phone": {
                     "type": "string"
@@ -298,8 +278,75 @@ const docTemplate = `{
                 "rest_days": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/config.DayOfWeek"
+                        "$ref": "#/definitions/services.DayOfWeek"
                     }
+                }
+            }
+        },
+        "services.Scan": {
+            "type": "object",
+            "required": [
+                "crop",
+                "fixed_bottom",
+                "fixed_top",
+                "viewport_width"
+            ],
+            "properties": {
+                "crop": {
+                    "$ref": "#/definitions/services.Crop"
+                },
+                "fixed_bottom": {
+                    "type": "number"
+                },
+                "fixed_top": {
+                    "type": "number"
+                },
+                "viewport_width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.SearchBy": {
+            "type": "string",
+            "enum": [
+                "css",
+                "x-path",
+                "name",
+                "regex",
+                "js"
+            ],
+            "x-enum-varnames": [
+                "CSS",
+                "XPath",
+                "Name",
+                "Regex",
+                "JS"
+            ]
+        },
+        "services.Selector": {
+            "type": "object",
+            "required": [
+                "attribute",
+                "prefix",
+                "regex",
+                "search",
+                "search_by"
+            ],
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "regex": {
+                    "type": "string"
+                },
+                "search": {
+                    "type": "string"
+                },
+                "search_by": {
+                    "$ref": "#/definitions/services.SearchBy"
                 }
             }
         }
