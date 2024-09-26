@@ -13,8 +13,9 @@
     "pdf": true,
     "navigate": [
       {
-        "search_by": "x-path",
-        "search": "//a[contains(text(), 'Mittagstisch')]",
+        "search_by": "regex",
+        "search": "a",
+        "regex": "Mittagstisch.*\\.pdf",
         "attribute": "href",
         "prefix": "https://www.gasthauslinde.de"
       }

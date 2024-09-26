@@ -1,6 +1,7 @@
 package fetch
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,8 +9,19 @@ import (
 )
 
 func DownloadFile(filePath string, url string) error {
-	// Make an HTTP GET request to the image URL
-	response, err := http.Get(url)
+	client := http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS11,
+			},
+			DisableKeepAlives:   true,
+			MaxIdleConns:        1,
+			MaxIdleConnsPerHost: 1,
+			MaxConnsPerHost:     1,
+			ForceAttemptHTTP2:   true,
+		},
+	}
+	response, err := client.Get(url)
 	if err != nil {
 		return fmt.Errorf("failed to download file: %w", err)
 	}
@@ -18,7 +30,7 @@ func DownloadFile(filePath string, url string) error {
 	}
 	defer response.Body.Close()
 
-	// Create a file to save the image
+	// Create a file to save th
 	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)

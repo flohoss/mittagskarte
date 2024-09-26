@@ -1,4 +1,4 @@
-package router
+package handler
 
 import (
 	"net/http"
@@ -8,33 +8,27 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "gitlab.unjx.de/flohoss/mittag/docs"
-	"gitlab.unjx.de/flohoss/mittag/internal/env"
-	"gitlab.unjx.de/flohoss/mittag/internal/handler"
 )
 
 type Router struct {
 	Echo       *echo.Echo
-	handler    *handler.RestaurantHandler
+	handler    *MittagHandler
 	formAuth   echo.MiddlewareFunc
 	bearerAuth echo.MiddlewareFunc
 }
 
-func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
+func NewRouter(handler *MittagHandler, token string) *Router {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: env.AllowedHosts,
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	}))
+	e.Use(middleware.CORS())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Skipper: func(c echo.Context) bool {
 			return strings.Contains(c.Request().URL.Path, "docs")
 		},
 	}))
-	e.Renderer = initTemplates()
 
 	r := &Router{
 		Echo:    e,
@@ -42,15 +36,22 @@ func New(handler *handler.RestaurantHandler, env *env.Env) *Router {
 		formAuth: middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			KeyLookup: "form:token",
 			Validator: func(key string, c echo.Context) (bool, error) {
-				return key == env.APIToken, nil
+				return key == token, nil
 			},
 		}),
 		bearerAuth: middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
-			return key == env.APIToken, nil
+			return key == token, nil
 		}),
 	}
 	r.SetupRoutes()
 	return r
+}
+
+func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderCacheControl, "public, max-age=31536000")
+		return next(c)
+	}
 }
 
 func (r *Router) SetupRoutes() {
@@ -61,7 +62,6 @@ func (r *Router) SetupRoutes() {
 
 	api := r.Echo.Group("/api/v1")
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
-	api.PATCH("/restaurants", r.handler.UpdateRestaurant, r.bearerAuth)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
 	api.POST("/restaurants/:id", r.handler.UploadMenu, r.formAuth)
 
@@ -69,10 +69,10 @@ func (r *Router) SetupRoutes() {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})
 
-	public := r.Echo.Group("/config", longCacheLifetime)
-	public.Static("/thumbnails", "internal/config/thumbnails")
+	public := r.Echo.Group("/data", longCacheLifetime)
+	public.Static("/thumbnails", "data/thumbnails")
 
-	r.Echo.Static("/storage/menus", "storage/menus")
+	r.Echo.Static("/storage/downloads", "storage/downloads")
 	r.Echo.Static("/assets", "web/assets")
 	r.Echo.Static("/favicon", "web/favicon")
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
