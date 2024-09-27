@@ -46,16 +46,16 @@ func (r *Mittag) handleRestaurant(s *ScraperService, id string, rawPath string, 
 	s.navigateToFirstPage(r.restaurants[id].PageUrl)
 	if r.restaurants[id].Parse.IsFile {
 		if err := s.downloadFile(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
-			slog.Error("cannot handle file", "id", id, "err", err)
+			s.err <- err
 			return
 		}
 	} else {
 		if err := s.screenshot(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
-			slog.Error("cannot take screenshot", "id", id, "err", err)
+			s.err <- err
 			return
 		}
 		if err := r.im.Crop(rawPath, r.restaurants[id].Parse.Scan.Crop); err != nil {
-			slog.Error("cannot crop image", "id", id, "err", err)
+			s.err <- err
 			return
 		}
 	}
@@ -66,7 +66,7 @@ func (r *Mittag) handleRestaurant(s *ScraperService, id string, rawPath string, 
 	}
 	r.restaurants[id].ImageUrl = filePath
 	slog.Info("finished", "id", id, "filePath", filePath)
-	s.panicked <- false
+	s.err <- nil
 }
 
 func (r *Mittag) getImageUrls() {
@@ -83,13 +83,24 @@ func (r *Mittag) getImageUrls() {
 			r.restaurants[id].ImageUrl = filePath
 			continue
 		} else {
-			s := NewScraperService(id)
-			go r.handleRestaurant(s, id, rawPath, filePath)
-
-			select {
-			case <-s.panicked:
+			p, err := newPlaywrightService(SiteOptions{
+				url:      r.restaurants[id].PageUrl,
+				id:       id,
+				parse:    &r.restaurants[id].Parse,
+				rawPath:  rawPath,
+				filePath: filePath,
+			})
+			if err != nil {
+				slog.Error("failed to handle restaurant", "id", id, "err", err)
+				p.close()
 				continue
 			}
+			if err := p.doScrape(); err != nil {
+				slog.Error("failed to handle restaurant", "id", id, "err", err)
+				p.close()
+				continue
+			}
+			p.close()
 		}
 	}
 	slog.Info("all done!")
