@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -24,32 +23,32 @@ const (
 )
 
 type ScraperService struct {
-	id       string
-	panicked chan bool
-	launcher *launcher.Launcher
-	browser  *rod.Browser
-	page     *rod.Page
+	id      string
+	err     chan error
+	browser *rod.Browser
+	page    *rod.Page
 }
 
 func NewScraperService(id string) *ScraperService {
 	slog.Debug("new scraper service", "id", id)
+	err := make(chan error)
+
+	utils.OutputFile("tmp/test/Default/Preferences", `{
+		"plugins": { "always_open_pdf_externally": true }
+	}`)
+
 	launcher := launcher.New()
-	u := launcher.Headless(true).MustLaunch()
-	browser := rod.New().ControlURL(u).MustConnect()
-
-	panicked := make(chan bool)
-
-	browser = browser.MustIncognito().MustIgnoreCertErrors(true).WithPanic(func(v interface{}) {
-		slog.Error("browser panic", "id", id, "err", v)
-		panicked <- true
-		runtime.Goexit()
-	})
+	u := launcher.UserDataDir("tmp/test").Headless(true).MustLaunch()
+	browser := rod.New().ControlURL(u).MustConnect().
+		MustIgnoreCertErrors(true).
+		WithPanic(func(v interface{}) {
+			err <- fmt.Errorf("browser panicked (id: %s): %w", id, v)
+		})
 
 	return &ScraperService{
-		id:       id,
-		panicked: panicked,
-		launcher: launcher,
-		browser:  browser,
+		id:      id,
+		err:     err,
+		browser: browser,
 	}
 }
 
@@ -95,7 +94,8 @@ func (s *ScraperService) selectTheRightMethod(selector *Selector) (*rod.Element,
 
 func (s *ScraperService) navigateToFirstPage(url string) {
 	slog.Debug("navigating to first page", "id", s.id, "url", url)
-	s.page = s.browser.Timeout(5 * time.Minute).MustPage(url).MustWaitStable()
+	s.page = s.browser.MustPage(url).MustWaitStable()
+	utils.Sleep(2)
 }
 
 func (s *ScraperService) navigateToAction(n *Selector) error {
@@ -126,9 +126,7 @@ func (s *ScraperService) screenshot(url string, filePath string, parse Parse) er
 		return fmt.Errorf("failed to take screenshot (id: %s): %w", s.id, err)
 	}
 	slog.Debug("saving screenshot", "id", s.id, "path", filePath)
-	if err := utils.OutputFile(filePath, img); err != nil {
-		return fmt.Errorf("failed to save screenshot (id: %s): %w", s.id, err)
-	}
+	utils.OutputFile(filePath, img)
 	return nil
 }
 
@@ -139,17 +137,17 @@ func (s *ScraperService) downloadFile(url string, filePath string, parse Parse) 
 				return err
 			}
 		} else {
-			wait := s.browser.MustWaitDownload()
+			wait := s.browser.Timeout(30 * time.Second).MustWaitDownload()
 			el, err := s.selectTheRightMethod(&n)
 			if err != nil {
 				return err
 			}
-			slog.Debug("clicking on element", "id", s.id)
 			el.MustClick()
-			slog.Debug("downloading file", "id", s.id, "path", filePath)
-			if err := utils.OutputFile(filePath, wait()); err != nil {
-				return fmt.Errorf("failed to download file: %w", err)
+			if parse.PDF {
+				filePath = filePath + ".pdf"
 			}
+			slog.Debug("downloading file", "id", s.id, "path", filePath)
+			utils.OutputFile(filePath, wait())
 		}
 	}
 	return nil
