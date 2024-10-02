@@ -4,22 +4,21 @@
   "price": 3,
   "name": "SW34",
   "description": "Eventlocation",
-  "page_url": "https://sw34.restaurant/essen-trinken/",
+  "page_url": "https://sw34.restaurant/essen-trinken/#speisekarte",
   "address": "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 711 62042252",
   "group": "Fasanenhof",
   "parse": {
-    "navigate": [{ "search_by": "name", "search": "Nur notwendige Cookies verwenden" }],
-    "scan": {
-      "fixed_top": 158,
-      "viewport_width": 1400,
-      "crop": {
-        "width": 900,
-        "height": 2010,
-        "offset_x": 165,
-        "offset_y": 2212
-      }
+    "navigate": [
+      { "search": "#CybotCookiebotDialogBodyButtonDecline" },
+      { "search": "#speisekarte" }
+    ],
+    "clip": {
+      "width": 1000,
+      "height": 2010,
+      "offset_x": 80,
+      "offset_y": 2375
     }
   }
 }

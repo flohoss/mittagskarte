@@ -4,7 +4,7 @@
   "price": 1,
   "name": "Meet & Eat",
   "description": "Tankstelle",
-  "page_url": "http://meetundeat.com/#Speisekarte",
+  "page_url": "http://meetundeat.com/",
   "address": "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 157 30664255",
@@ -12,9 +12,8 @@
   "parse": {
     "navigate": [
       {
-        "search_by": "css",
-        "search": "img[sizes*='((min-width: 0px) and (max-width: 480px)) 480px, (min-width: 481px) 945px, 100vw']",
-        "attribute":"src"
+        "search": ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)",
+        "attribute": "src"
       }
     ],
     "is_file": true

@@ -11,13 +11,7 @@
   "group": "Fasanenhof",
   "parse": {
     "pdf": true,
-    "navigate": [
-      {
-        "search_by": "x-path",
-        "search": "//a[contains(text(), 'Mittagskarte PDF')]",
-        "attribute": "href"
-      }
-    ],
+    "navigate": [{ "search": "//a[contains(text(), 'Mittagskarte PDF')]" }],
     "is_file": true
   }
 }

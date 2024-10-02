@@ -136,7 +136,7 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "services.Crop": {
+        "services.Clip": {
             "type": "object",
             "required": [
                 "height",
@@ -146,16 +146,16 @@ const docTemplate = `{
             ],
             "properties": {
                 "height": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "offset_x": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "offset_y": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "width": {
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
@@ -202,12 +202,15 @@ const docTemplate = `{
         "services.Parse": {
             "type": "object",
             "required": [
+                "clip",
                 "is_file",
                 "navigate",
-                "pdf",
-                "scan"
+                "pdf"
             ],
             "properties": {
+                "clip": {
+                    "$ref": "#/definitions/services.Clip"
+                },
                 "is_file": {
                     "type": "boolean"
                 },
@@ -219,9 +222,6 @@ const docTemplate = `{
                 },
                 "pdf": {
                     "type": "boolean"
-                },
-                "scan": {
-                    "$ref": "#/definitions/services.Scan"
                 }
             }
         },
@@ -283,70 +283,18 @@ const docTemplate = `{
                 }
             }
         },
-        "services.Scan": {
-            "type": "object",
-            "required": [
-                "crop",
-                "fixed_bottom",
-                "fixed_top",
-                "viewport_width"
-            ],
-            "properties": {
-                "crop": {
-                    "$ref": "#/definitions/services.Crop"
-                },
-                "fixed_bottom": {
-                    "type": "number"
-                },
-                "fixed_top": {
-                    "type": "number"
-                },
-                "viewport_width": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services.SearchBy": {
-            "type": "string",
-            "enum": [
-                "css",
-                "x-path",
-                "name",
-                "regex",
-                "js"
-            ],
-            "x-enum-varnames": [
-                "CSS",
-                "XPath",
-                "Name",
-                "Regex",
-                "JS"
-            ]
-        },
         "services.Selector": {
             "type": "object",
             "required": [
                 "attribute",
-                "prefix",
-                "regex",
-                "search",
-                "search_by"
+                "search"
             ],
             "properties": {
                 "attribute": {
                     "type": "string"
                 },
-                "prefix": {
-                    "type": "string"
-                },
-                "regex": {
-                    "type": "string"
-                },
                 "search": {
                     "type": "string"
-                },
-                "search_by": {
-                    "$ref": "#/definitions/services.SearchBy"
                 }
             }
         }

@@ -11,14 +11,7 @@
   "group": "Leinfelden-Echterdingen",
   "parse": {
     "pdf": true,
-    "navigate": [
-      {
-        "search_by": "x-path",
-        "search": "//a[contains(text(), 'Zum Mittagsangebot')]",
-        "attribute": "href",
-        "prefix": "https://paulaner-le.de"
-      }
-    ],
+    "navigate": [{ "search": "//a[contains(text(), 'Zum Mittagsangebot')]" }],
     "is_file": true
   }
 }
