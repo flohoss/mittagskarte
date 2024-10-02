@@ -78,6 +78,36 @@ func (cp *ConfigParser) parseConfigFiles() error {
 	return nil
 }
 
+func (r *Restaurant) GetCleanRestaurant() *CleanRestaurant {
+	return &CleanRestaurant{
+		ID:          r.ID,
+		Price:       r.Price,
+		Icon:        r.Icon,
+		Name:        r.Name,
+		Description: r.Description,
+		PageUrl:     r.PageUrl,
+		Address:     r.Address,
+		RestDays:    r.RestDays,
+		Phone:       r.Phone,
+		Group:       r.Group,
+		ImageUrl:    r.ImageUrl,
+	}
+}
+
+type CleanRestaurant struct {
+	ID          string      `json:"id"`
+	Price       uint8       `json:"price"`
+	Icon        string      `json:"icon"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	PageUrl     string      `json:"page_url"`
+	Address     string      `json:"address"`
+	RestDays    []DayOfWeek `json:"rest_days"`
+	Phone       string      `json:"phone"`
+	Group       Group       `json:"group"`
+	ImageUrl    string      `json:"image_url"`
+}
+
 type Restaurant struct {
 	ID          string      `json:"id"`
 	Price       uint8       `json:"price"`

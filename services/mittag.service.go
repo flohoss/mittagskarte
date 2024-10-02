@@ -91,8 +91,12 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string) error {
 	return nil
 }
 
-func (r *Mittag) GetAllRestaurants() map[string]*Restaurant {
-	return r.restaurants
+func (r *Mittag) GetAllRestaurants(ctx echo.Context) error {
+	apiResponse := make(map[string]*CleanRestaurant)
+	for key, restaurant := range r.restaurants {
+		apiResponse[key] = restaurant.GetCleanRestaurant()
+	}
+	return ctx.JSON(http.StatusOK, apiResponse)
 }
 
 func (r *Mittag) GetRestaurant(ctx echo.Context) error {
@@ -101,7 +105,7 @@ func (r *Mittag) GetRestaurant(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
 	}
 
-	return ctx.JSON(http.StatusOK, restaurant)
+	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
 }
 
 func (r *Mittag) UploadMenu(ctx echo.Context) error {
@@ -128,8 +132,10 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	if _, err = io.Copy(dst, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot copy file")
 	}
-	if err := r.convertToWebp(ctx.Param("id"), rawPath, filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")); err != nil {
+	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
+	if err := r.convertToWebp(ctx.Param("id"), rawPath, filePath); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot convert to webp")
 	}
-	return ctx.NoContent(http.StatusOK)
+	restaurant.ImageUrl = filePath
+	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
 }

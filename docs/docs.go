@@ -34,7 +34,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/services.Restaurant"
+                                "$ref": "#/definitions/services.CleanRestaurant"
                             }
                         }
                     }
@@ -63,7 +63,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/services.Restaurant"
+                            "$ref": "#/definitions/services.CleanRestaurant"
                         }
                     },
                     "404": {
@@ -103,18 +103,17 @@ const docTemplate = `{
                         "name": "file",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "API-Token",
-                        "name": "token",
-                        "in": "formData",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "ok"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     },
                     "404": {
                         "description": "Can not find ID",
@@ -136,26 +135,57 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "services.Clip": {
+        "services.CleanRestaurant": {
             "type": "object",
             "required": [
-                "height",
-                "offset_x",
-                "offset_y",
-                "width"
+                "address",
+                "description",
+                "group",
+                "icon",
+                "id",
+                "image_url",
+                "name",
+                "page_url",
+                "phone",
+                "price",
+                "rest_days"
             ],
             "properties": {
-                "height": {
-                    "type": "number"
+                "address": {
+                    "type": "string"
                 },
-                "offset_x": {
-                    "type": "number"
+                "description": {
+                    "type": "string"
                 },
-                "offset_y": {
-                    "type": "number"
+                "group": {
+                    "$ref": "#/definitions/services.Group"
                 },
-                "width": {
-                    "type": "number"
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page_url": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "rest_days": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/services.DayOfWeek"
+                    }
                 }
             }
         },
@@ -198,105 +228,6 @@ const docTemplate = `{
                 "LeinfeldenEchterdingen",
                 "Nuertingen"
             ]
-        },
-        "services.Parse": {
-            "type": "object",
-            "required": [
-                "clip",
-                "is_file",
-                "navigate",
-                "pdf"
-            ],
-            "properties": {
-                "clip": {
-                    "$ref": "#/definitions/services.Clip"
-                },
-                "is_file": {
-                    "type": "boolean"
-                },
-                "navigate": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/services.Selector"
-                    }
-                },
-                "pdf": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services.Restaurant": {
-            "type": "object",
-            "required": [
-                "address",
-                "description",
-                "group",
-                "icon",
-                "id",
-                "image_url",
-                "name",
-                "page_url",
-                "parse",
-                "phone",
-                "price",
-                "rest_days"
-            ],
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "group": {
-                    "$ref": "#/definitions/services.Group"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "page_url": {
-                    "type": "string"
-                },
-                "parse": {
-                    "$ref": "#/definitions/services.Parse"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "rest_days": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/services.DayOfWeek"
-                    }
-                }
-            }
-        },
-        "services.Selector": {
-            "type": "object",
-            "required": [
-                "attribute",
-                "search"
-            ],
-            "properties": {
-                "attribute": {
-                    "type": "string"
-                },
-                "search": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
@@ -304,9 +235,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "mittag.unjx.de",
+	Host:             "",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"https"},
+	Schemes:          []string{},
 	Title:            "Mittagstisch API",
 	Description:      "",
 	InfoInstanceName: "swagger",

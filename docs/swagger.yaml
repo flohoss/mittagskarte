@@ -6,21 +6,44 @@ definitions:
     required:
     - message
     type: object
-  services.Clip:
+  services.CleanRestaurant:
     properties:
-      height:
-        type: number
-      offset_x:
-        type: number
-      offset_y:
-        type: number
-      width:
-        type: number
+      address:
+        type: string
+      description:
+        type: string
+      group:
+        $ref: '#/definitions/services.Group'
+      icon:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      page_url:
+        type: string
+      phone:
+        type: string
+      price:
+        type: integer
+      rest_days:
+        items:
+          $ref: '#/definitions/services.DayOfWeek'
+        type: array
     required:
-    - height
-    - offset_x
-    - offset_y
-    - width
+    - address
+    - description
+    - group
+    - icon
+    - id
+    - image_url
+    - name
+    - page_url
+    - phone
+    - price
+    - rest_days
     type: object
   services.DayOfWeek:
     enum:
@@ -56,77 +79,6 @@ definitions:
     - Koengen
     - LeinfeldenEchterdingen
     - Nuertingen
-  services.Parse:
-    properties:
-      clip:
-        $ref: '#/definitions/services.Clip'
-      is_file:
-        type: boolean
-      navigate:
-        items:
-          $ref: '#/definitions/services.Selector'
-        type: array
-      pdf:
-        type: boolean
-    required:
-    - clip
-    - is_file
-    - navigate
-    - pdf
-    type: object
-  services.Restaurant:
-    properties:
-      address:
-        type: string
-      description:
-        type: string
-      group:
-        $ref: '#/definitions/services.Group'
-      icon:
-        type: string
-      id:
-        type: string
-      image_url:
-        type: string
-      name:
-        type: string
-      page_url:
-        type: string
-      parse:
-        $ref: '#/definitions/services.Parse'
-      phone:
-        type: string
-      price:
-        type: integer
-      rest_days:
-        items:
-          $ref: '#/definitions/services.DayOfWeek'
-        type: array
-    required:
-    - address
-    - description
-    - group
-    - icon
-    - id
-    - image_url
-    - name
-    - page_url
-    - parse
-    - phone
-    - price
-    - rest_days
-    type: object
-  services.Selector:
-    properties:
-      attribute:
-        type: string
-      search:
-        type: string
-    required:
-    - attribute
-    - search
-    type: object
-host: mittag.unjx.de
 info:
   contact: {}
   license:
@@ -144,7 +96,7 @@ paths:
           description: ok
           schema:
             additionalProperties:
-              $ref: '#/definitions/services.Restaurant'
+              $ref: '#/definitions/services.CleanRestaurant'
             type: object
       summary: Get all restaurants
       tags:
@@ -163,7 +115,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/services.Restaurant'
+            $ref: '#/definitions/services.CleanRestaurant'
         "404":
           description: Can not find ID
           schema:
@@ -190,14 +142,13 @@ paths:
         name: file
         required: true
         type: file
-      - description: API-Token
-        in: formData
-        name: token
-        required: true
-        type: string
       responses:
         "200":
           description: ok
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Can not find ID
           schema:
@@ -205,6 +156,4 @@ paths:
       summary: Upload a menu
       tags:
       - restaurants
-schemes:
-- https
 swagger: "2.0"

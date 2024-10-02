@@ -33,12 +33,6 @@ func NewRouter(handler *MittagHandler, token string) *Router {
 	r := &Router{
 		Echo:    e,
 		handler: handler,
-		formAuth: middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-			KeyLookup: "form:token",
-			Validator: func(key string, c echo.Context) (bool, error) {
-				return key == token, nil
-			},
-		}),
 		bearerAuth: middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
 			return key == token, nil
 		}),
@@ -63,7 +57,7 @@ func (r *Router) SetupRoutes() {
 	api := r.Echo.Group("/api/v1")
 	api.GET("/restaurants", r.handler.GetAllRestaurants)
 	api.GET("/restaurants/:id", r.handler.GetRestaurant)
-	api.POST("/restaurants/:id", r.handler.UploadMenu, r.formAuth)
+	api.POST("/restaurants/:id", r.handler.UploadMenu, r.bearerAuth)
 
 	r.Echo.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
