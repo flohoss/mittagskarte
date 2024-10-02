@@ -97,29 +97,19 @@ type Parse struct {
 	Navigate []Selector `json:"navigate"`
 	IsFile   bool       `json:"is_file"`
 	PDF      bool       `json:"pdf"`
-	Scan     Scan       `json:"scan"`
+	Clip     Clip       `json:"clip"`
 }
 
 type Selector struct {
-	SearchBy  SearchBy `json:"search_by"`
-	Search    string   `json:"search"`
-	Regex     string   `json:"regex"`
-	Attribute string   `json:"attribute"`
-	Prefix    string   `json:"prefix"`
+	Search    string `json:"search"`
+	Attribute string `json:"attribute"`
 }
 
-type Scan struct {
-	Crop          Crop    `json:"crop"`
-	FixedTop      float64 `json:"fixed_top"`
-	FixedBottom   float64 `json:"fixed_bottom"`
-	ViewportWidth int     `json:"viewport_width"`
-}
-
-type Crop struct {
-	Width   uint `json:"width"`
-	Height  uint `json:"height"`
-	OffsetX int  `json:"offset_x"`
-	OffsetY int  `json:"offset_y"`
+type Clip struct {
+	Width   float64 `json:"width"`
+	Height  float64 `json:"height"`
+	OffsetX float64 `json:"offset_x"`
+	OffsetY float64 `json:"offset_y"`
 }
 
 func (g *Group) UnmarshalJSON(data []byte) error {

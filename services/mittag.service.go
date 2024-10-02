@@ -11,13 +11,13 @@ import (
 )
 
 const (
-	storageLocation  = "storage/"
-	downloadLocation = storageLocation + "downloads/"
-	rawLocation      = downloadLocation + "raw/"
+	FinalDownloadFolder = "storage/downloads/"
+	TempDownloadFolder  = "tmp/downloads/"
 )
 
 func init() {
-	os.MkdirAll(rawLocation, os.ModePerm)
+	os.MkdirAll(FinalDownloadFolder, os.ModePerm)
+	os.MkdirAll(TempDownloadFolder, os.ModePerm)
 }
 
 type Mittag struct {
@@ -30,7 +30,7 @@ func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 		restaurants: restaurants,
 		im:          NewimageMagic(),
 	}
-	go r.getImageUrls()
+	r.getImageUrls()
 	return r
 }
 
@@ -40,83 +40,52 @@ func (r *Mittag) Close() {
 	}
 }
 
-func (r *Mittag) handleRestaurant(s *ScraperService, id string, rawPath string, filePath string) {
-	defer s.Close()
-
-	s.navigateToFirstPage(r.restaurants[id].PageUrl)
-	if r.restaurants[id].Parse.IsFile {
-		if err := s.downloadFile(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
-			s.err <- err
-			return
-		}
-	} else {
-		if err := s.screenshot(r.restaurants[id].PageUrl, rawPath, r.restaurants[id].Parse); err != nil {
-			s.err <- err
-			return
-		}
-		if err := r.im.Crop(rawPath, r.restaurants[id].Parse.Scan.Crop); err != nil {
-			s.err <- err
-			return
-		}
-	}
-
-	if err := r.convertFinalWebp(id, rawPath, filePath); err != nil {
-		slog.Error("cannot convert file to final webp", "id", id, "err", err)
+func (r *Mittag) getImageUrls() {
+	p, err := newPlaywrightService()
+	if err != nil {
+		slog.Error(err.Error())
 		return
 	}
-	r.restaurants[id].ImageUrl = filePath
-	slog.Info("finished", "id", id, "filePath", filePath)
-	s.err <- nil
-}
-
-func (r *Mittag) getImageUrls() {
+	defer p.close()
 	for id := range r.restaurants {
+		slog.Debug("getting image url", "id", id)
 		if r.restaurants[id].PageUrl == "" {
 			slog.Debug("no page url, nothing to do...", "id", id)
 			continue
 		}
 
-		rawPath := rawLocation + id
-		filePath := downloadLocation + id + ".webp"
-		if _, err := os.Stat(rawPath); !os.IsNotExist(err) {
+		filePath := FinalDownloadFolder + id + ".webp"
+		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
 			slog.Debug("file already exists, skipping...", "filePath", filePath)
 			r.restaurants[id].ImageUrl = filePath
 			continue
-		} else {
-			p, err := newPlaywrightService(SiteOptions{
-				url:      r.restaurants[id].PageUrl,
-				id:       id,
-				parse:    &r.restaurants[id].Parse,
-				rawPath:  rawPath,
-				filePath: filePath,
-			})
-			if err != nil {
-				slog.Error("failed to handle restaurant", "id", id, "err", err)
-				p.close()
-				continue
-			}
-			if err := p.doScrape(); err != nil {
-				slog.Error("failed to handle restaurant", "id", id, "err", err)
-				p.close()
-				continue
-			}
-			p.close()
 		}
+
+		tmpPath, err := p.doScrape(r.restaurants[id].PageUrl, &r.restaurants[id].Parse)
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+
+		err = r.convertToWebp(id, tmpPath, filePath)
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+
+		os.Remove(tmpPath)
 	}
 	slog.Info("all done!")
 }
 
-func (r *Mittag) convertFinalWebp(id string, rawPath, filePath string) error {
+func (r *Mittag) convertToWebp(id, tmpPath, filePath string) error {
 	var err error
 	if r.restaurants[id].Parse.PDF {
-		err = convertPdfToWebp(rawPath, filePath)
+		err = convertPdfToWebp(tmpPath, filePath)
 	} else {
-		err = r.im.ConvertToWebp(rawPath, filePath)
+		err = r.im.ConvertToWebp(tmpPath, filePath)
 	}
 	if err != nil {
-		return err
-	}
-	if err := r.im.Trim(filePath); err != nil {
 		return err
 	}
 	return nil
@@ -150,7 +119,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	}
 	defer src.Close()
 
-	rawPath := filepath.Join(rawLocation, restaurant.ID)
+	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID)
 	dst, err := os.Create(rawPath)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot create file")
@@ -159,7 +128,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	if _, err = io.Copy(dst, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot copy file")
 	}
-	if err := r.im.ConvertToWebp(rawPath, filepath.Join(downloadLocation, restaurant.ID+".webp")); err != nil {
+	if err := r.convertToWebp(ctx.Param("id"), rawPath, filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot convert to webp")
 	}
 	return ctx.NoContent(http.StatusOK)

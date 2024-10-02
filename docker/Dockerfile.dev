@@ -1,7 +1,7 @@
 ARG V_GOLANG
 ARG V_GOLANG='latest'
-FROM --platform=linux/amd64 golang:${V_GOLANG} AS golang
-FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.47.2-noble AS final
+FROM golang:${V_GOLANG} AS golang
+FROM mcr.microsoft.com/playwright:v1.47.2-noble AS final
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

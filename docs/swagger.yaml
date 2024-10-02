@@ -6,16 +6,16 @@ definitions:
     required:
     - message
     type: object
-  services.Crop:
+  services.Clip:
     properties:
       height:
-        type: integer
+        type: number
       offset_x:
-        type: integer
+        type: number
       offset_y:
-        type: integer
+        type: number
       width:
-        type: integer
+        type: number
     required:
     - height
     - offset_x
@@ -58,6 +58,8 @@ definitions:
     - Nuertingen
   services.Parse:
     properties:
+      clip:
+        $ref: '#/definitions/services.Clip'
       is_file:
         type: boolean
       navigate:
@@ -66,13 +68,11 @@ definitions:
         type: array
       pdf:
         type: boolean
-      scan:
-        $ref: '#/definitions/services.Scan'
     required:
+    - clip
     - is_file
     - navigate
     - pdf
-    - scan
     type: object
   services.Restaurant:
     properties:
@@ -116,54 +116,15 @@ definitions:
     - price
     - rest_days
     type: object
-  services.Scan:
-    properties:
-      crop:
-        $ref: '#/definitions/services.Crop'
-      fixed_bottom:
-        type: number
-      fixed_top:
-        type: number
-      viewport_width:
-        type: integer
-    required:
-    - crop
-    - fixed_bottom
-    - fixed_top
-    - viewport_width
-    type: object
-  services.SearchBy:
-    enum:
-    - css
-    - x-path
-    - name
-    - regex
-    - js
-    type: string
-    x-enum-varnames:
-    - CSS
-    - XPath
-    - Name
-    - Regex
-    - JS
   services.Selector:
     properties:
       attribute:
         type: string
-      prefix:
-        type: string
-      regex:
-        type: string
       search:
         type: string
-      search_by:
-        $ref: '#/definitions/services.SearchBy'
     required:
     - attribute
-    - prefix
-    - regex
     - search
-    - search_by
     type: object
 host: mittag.unjx.de
 info:
