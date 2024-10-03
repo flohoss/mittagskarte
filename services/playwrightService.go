@@ -45,14 +45,13 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 	page, err := s.browser.NewPage(playwright.BrowserNewPageOptions{
 		BypassCSP:         playwright.Bool(true),
 		IgnoreHttpsErrors: playwright.Bool(true),
-		ReducedMotion:     playwright.ReducedMotionReduce,
 	})
 	if err != nil {
 		return "", fmt.Errorf("could not create page: %v", err)
 	}
 	defer page.Close()
 	if _, err = page.Goto(url, playwright.PageGotoOptions{
-		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
+		WaitUntil: playwright.WaitUntilStateLoad,
 	}); err != nil {
 		return "", fmt.Errorf("could not navigate to first page: %v", err)
 	}
@@ -63,19 +62,16 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 		if i < len(parse.Navigate)-1 {
 			slog.Debug("navigate", "search", n.Search)
 			if err := selector.Click(); err != nil {
-				return "", err
-			}
-			if err := selector.WaitFor(playwright.LocatorWaitForOptions{State: playwright.WaitForSelectorStateHidden}); err != nil {
-				return "", err
+				return "", fmt.Errorf("could not click on %s: %w", n.Search, err)
 			}
 		} else if parse.IsFile {
 			if n.Attribute == "" {
 				slog.Debug("download", "search", n.Search)
 				download, err := page.ExpectDownload(func() error {
-					return selector.Click()
+					return selector.Click(playwright.LocatorClickOptions{Force: playwright.Bool(true)})
 				})
 				if err != nil {
-					return "", err
+					return "", fmt.Errorf("could not click on %s: %w", n.Search, err)
 				}
 				downloadPath = TempDownloadFolder + download.SuggestedFilename()
 				download.SaveAs(downloadPath)
@@ -83,11 +79,11 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 				slog.Debug("download", "attribute", n.Attribute)
 				imgSrc, err := selector.GetAttribute(n.Attribute)
 				if err != nil {
-					return "", err
+					return "", fmt.Errorf("could not get attribute %s: %w", n.Attribute, err)
 				}
 				downloadPath, err = download.File(downloadPath, imgSrc)
 				if err != nil {
-					return "", err
+					return "", fmt.Errorf("could not download file: %w", err)
 				}
 			}
 		} else {

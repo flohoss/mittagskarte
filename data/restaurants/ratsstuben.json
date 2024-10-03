@@ -11,9 +11,7 @@
   "group": "Leinfelden-Echterdingen",
   "parse": {
     "pdf": true,
-    "navigate": [
-      { "search_by": "css", "search": "div > p > a", "attribute": "href" }
-    ],
+    "navigate": [{ "search": "div > p > a" }],
     "is_file": true
   }
 }

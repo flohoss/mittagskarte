@@ -12,16 +12,11 @@ import (
 )
 
 const (
-	maxRetries       = 5
-	initialBackoff   = 2 * time.Second
-	DownloadLocation = "tmp/downloads/"
+	maxRetries     = 5
+	initialBackoff = 2 * time.Second
 )
 
-func init() {
-	os.MkdirAll(DownloadLocation, os.ModePerm)
-}
-
-func File(id string, fullUrl string) (string, error) {
+func File(downloadPath string, fullUrl string) (string, error) {
 	// Parse the URL to get the file extension
 	fileURL, err := url.Parse(fullUrl)
 	if err != nil {
@@ -32,13 +27,10 @@ func File(id string, fullUrl string) (string, error) {
 		return "", fmt.Errorf("failed to determine file extension from URL %s", fullUrl)
 	}
 
-	// Build the file name and path
-	fileName := filepath.Join(DownloadLocation, id+ext)
-
 	// Create the file
-	file, err := os.Create(fileName)
+	file, err := os.Create(downloadPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file %s: %w", fileName, err)
+		return "", fmt.Errorf("failed to create file %s: %w", downloadPath, err)
 	}
 	defer file.Close()
 
@@ -58,10 +50,10 @@ func File(id string, fullUrl string) (string, error) {
 			// Copy the response body to the file
 			_, err = io.Copy(file, res.Body)
 			if err != nil {
-				return "", fmt.Errorf("failed to write to file %s: %w", fileName, err)
+				return "", fmt.Errorf("failed to write to file %s: %w", downloadPath, err)
 			}
 			// Successful download, return the file name
-			return fileName, nil
+			return downloadPath, nil
 		}
 
 		// If we get a 503 Service Unavailable, apply retry logic
