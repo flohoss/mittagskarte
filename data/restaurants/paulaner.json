@@ -11,7 +11,7 @@
   "group": "Leinfelden-Echterdingen",
   "parse": {
     "pdf": true,
-    "navigate": [{ "search": "//a[contains(text(), 'Zum Mittagsangebot')]" }],
+    "navigate": [{ "locator": "//a[contains(text(), 'Zum Mittagsangebot')]" }],
     "is_file": true
   }
 }

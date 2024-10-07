@@ -12,7 +12,7 @@
   "parse": {
     "navigate": [
       {
-        "search": ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)",
+        "locator": ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)",
         "attribute": "src"
       }
     ],

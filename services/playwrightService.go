@@ -57,21 +57,21 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 	}
 	downloadPath := fmt.Sprintf("%s%d", TempDownloadFolder, time.Now().Unix())
 	for i, n := range parse.Navigate {
-		n.Search = placeholder.Replace(n.Search)
-		selector := page.Locator(n.Search).First()
+		n.Locator = placeholder.Replace(n.Locator)
+		selector := page.Locator(n.Locator).First()
 		if i < len(parse.Navigate)-1 {
-			slog.Debug("navigate", "search", n.Search)
+			slog.Debug("navigate", "locator", n.Locator)
 			if err := selector.Click(); err != nil {
-				return "", fmt.Errorf("could not click on %s: %w", n.Search, err)
+				return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 			}
 		} else if parse.IsFile {
 			if n.Attribute == "" {
-				slog.Debug("download", "search", n.Search)
+				slog.Debug("download", "locator", n.Locator)
 				download, err := page.ExpectDownload(func() error {
 					return selector.Click(playwright.LocatorClickOptions{Force: playwright.Bool(true)})
 				})
 				if err != nil {
-					return "", fmt.Errorf("could not click on %s: %w", n.Search, err)
+					return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 				}
 				downloadPath = TempDownloadFolder + download.SuggestedFilename()
 				download.SaveAs(downloadPath)
@@ -87,22 +87,33 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 				}
 			}
 		} else {
-			slog.Debug("scroll into view", "search", n.Search)
-			if err := selector.ScrollIntoViewIfNeeded(); err != nil {
-				return "", err
-			}
+			slog.Debug("screenshot", "downloadPath", downloadPath)
+			var err error
 			time.Sleep(2 * time.Second)
+			if n.Locator != "" {
+				slog.Debug("with locator", "locator", n.Locator)
+				locator := page.Locator(n.Locator).First()
+				locator.ScrollIntoViewIfNeeded()
+				_, err = locator.Screenshot(playwright.LocatorScreenshotOptions{
+					Animations: playwright.ScreenshotAnimationsDisabled,
+					Path:       playwright.String(downloadPath),
+					Type:       playwright.ScreenshotTypePng,
+					Style:      playwright.String(n.Style),
+				})
+			} else {
+				slog.Debug("with clip", "offsetX", parse.Clip.OffsetX, "offsetY", parse.Clip.OffsetY, "width", parse.Clip.Width, "height", parse.Clip.Height)
+				_, err = page.Screenshot(playwright.PageScreenshotOptions{
+					Animations: playwright.ScreenshotAnimationsDisabled,
+					Path:       playwright.String(downloadPath),
+					FullPage:   playwright.Bool(true),
+					Type:       playwright.ScreenshotTypePng,
+					Clip:       &playwright.Rect{X: parse.Clip.OffsetX, Y: parse.Clip.OffsetY, Width: parse.Clip.Width, Height: parse.Clip.Height},
+				})
+			}
+			if err != nil {
+				return "", fmt.Errorf("could not screenshot: %w", err)
+			}
 		}
-	}
-	if !parse.IsFile {
-		slog.Debug("screenshot", "downloadPath", downloadPath)
-		page.Screenshot(playwright.PageScreenshotOptions{
-			Animations: playwright.ScreenshotAnimationsDisabled,
-			Path:       playwright.String(downloadPath),
-			FullPage:   playwright.Bool(true),
-			Type:       playwright.ScreenshotTypePng,
-			Clip:       &playwright.Rect{X: parse.Clip.OffsetX, Y: parse.Clip.OffsetY, Width: parse.Clip.Width, Height: parse.Clip.Height},
-		})
 	}
 	return downloadPath, nil
 }

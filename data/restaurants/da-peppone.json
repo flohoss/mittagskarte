@@ -11,7 +11,7 @@
   "group": "Degerloch",
   "parse": {
     "pdf": true,
-    "navigate": [{ "search": "//a[contains(text(), 'Mittagskarte vom')]" }],
+    "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte vom')]" }],
     "is_file": true
   }
 }
