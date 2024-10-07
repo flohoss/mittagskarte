@@ -11,6 +11,7 @@ import (
 
 type DayOfWeek string
 type Group string
+type FileType int
 
 const (
 	configLocation string = "data/restaurants/"
@@ -29,10 +30,37 @@ const (
 	Koengen                Group = "Köngen"
 	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
 	Nuertingen             Group = "Nürtingen"
+
+	None FileType = iota
+	PDF
+	Image
 )
 
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
 var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
+
+func (f FileType) String() string {
+	return [...]string{"none", "pdf", "image"}[f]
+}
+
+func (f *FileType) UnmarshalJSON(data []byte) error {
+	var fileTypeStr string
+	if err := json.Unmarshal(data, &fileTypeStr); err != nil {
+		return err
+	}
+
+	switch fileTypeStr {
+	case "none":
+		*f = None
+	case "pdf":
+		*f = PDF
+	case "image":
+		*f = Image
+	default:
+		return errors.New("invalid file type")
+	}
+	return nil
+}
 
 type ConfigParser struct {
 	Restaurants map[string]*Restaurant
@@ -125,8 +153,7 @@ type Restaurant struct {
 
 type Parse struct {
 	Navigate []Selector `json:"navigate"`
-	IsFile   bool       `json:"is_file"`
-	PDF      bool       `json:"pdf"`
+	FileType FileType   `json:"file_type"`
 	Clip     Clip       `json:"clip"`
 }
 

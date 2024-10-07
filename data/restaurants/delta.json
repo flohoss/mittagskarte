@@ -10,13 +10,12 @@
   "phone": "+49 7024 466833",
   "group": "Köngen",
   "parse": {
-    "pdf": true,
     "navigate": [
       { "locator": "#cookie-settings-reject-all" },
       {
         "locator": "//a[contains(text(), 'Download')]"
       }
     ],
-    "is_file": true
+    "file_type": "pdf"
   }
 }

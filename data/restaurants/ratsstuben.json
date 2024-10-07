@@ -10,8 +10,7 @@
   "phone": "+49 711 791725",
   "group": "Leinfelden-Echterdingen",
   "parse": {
-    "pdf": true,
     "navigate": [{ "locator": "div > p > a" }],
-    "is_file": true
+    "file_type": "pdf"
   }
 }

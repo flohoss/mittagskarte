@@ -75,7 +75,7 @@ func (r *Mittag) getImageUrls() {
 
 		os.Remove(tmpPath)
 
-		if !r.restaurants[id].Parse.IsFile {
+		if r.restaurants[id].Parse.FileType != None {
 			err = r.im.Trim(filePath)
 			if err != nil {
 				slog.Error(err.Error())
@@ -88,7 +88,7 @@ func (r *Mittag) getImageUrls() {
 
 func (r *Mittag) convertToWebp(id, tmpPath, filePath string) error {
 	var err error
-	if r.restaurants[id].Parse.PDF {
+	if r.restaurants[id].Parse.FileType == PDF {
 		err = convertPdfToWebp(tmpPath, filePath)
 	} else {
 		err = r.im.ConvertToWebp(tmpPath, filePath)
