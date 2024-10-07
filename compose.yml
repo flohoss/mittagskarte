@@ -2,9 +2,6 @@ networks:
   net:
     external: false
 
-volumes:
-  redis: null
-
 services:
   backend:
     container_name: backend
