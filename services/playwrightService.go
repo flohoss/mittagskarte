@@ -67,7 +67,7 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 			if err := selector.Click(); err != nil {
 				return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 			}
-		} else if parse.FileType != None {
+		} else if parse.FileType == PDF || parse.FileType == Image {
 			if n.Attribute == "" {
 				slog.Debug("download", "locator", n.Locator)
 				download, err := page.ExpectDownload(func() error {
