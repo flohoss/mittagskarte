@@ -57,6 +57,9 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 	}
 	downloadPath := fmt.Sprintf("%s%d", TempDownloadFolder, time.Now().Unix())
 	for i, n := range parse.Navigate {
+		if n.Style != "" {
+			page.AddStyleTag(playwright.PageAddStyleTagOptions{Content: playwright.String(n.Style)})
+		}
 		n.Locator = placeholder.Replace(n.Locator)
 		selector := page.Locator(n.Locator).First()
 		if i < len(parse.Navigate)-1 {
@@ -64,7 +67,7 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 			if err := selector.Click(); err != nil {
 				return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 			}
-		} else if parse.IsFile {
+		} else if parse.FileType != None {
 			if n.Attribute == "" {
 				slog.Debug("download", "locator", n.Locator)
 				download, err := page.ExpectDownload(func() error {
@@ -101,7 +104,6 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 					Animations: playwright.ScreenshotAnimationsDisabled,
 					Path:       playwright.String(downloadPath),
 					Type:       playwright.ScreenshotTypePng,
-					Style:      playwright.String(n.Style),
 				})
 			} else {
 				slog.Debug("with full page")
@@ -115,7 +117,6 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 					Path:       playwright.String(downloadPath),
 					FullPage:   playwright.Bool(true),
 					Type:       playwright.ScreenshotTypePng,
-					Style:      playwright.String(n.Style),
 					Clip:       clip,
 				})
 			}

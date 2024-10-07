@@ -10,8 +10,7 @@
   "phone": "+49 711 7944180",
   "group": "Leinfelden-Echterdingen",
   "parse": {
-    "pdf": true,
     "navigate": [{ "locator": "//a[contains(text(), 'Zum Mittagsangebot')]" }],
-    "is_file": true
+    "file_type": "pdf"
   }
 }

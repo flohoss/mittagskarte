@@ -16,6 +16,6 @@
         "attribute": "src"
       }
     ],
-    "is_file": true
+    "file_type": "image"
   }
 }

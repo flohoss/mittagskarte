@@ -10,14 +10,13 @@
   "phone": "+49 711 85680030",
   "group": "Feuerbach",
   "parse": {
-    "pdf": true,
     "navigate": [
       {
-        "search_by": "x-path",
-        "search": "//*[contains(text(), 'Feuerbach')]//a[contains(text(), 'Mittagskarte')]",
-        "attribute": "href"
+        "locator": "//h2[contains(text(), 'Feuerbach')]/parent::div/following-sibling::div//a[@title='Mittagskarte herunterladen']",
+        "attribute": "href",
+        "style": ".collapse:not(.show) { display: block !important; }"
       }
     ],
-    "is_file": true
+    "file_type": "pdf"
   }
 }
