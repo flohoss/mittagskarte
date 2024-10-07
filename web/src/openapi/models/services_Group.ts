@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum config_Group {
+export enum services_Group {
     Degerloch = 'Degerloch',
     Fasanenhof = 'Fasanenhof',
     Feuerbach = 'Feuerbach',
