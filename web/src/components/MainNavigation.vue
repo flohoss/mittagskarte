@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { handler_Restaurant } from 'src/openapi';
+import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import NavRestaurant from './NavRestaurant.vue';
 
 const store = useRestaurantStore();
 
-const amountOfRestaurants = (restaurants: handler_Restaurant[]) => {
+const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
   const amount = restaurants.length;
   return amount === 1 ? amount + ' Restaurant' : amount + ' Restaurants';
 };

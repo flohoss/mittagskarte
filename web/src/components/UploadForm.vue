@@ -10,7 +10,7 @@ const store = useRestaurantStore();
 const router = useRouter();
 const options = computed(() =>
   Object.keys(store.restaurants)
-    .filter((key) => store.restaurants[key].manually)
+    .filter((key) => store.restaurants[key].image_url === '')
     .map((key) => ({ label: store.restaurants[key].name, value: key }))
 );
 
@@ -19,7 +19,7 @@ const id = ref();
 const token = ref('');
 const onSubmit = () => {
   Loading.show();
-  RestaurantsService.postRestaurants(id.value, file.value, token.value)
+  RestaurantsService.postRestaurants(token.value, id.value, file.value)
     .then(() => {
       Notify.create({
         type: 'positive',

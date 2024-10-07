@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum config_DayOfWeek {
+export enum services_DayOfWeek {
     Sunday = 'Sunday',
     Monday = 'Monday',
     Tuesday = 'Tuesday',

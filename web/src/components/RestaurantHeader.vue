@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { handler_Restaurant } from 'src/openapi';
+import { services_CleanRestaurant } from 'src/openapi';
 import { computed } from 'vue';
 import FavStar from './FavStar.vue';
 
-const props = defineProps<{ restaurant: handler_Restaurant }>();
-const emit = defineEmits(['openMenu']);
+const props = defineProps<{ restaurant: services_CleanRestaurant }>();
 
 const thumbnail = computed(
   () =>
@@ -42,14 +41,18 @@ const googleSearch = computed(
         color="secondary"
         icon="fa-solid fa-map-marker-alt"
         :href="googleSearch"
-      />
+      >
+        <q-tooltip class="bg-accent">Karte öffnen</q-tooltip>
+      </q-btn>
       <q-btn
         outline
         round
         color="secondary"
         icon="fa-solid fa-phone"
         :href="'tel:' + restaurant.phone"
-      />
+      >
+        <q-tooltip class="bg-accent">Anrufen</q-tooltip>
+      </q-btn>
       <q-btn
         v-if="restaurant.page_url"
         outline
@@ -57,15 +60,9 @@ const googleSearch = computed(
         color="secondary"
         icon="fa-solid fa-globe"
         :href="restaurant.page_url"
-      />
-      <q-btn
-        v-if="restaurant.menu.card && restaurant.menu.food.length > 0"
-        outline
-        round
-        color="accent"
-        icon="fa-solid fa-file"
-        @click="emit('openMenu')"
-      />
+      >
+        <q-tooltip class="bg-accent">Restaurant öffnen</q-tooltip>
+      </q-btn>
     </div>
   </div>
 </template>

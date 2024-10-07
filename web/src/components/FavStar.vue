@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { handler_Restaurant } from 'src/openapi';
+import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 
 const props = defineProps<{
-  restaurant: handler_Restaurant;
+  restaurant: services_CleanRestaurant;
 }>();
 const store = useRestaurantStore();
 

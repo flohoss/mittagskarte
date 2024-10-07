@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { config_DayOfWeek, handler_Restaurant } from 'src/openapi';
+import { services_DayOfWeek, services_CleanRestaurant } from 'src/openapi';
 import FavStar from './FavStar.vue';
 
 const props = defineProps<{
-  restaurant: handler_Restaurant;
+  restaurant: services_CleanRestaurant;
   search: boolean;
   showStar?: boolean;
 }>();
@@ -11,7 +11,7 @@ const props = defineProps<{
 const isClosed = () => {
   const now = new Date();
   const currentDay = now.toLocaleString('en-us', { weekday: 'long' });
-  return props.restaurant.rest_days.includes(currentDay as config_DayOfWeek);
+  return props.restaurant.rest_days.includes(currentDay as services_DayOfWeek);
 };
 </script>
 

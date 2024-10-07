@@ -1,28 +1,23 @@
 import { defineStore } from 'pinia';
 import {
   RestaurantsService,
-  config_Group,
-  handler_Restaurant,
+  services_Group,
+  services_CleanRestaurant,
 } from 'src/openapi';
 import { LocalStorage } from 'quasar';
 
-const emptyRestaurant: handler_Restaurant = {
+const emptyRestaurant: services_CleanRestaurant = {
   address: '',
   description: '',
-  group: config_Group.Degerloch,
+  group: services_Group.Degerloch,
   icon: '',
   id: '',
-  menu: {
-    card: '',
-    description: '',
-    food: [],
-  },
+  image_url: '',
   name: '',
   page_url: '',
   phone: '',
   price: 0,
   rest_days: [],
-  manually: false,
 };
 
 export const ReductionKey = 'mittag_reduction';
@@ -31,8 +26,8 @@ export const MiddayKey = 'mittag_midday';
 
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
-    restaurant: emptyRestaurant as handler_Restaurant,
-    restaurants: {} as Record<string, handler_Restaurant>,
+    restaurant: emptyRestaurant as services_CleanRestaurant,
+    restaurants: {} as Record<string, services_CleanRestaurant>,
     reduction: LocalStorage.getItem(ReductionKey || 0),
     midday: LocalStorage.getItem(MiddayKey) || '1300',
     search: '',
@@ -40,26 +35,26 @@ export const useRestaurantStore = defineStore('restaurant', {
   }),
   getters: {
     favoriteRestaurants() {
-      const res = [] as handler_Restaurant[];
+      const res = [] as services_CleanRestaurant[];
       for (const value of Object.values(this.restaurants)) {
         if (this.favorites.includes(value.id)) res.push(value);
       }
       return res;
     },
     grouped() {
-      const groupMap: Record<string, handler_Restaurant[]> = {};
+      const groupMap: Record<string, services_CleanRestaurant[]> = {};
       for (const value of Object.values(this.restaurants)) {
         const group = value.group;
         groupMap[group] = groupMap[group] || [];
         groupMap[group].push(value);
       }
-      const sortedGroupMap: Record<string, handler_Restaurant[]> = {};
+      const sortedGroupMap: Record<string, services_CleanRestaurant[]> = {};
       for (const [group, restaurants] of Object.entries(groupMap).sort()) {
         sortedGroupMap[group] = restaurants;
       }
       return sortedGroupMap;
     },
-    result(): handler_Restaurant[] {
+    result(): services_CleanRestaurant[] {
       if (this.search === '') {
         return [];
       }
@@ -76,7 +71,7 @@ export const useRestaurantStore = defineStore('restaurant', {
     },
   },
   actions: {
-    toggleFavorite(restaurant: handler_Restaurant) {
+    toggleFavorite(restaurant: services_CleanRestaurant) {
       if (this.favorites.includes(restaurant.id)) {
         this.favorites.splice(this.favorites.indexOf(restaurant.id), 1);
       } else {
