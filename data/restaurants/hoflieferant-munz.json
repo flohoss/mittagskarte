@@ -10,6 +10,7 @@
   "phone": "+49 711 36591400",
   "group": "Feuerbach",
   "parse": {
+    "upadte_period": "weekly",
     "navigate": [{ "locator": "//a[contains(text(), 'Download pdf')]" }],
     "file_type": "pdf"
   }

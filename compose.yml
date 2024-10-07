@@ -27,7 +27,6 @@ services:
       - net
 
   frontend:
-    profiles: [old]
     container_name: frontend
     image: node:${V_NODE}
     working_dir: /app/web
@@ -40,7 +39,7 @@ services:
       - net
 
   swag:
-    profiles: [old]
+    profiles: [ install ]
     image: ghcr.io/swaggo/swag
     working_dir: /app
     entrypoint: swag init --parseDependency --requiredByDefault && swag fmt
@@ -48,7 +47,7 @@ services:
       - .:/app/
 
   go:
-    profiles: [install]
+    profiles: [ install ]
     image: golang:${V_GOLANG}
     working_dir: /app
     entrypoint: go
@@ -56,7 +55,7 @@ services:
       - .:/app/
 
   yarn:
-    profiles: [install]
+    profiles: [ install ]
     image: node:${V_NODE}
     entrypoint: yarn
     working_dir: /app/web

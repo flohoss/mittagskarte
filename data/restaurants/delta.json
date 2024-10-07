@@ -10,6 +10,7 @@
   "phone": "+49 7024 466833",
   "group": "Köngen",
   "parse": {
+    "upadte_period": "weekly",
     "navigate": [
       { "locator": "#cookie-settings-reject-all" },
       {
