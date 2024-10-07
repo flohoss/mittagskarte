@@ -74,6 +74,14 @@ func (r *Mittag) getImageUrls() {
 		}
 
 		os.Remove(tmpPath)
+
+		if !r.restaurants[id].Parse.IsFile {
+			err = r.im.Trim(filePath)
+			if err != nil {
+				slog.Error(err.Error())
+				continue
+			}
+		}
 	}
 	slog.Info("all done!")
 }

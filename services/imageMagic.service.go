@@ -37,3 +37,20 @@ func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) erro
 	}
 	return nil
 }
+
+func (ic *ImageMagic) Trim(filePath string) error {
+	slog.Debug("trimming image", "path", filePath)
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(filePath); err != nil {
+		return fmt.Errorf("failed to read image: %w", err)
+	}
+	mw.SetImageBackgroundColor(imagick.NewPixelWand())
+	if err := mw.TrimImage(0); err != nil {
+		return fmt.Errorf("failed to trim image: %w", err)
+	}
+	if err := mw.WriteImage(filePath); err != nil {
+		return fmt.Errorf("failed to write image: %w", err)
+	}
+	return nil
+}

@@ -26,6 +26,8 @@ func File(downloadPath string, fullUrl string) (string, error) {
 	if ext == "" {
 		return "", fmt.Errorf("failed to determine file extension from URL %s", fullUrl)
 	}
+	// remove query parameter in case of resize or crop server side
+	fileURL.RawQuery = ""
 
 	// Create the file
 	file, err := os.Create(downloadPath)
@@ -39,7 +41,7 @@ func File(downloadPath string, fullUrl string) (string, error) {
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		// Make the HTTP GET request
-		res, err := http.Get(fullUrl)
+		res, err := http.Get(fileURL.String())
 		if err != nil {
 			return "", fmt.Errorf("failed to fetch URL: %w", err)
 		}

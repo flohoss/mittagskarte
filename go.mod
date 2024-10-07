@@ -11,6 +11,7 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lmittmann/tint v1.0.5
 	github.com/playwright-community/playwright-go v0.4702.0
+	github.com/snabb/isoweek v1.0.3
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
 	gopkg.in/gographics/imagick.v2 v2.7.0
