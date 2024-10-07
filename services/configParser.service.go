@@ -159,7 +159,8 @@ func (u *UpdatePeriod) UnmarshalJSON(data []byte) error {
 	}
 
 	for _, v := range allUpdatePeriods {
-		if *u == v {
+		if UpdatePeriod(s) == v {
+			*u = UpdatePeriod(s)
 			return nil
 		}
 	}
@@ -174,7 +175,8 @@ func (f *FileType) UnmarshalJSON(data []byte) error {
 	}
 
 	for _, v := range allFileTypes {
-		if *f == v {
+		if FileType(s) == v {
+			*f = FileType(s)
 			return nil
 		}
 	}
@@ -189,7 +191,8 @@ func (g *Group) UnmarshalJSON(data []byte) error {
 	}
 
 	for _, v := range allGroups {
-		if *g == v {
+		if Group(s) == v {
+			*g = Group(s)
 			return nil
 		}
 	}
@@ -204,7 +207,8 @@ func (d *DayOfWeek) UnmarshalJSON(data []byte) error {
 	}
 
 	for _, v := range allDays {
-		if *d == v {
+		if DayOfWeek(s) == v {
+			*d = DayOfWeek(s)
 			return nil
 		}
 	}
