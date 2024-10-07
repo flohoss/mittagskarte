@@ -11,17 +11,12 @@
   "group": "Feuerbach",
   "parse": {
     "navigate": [
-      { "search_by": "css", "search": "#cookie-bar" },
-      { "search_by": "x-path", "search": "//a[contains(text(), 'Schaible')]" }
-    ],
-    "scan": {
-      "viewport_width": 768,
-      "crop": {
-        "width": 705,
-        "height": 450,
-        "offset_x": 22,
-        "offset_y": 210
+      { "locator": "//a[contains(text(), 'Schaible')]" },
+      { "locator": "//a[contains(text(), 'Ok, ich akzeptiere.')]" },
+      {
+        "locator": "div.artikel.firmenportrait",
+        "style": ".fb-header { display: none !important; }"
       }
-    }
+    ]
   }
 }

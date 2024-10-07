@@ -131,8 +131,9 @@ type Parse struct {
 }
 
 type Selector struct {
-	Search    string `json:"search"`
+	Locator   string `json:"locator"`
 	Attribute string `json:"attribute"`
+	Style     string `json:"style"`
 }
 
 type Clip struct {

@@ -12,9 +12,9 @@
   "parse": {
     "pdf": true,
     "navigate": [
-      { "search": "#cookie-settings-reject-all" },
+      { "locator": "#cookie-settings-reject-all" },
       {
-        "search": "//a[contains(text(), 'Download')]"
+        "locator": "//a[contains(text(), 'Download')]"
       }
     ],
     "is_file": true

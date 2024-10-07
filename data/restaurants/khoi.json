@@ -11,7 +11,7 @@
   "group": "Fasanenhof",
   "parse": {
     "pdf": true,
-    "navigate": [{ "search": "//a[contains(text(), 'Mittagskarte PDF')]" }],
+    "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte PDF')]" }],
     "is_file": true
   }
 }
