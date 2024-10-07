@@ -2,16 +2,16 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 )
 
+type FileType string
+type UpdatePeriod string
 type DayOfWeek string
 type Group string
-type FileType string
 
 const (
 	configLocation string = "data/restaurants/"
@@ -19,8 +19,8 @@ const (
 	PDF   FileType = "pdf"
 	Image FileType = "image"
 
-	Daily  string = "daily"
-	Weekly string = "weekly"
+	Daily  UpdatePeriod = "daily"
+	Weekly UpdatePeriod = "weekly"
 
 	Sunday    DayOfWeek = "Sunday"
 	Monday    DayOfWeek = "Monday"
@@ -39,6 +39,7 @@ const (
 )
 
 var allFileTypes = []FileType{PDF, Image}
+var allUpdatePeriods = []UpdatePeriod{Daily, Weekly}
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
 var allGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
@@ -132,9 +133,10 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	Navigate []Selector `json:"navigate"`
-	FileType FileType   `json:"file_type"`
-	Clip     Clip       `json:"clip"`
+	UpdatePeriod UpdatePeriod `json:"update_period"`
+	Navigate     []Selector   `json:"navigate"`
+	FileType     FileType     `json:"file_type"`
+	Clip         Clip         `json:"clip"`
 }
 
 type Selector struct {
@@ -150,47 +152,62 @@ type Clip struct {
 	OffsetY float64 `json:"offset_y"`
 }
 
-func (f *FileType) UnmarshalJSON(data []byte) error {
-	var fileType string
-	if err := json.Unmarshal(data, &fileType); err != nil {
+func (u *UpdatePeriod) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
 
-	for _, validFileType := range allFileTypes {
-		if FileType(fileType) == validFileType {
-			*f = FileType(fileType)
+	for _, v := range allUpdatePeriods {
+		if *u == v {
 			return nil
 		}
 	}
-	return errors.New("invalid file type")
+
+	return fmt.Errorf("invalid update period: %s", s)
+}
+
+func (f *FileType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	for _, v := range allFileTypes {
+		if *f == v {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid file type: %s", s)
 }
 
 func (g *Group) UnmarshalJSON(data []byte) error {
-	var group string
-	if err := json.Unmarshal(data, &group); err != nil {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
 
-	for _, validGroup := range allGroups {
-		if Group(group) == validGroup {
-			*g = Group(group)
+	for _, v := range allGroups {
+		if *g == v {
 			return nil
 		}
 	}
-	return errors.New("invalid group")
+
+	return fmt.Errorf("invalid group: %s", s)
 }
 
 func (d *DayOfWeek) UnmarshalJSON(data []byte) error {
-	var day string
-	if err := json.Unmarshal(data, &day); err != nil {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
 
-	for _, validDay := range allDays {
-		if DayOfWeek(day) == validDay {
-			*d = DayOfWeek(day)
+	for _, v := range allDays {
+		if *d == v {
 			return nil
 		}
 	}
-	return errors.New("invalid day of the week")
+
+	return fmt.Errorf("invalid day of the week: %s", s)
 }

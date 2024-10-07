@@ -10,6 +10,7 @@
   "phone": "+49 7022 62306",
   "group": "Nürtingen",
   "parse": {
+    "upadte_period": "weekly",
     "navigate": [
       {
         "locator": "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{month}}')]"

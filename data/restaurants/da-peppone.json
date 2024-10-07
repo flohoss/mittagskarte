@@ -10,6 +10,7 @@
   "phone": "+49 711 78784911",
   "group": "Degerloch",
   "parse": {
+    "upadte_period": "weekly",
     "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte vom')]" }],
     "file_type": "pdf"
   }

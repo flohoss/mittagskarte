@@ -10,6 +10,7 @@
   "phone": "+49 711 7156767",
   "group": "Fasanenhof",
   "parse": {
+    "upadte_period": "daily",
     "navigate": [
       { "locator": ".avia-cookie-consent-button" },
       {

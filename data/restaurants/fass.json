@@ -10,6 +10,7 @@
   "phone": "+49 7022 61185",
   "group": "Nürtingen",
   "parse": {
+    "upadte_period": "weekly",
     "navigate": [
       {
         "locator": "#maincontainer",
