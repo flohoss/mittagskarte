@@ -75,7 +75,7 @@ func (r *Mittag) getImageUrls() {
 
 		os.Remove(tmpPath)
 
-		if r.restaurants[id].Parse.FileType != None {
+		if r.restaurants[id].Parse.FileType != PDF && r.restaurants[id].Parse.FileType != Image {
 			err = r.im.Trim(filePath)
 			if err != nil {
 				slog.Error(err.Error())

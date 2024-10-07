@@ -11,10 +11,16 @@ import (
 
 type DayOfWeek string
 type Group string
-type FileType int
+type FileType string
 
 const (
 	configLocation string = "data/restaurants/"
+
+	PDF   FileType = "pdf"
+	Image FileType = "image"
+
+	Daily  string = "daily"
+	Weekly string = "weekly"
 
 	Sunday    DayOfWeek = "Sunday"
 	Monday    DayOfWeek = "Monday"
@@ -30,37 +36,11 @@ const (
 	Koengen                Group = "Köngen"
 	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
 	Nuertingen             Group = "Nürtingen"
-
-	None FileType = iota
-	PDF
-	Image
 )
 
+var allFileTypes = []FileType{PDF, Image}
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
-var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
-
-func (f FileType) String() string {
-	return [...]string{"none", "pdf", "image"}[f]
-}
-
-func (f *FileType) UnmarshalJSON(data []byte) error {
-	var fileTypeStr string
-	if err := json.Unmarshal(data, &fileTypeStr); err != nil {
-		return err
-	}
-
-	switch fileTypeStr {
-	case "none":
-		*f = None
-	case "pdf":
-		*f = PDF
-	case "image":
-		*f = Image
-	default:
-		return errors.New("invalid file type")
-	}
-	return nil
-}
+var allGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
 type ConfigParser struct {
 	Restaurants map[string]*Restaurant
@@ -170,23 +150,34 @@ type Clip struct {
 	OffsetY float64 `json:"offset_y"`
 }
 
+func (f *FileType) UnmarshalJSON(data []byte) error {
+	var fileType string
+	if err := json.Unmarshal(data, &fileType); err != nil {
+		return err
+	}
+
+	for _, validFileType := range allFileTypes {
+		if FileType(fileType) == validFileType {
+			*f = FileType(fileType)
+			return nil
+		}
+	}
+	return errors.New("invalid file type")
+}
+
 func (g *Group) UnmarshalJSON(data []byte) error {
 	var group string
 	if err := json.Unmarshal(data, &group); err != nil {
 		return err
 	}
 
-	for _, validGroup := range AllGroups {
+	for _, validGroup := range allGroups {
 		if Group(group) == validGroup {
 			*g = Group(group)
 			return nil
 		}
 	}
 	return errors.New("invalid group")
-}
-
-func (g Group) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(g))
 }
 
 func (d *DayOfWeek) UnmarshalJSON(data []byte) error {
@@ -202,8 +193,4 @@ func (d *DayOfWeek) UnmarshalJSON(data []byte) error {
 		}
 	}
 	return errors.New("invalid day of the week")
-}
-
-func (d DayOfWeek) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(d))
 }
