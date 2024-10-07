@@ -3,22 +3,39 @@ package placeholder
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/goodsign/monday"
+	"github.com/snabb/isoweek"
 )
 
-func getWeekRange(t time.Time) (time.Time, time.Time) {
-	// Find the weekday (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-	weekday := t.Weekday()
-	// Calculate the offset to get Monday (weekday == 1)
-	offsetToMonday := (int(weekday) + 6) % 7
-	// Calculate Monday by subtracting the offset from the current day
-	monday := t.AddDate(0, 0, -offsetToMonday)
-	// Calculate Friday by adding 4 days to Monday
-	friday := monday.AddDate(0, 0, 4)
-	return monday, friday
+func getWeekDayDate(weekDayAbbr string, format string, weekOffset string) (string, error) {
+	weekDays := map[string]int{
+		"mo": 0,
+		"tu": 1,
+		"we": 2,
+		"th": 3,
+		"fr": 4,
+		"sa": 5,
+		"su": 6,
+	}
+	targetWeekDay, exists := weekDays[weekDayAbbr]
+	if !exists {
+		return "", fmt.Errorf("invalid weekday abbreviation: %s", weekDayAbbr)
+	}
+
+	offsetInt, err := strconv.Atoi(weekOffset)
+	if err != nil {
+		return "", fmt.Errorf("invalid offset: %s", weekOffset)
+	}
+	offsetInt = offsetInt * 7
+
+	year, week := time.Now().ISOWeek()
+	date := isoweek.StartTime(year, week, time.UTC)
+
+	return date.AddDate(0, 0, targetWeekDay+offsetInt).Format(format), nil
 }
 
 func Replace(input string) string {
@@ -33,10 +50,17 @@ func Replace(input string) string {
 			currentYear := monday.Format(time.Now(), "2006", monday.LocaleDeDE)
 			return currentYear
 		}
-		if key == "weekRange" {
-			mo, fr := getWeekRange(time.Now())
-			// 07. - 11.
-			return fmt.Sprintf("%02d. - %02d.", mo.Day(), fr.Day())
+		if strings.Contains(key, "date") {
+			reSplit := regexp.MustCompile(`date\((.+?)\,(.+?)\,(.+?)\)`)
+			match := reSplit.FindStringSubmatch(key)
+			if match == nil || len(match) != 4 {
+				return key
+			}
+			day, err := getWeekDayDate(match[1], match[2], match[3])
+			if err != nil {
+				return key
+			}
+			return day
 		}
 		return key
 	})

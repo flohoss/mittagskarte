@@ -10,16 +10,12 @@
   "phone": "+49 711 99772624",
   "group": "Fasanenhof",
   "parse": {
-    "navigate": [{ "search_by": "css", "search": "#wt-cli-accept-all-btn" }],
-    "scan": {
-      "viewport_width": 1000,
-      "fixed_top": 180,
-      "crop": {
-        "width": 875,
-        "height": 610,
-        "offset_x": 40,
-        "offset_y": 860
+    "navigate": [
+      { "locator": "//a[contains(text(), 'Alles ablehnen')]" },
+      {
+        "locator": "//div[@class='elementor-widget-container']",
+        "style": "#masthead { display: none !important; }"
       }
-    }
+    ]
   }
 }

@@ -11,17 +11,11 @@
   "group": "Fasanenhof",
   "parse": {
     "navigate": [
-      { "search_by": "css", "search": ".avia-cookie-consent-button" }
-    ],
-    "scan": {
-      "viewport_width": 1400,
-      "fixed_top": 46,
-      "crop": {
-        "width": 745,
-        "height": 1820,
-        "offset_x": 320,
-        "offset_y": 350
+      { "locator": ".avia-cookie-consent-button" },
+      {
+        "locator": "//h2[contains(text(), 'Mittagskarte')]/ancestor::div[contains(@class, 'post-entry')]",
+        "style": "#header { display: none !important; } .av_textblock_section { display: none !important; } .hr { display: none !important; } .avia-button-wrap { display: none !important; }"
       }
-    }
+    ]
   }
 }

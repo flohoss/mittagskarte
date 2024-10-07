@@ -76,14 +76,14 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 				downloadPath = TempDownloadFolder + download.SuggestedFilename()
 				download.SaveAs(downloadPath)
 			} else {
-				slog.Debug("download", "attribute", n.Attribute)
+				slog.Debug("download", "locator", n.Locator, "attribute", n.Attribute)
 				imgSrc, err := selector.GetAttribute(n.Attribute)
 				if err != nil {
 					return "", fmt.Errorf("could not get attribute %s: %w", n.Attribute, err)
 				}
 				downloadPath, err = download.File(downloadPath, imgSrc)
 				if err != nil {
-					return "", fmt.Errorf("could not download file: %w", err)
+					return "", fmt.Errorf("could not download file %s: %w", imgSrc, err)
 				}
 			}
 		} else {
@@ -93,7 +93,10 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 			if n.Locator != "" {
 				slog.Debug("with locator", "locator", n.Locator)
 				locator := page.Locator(n.Locator).First()
-				locator.ScrollIntoViewIfNeeded()
+				err = locator.ScrollIntoViewIfNeeded()
+				if err != nil {
+					return "", fmt.Errorf("could not scroll: %w", err)
+				}
 				_, err = locator.Screenshot(playwright.LocatorScreenshotOptions{
 					Animations: playwright.ScreenshotAnimationsDisabled,
 					Path:       playwright.String(downloadPath),
@@ -101,13 +104,19 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 					Style:      playwright.String(n.Style),
 				})
 			} else {
-				slog.Debug("with clip", "offsetX", parse.Clip.OffsetX, "offsetY", parse.Clip.OffsetY, "width", parse.Clip.Width, "height", parse.Clip.Height)
+				slog.Debug("with full page")
+				var clip *playwright.Rect
+				if parse.Clip.Width != 0 {
+					slog.Debug("with clip", "offsetX", parse.Clip.OffsetX, "offsetY", parse.Clip.OffsetY, "width", parse.Clip.Width, "height", parse.Clip.Height)
+					clip = &playwright.Rect{X: parse.Clip.OffsetX, Y: parse.Clip.OffsetY, Width: parse.Clip.Width, Height: parse.Clip.Height}
+				}
 				_, err = page.Screenshot(playwright.PageScreenshotOptions{
 					Animations: playwright.ScreenshotAnimationsDisabled,
 					Path:       playwright.String(downloadPath),
 					FullPage:   playwright.Bool(true),
 					Type:       playwright.ScreenshotTypePng,
-					Clip:       &playwright.Rect{X: parse.Clip.OffsetX, Y: parse.Clip.OffsetY, Width: parse.Clip.Width, Height: parse.Clip.Height},
+					Style:      playwright.String(n.Style),
+					Clip:       clip,
 				})
 			}
 			if err != nil {
