@@ -1,21 +1,18 @@
 package services
 
 import (
-	"os"
+	"fmt"
+	"log/slog"
 
 	"gopkg.in/gographics/imagick.v2/imagick"
 )
 
 type ImageMagic struct {
-	mw *imagick.MagickWand
 }
 
 func NewimageMagic() *ImageMagic {
 	imagick.Initialize()
-	mw := imagick.NewMagickWand()
-	return &ImageMagic{
-		mw: mw,
-	}
+	return &ImageMagic{}
 }
 
 func (ic *ImageMagic) Close() {
@@ -24,29 +21,36 @@ func (ic *ImageMagic) Close() {
 	}
 }
 
-func (ic *ImageMagic) Crop(filePath string, crop Crop) error {
-	if err := ic.mw.ReadImage(filePath); err != nil {
-		return err
+func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) error {
+	slog.Debug("converting image to webp", "path", oldFilePath)
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(oldFilePath); err != nil {
+		return fmt.Errorf("failed to read image: %w", err)
 	}
-	if err := ic.mw.CropImage(crop.Width, crop.Height, crop.OffsetX, crop.OffsetY); err != nil {
-		return err
+	if err := mw.SetImageFormat("webp"); err != nil {
+		return fmt.Errorf("failed to set image format webp: %w", err)
 	}
-	if err := ic.mw.WriteImage(filePath); err != nil {
-		return err
+	mw.SetCompressionQuality(100)
+	if err := mw.WriteImage(newFilePath); err != nil {
+		return fmt.Errorf("failed to write image: %w", err)
 	}
 	return nil
 }
 
-func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) error {
-	if err := ic.mw.ReadImage(oldFilePath); err != nil {
-		return err
+func (ic *ImageMagic) Trim(filePath string) error {
+	slog.Debug("trimming image", "path", filePath)
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+	if err := mw.ReadImage(filePath); err != nil {
+		return fmt.Errorf("failed to read image: %w", err)
 	}
-	if err := ic.mw.SetImageFormat("webp"); err != nil {
-		return err
+	mw.SetImageBackgroundColor(imagick.NewPixelWand())
+	if err := mw.TrimImage(0); err != nil {
+		return fmt.Errorf("failed to trim image: %w", err)
 	}
-	if err := ic.mw.WriteImage(newFilePath); err != nil {
-		return err
+	if err := mw.WriteImage(filePath); err != nil {
+		return fmt.Errorf("failed to write image: %w", err)
 	}
-	os.Remove(oldFilePath)
 	return nil
 }

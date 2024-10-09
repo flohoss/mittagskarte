@@ -1,4 +1,4 @@
-package fetch
+package download
 
 import (
 	"errors"
@@ -12,16 +12,11 @@ import (
 )
 
 const (
-	maxRetries       = 5
-	initialBackoff   = 2 * time.Second
-	DownloadLocation = "storage/downloads/raw/"
+	maxRetries     = 5
+	initialBackoff = 2 * time.Second
 )
 
-func init() {
-	os.MkdirAll(DownloadLocation, os.ModePerm)
-}
-
-func DownloadFile(id string, fullUrl string) (string, error) {
+func File(downloadPath string, fullUrl string) (string, error) {
 	// Parse the URL to get the file extension
 	fileURL, err := url.Parse(fullUrl)
 	if err != nil {
@@ -31,14 +26,13 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 	if ext == "" {
 		return "", fmt.Errorf("failed to determine file extension from URL %s", fullUrl)
 	}
-
-	// Build the file name and path
-	fileName := filepath.Join(DownloadLocation, id+ext)
+	// remove query parameter in case of resize or crop server side
+	fileURL.RawQuery = ""
 
 	// Create the file
-	file, err := os.Create(fileName)
+	file, err := os.Create(downloadPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file %s: %w", fileName, err)
+		return "", fmt.Errorf("failed to create file %s: %w", downloadPath, err)
 	}
 	defer file.Close()
 
@@ -47,7 +41,7 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		// Make the HTTP GET request
-		res, err := http.Get(fullUrl)
+		res, err := http.Get(fileURL.String())
 		if err != nil {
 			return "", fmt.Errorf("failed to fetch URL: %w", err)
 		}
@@ -58,10 +52,10 @@ func DownloadFile(id string, fullUrl string) (string, error) {
 			// Copy the response body to the file
 			_, err = io.Copy(file, res.Body)
 			if err != nil {
-				return "", fmt.Errorf("failed to write to file %s: %w", fileName, err)
+				return "", fmt.Errorf("failed to write to file %s: %w", downloadPath, err)
 			}
 			// Successful download, return the file name
-			return fileName, nil
+			return downloadPath, nil
 		}
 
 		// If we get a 503 Service Unavailable, apply retry logic

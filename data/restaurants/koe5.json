@@ -1,7 +1,5 @@
 {
   "id": "koe5",
-  "icon": "fa-solid fa-utensils",
-  "price": 1,
   "name": "KÖ5",
   "description": "Deutsch",
   "page_url": "https://koe5.de/",
@@ -10,16 +8,13 @@
   "phone": "+49 711 99772624",
   "group": "Fasanenhof",
   "parse": {
-    "scan": {
-      "crop": {
-        "width": 940,
-        "height": 650,
-        "offset_x": 20,
-        "offset_y": 950
-      },
-      "chrome": {
-        "width": 1000
+    "update_cron": "0 11 * * 1,2",
+    "navigate": [
+      { "locator": "//a[contains(text(), 'Alles ablehnen')]" },
+      {
+        "locator": "//div[@class='elementor-widget-container']",
+        "style": "#masthead { display: none !important; }"
       }
-    }
+    ]
   }
 }

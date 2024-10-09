@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Loading } from 'quasar';
+import { Loading, Notify } from 'quasar';
 import { OpenAPI } from './openapi';
 import { useRestaurantStore } from './stores/restaurants';
 
@@ -11,7 +11,19 @@ defineOptions({
   preFetch() {
     Loading.show();
     const store = useRestaurantStore();
-    store.getRestaurants().finally(() => Loading.hide());
+
+    store
+      .fetchRestaurants()
+      .catch((err) => {
+        Notify.create({
+          type: 'negative',
+          group: false,
+          message: 'Fehler: ' + err.body.message ?? 'unknown error',
+        });
+      })
+      .finally(() => {
+        Loading.hide();
+      });
   },
 });
 </script>

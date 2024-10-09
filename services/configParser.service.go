@@ -2,35 +2,41 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 )
 
+type FileType string
 type DayOfWeek string
 type Group string
 
 const (
-	configLocation         string    = "data/restaurants/"
-	Sunday                 DayOfWeek = "Sunday"
-	Monday                 DayOfWeek = "Monday"
-	Tuesday                DayOfWeek = "Tuesday"
-	Wednesday              DayOfWeek = "Wednesday"
-	Thursday               DayOfWeek = "Thursday"
-	Friday                 DayOfWeek = "Friday"
-	Saturday               DayOfWeek = "Saturday"
-	Degerloch              Group     = "Degerloch"
-	Fasanenhof             Group     = "Fasanenhof"
-	Feuerbach              Group     = "Feuerbach"
-	Koengen                Group     = "Köngen"
-	LeinfeldenEchterdingen Group     = "Leinfelden-Echterdingen"
-	Nuertingen             Group     = "Nürtingen"
+	configLocation string = "data/restaurants/"
+
+	PDF   FileType = "pdf"
+	Image FileType = "image"
+
+	Sunday    DayOfWeek = "Sunday"
+	Monday    DayOfWeek = "Monday"
+	Tuesday   DayOfWeek = "Tuesday"
+	Wednesday DayOfWeek = "Wednesday"
+	Thursday  DayOfWeek = "Thursday"
+	Friday    DayOfWeek = "Friday"
+	Saturday  DayOfWeek = "Saturday"
+
+	Degerloch              Group = "Degerloch"
+	Fasanenhof             Group = "Fasanenhof"
+	Feuerbach              Group = "Feuerbach"
+	Koengen                Group = "Köngen"
+	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
+	Nuertingen             Group = "Nürtingen"
 )
 
+var allFileTypes = []FileType{PDF, Image}
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
-var AllGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
+var allGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
 type ConfigParser struct {
 	Restaurants map[string]*Restaurant
@@ -76,14 +82,37 @@ func (cp *ConfigParser) parseConfigFiles() error {
 	return nil
 }
 
-type Restaurant struct {
+func (r *Restaurant) GetCleanRestaurant() *CleanRestaurant {
+	return &CleanRestaurant{
+		ID:          r.ID,
+		Name:        r.Name,
+		Description: r.Description,
+		PageUrl:     r.PageUrl,
+		Address:     r.Address,
+		RestDays:    r.RestDays,
+		Phone:       r.Phone,
+		Group:       r.Group,
+		ImageUrl:    r.ImageUrl,
+	}
+}
+
+type CleanRestaurant struct {
 	ID          string      `json:"id"`
-	Price       uint8       `json:"price"`
-	Icon        string      `json:"icon"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	PageUrl     string      `json:"page_url"`
-	FinalUrl    string      `json:"final_url"`
+	Address     string      `json:"address"`
+	RestDays    []DayOfWeek `json:"rest_days"`
+	Phone       string      `json:"phone"`
+	Group       Group       `json:"group"`
+	ImageUrl    string      `json:"image_url"`
+}
+
+type Restaurant struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	PageUrl     string      `json:"page_url"`
 	Address     string      `json:"address"`
 	RestDays    []DayOfWeek `json:"rest_days"`
 	Phone       string      `json:"phone"`
@@ -93,68 +122,69 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	Hide     []string   `json:"hide"`
-	Navigate []Selector `json:"navigate"`
-	IsFile   bool       `json:"is_file"`
-	Scan     Scan       `json:"scan"`
-}
-
-type Scan struct {
-	Crop   Crop   `json:"crop"`
-	Chrome Chrome `json:"chrome"`
-}
-
-type Chrome struct {
-	Width int64 `json:"width"`
-}
-
-type Crop struct {
-	Width   uint `json:"width"`
-	Height  uint `json:"height"`
-	OffsetX int  `json:"offset_x"`
-	OffsetY int  `json:"offset_y"`
+	UpdateCron string     `json:"update_period"`
+	Navigate   []Selector `json:"navigate"`
+	FileType   FileType   `json:"file_type"`
+	Clip       Clip       `json:"clip"`
 }
 
 type Selector struct {
-	JQuery    string `json:"jquery"`
+	Locator   string `json:"locator"`
 	Attribute string `json:"attribute"`
-	Prefix    string `json:"prefix"`
+	Style     string `json:"style"`
+}
+
+type Clip struct {
+	Width   float64 `json:"width"`
+	Height  float64 `json:"height"`
+	OffsetX float64 `json:"offset_x"`
+	OffsetY float64 `json:"offset_y"`
+}
+
+func (f *FileType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	for _, v := range allFileTypes {
+		if FileType(s) == v {
+			*f = FileType(s)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid file type: %s", s)
 }
 
 func (g *Group) UnmarshalJSON(data []byte) error {
-	var group string
-	if err := json.Unmarshal(data, &group); err != nil {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
 
-	for _, validGroup := range AllGroups {
-		if Group(group) == validGroup {
-			*g = Group(group)
+	for _, v := range allGroups {
+		if Group(s) == v {
+			*g = Group(s)
 			return nil
 		}
 	}
-	return errors.New("invalid group")
-}
 
-func (g Group) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(g))
+	return fmt.Errorf("invalid group: %s", s)
 }
 
 func (d *DayOfWeek) UnmarshalJSON(data []byte) error {
-	var day string
-	if err := json.Unmarshal(data, &day); err != nil {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
 
-	for _, validDay := range allDays {
-		if DayOfWeek(day) == validDay {
-			*d = DayOfWeek(day)
+	for _, v := range allDays {
+		if DayOfWeek(s) == v {
+			*d = DayOfWeek(s)
 			return nil
 		}
 	}
-	return errors.New("invalid day of the week")
-}
 
-func (d DayOfWeek) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(d))
+	return fmt.Errorf("invalid day of the week: %s", s)
 }

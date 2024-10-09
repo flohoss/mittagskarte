@@ -1,6 +1,45 @@
 basePath: /api/v1
 definitions:
-  config.DayOfWeek:
+  echo.HTTPError:
+    properties:
+      message: {}
+    required:
+    - message
+    type: object
+  services.CleanRestaurant:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      group:
+        $ref: '#/definitions/services.Group'
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      page_url:
+        type: string
+      phone:
+        type: string
+      rest_days:
+        items:
+          $ref: '#/definitions/services.DayOfWeek'
+        type: array
+    required:
+    - address
+    - description
+    - group
+    - id
+    - image_url
+    - name
+    - page_url
+    - phone
+    - rest_days
+    type: object
+  services.DayOfWeek:
     enum:
     - Sunday
     - Monday
@@ -18,23 +57,7 @@ definitions:
     - Thursday
     - Friday
     - Saturday
-  config.FoodEntry:
-    properties:
-      day:
-        type: string
-      description:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-    required:
-    - day
-    - description
-    - name
-    - price
-    type: object
-  config.Group:
+  services.Group:
     enum:
     - Degerloch
     - Fasanenhof
@@ -50,70 +73,6 @@ definitions:
     - Koengen
     - LeinfeldenEchterdingen
     - Nuertingen
-  config.Menu:
-    properties:
-      card:
-        type: string
-      description:
-        type: string
-      food:
-        items:
-          $ref: '#/definitions/config.FoodEntry'
-        type: array
-    required:
-    - card
-    - description
-    - food
-    type: object
-  echo.HTTPError:
-    properties:
-      message: {}
-    required:
-    - message
-    type: object
-  handler.Restaurant:
-    properties:
-      address:
-        type: string
-      description:
-        type: string
-      group:
-        $ref: '#/definitions/config.Group'
-      icon:
-        type: string
-      id:
-        type: string
-      manually:
-        type: boolean
-      menu:
-        $ref: '#/definitions/config.Menu'
-      name:
-        type: string
-      page_url:
-        type: string
-      phone:
-        type: string
-      price:
-        type: integer
-      rest_days:
-        items:
-          $ref: '#/definitions/config.DayOfWeek'
-        type: array
-    required:
-    - address
-    - description
-    - group
-    - icon
-    - id
-    - manually
-    - menu
-    - name
-    - page_url
-    - phone
-    - price
-    - rest_days
-    type: object
-host: mittag.unjx.de
 info:
   contact: {}
   license:
@@ -131,30 +90,9 @@ paths:
           description: ok
           schema:
             additionalProperties:
-              $ref: '#/definitions/handler.Restaurant'
+              $ref: '#/definitions/services.CleanRestaurant'
             type: object
-      tags:
-      - restaurants
-    patch:
-      parameters:
-      - description: Bearer <Add access token here>
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Restaurant ID
-        in: query
-        name: id
-        type: string
-      - description: Clear menu?
-        in: query
-        name: clear
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
+      summary: Get all restaurants
       tags:
       - restaurants
   /restaurants/{id}:
@@ -171,17 +109,23 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/handler.Restaurant'
+            $ref: '#/definitions/services.CleanRestaurant'
         "404":
           description: Can not find ID
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      summary: Get a single restaurant
       tags:
       - restaurants
     post:
       consumes:
       - multipart/form-data
       parameters:
+      - description: Bearer <Add access token here>
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Restaurant ID
         in: path
         name: id
@@ -192,20 +136,45 @@ paths:
         name: file
         required: true
         type: file
-      - description: API-Token
-        in: formData
-        name: token
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/services.CleanRestaurant'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Upload a menu
+      tags:
+      - restaurants
+    put:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
         required: true
         type: string
       responses:
         "200":
           description: ok
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Can not find ID
           schema:
             $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Refresh a menu
       tags:
       - restaurants
-schemes:
-- https
 swagger: "2.0"

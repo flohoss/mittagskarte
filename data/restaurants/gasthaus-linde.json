@@ -1,7 +1,5 @@
 {
   "id": "gasthaus-linde",
-  "icon": "fa-solid fa-cow",
-  "price": 1,
   "name": "Gasthaus Linde",
   "description": "Metzgerei",
   "page_url": "https://www.gasthauslinde.de/Mittagstisch",
@@ -10,13 +8,12 @@
   "phone": "+49 7022 62306",
   "group": "Nürtingen",
   "parse": {
-    "navigate":[
+    "update_cron": "0 11 * * 2,3",
+    "navigate": [
       {
-        "jquery": "//a[contains(text(), 'Speisekarte')]",
-        "attribute": "href",
-        "prefix": "https://www.gasthauslinde.de"
+        "locator": "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{month}}')]"
       }
     ],
-    "is_file": true
+    "file_type": "pdf"
   }
 }

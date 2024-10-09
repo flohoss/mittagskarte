@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import MainNavigation from 'components/MainNavigation.vue';
-import GlobalSearch from 'src/components/GlobalSearch.vue';
 import NavTitle from 'src/components/NavTitle.vue';
 import { computed, ref } from 'vue';
 import { Dark } from 'quasar';
 import NavExtra from 'src/components/NavExtra.vue';
+import RestaurantActions from 'src/components/RestaurantActions.vue';
+import { useRestaurantStore, emptyRestaurant } from 'src/stores/restaurants';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const store = useRestaurantStore();
+const restaurant = computed(
+  () => store.restaurants[route.params.name as string] ?? emptyRestaurant
+);
 
 const leftDrawerOpen = ref(false);
 
@@ -29,7 +37,7 @@ const text = computed(() => {
           <NavTitle />
         </q-toolbar-title>
         <q-space />
-        <NavExtra />
+        <NavExtra :restaurant="restaurant" />
       </q-toolbar>
     </q-header>
 
@@ -54,7 +62,7 @@ const text = computed(() => {
           :class="text"
         />
         <q-space />
-        <GlobalSearch />
+        <RestaurantActions :restaurant="restaurant" />
       </q-toolbar>
     </q-footer>
   </q-layout>

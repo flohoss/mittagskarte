@@ -1,7 +1,5 @@
 {
   "id": "benz-metzgerei",
-  "icon": "fa-solid fa-cow",
-  "price": 1,
   "name": "Benz Metzgerei",
   "description": "Metzgerei",
   "page_url": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
@@ -10,7 +8,14 @@
   "phone": "+49 7024 81488",
   "group": "Köngen",
   "parse": {
-    "navigate":[{ "jquery": ".mb-0 > p:nth-child(4) > a:nth-child(1)", "attribute": "href" }],
-    "is_file": true
+    "update_cron": "0 11 * * 1,2",
+    "navigate": [
+      { "locator": "img.mailpoet_form_close_icon" },
+      {
+        "locator": "//strong[contains(text(), 'Menüplan') and contains(text(), '{{date(fr,02.01.,-1)}}')]/ancestor::p/following-sibling::p[1]/a/strong/img",
+        "attribute": "src"
+      }
+    ],
+    "file_type": "image"
   }
 }
