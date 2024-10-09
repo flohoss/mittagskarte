@@ -2,6 +2,7 @@
 import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import NavRestaurant from './NavRestaurant.vue';
+import RestaurantSearch from './RestaurantSearch.vue';
 
 const store = useRestaurantStore();
 
@@ -13,10 +14,12 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
 
 <template>
   <q-list>
+    <q-item>
+      <RestaurantSearch />
+    </q-item>
     <q-expansion-item
       class="q-pb-md"
       label="Favoriten"
-      :caption="amountOfRestaurants(Object.values(store.favorites))"
       v-if="store.favorites.length > 0"
       default-opened
       hide-expand-icon
@@ -33,7 +36,7 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
           :restaurant="restaurant"
           :search="false"
           show-star
-        />
+        />                                                                                                                  
       </transition-group>
     </q-expansion-item>
     <q-expansion-item

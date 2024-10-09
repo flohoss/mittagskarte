@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import SettingsForm from 'components/SettingsForm.vue';
 import UploadForm from 'src/components/UploadForm.vue';
-import GlobalSearch from './GlobalSearch.vue';
 
 const settings = ref(false);
 const upload = ref(false);
@@ -20,7 +19,6 @@ const upload = ref(false);
         Einstellungen
       </q-tooltip>
     </q-btn>
-    <GlobalSearch v-if="$q.screen.gt.sm" />
   </div>
 
   <q-dialog v-model="settings" backdrop-filter="blur(4px) saturate(150%)">

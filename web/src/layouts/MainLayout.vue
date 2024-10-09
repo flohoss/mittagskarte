@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MainNavigation from 'components/MainNavigation.vue';
-import GlobalSearch from 'src/components/GlobalSearch.vue';
+import RestaurantSearch from 'src/components/RestaurantSearch.vue';
 import NavTitle from 'src/components/NavTitle.vue';
 import { computed, ref } from 'vue';
 import { Dark } from 'quasar';
@@ -54,7 +54,7 @@ const text = computed(() => {
           :class="text"
         />
         <q-space />
-        <GlobalSearch />
+        <RestaurantSearch />
       </q-toolbar>
     </q-footer>
   </q-layout>
