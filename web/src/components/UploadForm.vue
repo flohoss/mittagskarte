@@ -19,8 +19,13 @@ const id = ref();
 const token = ref('');
 const onSubmit = () => {
   Loading.show();
-  RestaurantsService.postRestaurants(token.value, id.value, file.value)
-    .then(() => {
+  RestaurantsService.postRestaurants(
+    'Bearer ' + token.value,
+    id.value,
+    file.value
+  )
+    .then((resp) => {
+      store.restaurants[id.value] = resp;
       Notify.create({
         type: 'positive',
         group: false,

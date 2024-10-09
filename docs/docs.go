@@ -107,7 +107,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/services.CleanRestaurant"
+                        }
                     },
                     "401": {
                         "description": "Unauthorized",

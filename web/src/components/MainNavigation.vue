@@ -14,7 +14,7 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
 
 <template>
   <q-list>
-    <q-item>
+    <q-item class="q-mb-sm">
       <RestaurantSearch />
     </q-item>
     <q-expansion-item

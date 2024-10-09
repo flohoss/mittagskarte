@@ -40,7 +40,9 @@ watch(search, (val) => {
     type="search"
     @keyup.esc="search = ''"
   >
-    <template v-slot:append><q-icon name="fa-solid fa-search" /></template>
+    <template v-slot:append>
+      <q-icon size="xs" name="fa-solid fa-magnifying-glass" />
+    </template>
 
     <q-menu
       :no-parent-event="true"
