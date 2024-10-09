@@ -120,32 +120,44 @@ func (r *Mittag) GetRestaurant(ctx echo.Context) error {
 func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	restaurant, ok := r.restaurants[ctx.Param("id")]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
+		return echo.NewHTTPError(http.StatusNotFound, "can not find ID")
 	}
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "No file provided")
+		return echo.NewHTTPError(http.StatusBadRequest, "no file provided")
+	}
+	ext := filepath.Ext(file.Filename)
+	if !contains([]string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}, ext) {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid file extension")
 	}
 	src, err := file.Open()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot open file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "cannot open file")
 	}
 	defer src.Close()
-	ext := filepath.Ext(file.Filename)
 
 	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID)
 	dst, err := os.Create(rawPath)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot create file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "cannot create file")
 	}
 	defer dst.Close()
 	if _, err = io.Copy(dst, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot copy file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "cannot copy file")
 	}
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
 	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot convert to webp")
+		return echo.NewHTTPError(http.StatusInternalServerError, "cannot convert to webp")
 	}
 	restaurant.ImageUrl = filePath
 	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
+}
+
+func contains(haistack []string, needle string) bool {
+	for _, hai := range haistack {
+		if hai == needle {
+			return true
+		}
+	}
+	return false
 }

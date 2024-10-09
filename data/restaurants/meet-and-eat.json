@@ -1,7 +1,5 @@
 {
   "id": "meet-and-eat",
-  "icon": "fa-solid fa-hotdog",
-  "price": 1,
   "name": "Meet & Eat",
   "description": "Imbiss",
   "page_url": "http://meetundeat.com/",
