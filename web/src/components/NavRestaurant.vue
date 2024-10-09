@@ -37,9 +37,18 @@ const thumbnail = computed(
 
     <q-item-section>
       <q-item-label>{{ restaurant.name }}</q-item-label>
-      <q-item-label v-if="isClosed()" class="text-caption"
-        >Geschlossen</q-item-label
+      <q-item-label
+        v-if="isClosed()"
+        class="q-item__label--caption text-caption"
       >
+        Geschlossen
+      </q-item-label>
+      <q-item-label v-else class="q-item__label--caption text-caption">
+        <div class="row items-baseline q-gutter-x-sm">
+          <div>{{ restaurant.description }}</div>
+          <div><span v-for="i in restaurant.price" :key="i">€</span></div>
+        </div>
+      </q-item-label>
     </q-item-section>
 
     <q-item-section v-if="showStar" side>

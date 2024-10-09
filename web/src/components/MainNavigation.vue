@@ -20,12 +20,13 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
     <q-expansion-item
       class="q-pb-md"
       label="Favoriten"
-      v-if="store.favorites.length > 0"
       default-opened
       hide-expand-icon
       expand-icon-toggle
+      :caption="amountOfRestaurants(store.favorites)"
     >
       <transition-group
+        v-if="store.favorites.length > 0"
         appear
         enter-active-class="animated fadeIn"
         leave-active-class="animated fadeOutLeft"
@@ -35,8 +36,7 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
           :key="'fav-' + restaurant.id"
           :restaurant="restaurant"
           :search="false"
-          show-star
-        />                                                                                                                  
+        />
       </transition-group>
     </q-expansion-item>
     <q-expansion-item

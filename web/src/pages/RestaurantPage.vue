@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import RestaurantHeader from 'src/components/RestaurantHeader.vue';
-import { useRestaurantStore } from 'src/stores/restaurants';
+import { emptyRestaurant, useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const store = useRestaurantStore();
 const restaurant = computed(
-  () => store.restaurants[route.params.name as string]
+  () => store.restaurants[route.params.name as string] ?? emptyRestaurant
 );
 
 const cardUrl = computed(() => {
@@ -21,9 +20,6 @@ const cardUrl = computed(() => {
 
 <template>
   <q-page class="row align-start justify-center q-pt-md">
-    <div class="container" v-if="restaurant.name != ''">
-      <RestaurantHeader :restaurant="restaurant" />
-    </div>
     <div
       class="q-pa-md"
       :style="{
