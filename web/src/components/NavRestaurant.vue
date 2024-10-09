@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { services_DayOfWeek, services_CleanRestaurant } from 'src/openapi';
 import FavStar from './FavStar.vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
   restaurant: services_CleanRestaurant;
@@ -13,19 +14,25 @@ const isClosed = () => {
   const currentDay = now.toLocaleString('en-us', { weekday: 'long' });
   return props.restaurant.rest_days.includes(currentDay as services_DayOfWeek);
 };
+
+const thumbnail = computed(
+  () =>
+    process.env.BASE_URL + 'data/thumbnails/' + props.restaurant.id + '.webp'
+);
 </script>
 
 <template>
   <q-item
     :class="{ 'q-px-none q-py-sm': search }"
-    dense
     clickable
     :disable="isClosed()"
     :to="'/restaurants/' + restaurant.id"
     active-class="text-secondary"
   >
     <q-item-section avatar>
-      <q-avatar><q-icon :name="restaurant.icon" /></q-avatar>
+      <q-avatar rounded>
+        <q-img :src="thumbnail" fit="cover" />
+      </q-avatar>
     </q-item-section>
 
     <q-item-section>

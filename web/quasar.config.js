@@ -54,7 +54,7 @@ module.exports = configure(function (ctx) {
       publicPath: '/',
       // analyze: true,
       env: {
-        BASE_URL: ctx.dev ? 'http://localhost:4000/' : '/'
+        BASE_URL: ctx.dev ? 'http://localhost:4000/' : '/',
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
@@ -91,7 +91,6 @@ module.exports = configure(function (ctx) {
     framework: {
       config: {
         dark: 'auto',
-        loading: { delay: 300 },
       },
 
       iconSet: 'fontawesome-v6', // Quasar icon set

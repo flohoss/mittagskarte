@@ -1,26 +1,14 @@
 <script setup lang="ts">
-import { Loading } from 'quasar';
 import RestaurantHeader from 'src/components/RestaurantHeader.vue';
-import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { ComputedRef, computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const store = useRestaurantStore();
-const restaurant: ComputedRef<services_CleanRestaurant> = computed(
-  () => store.restaurant
+const restaurant = computed(
+  () => store.restaurants[route.params.name as string]
 );
-
-defineOptions({
-  preFetch({ currentRoute }) {
-    Loading.show();
-    const store = useRestaurantStore();
-    store
-      .getRestaurant(currentRoute.params.name as string)
-      .finally(() => Loading.hide());
-  },
-});
 
 const cardUrl = computed(() => {
   let url = process.env.BASE_URL + restaurant.value.image_url;
@@ -29,8 +17,6 @@ const cardUrl = computed(() => {
   }
   return url;
 });
-
-const menu = ref(false);
 </script>
 
 <template>
@@ -38,9 +24,21 @@ const menu = ref(false);
     <div class="container" v-if="restaurant.name != ''">
       <RestaurantHeader :restaurant="restaurant" />
     </div>
+    <div
+      class="q-pa-md"
+      :style="{
+        'border-radius': '0.5rem',
+        width: '100%',
+        'max-width': $q.screen.sizes.md + 'px',
+      }"
+    >
+      <q-img
+        :src="cardUrl"
+        :style="{
+          'border-radius': '0.5rem',
+          width: '100%',
+        }"
+      />
+    </div>
   </q-page>
-
-  <q-dialog v-model="menu" full-height>
-    <q-img v-if="cardUrl" :src="cardUrl" />
-  </q-dialog>
 </template>

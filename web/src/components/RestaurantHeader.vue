@@ -7,7 +7,7 @@ const props = defineProps<{ restaurant: services_CleanRestaurant }>();
 
 const thumbnail = computed(
   () =>
-    process.env.BASE_URL + 'config/thumbnails/' + props.restaurant.id + '.webp'
+    process.env.BASE_URL + 'data/thumbnails/' + props.restaurant.id + '.webp'
 );
 
 const googleSearch = computed(
