@@ -2,10 +2,10 @@ ARG V_GOLANG=1.23
 ARG V_NODE=20
 ARG V_ALPINE=3
 FROM golang:${V_GOLANG} AS golang
-WORKDIR /app
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https ca-certificates curl gnupg libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev && \
+    gnupg libc6-dev libnss3-dev libnet-dev build-essential \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    apt-transport-https ca-certificates && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -30,11 +30,12 @@ WORKDIR /app
 RUN apk add figlet
 RUN figlet Mittag > logo.txt
 
-FROM mcr.microsoft.com/playwright:v1.47.2-noble AS final
-
+FROM node:${V_NODE}-slim AS final
+RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    dumb-init \
-    apt-transport-https ca-certificates curl gnupg libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev && \
+    gnupg libc6-dev libnss3-dev libnet-dev build-essential \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    apt-transport-https ca-certificates && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -49,8 +50,8 @@ COPY ./data/ ./data/
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 
-RUN chown -R ubuntu:ubuntu /app
+RUN chown -R 1000:1000 /app
 
 ENTRYPOINT ["dumb-init", "--"]
-USER ubuntu
-CMD ["/app/godash"]
+USER node
+CMD ["cat", "logo.txt", "&&", "/app/mittag"]
