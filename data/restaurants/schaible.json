@@ -1,7 +1,5 @@
 {
   "id": "schaible",
-  "icon": "fa-solid fa-cow",
-  "price": 1,
   "name": "Schaible",
   "description": "Metzgerei",
   "page_url": "https://www.feuerbach.de/aktuelles/mittagstisch/",
@@ -10,24 +8,14 @@
   "phone": "+49 711 8104528",
   "group": "Feuerbach",
   "parse": {
-    "hide": ["document.querySelector('#cookie-bar').style.display = 'none';"],
+    "update_cron": "0 11 * * 2,3",
     "navigate": [
+      { "locator": "//a[contains(text(), 'Schaible')]" },
+      { "locator": "//a[contains(text(), 'Ok, ich akzeptiere.')]" },
       {
-        "jquery": "//a[contains(text(), 'Schaible')]",
-        "attribute": "href",
-        "prefix": "https://www.feuerbach.de"
+        "locator": "div.artikel.firmenportrait",
+        "style": ".fb-header { display: none !important; }"
       }
-    ],
-    "scan": {
-      "crop": {
-        "width": 730,
-        "height": 450,
-        "offset_x": 22,
-        "offset_y": 180
-      },
-      "chrome": {
-        "width": 768
-      }
-    }
+    ]
   }
 }

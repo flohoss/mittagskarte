@@ -1,7 +1,5 @@
 {
   "id": "ratsstuben",
-  "icon": "fa-solid fa-utensils",
-  "price": 2,
   "name": "Ratsstuben",
   "description": "Deutsch",
   "page_url": "https://ratsstuben.de/wochenkarte/",
@@ -10,7 +8,8 @@
   "phone": "+49 711 791725",
   "group": "Leinfelden-Echterdingen",
   "parse": {
-    "navigate":[{ "jquery": "div > p > a", "attribute": "href" }],
-    "is_file": true
+    "update_cron": "0 11 * * 1,2",
+    "navigate": [{ "locator": "div > p > a" }],
+    "file_type": "pdf"
   }
 }

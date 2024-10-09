@@ -1,7 +1,5 @@
 {
   "id": "blessing-kurz",
-  "icon": "fa-solid fa-cow",
-  "price": 1,
   "name": "Blessing-Kurz",
   "description": "Metzgerei",
   "page_url": "https://blessing-kurz.de/Tagesessen/",
@@ -10,16 +8,10 @@
   "phone": "+49 7024 989895",
   "group": "Köngen",
   "parse": {
-    "scan": {
-      "crop": {
-        "width": 991,
-        "height": 564,
-        "offset_x": 0,
-        "offset_y": 748
-      },
-      "chrome": {
-        "width": 991
-      }
-    }
+    "update_cron": "0 11 * * 1,2",
+    "navigate": [
+      { "locator": "#gdpr-cookie-accept" },
+      { "locator": "div.col-xs-12.col-sm-12.col-md-6" }
+    ]
   }
 }

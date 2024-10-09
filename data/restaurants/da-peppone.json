@@ -1,7 +1,5 @@
 {
   "id": "da-peppone",
-  "icon": "fa-solid fa-pizza-slice",
-  "price": 2,
   "name": "Da Peppone",
   "description": "Italienisch",
   "page_url": "https://dapeppone-restaurant.de/",
@@ -10,9 +8,8 @@
   "phone": "+49 711 78784911",
   "group": "Degerloch",
   "parse": {
-    "navigate":[
-      { "jquery": "//a[contains(text(), 'Mittagskarte vom')]", "attribute": "href" }
-    ],
-    "is_file": true
+    "update_cron": "0 11 * * 2,3",
+    "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte vom')]" }],
+    "file_type": "pdf"
   }
 }

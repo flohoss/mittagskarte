@@ -2,12 +2,10 @@ networks:
   net:
     external: false
 
-volumes:
-  redis: null
-
 services:
   backend:
     container_name: backend
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
@@ -25,39 +23,7 @@ services:
     networks:
       - net
 
-  redis:
-    profiles: [ old ]
-    container_name: redis
-    image: redis:${V_REDIS}-alpine
-    command: redis-server --save 60 1 --loglevel warning
-    volumes:
-      - redis:/data
-    ports:
-      - 6379:6379
-    networks:
-      - net
-
-  ocrserver:
-    profiles: [ old ]
-    container_name: ocrserver
-    image: otiai10/ocrserver
-    ports:
-      - 8080:8080
-    networks:
-      - net
-
-  docd:
-    profiles: [ old ]
-    container_name: docd
-    image: sajari/docd:1
-    command: -addr 0.0.0.0:8888
-    ports:
-      - 8888:8888
-    networks:
-      - net
-
   frontend:
-    profiles: [ old ]
     container_name: frontend
     image: node:${V_NODE}
     working_dir: /app/web
@@ -69,18 +35,13 @@ services:
     networks:
       - net
 
-  mittag:
-    profiles: [ build ]
-    image: ${CURRENT_IMAGE}
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      args:
-        - V_GOLANG=${V_GOLANG}
-        - V_DEBIAN=${V_DEBIAN}
-        - V_NODE=${V_NODE}
-        - V_ALPINE=${V_ALPINE}
-        - APP_VERSION=${CI_COMMIT_TAG}
+  swag:
+    profiles: [ install ]
+    image: ghcr.io/swaggo/swag
+    working_dir: /app
+    entrypoint: swag init --parseDependency --requiredByDefault && swag fmt
+    volumes:
+      - .:/app/
 
   go:
     profiles: [ install ]

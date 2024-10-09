@@ -5,15 +5,6 @@ import moment from 'moment';
 
 const store = useRestaurantStore();
 
-const onReductionChanged = () => {
-  Notify.create({
-    type: 'positive',
-    group: false,
-    message: 'Preisreduzierung gespeichert: ' + store.reduction + '€',
-  });
-  store.setReduction(store.reduction);
-};
-
 const onMiddayChanged = () => {
   Notify.create({
     type: 'positive',
@@ -45,20 +36,6 @@ function generateMiddayOptions() {
       <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section class="q-gutter-md">
-      <q-input
-        filled
-        v-model="store.reduction"
-        mask="#.##"
-        fill-mask="0"
-        suffix="€"
-        clearable
-        input-class="text-right"
-        reverse-fill-mask
-        label="Preisreduzierung"
-        @update:model-value="onReductionChanged"
-        debounce="700"
-      />
-
       <q-select
         filled
         v-model="store.midday"

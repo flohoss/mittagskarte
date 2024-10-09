@@ -1,26 +1,36 @@
 <script setup lang="ts">
-import { Loading, Notify } from 'quasar';
-import { RestaurantsService } from 'src/openapi';
+import { Dark, Loading, Notify } from 'quasar';
+import { RestaurantsService, services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+const props = defineProps({
+  restaurant: {
+    type: Object as () => services_CleanRestaurant,
+    required: true,
+  },
+});
 
 const emit = defineEmits(['uploaded']);
 const store = useRestaurantStore();
 const router = useRouter();
-const options = computed(() =>
-  Object.keys(store.restaurants)
-    .filter((key) => store.restaurants[key].manually)
-    .map((key) => ({ label: store.restaurants[key].name, value: key }))
-);
 
 const file = ref();
-const id = ref();
 const token = ref('');
 const onSubmit = () => {
-  Loading.show();
-  RestaurantsService.postRestaurants(id.value, file.value, token.value)
-    .then(() => {
+  Loading.show({
+    message: 'Die Datei wurd hochgeladen. Dies kann mehrere Minuten dauern...',
+    boxClass: Dark.isActive ? 'nav-bg-dark' : 'nav-bg-light',
+    spinnerColor: 'primary',
+  });
+  RestaurantsService.postRestaurants(
+    'Bearer ' + token.value,
+    props.restaurant.id,
+    file.value
+  )
+    .then((resp) => {
+      store.restaurants[props.restaurant.id] = resp;
       Notify.create({
         type: 'positive',
         group: false,
@@ -28,7 +38,7 @@ const onSubmit = () => {
       });
       router.push({
         name: 'restaurants',
-        params: { name: id.value },
+        params: { name: props.restaurant.id },
         query: { cache: Date.now() },
       });
       emit('uploaded');
@@ -37,7 +47,7 @@ const onSubmit = () => {
       Notify.create({
         type: 'negative',
         group: false,
-        message: 'Fehler: ' + err.status + ' - ' + err.message,
+        message: 'Fehler: ' + err.body.message ?? 'unknown error',
       });
     })
     .finally(() => Loading.hide());
@@ -47,19 +57,11 @@ const onSubmit = () => {
 <template>
   <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
     <q-card-section class="row items-center">
-      <div class="text-h6">Neues Menü hochladen</div>
+      <div class="text-h6">Neues Menü für {{ restaurant.name }} hochladen</div>
       <q-space />
       <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section class="column q-gutter-md">
-      <q-select
-        filled
-        v-model="id"
-        :options="options"
-        label="Restaurant"
-        emit-value
-        map-options
-      />
       <q-input type="password" filled v-model="token" label="API-Token" />
       <q-file v-model="file" filled>
         <template v-slot:prepend>

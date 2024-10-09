@@ -27,49 +27,16 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Get all restaurants",
                 "responses": {
                     "200": {
                         "description": "ok",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/handler.Restaurant"
+                                "$ref": "#/definitions/services.CleanRestaurant"
                             }
                         }
-                    }
-                }
-            },
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "restaurants"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003cAdd access token here\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Restaurant ID",
-                        "name": "id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Clear menu?",
-                        "name": "clear",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok"
                     }
                 }
             }
@@ -82,6 +49,7 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Get a single restaurant",
                 "parameters": [
                     {
                         "type": "string",
@@ -95,11 +63,49 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/handler.Restaurant"
+                            "$ref": "#/definitions/services.CleanRestaurant"
                         }
                     },
                     "404": {
                         "description": "Can not find ID",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "restaurants"
+                ],
+                "summary": "Refresh a menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -113,7 +119,15 @@ const docTemplate = `{
                 "tags": [
                     "restaurants"
                 ],
+                "summary": "Upload a menu",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003cAdd access token here\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Restaurant ID",
@@ -127,18 +141,20 @@ const docTemplate = `{
                         "name": "file",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "API-Token",
-                        "name": "token",
-                        "in": "formData",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/services.CleanRestaurant"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     },
                     "404": {
                         "description": "Can not find ID",
@@ -151,7 +167,62 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "config.DayOfWeek": {
+        "echo.HTTPError": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {}
+            }
+        },
+        "services.CleanRestaurant": {
+            "type": "object",
+            "required": [
+                "address",
+                "description",
+                "group",
+                "id",
+                "image_url",
+                "name",
+                "page_url",
+                "phone",
+                "rest_days"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "group": {
+                    "$ref": "#/definitions/services.Group"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page_url": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "rest_days": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/services.DayOfWeek"
+                    }
+                }
+            }
+        },
+        "services.DayOfWeek": {
             "type": "string",
             "enum": [
                 "Sunday",
@@ -172,30 +243,7 @@ const docTemplate = `{
                 "Saturday"
             ]
         },
-        "config.FoodEntry": {
-            "type": "object",
-            "required": [
-                "day",
-                "description",
-                "name",
-                "price"
-            ],
-            "properties": {
-                "day": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                }
-            }
-        },
-        "config.Group": {
+        "services.Group": {
             "type": "string",
             "enum": [
                 "Degerloch",
@@ -213,95 +261,6 @@ const docTemplate = `{
                 "LeinfeldenEchterdingen",
                 "Nuertingen"
             ]
-        },
-        "config.Menu": {
-            "type": "object",
-            "required": [
-                "card",
-                "description",
-                "food"
-            ],
-            "properties": {
-                "card": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "food": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/config.FoodEntry"
-                    }
-                }
-            }
-        },
-        "echo.HTTPError": {
-            "type": "object",
-            "required": [
-                "message"
-            ],
-            "properties": {
-                "message": {}
-            }
-        },
-        "handler.Restaurant": {
-            "type": "object",
-            "required": [
-                "address",
-                "description",
-                "group",
-                "icon",
-                "id",
-                "manually",
-                "menu",
-                "name",
-                "page_url",
-                "phone",
-                "price",
-                "rest_days"
-            ],
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "group": {
-                    "$ref": "#/definitions/config.Group"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "manually": {
-                    "type": "boolean"
-                },
-                "menu": {
-                    "$ref": "#/definitions/config.Menu"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "page_url": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "rest_days": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/config.DayOfWeek"
-                    }
-                }
-            }
         }
     }
 }`
@@ -309,9 +268,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "mittag.unjx.de",
+	Host:             "",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"https"},
+	Schemes:          []string{},
 	Title:            "Mittagstisch API",
 	Description:      "",
 	InfoInstanceName: "swagger",

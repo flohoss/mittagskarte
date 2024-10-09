@@ -1,24 +1,19 @@
-ARG V_GOLANG
-FROM --platform=linux/amd64 golang:${V_GOLANG}
+ARG V_GOLANG='latest'
+FROM golang:${V_GOLANG} AS golang
+FROM mcr.microsoft.com/playwright:v1.47.2-noble AS final
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https ca-certificates curl gnupg libmagickwand-dev
-
-RUN curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-archive-keyring.gpg
-RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-archive-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
-RUN apt-get update && apt-get install -y google-chrome-stable
-
-RUN apt-get autoremove -y && \
+    apt-transport-https ca-certificates curl gnupg libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev && \
+    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN go install github.com/air-verse/air@latest
-COPY ./.air.toml .
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+COPY --from=golang /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
-ENV PATH="/root/go/bin:${PATH}"
-RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
+RUN go install github.com/air-verse/air@latest
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY ./go.mod .
 COPY ./go.sum .

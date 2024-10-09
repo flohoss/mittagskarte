@@ -1,7 +1,5 @@
 {
   "id": "khoi",
-  "icon": "fa-solid fa-bowl-rice",
-  "price": 2,
   "name": "Khoi",
   "description": "Vietnamesisch",
   "page_url": "https://www.khoi-restaurant.de/speisekarte/",
@@ -10,12 +8,8 @@
   "phone": "+49 711 56619918",
   "group": "Fasanenhof",
   "parse": {
-    "navigate":[
-      {
-        "jquery": "//a[contains(text(), 'Mittagskarte PDF')]",
-        "attribute": "href"
-      }
-    ],
-    "is_file": true
+    "update_cron": "0 11 * * 2,3",
+    "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte PDF')]" }],
+    "file_type": "pdf"
   }
 }

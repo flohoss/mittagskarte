@@ -11,14 +11,12 @@
   "group": "Leinfelden-Echterdingen",
   "parse": {
     "scan": {
+      "viewport_width": 1000,
       "crop": {
         "width": 723,
         "height": 550,
         "offset_x": 12,
         "offset_y": 455
-      },
-      "chrome": {
-        "width": 1000
       }
     }
   }

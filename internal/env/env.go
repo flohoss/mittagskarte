@@ -9,25 +9,12 @@ import (
 )
 
 type Env struct {
-	TimeZone     string   `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
-	Port         int      `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
-	LogLevel     string   `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
-	AllowedHosts []string `env:"ALLOWED_HOSTS" envDefault:"*" envSeparator:","`
-	APIToken     string   `env:"API_TOKEN,required,unset"`
-
-	RedisHost string `env:"REDIS_HOST" envDefault:"redis" validate:"hostname"`
-	RedisPort int    `env:"REDIS_PORT" envDefault:"6379" validate:"min=1024,max=49151"`
-
-	OCRHost string `env:"OCR_HOST" envDefault:"ocrserver" validate:"hostname"`
-	OCRPort int    `env:"OCR_PORT" envDefault:"8080" validate:"min=1024,max=49151"`
-
-	DocHost string `env:"DOC_HOST" envDefault:"docd" validate:"hostname"`
-	DocPort int    `env:"DOC_PORT" envDefault:"8888" validate:"min=1024,max=49151"`
-
-	SMTPHost     string `env:"SMTP_HOST" envDefault:"mail.your-server.de" validate:"hostname"`
-	SMTPPort     int    `env:"SMTP_PORT" envDefault:"587" validate:"min=1,max=49151"`
-	SMTPPassword string `env:"SMTP_PASSWORD,unset"`
-	SMTPUsername string `env:"SMTP_USERNAME"`
+	TimeZone   string `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
+	Port       int    `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
+	PublicUrl  string `env:"PUBLIC_URL" envDefault:"http://localhost:4000/" validate:"url"`
+	LogLevel   string `env:"LOG_LEVEL" envDefault:"info" validate:"oneof=debug info warn error"`
+	APIToken   string `env:"API_TOKEN,required,unset"`
+	APPVersion string `env:"APP_VERSION" envDefault:"dev"`
 }
 
 var errParse = errors.New("error parsing environment variables")

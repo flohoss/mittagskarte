@@ -1,7 +1,5 @@
 {
   "id": "troelsch",
-  "icon": "fa-solid fa-bread-slice",
-  "price": 1,
   "name": "Troelsch",
   "description": "Bäckerei",
   "page_url": "https://www.troelsch.de/ueber-uns/standorte/",
@@ -10,12 +8,14 @@
   "phone": "+49 711 85680030",
   "group": "Feuerbach",
   "parse": {
-    "navigate":[
+    "update_cron": "0 11 * * 1,2",
+    "navigate": [
       {
-        "jquery": ".sections-item:contains('Feuerbach') a:contains('Mittagskarte')",
-        "attribute": "href"
+        "locator": "//h2[contains(text(), 'Feuerbach')]/parent::div/following-sibling::div//a[@title='Mittagskarte herunterladen']",
+        "attribute": "href",
+        "style": ".collapse:not(.show) { display: block !important; }"
       }
     ],
-    "is_file": true
+    "file_type": "pdf"
   }
 }
