@@ -9,7 +9,6 @@ import (
 )
 
 type FileType string
-type UpdatePeriod string
 type DayOfWeek string
 type Group string
 
@@ -18,9 +17,6 @@ const (
 
 	PDF   FileType = "pdf"
 	Image FileType = "image"
-
-	Daily  UpdatePeriod = "daily"
-	Weekly UpdatePeriod = "weekly"
 
 	Sunday    DayOfWeek = "Sunday"
 	Monday    DayOfWeek = "Monday"
@@ -39,7 +35,6 @@ const (
 )
 
 var allFileTypes = []FileType{PDF, Image}
-var allUpdatePeriods = []UpdatePeriod{Daily, Weekly}
 var allDays = []DayOfWeek{Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday}
 var allGroups = []Group{Degerloch, Fasanenhof, Feuerbach, Koengen, LeinfeldenEchterdingen, Nuertingen}
 
@@ -127,10 +122,10 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	UpdatePeriod UpdatePeriod `json:"update_period"`
-	Navigate     []Selector   `json:"navigate"`
-	FileType     FileType     `json:"file_type"`
-	Clip         Clip         `json:"clip"`
+	UpdateCron string     `json:"update_period"`
+	Navigate   []Selector `json:"navigate"`
+	FileType   FileType   `json:"file_type"`
+	Clip       Clip       `json:"clip"`
 }
 
 type Selector struct {
@@ -144,22 +139,6 @@ type Clip struct {
 	Height  float64 `json:"height"`
 	OffsetX float64 `json:"offset_x"`
 	OffsetY float64 `json:"offset_y"`
-}
-
-func (u *UpdatePeriod) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-
-	for _, v := range allUpdatePeriods {
-		if UpdatePeriod(s) == v {
-			*u = UpdatePeriod(s)
-			return nil
-		}
-	}
-
-	return fmt.Errorf("invalid update period: %s", s)
 }
 
 func (f *FileType) UnmarshalJSON(data []byte) error {

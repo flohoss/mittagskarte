@@ -8,7 +8,7 @@
   "phone": "+49 7024 81488",
   "group": "Köngen",
   "parse": {
-    "upadte_period": "weekly",
+    "update_cron": "0 11 * * 1,2",
     "navigate": [
       { "locator": "img.mailpoet_form_close_icon" },
       {

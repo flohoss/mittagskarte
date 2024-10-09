@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/robfig/cron/v3"
 )
 
 const (
@@ -25,14 +26,28 @@ func init() {
 type Mittag struct {
 	restaurants map[string]*Restaurant
 	im          *ImageMagic
+	cron        *cron.Cron
 }
 
 func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 	r := &Mittag{
 		restaurants: restaurants,
 		im:          NewimageMagic(),
+		cron:        cron.New(),
 	}
+	for id := range restaurants {
+		if restaurants[id].Parse.UpdateCron == "" {
+			continue
+		}
+		r.cron.AddFunc(restaurants[id].Parse.UpdateCron, func() {
+			if err := r.getImageUrl(restaurants[id], true); err != nil {
+				slog.Error(err.Error())
+			}
+		})
+	}
+	r.cron.Start()
 	r.getImageUrls(false)
+
 	return r
 }
 

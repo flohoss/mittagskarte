@@ -8,7 +8,7 @@
   "phone": "+49 711 56619918",
   "group": "Fasanenhof",
   "parse": {
-    "upadte_period": "weekly",
+    "update_cron": "0 11 * * 2,3",
     "navigate": [{ "locator": "//a[contains(text(), 'Mittagskarte PDF')]" }],
     "file_type": "pdf"
   }
