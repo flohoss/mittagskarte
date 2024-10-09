@@ -8,7 +8,7 @@
   "phone": "+49 7024 989895",
   "group": "Köngen",
   "parse": {
-    "upadte_period": "weekly",
+    "update_cron": "0 11 * * 1,2",
     "navigate": [
       { "locator": "#gdpr-cookie-accept" },
       { "locator": "div.col-xs-12.col-sm-12.col-md-6" }
