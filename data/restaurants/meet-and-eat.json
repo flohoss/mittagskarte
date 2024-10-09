@@ -3,7 +3,7 @@
   "icon": "fa-solid fa-hotdog",
   "price": 1,
   "name": "Meet & Eat",
-  "description": "Tankstelle",
+  "description": "Imbiss",
   "page_url": "http://meetundeat.com/",
   "address": "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof",
   "rest_days": ["Sunday", "Saturday"],

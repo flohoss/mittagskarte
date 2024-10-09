@@ -1,9 +1,27 @@
 import { defineStore } from 'pinia';
-import { RestaurantsService, services_CleanRestaurant } from 'src/openapi';
+import {
+  RestaurantsService,
+  services_CleanRestaurant,
+  services_Group,
+} from 'src/openapi';
 import { LocalStorage } from 'quasar';
 
 export const FavoriteKey = 'mittag_favorites';
 export const MiddayKey = 'mittag_midday';
+
+export const emptyRestaurant: services_CleanRestaurant = {
+  address: '',
+  description: '',
+  group: services_Group.Degerloch,
+  icon: '',
+  id: '',
+  image_url: '',
+  name: '',
+  page_url: '',
+  phone: '',
+  price: 0,
+  rest_days: [],
+};
 
 export const useRestaurantStore = defineStore('restaurant', {
   state: () => ({
@@ -38,7 +56,7 @@ export const useRestaurantStore = defineStore('restaurant', {
       Record<string, services_CleanRestaurant>
     > {
       const response = await RestaurantsService.getRestaurants();
-      this.$state.restaurants = response || {};
+      this.$state.restaurants = response;
       return this.$state.restaurants;
     },
     toggleFavorite(restaurant: services_CleanRestaurant) {

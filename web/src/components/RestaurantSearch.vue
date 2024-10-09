@@ -32,6 +32,7 @@ watch(search, (val) => {
 <template>
   <q-input
     v-model="search"
+    style="max-width: 20rem"
     class="full-width"
     dense
     placeholder="Suchen"
@@ -40,24 +41,24 @@ watch(search, (val) => {
     @keyup.esc="search = ''"
   >
     <template v-slot:append><q-icon name="fa-solid fa-search" /></template>
-  </q-input>
 
-  <q-menu
-    :no-parent-event="false"
-    :no-focus="true"
-    v-model="show"
-    fit
-    anchor="bottom left"
-    self="top left"
-    class="q-pl-md"
-  >
-    <q-list style="min-width: 15rem">
-      <NavRestaurant
-        v-for="restaurant in result"
-        :key="restaurant.id"
-        :restaurant="restaurant"
-        :search="true"
-      />
-    </q-list>
-  </q-menu>
+    <q-menu
+      :no-parent-event="true"
+      :no-focus="true"
+      v-model="show"
+      fit
+      anchor="bottom left"
+      self="top left"
+      class="q-pl-md"
+    >
+      <q-list style="min-width: 15rem">
+        <NavRestaurant
+          v-for="restaurant in result"
+          :key="restaurant.id"
+          :restaurant="restaurant"
+          :search="true"
+        />
+      </q-list>
+    </q-menu>
+  </q-input>
 </template>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import MainNavigation from 'components/MainNavigation.vue';
-import RestaurantSearch from 'src/components/RestaurantSearch.vue';
 import NavTitle from 'src/components/NavTitle.vue';
 import { computed, ref } from 'vue';
 import { Dark } from 'quasar';
 import NavExtra from 'src/components/NavExtra.vue';
+import RestaurantActions from 'src/components/RestaurantActions.vue';
 
 const leftDrawerOpen = ref(false);
 
@@ -54,7 +54,7 @@ const text = computed(() => {
           :class="text"
         />
         <q-space />
-        <RestaurantSearch />
+        <RestaurantActions />
       </q-toolbar>
     </q-footer>
   </q-layout>

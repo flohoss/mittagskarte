@@ -8,31 +8,42 @@ const props = defineProps<{
 }>();
 const store = useRestaurantStore();
 
+const favorite = computed(() => store.favorites.includes(props.restaurant.id));
+
 const starIcon = computed(() => {
-  if (store.favorites.includes(props.restaurant.id)) {
+  if (favorite.value) {
     return 'fa-solid fa-star';
   } else {
     return 'fa-regular fa-star';
   }
 });
+
+const tooltip = computed(() => {
+  if (favorite.value) {
+    return 'Favorit entfernen';
+  } else {
+    return 'Favorisieren';
+  }
+});
+
+const color = computed(() => {
+  if (favorite.value) {
+    return 'secondary';
+  } else {
+    return 'primary';
+  }
+});
 </script>
 
 <template>
-  <q-icon
+  <q-btn
+    round
+    size="sm"
+    flat
+    :color="color"
+    :icon="starIcon"
     @click.prevent="store.toggleFavorite(restaurant)"
-    :name="starIcon"
-    class="star cursor-pointer"
-    color="secondary"
-    size="xs"
-  />
+  >
+    <q-tooltip class="bg-accent">{{ tooltip }}</q-tooltip>
+  </q-btn>
 </template>
-
-<style>
-.star {
-  opacity: 0.6;
-}
-
-.star:hover {
-  opacity: 1;
-}
-</style>
