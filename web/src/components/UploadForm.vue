@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Loading, Notify } from 'quasar';
+import { Dark, Loading, Notify } from 'quasar';
 import { RestaurantsService, services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import { ref } from 'vue';
@@ -19,7 +19,11 @@ const router = useRouter();
 const file = ref();
 const token = ref('');
 const onSubmit = () => {
-  Loading.show();
+  Loading.show({
+    message: 'Die Datei wurd hochgeladen. Dies kann mehrere Minuten dauern...',
+    boxClass: Dark.isActive ? 'nav-bg-dark' : 'nav-bg-light',
+    spinnerColor: 'primary',
+  });
   RestaurantsService.postRestaurants(
     'Bearer ' + token.value,
     props.restaurant.id,
@@ -43,7 +47,7 @@ const onSubmit = () => {
       Notify.create({
         type: 'negative',
         group: false,
-        message: 'Fehler: ' + err.body.message,
+        message: 'Fehler: ' + err.body.message ?? 'unknown error',
       });
     })
     .finally(() => Loading.hide());

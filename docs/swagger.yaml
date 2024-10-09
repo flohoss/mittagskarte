@@ -14,8 +14,6 @@ definitions:
         type: string
       group:
         $ref: '#/definitions/services.Group'
-      icon:
-        type: string
       id:
         type: string
       image_url:
@@ -26,8 +24,6 @@ definitions:
         type: string
       phone:
         type: string
-      price:
-        type: integer
       rest_days:
         items:
           $ref: '#/definitions/services.DayOfWeek'
@@ -36,13 +32,11 @@ definitions:
     - address
     - description
     - group
-    - icon
     - id
     - image_url
     - name
     - page_url
     - phone
-    - price
     - rest_days
     type: object
   services.DayOfWeek:
@@ -156,6 +150,31 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Upload a menu
+      tags:
+      - restaurants
+    put:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Refresh a menu
       tags:
       - restaurants
 swagger: "2.0"

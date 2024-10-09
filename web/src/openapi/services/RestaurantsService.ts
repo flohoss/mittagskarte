@@ -39,6 +39,27 @@ export class RestaurantsService {
         });
     }
     /**
+     * Refresh a menu
+     * @param id Restaurant ID
+     * @returns any ok
+     * @throws ApiError
+     */
+    public static putRestaurants(
+        id: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/restaurants/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                401: `Unauthorized`,
+                404: `Can not find ID`,
+            },
+        });
+    }
+    /**
      * Upload a menu
      * @param authorization Bearer <Add access token here>
      * @param id Restaurant ID

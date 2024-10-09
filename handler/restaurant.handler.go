@@ -48,3 +48,15 @@ func (h *MittagHandler) GetRestaurant(ctx echo.Context) error {
 func (h *MittagHandler) UploadMenu(ctx echo.Context) error {
 	return h.mittag.UploadMenu(ctx)
 }
+
+//	@Summary	Refresh a menu
+//	@Tags		restaurants
+//	@Param		id	path		string			true	"Restaurant ID"
+//	@Success	200	{object}	nil				"ok"
+//	@Failure	401	{object}	echo.HTTPError	"Unauthorized"
+//	@Failure	404	{object}	echo.HTTPError	"Can not find ID"
+//	@Failure	500	{object}	echo.HTTPError	"Internal Server Error"
+//	@Router		/restaurants/{id} [put]
+func (h *MittagHandler) RefreshRestaurant(ctx echo.Context) error {
+	return h.mittag.UpdateRestaurant(ctx)
+}

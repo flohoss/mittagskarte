@@ -13,13 +13,11 @@ export const emptyRestaurant: services_CleanRestaurant = {
   address: '',
   description: '',
   group: services_Group.Degerloch,
-  icon: '',
   id: '',
   image_url: '',
   name: '',
   page_url: '',
   phone: '',
-  price: 0,
   rest_days: [],
 };
 

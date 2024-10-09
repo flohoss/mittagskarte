@@ -1,11 +1,13 @@
 package services
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,7 +32,7 @@ func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 		restaurants: restaurants,
 		im:          NewimageMagic(),
 	}
-	r.getImageUrls()
+	r.getImageUrls(false)
 	return r
 }
 
@@ -40,51 +42,67 @@ func (r *Mittag) Close() {
 	}
 }
 
-func (r *Mittag) getImageUrls() {
-	p, err := newPlaywrightService()
+func (r *Mittag) getImageUrls(overwrite bool) {
+	ps, err := newPlaywrightService()
 	if err != nil {
-		slog.Error(err.Error())
 		return
 	}
-	defer p.close()
+	defer ps.close()
 	for id := range r.restaurants {
-		slog.Debug("getting image url", "id", id)
-
-		filePath := FinalDownloadFolder + id + ".webp"
-		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-			slog.Debug("file already exists, skipping...", "filePath", filePath)
-			r.restaurants[id].ImageUrl = filePath
-			continue
-		}
-
-		if r.restaurants[id].PageUrl == "" {
-			slog.Debug("no page url, nothing to do...", "id", id)
-			continue
-		}
-
-		tmpPath, err := p.doScrape(r.restaurants[id].PageUrl, &r.restaurants[id].Parse)
-		if err != nil {
+		if err := r.doGetImageUrl(ps, r.restaurants[id], overwrite); err != nil {
 			slog.Error(err.Error())
 			continue
-		}
-
-		err = r.convertToWebp(id, tmpPath, filePath, false)
-		if err != nil {
-			slog.Error(err.Error())
-			continue
-		}
-
-		os.Remove(tmpPath)
-
-		if r.restaurants[id].Parse.FileType != PDF && r.restaurants[id].Parse.FileType != Image {
-			err = r.im.Trim(filePath)
-			if err != nil {
-				slog.Error(err.Error())
-				continue
-			}
 		}
 	}
-	slog.Info("all done!")
+}
+
+func (r *Mittag) getImageUrl(restaurant *Restaurant, overwrite bool) error {
+	ps, err := newPlaywrightService()
+	if err != nil {
+		return err
+	}
+	defer ps.close()
+	if err := r.doGetImageUrl(ps, restaurant, overwrite); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *Restaurant, overwrite bool) error {
+	slog.Debug("getting image url", "id", restaurant.ID)
+
+	filePath := FinalDownloadFolder + restaurant.ID + ".webp"
+	_, err := os.Stat(filePath)
+	if !overwrite && !os.IsNotExist(err) {
+		slog.Debug("file already exists, skipping...", "filePath", filePath)
+		r.restaurants[restaurant.ID].ImageUrl = filePath
+		return nil
+	}
+
+	if r.restaurants[restaurant.ID].PageUrl == "" {
+		slog.Debug("no page url, nothing to do...", "id", restaurant.ID)
+		return nil
+	}
+
+	tmpPath, err := ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
+	if err != nil {
+		return err
+	}
+
+	err = r.convertToWebp(restaurant.ID, tmpPath, filePath, false)
+	if err != nil {
+		return err
+	}
+
+	os.Remove(tmpPath)
+
+	if r.restaurants[restaurant.ID].Parse.FileType != PDF && r.restaurants[restaurant.ID].Parse.FileType != Image {
+		err = r.im.Trim(filePath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) error {
@@ -111,7 +129,7 @@ func (r *Mittag) GetAllRestaurants(ctx echo.Context) error {
 func (r *Mittag) GetRestaurant(ctx echo.Context) error {
 	restaurant, ok := r.restaurants[ctx.Param("id")]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "Can not find ID")
+		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
 	}
 
 	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
@@ -120,36 +138,53 @@ func (r *Mittag) GetRestaurant(ctx echo.Context) error {
 func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	restaurant, ok := r.restaurants[ctx.Param("id")]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "can not find ID")
+		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
 	}
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "no file provided")
+		return echo.NewHTTPError(http.StatusBadRequest, "keine Datei vorhanden")
 	}
 	ext := filepath.Ext(file.Filename)
-	if !contains([]string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}, ext) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid file extension")
+	allowedExtensions := []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+	if !contains(allowedExtensions, ext) {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", ")))
 	}
 	src, err := file.Open()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "cannot open file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht geöffnet werden")
 	}
 	defer src.Close()
 
 	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID)
 	dst, err := os.Create(rawPath)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "cannot create file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann auf dem Server nicht erstellt werden")
 	}
 	defer dst.Close()
 	if _, err = io.Copy(dst, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "cannot copy file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht kopiert werden")
 	}
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
 	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "cannot convert to webp")
+		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht in Webp konvertiert werden")
 	}
 	restaurant.ImageUrl = filePath
+	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
+}
+
+func (r *Mittag) UpdateRestaurant(ctx echo.Context) error {
+	restaurant, ok := r.restaurants[ctx.Param("id")]
+	if !ok {
+		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
+	}
+
+	if restaurant.PageUrl == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("für %s ist keine Speisekarte online, bitte laden Sie manuell eine Speisekarte von diesem Restaurant hoch", restaurant.ID))
+	}
+
+	if err := r.getImageUrl(restaurant, true); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
 }
 
