@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -36,9 +37,9 @@ func main() {
 	defer r.Close()
 
 	router := handler.NewRouter(handler.NewMittagHandler(r), env.APIToken)
-	slog.Info("starting server", "url", fmt.Sprintf("http://localhost:%d", env.Port))
-	if err := router.Echo.Start(fmt.Sprintf(":%d", env.Port)); err != http.ErrServerClosed {
-		slog.Error("cannot start server", "err", err)
+	slog.Info("server listening, press ctrl+c to stop", "addr", env.PublicUrl)
+	if err := router.Echo.Start(fmt.Sprintf(":%d", env.Port)); !errors.Is(err, http.ErrServerClosed) {
+		slog.Error("server terminated", "error", err)
 		os.Exit(1)
 	}
 }
