@@ -3,11 +3,14 @@ import { services_DayOfWeek, services_CleanRestaurant } from 'src/openapi';
 import FavStar from './FavStar.vue';
 import { computed } from 'vue';
 
-const props = defineProps<{
-  restaurant: services_CleanRestaurant;
-  search: boolean;
-  showStar?: boolean;
-}>();
+const props = defineProps({
+  restaurant: {
+    type: Object as () => services_CleanRestaurant,
+    required: true,
+  },
+  search: { type: Boolean },
+  showStar: { type: Boolean, default: false },
+});
 
 const isClosed = () => {
   const now = new Date();
@@ -46,7 +49,6 @@ const thumbnail = computed(
       <q-item-label v-else class="q-item__label--caption text-caption">
         <div class="row items-baseline q-gutter-x-sm">
           <div>{{ restaurant.description }}</div>
-          <div><span v-for="i in restaurant.price" :key="i">€</span></div>
         </div>
       </q-item-label>
     </q-item-section>

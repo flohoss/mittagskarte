@@ -90,8 +90,6 @@ func (cp *ConfigParser) parseConfigFiles() error {
 func (r *Restaurant) GetCleanRestaurant() *CleanRestaurant {
 	return &CleanRestaurant{
 		ID:          r.ID,
-		Price:       r.Price,
-		Icon:        r.Icon,
 		Name:        r.Name,
 		Description: r.Description,
 		PageUrl:     r.PageUrl,
@@ -105,8 +103,6 @@ func (r *Restaurant) GetCleanRestaurant() *CleanRestaurant {
 
 type CleanRestaurant struct {
 	ID          string      `json:"id"`
-	Price       uint8       `json:"price"`
-	Icon        string      `json:"icon"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	PageUrl     string      `json:"page_url"`
@@ -119,8 +115,6 @@ type CleanRestaurant struct {
 
 type Restaurant struct {
 	ID          string      `json:"id"`
-	Price       uint8       `json:"price"`
-	Icon        string      `json:"icon"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	PageUrl     string      `json:"page_url"`

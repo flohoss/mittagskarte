@@ -1,7 +1,5 @@
 {
   "id": "hoflieferant-munz",
-  "icon": "fa-solid fa-cow",
-  "price": 1,
   "name": "Munz",
   "description": "Metzgerei",
   "page_url": "https://www.hoflieferant-munz.de/aktuelles",

@@ -3,9 +3,12 @@ import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 
-const props = defineProps<{
-  restaurant: services_CleanRestaurant;
-}>();
+const props = defineProps({
+  restaurant: {
+    type: Object as () => services_CleanRestaurant,
+    required: true,
+  },
+});
 const store = useRestaurantStore();
 
 const favorite = computed(() => store.favorites.includes(props.restaurant.id));
