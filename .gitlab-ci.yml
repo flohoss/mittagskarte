@@ -1,6 +1,7 @@
 stages:
   - build
-  - deploy
+  - cleanup
+  - publish
 
 variables:
   LATEST_IMAGE: "$CI_REGISTRY_IMAGE:latest"
