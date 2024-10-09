@@ -3,13 +3,33 @@ import { services_CleanRestaurant } from 'src/openapi';
 import { useRestaurantStore } from 'src/stores/restaurants';
 import NavRestaurant from './NavRestaurant.vue';
 import RestaurantSearch from './RestaurantSearch.vue';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const store = useRestaurantStore();
+const route = useRoute();
+const id = computed(() => route.params.name as string);
 
 const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
   const amount = restaurants.length;
   return amount === 1 ? amount + ' Restaurant' : amount + ' Restaurants';
 };
+
+function isIdIncluded(
+  records: services_CleanRestaurant[],
+  targetId?: string
+): boolean {
+  if (!targetId || store.favorites.includes(targetId)) {
+    return false;
+  }
+
+  for (const key in records) {
+    if (records[key].id === targetId) {
+      return true;
+    }
+  }
+  return false;
+}
 </script>
 
 <template>
@@ -44,6 +64,7 @@ const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
       :key="key"
       :label="key"
       :caption="amountOfRestaurants(restaurants)"
+      :default-opened="isIdIncluded(restaurants, id)"
     >
       <NavRestaurant
         v-for="restaurant in restaurants"
