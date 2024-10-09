@@ -4,14 +4,16 @@ stages:
   - publish
 
 variables:
-  LATEST_IMAGE: "$CI_REGISTRY_IMAGE:latest"
+  REGISTRY: "ghcr.io"
+  REGISTRY_IMAGE: "$REGISTRY/flohoss/mittag"
+  LATEST_IMAGE: "$REGISTRY_IMAGE:latest"
   PRODUCTION_URL: "https://mittag.unjx.de"
 
 image: docker:${V_DOCKER}-dind
 
 .auth_gitlab:
   before_script:
-    - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - echo $GITHUB_TOKEN | docker login --username $GITHUB_USER --password-stdin $REGISTRY
   after_script:
     - docker logout
 
@@ -24,7 +26,7 @@ build:
   stage: build
   variables:
     DOCKER_BUILDKIT: 1
-    CURRENT_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    CURRENT_IMAGE: "$REGISTRY_IMAGE:$CI_COMMIT_TAG"
   before_script:
     - !reference [.auth_gitlab, before_script]
   script:
