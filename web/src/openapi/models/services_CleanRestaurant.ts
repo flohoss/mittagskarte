@@ -8,13 +8,11 @@ export type services_CleanRestaurant = {
     address: string;
     description: string;
     group: services_Group;
-    icon: string;
     id: string;
     image_url: string;
     name: string;
     page_url: string;
     phone: string;
-    price: number;
     rest_days: Array<services_DayOfWeek>;
 };
 

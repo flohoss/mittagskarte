@@ -74,6 +74,44 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "restaurants"
+                ],
+                "summary": "Refresh a menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -144,13 +182,11 @@ const docTemplate = `{
                 "address",
                 "description",
                 "group",
-                "icon",
                 "id",
                 "image_url",
                 "name",
                 "page_url",
                 "phone",
-                "price",
                 "rest_days"
             ],
             "properties": {
@@ -162,9 +198,6 @@ const docTemplate = `{
                 },
                 "group": {
                     "$ref": "#/definitions/services.Group"
-                },
-                "icon": {
-                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -180,9 +213,6 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
-                },
-                "price": {
-                    "type": "integer"
                 },
                 "rest_days": {
                     "type": "array",

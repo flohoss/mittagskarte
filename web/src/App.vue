@@ -18,7 +18,7 @@ defineOptions({
         Notify.create({
           type: 'negative',
           group: false,
-          message: 'Fehler: ' + err.status + ' - ' + err.message,
+          message: 'Fehler: ' + err.body.message ?? 'unknown error',
         });
       })
       .finally(() => {
