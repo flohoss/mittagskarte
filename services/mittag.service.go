@@ -49,15 +49,16 @@ func (r *Mittag) getImageUrls() {
 	defer p.close()
 	for id := range r.restaurants {
 		slog.Debug("getting image url", "id", id)
-		if r.restaurants[id].PageUrl == "" {
-			slog.Debug("no page url, nothing to do...", "id", id)
-			continue
-		}
 
 		filePath := FinalDownloadFolder + id + ".webp"
 		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
 			slog.Debug("file already exists, skipping...", "filePath", filePath)
 			r.restaurants[id].ImageUrl = filePath
+			continue
+		}
+
+		if r.restaurants[id].PageUrl == "" {
+			slog.Debug("no page url, nothing to do...", "id", id)
 			continue
 		}
 
@@ -67,7 +68,7 @@ func (r *Mittag) getImageUrls() {
 			continue
 		}
 
-		err = r.convertToWebp(id, tmpPath, filePath)
+		err = r.convertToWebp(id, tmpPath, filePath, false)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -86,9 +87,9 @@ func (r *Mittag) getImageUrls() {
 	slog.Info("all done!")
 }
 
-func (r *Mittag) convertToWebp(id, tmpPath, filePath string) error {
+func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) error {
 	var err error
-	if r.restaurants[id].Parse.FileType == PDF {
+	if r.restaurants[id].Parse.FileType == PDF || pdfOverwrite {
 		err = convertPdfToWebp(tmpPath, filePath)
 	} else {
 		err = r.im.ConvertToWebp(tmpPath, filePath)
@@ -130,6 +131,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot open file")
 	}
 	defer src.Close()
+	ext := filepath.Ext(file.Filename)
 
 	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID)
 	dst, err := os.Create(rawPath)
@@ -141,7 +143,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot copy file")
 	}
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
-	if err := r.convertToWebp(ctx.Param("id"), rawPath, filePath); err != nil {
+	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Cannot convert to webp")
 	}
 	restaurant.ImageUrl = filePath

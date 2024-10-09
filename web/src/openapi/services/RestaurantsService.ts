@@ -43,14 +43,14 @@ export class RestaurantsService {
      * @param authorization Bearer <Add access token here>
      * @param id Restaurant ID
      * @param file Menu File
-     * @returns any ok
+     * @returns services_CleanRestaurant ok
      * @throws ApiError
      */
     public static postRestaurants(
         authorization: string,
         id: string,
         file: Blob,
-    ): CancelablePromise<any> {
+    ): CancelablePromise<services_CleanRestaurant> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/restaurants/{id}',

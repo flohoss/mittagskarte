@@ -15,36 +15,36 @@ func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
 	}
 }
 
-// @Summary	Get all restaurants
-// @Produce	json
-// @Tags		restaurants
-// @Success	200	{object}	map[string]services.CleanRestaurant	"ok"
-// @Router		/restaurants [get]
+//	@Summary	Get all restaurants
+//	@Produce	json
+//	@Tags		restaurants
+//	@Success	200	{object}	map[string]services.CleanRestaurant	"ok"
+//	@Router		/restaurants [get]
 func (h *MittagHandler) GetAllRestaurants(ctx echo.Context) error {
 	return h.mittag.GetAllRestaurants(ctx)
 }
 
-// @Summary	Get a single restaurant
-// @Produce	json
-// @Tags		restaurants
-// @Param		id	path		string						true	"Restaurant ID"
-// @Success	200	{object}	services.CleanRestaurant	"ok"
-// @Failure	404	{object}	echo.HTTPError				"Can not find ID"
-// @Router		/restaurants/{id} [get]
+//	@Summary	Get a single restaurant
+//	@Produce	json
+//	@Tags		restaurants
+//	@Param		id	path		string						true	"Restaurant ID"
+//	@Success	200	{object}	services.CleanRestaurant	"ok"
+//	@Failure	404	{object}	echo.HTTPError				"Can not find ID"
+//	@Router		/restaurants/{id} [get]
 func (h *MittagHandler) GetRestaurant(ctx echo.Context) error {
 	return h.mittag.GetRestaurant(ctx)
 }
 
-// @Summary	Upload a menu
-// @Accept		multipart/form-data
-// @Tags		restaurants
-// @Param		Authorization	header		string			true	"Bearer <Add access token here>"
-// @Param		id				path		string			true	"Restaurant ID"
-// @Param		file			formData	file			true	"Menu File"
-// @Success	200				{object}	nil				"ok"
-// @Failure	401				{object}	echo.HTTPError	"Unauthorized"
-// @Failure	404				{object}	echo.HTTPError	"Can not find ID"
-// @Router		/restaurants/{id} [post]
+//	@Summary	Upload a menu
+//	@Accept		multipart/form-data
+//	@Tags		restaurants
+//	@Param		Authorization	header		string						true	"Bearer <Add access token here>"
+//	@Param		id				path		string						true	"Restaurant ID"
+//	@Param		file			formData	file						true	"Menu File"
+//	@Success	200				{object}	services.CleanRestaurant	"ok"
+//	@Failure	401				{object}	echo.HTTPError				"Unauthorized"
+//	@Failure	404				{object}	echo.HTTPError				"Can not find ID"
+//	@Router		/restaurants/{id} [post]
 func (h *MittagHandler) UploadMenu(ctx echo.Context) error {
 	return h.mittag.UploadMenu(ctx)
 }
