@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Dark } from 'quasar';
 import { emptyRestaurant, useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -10,6 +11,9 @@ const restaurant = computed(
 );
 
 const cardUrl = computed(() => {
+  if (restaurant.value.image_url === '') {
+    return Dark.isActive ? '/no-image-dark.svg' : '/no-image.svg';
+  }
   let url = process.env.BASE_URL + restaurant.value.image_url;
   if (route.query.cache !== undefined) {
     url += '?rnd=' + route.query.cache;
