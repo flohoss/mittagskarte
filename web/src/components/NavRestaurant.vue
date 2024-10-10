@@ -30,7 +30,7 @@ const thumbnail = computed(
     clickable
     :disable="isClosed()"
     :to="'/restaurants/' + restaurant.id"
-    active-class="text-secondary"
+    active-class="text-primary"
   >
     <q-item-section avatar>
       <q-avatar rounded>

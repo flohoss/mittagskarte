@@ -29,32 +29,32 @@ const googleSearch = computed(
       :size="iconSize"
       flat
       round
-      color="secondary"
+      color="primary"
       icon="fa-solid fa-map-marker-alt"
       :href="googleSearch"
     >
-      <q-tooltip class="bg-accent">Karte öffnen</q-tooltip>
+      <q-tooltip class="bg-primary">Karte öffnen</q-tooltip>
     </q-btn>
     <q-btn
       :size="iconSize"
       flat
       round
-      color="secondary"
+      color="primary"
       icon="fa-solid fa-phone"
       :href="'tel:' + restaurant.phone"
     >
-      <q-tooltip class="bg-accent">Anrufen</q-tooltip>
+      <q-tooltip class="bg-primary">Anrufen</q-tooltip>
     </q-btn>
     <q-btn
       target="_blank"
       :size="iconSize"
       flat
       round
-      color="secondary"
+      color="primary"
       icon="fa-solid fa-globe"
       :href="restaurant.page_url"
     >
-      <q-tooltip class="bg-accent">Restaurant öffnen</q-tooltip>
+      <q-tooltip class="bg-primary">Restaurant öffnen</q-tooltip>
     </q-btn>
   </div>
 </template>

@@ -75,7 +75,7 @@ const upload = ref(false);
       icon="fa-solid fa-upload"
       @click="upload = true"
     >
-      <q-tooltip class="bg-accent">Menü hochladen</q-tooltip>
+      <q-tooltip>Menü hochladen</q-tooltip>
     </q-btn>
     <q-btn
       :size="iconSize"
@@ -84,7 +84,7 @@ const upload = ref(false);
       icon="fa-solid fa-rotate-right"
       @click="confirmRefresh()"
     >
-      <q-tooltip class="bg-accent">Menü aktualisieren</q-tooltip>
+      <q-tooltip>Menü aktualisieren</q-tooltip>
     </q-btn>
 
     <q-dialog v-model="upload" backdrop-filter="blur(4px) saturate(150%)">

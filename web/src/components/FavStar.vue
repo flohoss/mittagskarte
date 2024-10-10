@@ -36,9 +36,9 @@ const tooltip = computed(() => {
 
 const color = computed(() => {
   if (favorite.value) {
-    return 'secondary';
-  } else {
     return 'primary';
+  } else {
+    return 'grey-8';
   }
 });
 </script>
@@ -52,6 +52,6 @@ const color = computed(() => {
     :icon="starIcon"
     @click.prevent="store.toggleFavorite(restaurant)"
   >
-    <q-tooltip class="bg-accent">{{ tooltip }}</q-tooltip>
+    <q-tooltip class="bg-primary">{{ tooltip }}</q-tooltip>
   </q-btn>
 </template>
