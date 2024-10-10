@@ -7,8 +7,8 @@
     </q-item-section>
 
     <q-item-section>
-      <q-item-label class="text-h6" v-if="$q.screen.gt.xs">
-        Mittagstisch
+      <q-item-label class="text-h6">
+        Mittag<span v-if="$q.screen.gt.xs" class="text-secondary">stisch</span>
       </q-item-label>
     </q-item-section>
   </q-btn>

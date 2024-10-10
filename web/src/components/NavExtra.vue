@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import SettingsForm from 'components/SettingsForm.vue';
+import { computed } from 'vue';
 import RestaurantActions from './RestaurantActions.vue';
 import { services_CleanRestaurant } from 'src/openapi';
+import { useQuasar } from 'quasar';
+import RestaurantInfo from './RestaurantInfo.vue';
 
+const $q = useQuasar();
 defineProps({
   restaurant: {
     type: Object as () => services_CleanRestaurant,
@@ -11,29 +13,21 @@ defineProps({
   },
 });
 
-const settings = ref(false);
+const size = computed(() => {
+  if ($q.screen.lt.sm) {
+    return 'md';
+  }
+  return 'sm';
+});
 </script>
 
 <template>
-  <div class="flex q-gutter-x-md">
-    <RestaurantActions
+  <div class="row q-gutter-x-sm">
+    <RestaurantInfo
       v-if="$q.screen.gt.sm && restaurant.image_url !== ''"
       :restaurant="restaurant"
+      :icon-size="size"
     />
-    <div class="row q-gutter-x-sm">
-      <q-btn
-        size="sm"
-        round
-        flat
-        icon="fa-solid fa-gear"
-        @click="settings = true"
-      >
-        <q-tooltip>Einstellungen</q-tooltip>
-      </q-btn>
-    </div>
+    <RestaurantActions :restaurant="restaurant" :icon-size="size" />
   </div>
-
-  <q-dialog v-model="settings" backdrop-filter="blur(4px) saturate(150%)">
-    <SettingsForm />
-  </q-dialog>
 </template>

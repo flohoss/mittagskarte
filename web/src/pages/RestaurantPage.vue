@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RestaurantActions from 'src/components/RestaurantActions.vue';
+import RestaurantInfo from 'src/components/RestaurantInfo.vue';
 import { emptyRestaurant, useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -31,7 +31,7 @@ const thumbnail = computed(
   <q-page class="flex column items-center">
     <div
       v-if="cardUrl"
-      :class="[$q.screen.gt.sm ? 'q-my-md' : 'q-ma-sm']"
+      :class="[$q.screen.gt.sm ? 'q-py-md' : 'q-pa-sm']"
       :style="{
         'border-radius': '0.5rem',
         width: '100%',
@@ -55,16 +55,14 @@ const thumbnail = computed(
       bordered
       :style="{ 'max-width': +'px' }"
     >
-      <q-img :src="thumbnail" style="max-height: 15rem;">
-        <div class="absolute-top text-center"></div>
-      </q-img>
+      <q-img :src="thumbnail" style="max-height: 15rem" />
 
       <q-card-section>
         <div class="text-h6">Kein Menü gefunden...</div>
       </q-card-section>
 
       <q-card-actions align="right">
-        <RestaurantActions icon-size="md" :restaurant="restaurant" />
+        <RestaurantInfo icon-size="md" :restaurant="restaurant" />
       </q-card-actions>
     </q-card>
   </q-page>
