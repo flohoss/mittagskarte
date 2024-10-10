@@ -4,7 +4,7 @@ ARG V_ALPINE=3
 FROM golang:${V_GOLANG} AS golang
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
