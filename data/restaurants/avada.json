@@ -1,0 +1,20 @@
+{
+  "id": "avada",
+  "name": "Avada",
+  "description": "Sushi & Asiatisch",
+  "page_url": "https://avada-nt.de/business-lunch/",
+  "address": "Neckarstraße 1, 72622 Nürtingen",
+  "rest_days": ["Sunday", "Saturday"],
+  "phone": "+49 7022 9796098",
+  "group": "Nürtingen",
+  "parse": {
+    "update_cron": "30 10 * * 2,3",
+    "navigate": [
+      {
+        "locator": "//img[contains(@class, 'size-full')]",
+        "attribute": "data-orig-file"
+      }
+    ],
+    "file_type": "image"
+  }
+}

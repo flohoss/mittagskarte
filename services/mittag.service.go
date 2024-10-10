@@ -117,6 +117,8 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *Restaurant, ov
 			return err
 		}
 	}
+
+	r.restaurants[restaurant.ID].ImageUrl = filePath
 	return nil
 }
 
