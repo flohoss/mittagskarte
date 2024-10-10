@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Dark } from 'quasar';
+import RestaurantActions from 'src/components/RestaurantActions.vue';
 import { emptyRestaurant, useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -12,7 +12,7 @@ const restaurant = computed(
 
 const cardUrl = computed(() => {
   if (restaurant.value.image_url === '') {
-    return Dark.isActive ? '/no-image-dark.svg' : '/no-image.svg';
+    return '';
   }
   let url = process.env.BASE_URL + restaurant.value.image_url;
   if (route.query.cache !== undefined) {
@@ -20,12 +20,18 @@ const cardUrl = computed(() => {
   }
   return url;
 });
+
+const thumbnail = computed(
+  () =>
+    process.env.BASE_URL + 'data/thumbnails/' + restaurant.value.id + '.webp'
+);
 </script>
 
 <template>
-  <q-page class="row align-start justify-center">
+  <q-page class="flex column items-center">
     <div
-      :class="[$q.screen.gt.sm ? 'q-py-md' : 'q-pa-sm']"
+      v-if="cardUrl"
+      :class="[$q.screen.gt.sm ? 'q-my-md' : 'q-ma-sm']"
       :style="{
         'border-radius': '0.5rem',
         width: '100%',
@@ -40,5 +46,33 @@ const cardUrl = computed(() => {
         }"
       />
     </div>
+
+    <q-card
+      v-else-if="restaurant.id !== ''"
+      :class="[$q.screen.gt.sm ? 'q-my-md' : 'q-ma-sm']"
+      class="my-card"
+      flat
+      bordered
+      :style="{ 'max-width': +'px' }"
+    >
+      <q-img :src="thumbnail" style="max-height: 15rem;">
+        <div class="absolute-top text-center"></div>
+      </q-img>
+
+      <q-card-section>
+        <div class="text-h6">Kein Menü gefunden...</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <RestaurantActions icon-size="md" :restaurant="restaurant" />
+      </q-card-actions>
+    </q-card>
   </q-page>
 </template>
+
+<style scoped>
+.my-card {
+  width: 100%;
+  max-width: 20rem;
+}
+</style>

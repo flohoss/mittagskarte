@@ -16,7 +16,10 @@ const settings = ref(false);
 
 <template>
   <div class="flex q-gutter-x-md">
-    <RestaurantActions v-if="$q.screen.gt.sm" :restaurant="restaurant" />
+    <RestaurantActions
+      v-if="$q.screen.gt.sm && restaurant.image_url !== ''"
+      :restaurant="restaurant"
+    />
     <div class="row q-gutter-x-sm">
       <q-btn
         size="sm"

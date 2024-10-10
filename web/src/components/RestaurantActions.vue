@@ -61,8 +61,12 @@ const refresh = () => {
     .catch((err) => {
       Notify.create({
         type: 'negative',
-        message: 'Fehler: ' + err.body.message ?? 'unknown error',
+        message:
+          err?.body?.message ??
+          err?.message ??
+          'unknown error, please check the console for more information',
       });
+      console.log(err);
     })
     .finally(() => Loading.hide());
 };
@@ -72,7 +76,7 @@ const upload = ref(false);
 
 <template>
   <div class="row q-gutter-x-sm" v-if="restaurant.id !== ''">
-    <FavStar :restaurant="restaurant" />
+    <FavStar :icon-size="iconSize" :restaurant="restaurant" />
     <q-btn
       target="_blank"
       :size="iconSize"

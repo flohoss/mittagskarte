@@ -17,9 +17,12 @@ defineOptions({
       .catch((err) => {
         Notify.create({
           type: 'negative',
-          group: false,
-          message: 'Fehler: ' + err.body.message ?? 'unknown error',
+          message:
+            err?.body?.message ??
+            err?.message ??
+            'unknown error, please check the console for more information',
         });
+        console.log(err);
       })
       .finally(() => {
         Loading.hide();

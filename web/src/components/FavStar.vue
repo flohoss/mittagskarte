@@ -8,6 +8,11 @@ const props = defineProps({
     type: Object as () => services_CleanRestaurant,
     required: true,
   },
+  iconSize: {
+    type: String,
+    default: 'sm',
+    required: false,
+  },
 });
 const store = useRestaurantStore();
 
@@ -41,7 +46,7 @@ const color = computed(() => {
 <template>
   <q-btn
     round
-    size="sm"
+    :size="iconSize"
     flat
     :color="color"
     :icon="starIcon"
