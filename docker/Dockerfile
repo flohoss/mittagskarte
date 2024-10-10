@@ -53,4 +53,4 @@ RUN chown -R 1000:1000 /app
 
 ENTRYPOINT ["dumb-init", "--"]
 USER node
-CMD ["cat", "logo.txt", "&&", "/app/mittag"]
+CMD ["/app/mittag"]
