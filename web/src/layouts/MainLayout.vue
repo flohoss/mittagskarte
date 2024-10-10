@@ -2,12 +2,13 @@
 import MainNavigation from 'components/MainNavigation.vue';
 import NavTitle from 'src/components/NavTitle.vue';
 import { computed, ref } from 'vue';
-import { Dark } from 'quasar';
+import { Dark, useQuasar } from 'quasar';
 import NavExtra from 'src/components/NavExtra.vue';
-import RestaurantActions from 'src/components/RestaurantActions.vue';
 import { useRestaurantStore, emptyRestaurant } from 'src/stores/restaurants';
 import { useRoute } from 'vue-router';
+import RestaurantInfo from 'src/components/RestaurantInfo.vue';
 
+const $q = useQuasar();
 const route = useRoute();
 const store = useRestaurantStore();
 const restaurant = computed(
@@ -27,15 +28,19 @@ const bgAndText = computed(() => {
 const text = computed(() => {
   return Dark.isActive ? 'text-white' : 'text-black';
 });
+const size = computed(() => {
+  if ($q.screen.lt.sm) {
+    return 'md';
+  }
+  return 'sm';
+});
 </script>
 
 <template>
   <q-layout view="hHr Lpr fFr">
     <q-header :class="bgAndText" :bordered="!Dark.isActive">
       <q-toolbar>
-        <q-toolbar-title>
-          <NavTitle />
-        </q-toolbar-title>
+        <NavTitle />
         <q-space />
         <NavExtra :restaurant="restaurant" />
       </q-toolbar>
@@ -62,7 +67,11 @@ const text = computed(() => {
           :class="text"
         />
         <q-space />
-        <RestaurantActions :restaurant="restaurant" />
+        <RestaurantInfo
+          v-if="restaurant.image_url !== ''"
+          :restaurant="restaurant"
+          :icon-size="size"
+        />
       </q-toolbar>
     </q-footer>
   </q-layout>
