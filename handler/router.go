@@ -31,6 +31,7 @@ func NewRouter(handler *MittagHandler, token string) *Router {
 			return strings.Contains(c.Request().URL.Path, "docs")
 		},
 	}))
+	e.Renderer = initTemplates()
 
 	r := &Router{
 		Echo:    e,

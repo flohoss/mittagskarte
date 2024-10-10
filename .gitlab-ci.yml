@@ -55,5 +55,5 @@ publish:
     - cp $SSH_PRIVATE_KEY ~/.ssh/bot
     - chmod 600 ~/.ssh/bot
     - ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
-    - scp -i ~/.ssh/bot $COMPOSE ${SSH_USER}@${SERVER}:$COMPOSE_DIR
+    - scp -i ~/.ssh/bot $COMPOSE ${SSH_USER}@${SERVER}:$COMPOSE_DIR/compose.yml
     - ssh -i ~/.ssh/bot ${SSH_USER}@${SERVER} $SSH_COMMAND
