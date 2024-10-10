@@ -95,6 +95,7 @@ func (r *Router) SetupRoutes() {
 	public.Static("/thumbnails", "data/thumbnails")
 
 	r.Echo.Static("/storage/downloads", "storage/downloads")
+	r.Echo.Static("/assets", "web/assets")
 	r.Echo.Static("/favicon", "web/favicon")
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
 		return ctx.Render(http.StatusOK, "index.html", nil)
