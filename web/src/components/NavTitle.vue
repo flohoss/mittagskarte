@@ -8,7 +8,7 @@
 
     <q-item-section>
       <q-item-label class="text-h6">
-        Mittag<span v-if="$q.screen.gt.xs" class="text-secondary">stisch</span>
+        Mittag<span v-if="$q.screen.gt.xs" class="text-primary">stisch</span>
       </q-item-label>
     </q-item-section>
   </q-btn>
