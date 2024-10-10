@@ -5,7 +5,6 @@ import UploadForm from './UploadForm.vue';
 import { Loading, Notify, Dialog, Dark } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useRestaurantStore } from 'src/stores/restaurants';
-import SettingsForm from './SettingsForm.vue';
 
 const store = useRestaurantStore();
 const router = useRouter();
@@ -65,7 +64,6 @@ const refresh = () => {
 };
 
 const upload = ref(false);
-const settings = ref(false);
 </script>
 
 <template>
@@ -74,7 +72,6 @@ const settings = ref(false);
       :size="iconSize"
       flat
       round
-      color="secondary"
       icon="fa-solid fa-upload"
       @click="upload = true"
     >
@@ -84,30 +81,14 @@ const settings = ref(false);
       :size="iconSize"
       flat
       round
-      color="secondary"
       icon="fa-solid fa-rotate-right"
       @click="confirmRefresh()"
     >
       <q-tooltip class="bg-accent">Menü aktualisieren</q-tooltip>
     </q-btn>
-    <div>
-      <q-btn
-        :size="iconSize"
-        round
-        flat
-        icon="fa-solid fa-gear"
-        @click="settings = true"
-      >
-        <q-tooltip>Einstellungen</q-tooltip>
-      </q-btn>
-    </div>
 
     <q-dialog v-model="upload" backdrop-filter="blur(4px) saturate(150%)">
       <UploadForm :restaurant="restaurant" @uploaded="upload = false" />
-    </q-dialog>
-
-    <q-dialog v-model="settings" backdrop-filter="blur(4px) saturate(150%)">
-      <SettingsForm />
     </q-dialog>
   </div>
 </template>

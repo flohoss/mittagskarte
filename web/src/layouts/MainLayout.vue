@@ -28,8 +28,8 @@ const bgAndText = computed(() => {
 const text = computed(() => {
   return Dark.isActive ? 'text-white' : 'text-black';
 });
-const size = computed(() => {
-  if ($q.screen.lt.sm) {
+const iconSize = computed(() => {
+  if ($q.screen.lt.md) {
     return 'md';
   }
   return 'sm';
@@ -62,6 +62,7 @@ const size = computed(() => {
       <q-toolbar>
         <q-btn
           flat
+          round
           icon="fa-solid fa-bars"
           @click="toggleLeftDrawer"
           :class="text"
@@ -70,7 +71,7 @@ const size = computed(() => {
         <RestaurantInfo
           v-if="restaurant.image_url !== ''"
           :restaurant="restaurant"
-          :icon-size="size"
+          :icon-size="iconSize"
         />
       </q-toolbar>
     </q-footer>
