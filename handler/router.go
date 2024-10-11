@@ -33,6 +33,7 @@ func NewRouter(handler *MittagHandler, token string) *Router {
 	}))
 	e.Renderer = initTemplates()
 
+	timeout := 12 * time.Hour
 	r := &Router{
 		Echo:    e,
 		handler: handler,
@@ -46,21 +47,20 @@ func NewRouter(handler *MittagHandler, token string) *Router {
 		}),
 		rateLimiter: middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 			Store: middleware.NewRateLimiterMemoryStoreWithConfig(
-				middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(1 / (3 * time.Hour).Seconds()), Burst: 1, ExpiresIn: 3 * time.Hour},
+				middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(1 / timeout.Seconds()), Burst: 1, ExpiresIn: timeout},
 			),
 			IdentifierExtractor: func(ctx echo.Context) (string, error) {
-				id := ctx.RealIP()
 				restaurant := ctx.Param("id")
 				if restaurant == "" {
 					restaurant = "none"
 				}
-				return id + ":" + restaurant, nil
+				return restaurant, nil
 			},
 			ErrorHandler: func(context echo.Context, err error) error {
 				return echo.NewHTTPError(http.StatusForbidden, nil)
 			},
 			DenyHandler: func(context echo.Context, identifier string, err error) error {
-				return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses restaurant. Bitte versuchen Sie es in ein paar Minuten erneut.")
+				return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant (max 1/12h). Bitte versuchen Sie es in ein paar Minuten erneut.")
 			},
 		}),
 	}

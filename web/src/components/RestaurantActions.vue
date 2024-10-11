@@ -42,7 +42,17 @@ const refresh = () => {
       store.restaurants[props.restaurant.id] = resp;
       Notify.create({
         type: 'positive',
-        message: 'Menü wurde aktualisiert',
+        message: 'Erfolgreich',
+        caption: 'Das Menü wurde aktualisiert',
+        actions: [
+          {
+            icon: 'fa-solid fa-xmark',
+            color: 'white',
+            round: true,
+            title: 'Schließen',
+          },
+        ],
+        timeout: 0,
       });
       router.push({
         name: 'restaurants',
@@ -53,10 +63,20 @@ const refresh = () => {
     .catch((err) => {
       Notify.create({
         type: 'negative',
-        message:
+        message: 'Fehler beim Laden der Daten',
+        caption:
           err?.body?.message ??
           err?.message ??
-          'unknown error, please check the console for more information',
+          'Unbekannter Fehler, bitte prüfen Sie die Konsole für weitere Informationen',
+        actions: [
+          {
+            icon: 'fa-solid fa-xmark',
+            color: 'white',
+            round: true,
+            title: 'Schließen',
+          },
+        ],
+        timeout: 0,
       });
       console.log(err);
     })

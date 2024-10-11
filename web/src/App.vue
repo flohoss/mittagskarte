@@ -18,15 +18,24 @@ defineOptions({
         Notify.create({
           type: 'negative',
           message:
+            'Fehler beim Laden der Daten',
+          caption:
             err?.body?.message ??
             err?.message ??
-            'unknown error, please check the console for more information',
+            'Unbekannter Fehler, bitte prüfen Sie die Konsole für weitere Informationen',
+          actions: [
+            {
+              icon: 'fa-solid fa-xmark',
+              color: 'white',
+              round: true,
+              title: 'Schließen',
+            },
+          ],
+          timeout: 0,
         });
         console.log(err);
       })
-      .finally(() => {
-        Loading.hide();
-      });
+      .finally(() => Loading.hide());
   },
 });
 </script>
