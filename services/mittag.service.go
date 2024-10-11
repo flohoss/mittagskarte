@@ -183,7 +183,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	}
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
 	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht in Webp konvertiert werden")
+		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht in das Format .webp konvertiert werden")
 	}
 	restaurant.ImageUrl = filePath
 	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())

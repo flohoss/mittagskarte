@@ -9,7 +9,8 @@ const onMiddayChanged = () => {
   Notify.create({
     type: 'positive',
     group: false,
-    message: 'Mittagszeit gespeichert',
+    message: 'Erfolgreich',
+    caption: 'Die Mittagszeit wurde gespeichert',
   });
   store.setMidday(store.midday);
 };
