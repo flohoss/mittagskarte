@@ -81,7 +81,7 @@ const onSubmit = () => {
     <q-card-section class="row items-center">
       <div class="text-h6">Neues Menü für {{ restaurant.name }} hochladen</div>
       <q-space />
-      <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
+      <q-btn id="close" icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section class="column q-gutter-md">
       <q-input type="password" filled v-model="token" label="API-Token" />
@@ -92,7 +92,7 @@ const onSubmit = () => {
       </q-file>
     </q-card-section>
     <q-card-actions align="right">
-      <q-btn label="Hochladen" color="primary" @click="onSubmit" />
+      <q-btn id="upload" label="Hochladen" color="primary" @click="onSubmit" />
     </q-card-actions>
   </q-card>
 </template>

@@ -51,6 +51,8 @@ const color = computed(() => {
     :color="color"
     :icon="starIcon"
     @click.prevent="store.toggleFavorite(restaurant)"
+    id="fav-btn"
+    :aria-label="tooltip"
   >
     <q-tooltip class="bg-primary">{{ tooltip }}</q-tooltip>
   </q-btn>

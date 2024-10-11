@@ -34,7 +34,7 @@ function generateMiddayOptions() {
     <q-card-section class="row items-center">
       <div class="text-h6">Einstellungen</div>
       <q-space />
-      <q-btn icon="fa-solid fa-xmark" dense flat round v-close-popup />
+      <q-btn id="close" icon="fa-solid fa-xmark" dense flat round v-close-popup />
     </q-card-section>
     <q-card-section class="q-gutter-md">
       <q-select

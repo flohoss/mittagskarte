@@ -61,6 +61,7 @@ const iconSize = computed(() => {
     >
       <q-toolbar>
         <q-btn
+          id="menu"
           flat
           round
           icon="fa-solid fa-bars"
