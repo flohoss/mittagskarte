@@ -38,6 +38,8 @@ const settings = ref(false);
       flat
       icon="fa-solid fa-gear"
       @click="settings = true"
+      id="settings-btn"
+      aria-label="Einstellungen"
     >
       <q-tooltip>Einstellungen</q-tooltip>
     </q-btn>

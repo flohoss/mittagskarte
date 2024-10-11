@@ -25,6 +25,7 @@ const googleSearch = computed(
   <div class="flex q-gutter-x-sm" v-if="restaurant.id !== ''">
     <FavStar :icon-size="iconSize" :restaurant="restaurant" />
     <q-btn
+      id="map"
       target="_blank"
       :size="iconSize"
       flat
@@ -36,6 +37,7 @@ const googleSearch = computed(
       <q-tooltip class="bg-primary">Karte öffnen</q-tooltip>
     </q-btn>
     <q-btn
+      id="phone"
       :size="iconSize"
       flat
       round
@@ -46,6 +48,7 @@ const googleSearch = computed(
       <q-tooltip class="bg-primary">Anrufen</q-tooltip>
     </q-btn>
     <q-btn
+      id="website"
       target="_blank"
       :size="iconSize"
       flat

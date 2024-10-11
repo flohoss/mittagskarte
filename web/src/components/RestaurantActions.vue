@@ -89,6 +89,7 @@ const upload = ref(false);
 <template>
   <div class="flex q-gutter-x-sm" v-if="restaurant.id !== ''">
     <q-btn
+      id="upload"
       :size="iconSize"
       flat
       round
@@ -98,6 +99,7 @@ const upload = ref(false);
       <q-tooltip>Menü hochladen</q-tooltip>
     </q-btn>
     <q-btn
+      id="refresh"
       :size="iconSize"
       flat
       round

@@ -94,9 +94,13 @@ func (r *Router) SetupRoutes() {
 	public := r.Echo.Group("/data", longCacheLifetime)
 	public.Static("/thumbnails", "data/thumbnails")
 
+	assets := r.Echo.Group("/assets", longCacheLifetime)
+	assets.Static("", "web/assets")
+
+	favicon := r.Echo.Group("/favicon", longCacheLifetime)
+	favicon.Static("", "web/favicon")
+
 	r.Echo.Static("/storage/downloads", "storage/downloads")
-	r.Echo.Static("/assets", "web/assets")
-	r.Echo.Static("/favicon", "web/favicon")
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
 		return ctx.Render(http.StatusOK, "index.html", nil)
 	})

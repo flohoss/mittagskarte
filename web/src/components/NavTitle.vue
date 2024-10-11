@@ -1,8 +1,8 @@
 <template>
-  <q-btn class="btn--no-hover" flat :ripple="false" dense to="/">
+  <q-btn class="btn--no-hover" flat :ripple="false" dense to="/" id="title">
     <q-item-section avatar>
       <q-avatar>
-        <img src="/favicon/android-chrome-192x192.png" />
+        <img src="/favicon/android-chrome-192x192.webp" alt="title" />
       </q-avatar>
     </q-item-section>
 
