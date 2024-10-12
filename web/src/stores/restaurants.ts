@@ -35,9 +35,10 @@ export const useRestaurantStore = defineStore('restaurant', {
       }
       return res;
     },
-    grouped() {
+    groupedRestaurants() {
       const groupMap: Record<string, services_CleanRestaurant[]> = {};
       for (const value of Object.values(this.restaurants)) {
+        if (this.favorites.includes(value.id)) continue;
         const group = value.group;
         groupMap[group] = groupMap[group] || [];
         groupMap[group].push(value);

@@ -10,6 +10,9 @@ const store = useRestaurantStore();
 const route = useRoute();
 const id = computed(() => route.params.name as string);
 
+const groupedRestaurants = computed(() => store.groupedRestaurants);
+const favoriteRestaurants = computed(() => store.favoriteRestaurants);
+
 const amountOfRestaurants = (restaurants: services_CleanRestaurant[]) => {
   const amount = restaurants.length;
   return amount === 1 ? amount + ' Restaurant' : amount + ' Restaurants';
@@ -52,15 +55,16 @@ function isIdIncluded(
         leave-active-class="animated fadeOutLeft"
       >
         <NavRestaurant
-          v-for="restaurant in store.favoriteRestaurants"
+          v-for="restaurant in favoriteRestaurants"
           :key="'fav-' + restaurant.id"
           :restaurant="restaurant"
           :search="false"
+          show-star
         />
       </transition-group>
     </q-expansion-item>
     <q-expansion-item
-      v-for="(restaurants, key) in store.grouped"
+      v-for="(restaurants, key) in groupedRestaurants"
       :key="key"
       :label="key"
       :caption="amountOfRestaurants(restaurants)"
