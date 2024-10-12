@@ -58,8 +58,6 @@ function isIdIncluded(
           v-for="restaurant in favoriteRestaurants"
           :key="'fav-' + restaurant.id"
           :restaurant="restaurant"
-          :search="false"
-          show-star
         />
       </transition-group>
     </q-expansion-item>
@@ -74,8 +72,6 @@ function isIdIncluded(
         v-for="restaurant in restaurants"
         :key="restaurant.id"
         :restaurant="restaurant"
-        :search="false"
-        show-star
       />
     </q-expansion-item>
   </q-list>
