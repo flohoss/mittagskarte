@@ -19,6 +19,7 @@ export const emptyRestaurant: services_CleanRestaurant = {
   page_url: '',
   phone: '',
   rest_days: [],
+  update_cron: ''
 };
 
 export const useRestaurantStore = defineStore('restaurant', {

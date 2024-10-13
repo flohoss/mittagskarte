@@ -124,7 +124,7 @@ type Restaurant struct {
 }
 
 type Parse struct {
-	UpdateCron string     `json:"update_period"`
+	UpdateCron string     `json:"update_cron"`
 	Navigate   []Selector `json:"navigate"`
 	FileType   FileType   `json:"file_type"`
 	Clip       Clip       `json:"clip"`

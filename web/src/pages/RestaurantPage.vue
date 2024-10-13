@@ -3,6 +3,7 @@ import RestaurantInfo from 'src/components/RestaurantInfo.vue';
 import { emptyRestaurant, useRestaurantStore } from 'src/stores/restaurants';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import parser from 'cron-parser';
 
 const route = useRoute();
 const store = useRestaurantStore();
@@ -25,6 +26,25 @@ const thumbnail = computed(
   () =>
     process.env.BASE_URL + 'data/thumbnails/' + restaurant.value.id + '.webp'
 );
+
+const nextUpdate = computed(() => {
+  if (restaurant.value.update_cron === '') {
+    return '';
+  }
+  const date = parser.parseExpression(restaurant.value.update_cron).next();
+  return (
+    date.getDate() +
+    '.' +
+    (date.getMonth() + 1) +
+    '.' +
+    date.getFullYear() +
+    ' ' +
+    date.getHours() +
+    ':' +
+    date.getMinutes() +
+    ' Uhr'
+  );
+});
 </script>
 
 <template>
@@ -65,6 +85,8 @@ const thumbnail = computed(
         <RestaurantInfo icon-size="md" :restaurant="restaurant" />
       </q-card-actions>
     </q-card>
+
+    <div class="q-pb-md">Nächste Aktualisierung: {{ nextUpdate }}</div>
   </q-page>
 </template>
 
