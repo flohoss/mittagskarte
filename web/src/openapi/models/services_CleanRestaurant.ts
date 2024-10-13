@@ -14,5 +14,6 @@ export type services_CleanRestaurant = {
     page_url: string;
     phone: string;
     rest_days: Array<services_DayOfWeek>;
+    update_cron: string;
 };
 

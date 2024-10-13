@@ -92,6 +92,7 @@ func (r *Restaurant) GetCleanRestaurant() *CleanRestaurant {
 		RestDays:    r.RestDays,
 		Phone:       r.Phone,
 		Group:       r.Group,
+		UpdateCron:  r.Parse.UpdateCron,
 		ImageUrl:    r.ImageUrl,
 	}
 }
@@ -105,6 +106,7 @@ type CleanRestaurant struct {
 	RestDays    []DayOfWeek `json:"rest_days"`
 	Phone       string      `json:"phone"`
 	Group       Group       `json:"group"`
+	UpdateCron  string      `json:"update_cron"`
 	ImageUrl    string      `json:"image_url"`
 }
 
