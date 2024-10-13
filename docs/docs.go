@@ -187,7 +187,8 @@ const docTemplate = `{
                 "name",
                 "page_url",
                 "phone",
-                "rest_days"
+                "rest_days",
+                "update_cron"
             ],
             "properties": {
                 "address": {
@@ -219,6 +220,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/services.DayOfWeek"
                     }
+                },
+                "update_cron": {
+                    "type": "string"
                 }
             }
         },

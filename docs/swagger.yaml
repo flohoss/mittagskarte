@@ -28,6 +28,8 @@ definitions:
         items:
           $ref: '#/definitions/services.DayOfWeek'
         type: array
+      update_cron:
+        type: string
     required:
     - address
     - description
@@ -38,6 +40,7 @@ definitions:
     - page_url
     - phone
     - rest_days
+    - update_cron
     type: object
   services.DayOfWeek:
     enum:

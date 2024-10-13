@@ -56,6 +56,7 @@ export class RestaurantsService {
             errors: {
                 401: `Unauthorized`,
                 404: `Can not find ID`,
+                500: `Internal Server Error`,
             },
         });
     }
