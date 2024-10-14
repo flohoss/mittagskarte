@@ -11,6 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
+	"gitlab.unjx.de/flohoss/mittag/internal/hash"
 )
 
 const (
@@ -95,7 +96,7 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *Restaurant, ov
 	_, err := os.Stat(filePath)
 	if !overwrite && !os.IsNotExist(err) {
 		slog.Debug("file already exists, skipping...", "filePath", filePath)
-		r.restaurants[restaurant.ID].ImageUrl = filePath
+		r.restaurants[restaurant.ID].ImageUrl = hash.AddHashQueryToFileName(filePath)
 		return nil
 	}
 
@@ -123,7 +124,7 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *Restaurant, ov
 		}
 	}
 
-	r.restaurants[restaurant.ID].ImageUrl = filePath
+	r.restaurants[restaurant.ID].ImageUrl = hash.AddHashQueryToFileName(filePath)
 	return nil
 }
 
@@ -190,7 +191,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht in das Format .webp konvertiert werden")
 	}
-	restaurant.ImageUrl = filePath
+	restaurant.ImageUrl = hash.AddHashQueryToFileName(filePath)
 	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
 }
 

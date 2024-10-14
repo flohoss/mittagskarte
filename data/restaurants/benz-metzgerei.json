@@ -12,7 +12,7 @@
     "navigate": [
       { "locator": "img.mailpoet_form_close_icon" },
       {
-        "locator": "//strong[contains(text(), 'Menüplan') and contains(text(), '{{date(fr,02.01.,-1)}}')]/ancestor::p/following-sibling::p[1]/a/strong/img",
+        "locator": "//strong[contains(text(), 'Menüplan') and contains(text(), '{{date(fr,02.01.,-1)}}')]/ancestor::p/following-sibling::p[1]/a/img",
         "attribute": "src"
       }
     ],

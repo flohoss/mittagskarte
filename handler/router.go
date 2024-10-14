@@ -100,7 +100,9 @@ func (r *Router) SetupRoutes() {
 	favicon := r.Echo.Group("/favicon", longCacheLifetime)
 	favicon.Static("/", "web/favicon")
 
-	r.Echo.Static("/storage/downloads", "storage/downloads")
+	storage := r.Echo.Group("/storage", longCacheLifetime)
+	storage.Static("/downloads", "storage/downloads")
+
 	r.Echo.RouteNotFound("*", func(ctx echo.Context) error {
 		return ctx.Render(http.StatusOK, "index.html", nil)
 	})
