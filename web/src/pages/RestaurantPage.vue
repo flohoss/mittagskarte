@@ -86,7 +86,9 @@ const nextUpdate = computed(() => {
       </q-card-actions>
     </q-card>
 
-    <div class="q-pb-md">Nächste Aktualisierung: {{ nextUpdate }}</div>
+    <div v-if="restaurant.update_cron !== ''" class="q-pb-md">
+      Nächste Aktualisierung: {{ nextUpdate }}
+    </div>
   </q-page>
 </template>
 
