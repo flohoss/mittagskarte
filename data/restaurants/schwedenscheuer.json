@@ -4,20 +4,13 @@
   "price": 2,
   "name": "Schwedenscheuer",
   "description": "Deutsch",
-  "page_url": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
+  "page_url": "https://www.schwedenscheuer.de",
   "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
   "rest_days": ["Sunday", "Saturday"],
   "phone": "+49 711 7978527",
   "group": "Leinfelden-Echterdingen",
   "parse": {
-    "scan": {
-      "viewport_width": 1000,
-      "crop": {
-        "width": 723,
-        "height": 550,
-        "offset_x": 12,
-        "offset_y": 455
-      }
-    }
+    "update_cron": "30 10 * * 1,2",
+    "navigate": [{ "locator": "//a[contains(text(), 'Tageskarte')]" }, { "locator": "#content" }]
   }
 }
