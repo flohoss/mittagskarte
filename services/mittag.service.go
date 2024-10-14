@@ -39,11 +39,16 @@ func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 		if restaurants[id].Parse.UpdateCron == "" {
 			continue
 		}
-		r.cron.AddFunc(restaurants[id].Parse.UpdateCron, func() {
+		id, err := r.cron.AddFunc(restaurants[id].Parse.UpdateCron, func() {
 			if err := r.getImageUrl(restaurants[id], true); err != nil {
 				slog.Error(err.Error())
 			}
 		})
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		slog.Debug("added cron job", "id", id, "schedule", r.cron.Entry(id).Schedule)
 	}
 	r.cron.Start()
 	r.getImageUrls(false)
