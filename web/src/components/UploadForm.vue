@@ -20,7 +20,7 @@ const file = ref();
 const token = ref('');
 const onSubmit = () => {
   Loading.show({
-    message: 'Die Datei wurd hochgeladen. Dies kann mehrere Minuten dauern...',
+    message: 'Die Datei wird hochgeladen. Dies kann mehrere Minuten dauern...',
     boxClass: Dark.isActive ? 'nav-bg-dark' : 'nav-bg-light',
     spinnerColor: 'primary',
   });
@@ -55,7 +55,7 @@ const onSubmit = () => {
     .catch((err) => {
       Notify.create({
         type: 'negative',
-        message: 'Fehler beim Laden der Daten',
+        message: 'Fehler beim Hochladen der Datei',
         caption:
           err?.body?.message ??
           err?.message ??
