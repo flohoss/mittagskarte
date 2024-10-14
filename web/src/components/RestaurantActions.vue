@@ -33,7 +33,9 @@ function confirmRefresh() {
 const refresh = () => {
   Loading.show({
     message:
-      'Eine Aktualisierung findet statt. Dies kann mehrere Minuten dauern...',
+      'Eine Aktualisierung für ' +
+      restaurant.name +
+      ' findet statt. Dies kann mehrere Minuten dauern...',
     boxClass: Dark.isActive ? 'nav-bg-dark' : 'nav-bg-light',
     spinnerColor: 'primary',
   });
@@ -63,7 +65,7 @@ const refresh = () => {
     .catch((err) => {
       Notify.create({
         type: 'negative',
-        message: 'Fehler beim Laden der Daten',
+        message: 'Fehler beim Aktualisieren der Daten',
         caption:
           err?.body?.message ??
           err?.message ??
