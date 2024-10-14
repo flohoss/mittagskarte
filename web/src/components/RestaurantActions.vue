@@ -34,7 +34,7 @@ const refresh = () => {
   Loading.show({
     message:
       'Eine Aktualisierung für ' +
-      restaurant.name +
+      props.restaurant.name +
       ' findet statt. Dies kann mehrere Minuten dauern...',
     boxClass: Dark.isActive ? 'nav-bg-dark' : 'nav-bg-light',
     spinnerColor: 'primary',
