@@ -43,18 +43,16 @@ services:
     volumes:
       - .:/app/
 
-  go:
+  golang:
     profiles: [ install ]
     image: golang:${V_GOLANG}
     working_dir: /app
-    entrypoint: go
     volumes:
       - .:/app/
 
-  yarn:
+  node:
     profiles: [ install ]
     image: node:${V_NODE}
-    entrypoint: yarn
     working_dir: /app/web
     volumes:
       - .:/app/

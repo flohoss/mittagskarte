@@ -2,9 +2,10 @@ ARG V_GOLANG=1.23
 ARG V_NODE=20
 ARG V_ALPINE=3
 FROM golang:${V_GOLANG} AS golang
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev && \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    > /dev/null && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -31,10 +32,11 @@ RUN figlet Mittag > logo.txt
 
 FROM node:${V_NODE}-slim AS final
 RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
     libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
-    apt-transport-https ca-certificates dumb-init && \
+    apt-transport-https ca-certificates dumb-init \
+    > /dev/null && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
