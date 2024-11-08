@@ -51,6 +51,8 @@ COPY ./data/ ./data/
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 
+EXPOSE 4000
+
 RUN chown -R 1000:1000 /app
 
 ENTRYPOINT ["dumb-init", "--"]
