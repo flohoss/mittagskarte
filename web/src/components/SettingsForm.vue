@@ -6,46 +6,46 @@ import moment from 'moment';
 const store = useRestaurantStore();
 
 const onMiddayChanged = () => {
-  Notify.create({
-    type: 'positive',
-    group: false,
-    message: 'Erfolgreich',
-    caption: 'Die Mittagszeit wurde gespeichert',
-  });
-  store.setMidday(store.midday);
+    Notify.create({
+        type: 'positive',
+        group: false,
+        message: 'Erfolgreich',
+        caption: 'Die Mittagszeit wurde gespeichert',
+    });
+    store.setMidday(store.midday);
 };
 
 function generateMiddayOptions() {
-  const tmp = [];
-  const start = moment().hour(10).minute(30);
-  for (let i = 0; i < 9; i++) {
-    const newTime = start.add(30, 'm');
-    tmp.push({
-      value: newTime.format('HHmm'),
-      label: newTime.format('HH:mm') + ' Uhr',
-    });
-  }
-  return tmp;
+    const tmp = [];
+    const start = moment().hour(10).minute(30);
+    for (let i = 0; i < 9; i++) {
+        const newTime = start.add(30, 'm');
+        tmp.push({
+            value: newTime.format('HHmm'),
+            label: newTime.format('HH:mm') + ' Uhr',
+        });
+    }
+    return tmp;
 }
 </script>
 
 <template>
-  <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
-    <q-card-section class="row items-center">
-      <div class="text-h6">Einstellungen</div>
-      <q-space />
-      <q-btn id="close" icon="fa-solid fa-xmark" dense flat round v-close-popup />
-    </q-card-section>
-    <q-card-section class="q-gutter-md">
-      <q-select
-        filled
-        v-model="store.midday"
-        :options="generateMiddayOptions()"
-        label="Mittagszeit"
-        emit-value
-        map-options
-        @update:model-value="onMiddayChanged"
-      />
-    </q-card-section>
-  </q-card>
+    <q-card style="width: 700px; max-width: 90vw" class="q-pa-md">
+        <q-card-section class="row items-center">
+            <div class="text-h6">Einstellungen</div>
+            <q-space />
+            <q-btn id="close" icon="fa-solid fa-xmark" dense flat round v-close-popup />
+        </q-card-section>
+        <q-card-section class="q-gutter-md">
+            <q-select
+                filled
+                v-model="store.midday"
+                :options="generateMiddayOptions()"
+                label="Mittagszeit"
+                emit-value
+                map-options
+                @update:model-value="onMiddayChanged"
+            />
+        </q-card-section>
+    </q-card>
 </template>

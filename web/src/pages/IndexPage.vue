@@ -3,7 +3,7 @@ import CountdownClock from 'src/components/CountdownClock.vue';
 </script>
 
 <template>
-  <q-page class="row items-center justify-center">
-    <CountdownClock />
-  </q-page>
+    <q-page class="row items-center justify-center">
+        <CountdownClock />
+    </q-page>
 </template>
