@@ -46,6 +46,10 @@ func Replace(input string) string {
 			currentMonth := monday.Format(time.Now(), "January", monday.LocaleDeDE)
 			return currentMonth
 		}
+		if key == "monthShortUpper" {
+			currentMonth := monday.Format(time.Now(), "Jan", monday.LocaleDeDE)
+			return strings.ToUpper(currentMonth)
+		}
 		if key == "year" {
 			currentYear := monday.Format(time.Now(), "2006", monday.LocaleDeDE)
 			return currentYear
