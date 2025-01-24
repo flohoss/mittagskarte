@@ -9,7 +9,7 @@
   "group": "Leinfelden-Echterdingen",
   "parse": {
     "update_cron": "30 10 * * 2,3",
-    "navigate": [{ "locator": "//a[contains(text(), 'Zum Mittagsangebot')]" }],
+    "navigate": [{ "locator": "//a[span[contains(text(), 'Zum Mittagsangebot')]]" }],
     "file_type": "pdf"
   }
 }
