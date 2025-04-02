@@ -9,8 +9,6 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
-      args:
-        - V_GOLANG=${V_GOLANG}
     command: air -c .air.toml
     environment:
       - TZ=Europe/Berlin
@@ -25,7 +23,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: node:${V_NODE}
+    image: node:lts
     working_dir: /app/web
     command: ../scripts/yarn.sh
     volumes:

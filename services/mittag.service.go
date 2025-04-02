@@ -52,7 +52,6 @@ func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 		slog.Debug("added cron job", "id", id, "schedule", r.cron.Entry(id).Schedule)
 	}
 	r.cron.Start()
-	r.getImageUrls(false)
 
 	return r
 }
