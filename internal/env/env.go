@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/caarlos0/env/v8"
+	"github.com/caarlos0/env/v11"
 	"github.com/go-playground/validator/v10"
 )
 

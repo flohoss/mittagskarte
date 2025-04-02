@@ -1,5 +1,5 @@
-ARG V_GOLANG=1.23
-ARG V_NODE=20
+ARG V_GOLANG=1.24
+ARG V_NODE=lts
 ARG V_PLAYWIGHT=20
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final

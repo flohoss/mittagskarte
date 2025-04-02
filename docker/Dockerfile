@@ -1,5 +1,5 @@
 ARG V_GOLANG=1.23
-ARG V_NODE=20
+ARG V_NODE=lts
 ARG V_ALPINE=3
 FROM golang:${V_GOLANG} AS golang
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
