@@ -43,14 +43,14 @@ services:
 
   golang:
     profiles: [ install ]
-    image: golang:${V_GOLANG}
+    image: golang:1.24
     working_dir: /app
     volumes:
       - .:/app/
 
   node:
     profiles: [ install ]
-    image: node:${V_NODE}
+    image: node:lts
     working_dir: /app/web
     volumes:
       - .:/app/
