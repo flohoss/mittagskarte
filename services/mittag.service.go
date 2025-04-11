@@ -52,6 +52,7 @@ func NewMittag(restaurants map[string]*Restaurant) *Mittag {
 		slog.Debug("added cron job", "id", id, "schedule", r.cron.Entry(id).Schedule)
 	}
 	r.cron.Start()
+	go r.getImageUrls(false)
 
 	return r
 }
@@ -195,6 +196,10 @@ func (r *Mittag) UploadMenu(ctx echo.Context) error {
 }
 
 func (r *Mittag) UpdateRestaurant(ctx echo.Context) error {
+	if ctx.Param("id") == "all" {
+		go r.getImageUrls(true)
+		return ctx.JSON(http.StatusOK, "alle Restaurants werden aktualisiert")
+	}
 	restaurant, ok := r.restaurants[ctx.Param("id")]
 	if !ok {
 		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
