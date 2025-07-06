@@ -1,5 +1,4 @@
 [build]
 bin = "tmp/mittag"
-pre_cmd = ["swag init --parseDependency --requiredByDefault", "swag fmt"]
 cmd = "go build -o tmp/mittag main.go"
 exclude_dir = [".gitlab", "docker", "scripts", "web/node_modules", "web/static", "storage", "tmp", "docs"]

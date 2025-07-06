@@ -6,9 +6,10 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/gommon/log"
 )
 
-type Env struct {
+type Config struct {
 	TimeZone   string `env:"TZ" envDefault:"Etc/UTC" validate:"timezone"`
 	Port       int    `env:"PORT" envDefault:"4000" validate:"min=1024,max=49151"`
 	PublicUrl  string `env:"PUBLIC_URL" envDefault:"http://localhost:4000/" validate:"url"`
@@ -19,21 +20,33 @@ type Env struct {
 
 var errParse = errors.New("error parsing environment variables")
 
-func Parse() (*Env, error) {
-	e := &Env{}
-	if err := env.Parse(e); err != nil {
-		return e, err
-	}
-	if err := validateContent(e); err != nil {
-		return e, err
-	}
-	setTZDefaultEnv(e)
-	return e, nil
+var logLevels = map[string]log.Lvl{
+	"debug": 1,
+	"info":  2,
+	"warn":  3,
+	"error": 4,
 }
 
-func validateContent(e *Env) error {
+func Parse() (*Config, error) {
+	cfg := &Config{}
+	if err := env.Parse(cfg); err != nil {
+		return cfg, err
+	}
+	if err := validateContent(cfg); err != nil {
+		return cfg, err
+	}
+	setTZDefaultEnv(cfg)
+	return cfg, nil
+}
+
+func (cfg *Config) GetLogLevel() log.Lvl {
+	level := logLevels[cfg.LogLevel]
+	return level
+}
+
+func validateContent(cfg *Config) error {
 	validate := validator.New()
-	err := validate.Struct(e)
+	err := validate.Struct(cfg)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
@@ -47,6 +60,6 @@ func validateContent(e *Env) error {
 	return nil
 }
 
-func setTZDefaultEnv(e *Env) {
+func setTZDefaultEnv(e *Config) {
 	os.Setenv("TZ", e.TimeZone)
 }
