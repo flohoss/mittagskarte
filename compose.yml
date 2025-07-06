@@ -33,14 +33,6 @@ services:
     networks:
       - net
 
-  swag:
-    profiles: [ install ]
-    image: ghcr.io/swaggo/swag
-    working_dir: /app
-    entrypoint: swag init --parseDependency --requiredByDefault && swag fmt
-    volumes:
-      - .:/app/
-
   golang:
     profiles: [ install ]
     image: golang:1.24

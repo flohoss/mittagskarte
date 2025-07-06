@@ -1,15 +1,13 @@
 package services
 
 import (
+	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/internal/hash"
 )
@@ -141,78 +139,67 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) 
 	return nil
 }
 
-func (r *Mittag) GetAllRestaurants(ctx echo.Context) error {
+func (r *Mittag) GetAllRestaurants() map[string]*CleanRestaurant {
 	apiResponse := make(map[string]*CleanRestaurant)
 	for key, restaurant := range r.restaurants {
 		apiResponse[key] = restaurant.GetCleanRestaurant()
 	}
-	return ctx.JSON(http.StatusOK, apiResponse)
+	return apiResponse
 }
 
-func (r *Mittag) GetRestaurant(ctx echo.Context) error {
-	restaurant, ok := r.restaurants[ctx.Param("id")]
+func (r *Mittag) GetRestaurant(id string) (*CleanRestaurant, error) {
+	restaurant, ok := r.restaurants[id]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
+		return nil, errors.New("ID konnte nicht gefunden werden")
 	}
 
-	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
+	return restaurant.GetCleanRestaurant(), nil
 }
 
-func (r *Mittag) UploadMenu(ctx echo.Context) error {
-	restaurant, ok := r.restaurants[ctx.Param("id")]
+func (r *Mittag) UploadMenu(id string, data []byte, filename string) (*CleanRestaurant, error) {
+	restaurant, ok := r.restaurants[id]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
+		return nil, errors.New("ID konnte nicht gefunden werden")
 	}
-	file, err := ctx.FormFile("file")
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "keine Datei vorhanden")
-	}
-	ext := filepath.Ext(file.Filename)
+
+	ext := filepath.Ext(filename)
 	allowedExtensions := []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
 	if !contains(allowedExtensions, ext) {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", ")))
+		return nil, fmt.Errorf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", "))
 	}
-	src, err := file.Open()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht geöffnet werden")
-	}
-	defer src.Close()
 
 	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID)
-	dst, err := os.Create(rawPath)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann auf dem Server nicht erstellt werden")
+	if err := os.WriteFile(rawPath, data, 0644); err != nil {
+		return nil, errors.New("die Datei kann auf dem Server nicht erstellt werden")
 	}
-	defer dst.Close()
-	if _, err = io.Copy(dst, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht kopiert werden")
-	}
+
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
 	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "die Datei kann nicht in das Format .webp konvertiert werden")
+		return nil, errors.New("die Datei kann nicht in das Format .webp konvertiert werden")
 	}
+
 	restaurant.ImageUrl = hash.AddHashQueryToFileName(filePath)
-	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
+	return restaurant.GetCleanRestaurant(), nil
 }
 
-func (r *Mittag) UpdateRestaurant(ctx echo.Context) error {
-	if ctx.Param("id") == "all" {
+func (r *Mittag) UpdateRestaurant(id string) (*CleanRestaurant, error) {
+	if id == "all" {
 		go r.getImageUrls(true)
-		return ctx.JSON(http.StatusOK, "alle Restaurants werden aktualisiert")
+		return nil, nil
 	}
-	restaurant, ok := r.restaurants[ctx.Param("id")]
+	restaurant, ok := r.restaurants[id]
 	if !ok {
-		return echo.NewHTTPError(http.StatusNotFound, "ID konnte nicht gefunden werden")
+		return nil, errors.New("ID konnte nicht gefunden werden")
 	}
 
 	if restaurant.PageUrl == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("für %s ist keine Speisekarte online, bitte laden Sie manuell eine Speisekarte von diesem Restaurant hoch", restaurant.ID))
+		return nil, errors.New(fmt.Sprintf("für %s ist keine Speisekarte online, bitte laden Sie manuell eine Speisekarte von diesem Restaurant hoch", restaurant.ID))
 	}
 
 	if err := r.getImageUrl(restaurant, true); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, errors.New(err.Error())
 	}
-	return ctx.JSON(http.StatusOK, restaurant.GetCleanRestaurant())
+	return restaurant.GetCleanRestaurant(), nil
 }
 
 func contains(haistack []string, needle string) bool {
