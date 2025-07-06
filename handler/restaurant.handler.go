@@ -67,7 +67,7 @@ func (h *MittagHandler) GetRestaurant(ctx context.Context, input *struct {
 	return &Restaurant{Body: r}, nil
 }
 
-func (h *MittagHandler) UploadMenuOperation() huma.Operation {
+func (h *MittagHandler) UploadMenuOperation(api huma.API, token string) huma.Operation {
 	return huma.Operation{
 		OperationID: "upload-menu",
 		Method:      http.MethodPost,
@@ -75,6 +75,7 @@ func (h *MittagHandler) UploadMenuOperation() huma.Operation {
 		Summary:     "Upload a menu",
 		Description: "Upload a menu for a specific restaurant.",
 		Tags:        []string{"Restaurants"},
+		Middlewares: huma.Middlewares{BearerTokenMiddleware(api, token)},
 	}
 }
 
@@ -124,7 +125,7 @@ func getRateLimiter() echo.MiddlewareFunc {
 	})
 }
 
-func (h *MittagHandler) RefreshRestaurantOperation() huma.Operation {
+func (h *MittagHandler) RefreshRestaurantOperation(api huma.API, token string) huma.Operation {
 	return huma.Operation{
 		OperationID: "refresh-restaurant",
 		Method:      http.MethodPut,
@@ -132,6 +133,7 @@ func (h *MittagHandler) RefreshRestaurantOperation() huma.Operation {
 		Summary:     "Refresh a menu",
 		Description: "Refresh a menu for a specific restaurant.",
 		Tags:        []string{"Restaurants"},
+		Middlewares: huma.Middlewares{BearerTokenMiddleware(api, token)},
 	}
 }
 
