@@ -1,0 +1,38 @@
+package views
+
+import "os"
+import "time"
+
+func getStyleSheet(version string) string {
+	if version == "" {
+		version = time.Now().Format("20060102150405")
+	}
+	return "/assets/css/style.css?v=" + version
+}
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<title>{ title }</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="description" content="Schniddzl.de - Deine Mittagskarte"/>
+			<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96"/>
+			<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg"/>
+			<link rel="shortcut icon" href="/assets/favicon/favicon.ico"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
+			<meta name="apple-mobile-web-app-title" content="Schniddzl"/>
+			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+			<link rel="stylesheet" href={ getStyleSheet(os.Getenv("version")) }/>
+		</head>
+		<body class="p-2 sm:p-4 lg:p-8 xl:container">
+			<header class="flex justify-center">
+				<div class="w-80 h-20 bg-center bg-cover bg-[url(/assets/schniddzl-light.webp)] dark:bg-[url(/assets/schniddzl-dark.webp)]"></div>
+			</header>
+			<main>
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

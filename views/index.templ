@@ -1,0 +1,80 @@
+package views
+
+import "gitlab.unjx.de/flohoss/mittag/config"
+
+func getIconFill(group config.Group) string {
+	if group == config.Favorites {
+		return "currentColor"
+	}
+	return "none"
+}
+
+func getIconStroke(group config.Group) string {
+	if group == config.Favorites {
+		return "none"
+	}
+	return "currentColor"
+}
+
+templ Index(groups []config.GroupedRestaurants) {
+	<ul>
+		for _, g := range groups {
+			<li class={ "text-xs opacity-60 tracking-wide text-gray-500 pt-10 pb-4", templ.KV("text-warning", g.Group == config.Favorites) }>{ g.Group }</li>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-4">
+				for _, r := range g.Restaurants {
+					<li class="flex items-center justify-between gap-4">
+						<div class="flex items-center gap-4">
+							<div><img class="size-12 rounded-box border border-2 border-primary" src={ templ.URL("/thumbnails/" + r.ID + ".webp") }/></div>
+							<div>
+								<div>{ r.Name }</div>
+								<div class="text-xs font-semibold opacity-60 text-primary">{ r.Description }</div>
+							</div>
+						</div>
+						<div class="flex items-baseline gap-2">
+							if r.ImageUrl == "" {
+								<div class="tooltip" data-tip="Menü">
+									<button class="icon">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"></path>
+										</svg>
+									</button>
+								</div>
+							}
+							<div class="tooltip" data-tip="Navigieren">
+								<a target="_blank" class="icon">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"></path>
+									</svg>
+								</a>
+							</div>
+							<div class="tooltip" data-tip="Webseite">
+								<a href={ templ.URL(r.PageUrl) } target="_blank" class="icon">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"></path>
+									</svg>
+								</a>
+							</div>
+							<a
+								href={ templ.URL("/?fav=" + r.ID) }
+								class={ "icon hover:text-warning", templ.KV("text-warning", g.Group == config.Favorites) }
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={ getIconFill(g.Group) } stroke-width="1.5" stroke={ getIconStroke(g.Group) } class="size-5">
+									<path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd"></path>
+								</svg>
+							</a>
+						</div>
+					</li>
+				}
+			</div>
+		}
+	</ul>
+}
+
+templ HomeIndex(
+	title string,
+	cmp templ.Component,
+) {
+	@Base(title) {
+		@cmp
+	}
+}
