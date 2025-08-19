@@ -5,14 +5,18 @@
   name: light;
   default: true;
   prefersdark: false;
-  --color-primary: #642e16;
+  --color-primary: #822a17;
+  --color-secondary: #f9ddb4;
+  --color-secondary-content: #333333;
 }
 
 @plugin 'daisyui/theme' {
   name: dark;
   default: false;
   prefersdark: true;
-  --color-primary: #bf7f46;
+  --color-primary: #f9ddb4;
+  --color-secondary: #822a17;
+  --color-primary-content: #333333;
 }
 
 @utility container {
