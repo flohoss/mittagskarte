@@ -46,6 +46,6 @@ func handleIndex(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusFound, "/")
 	}
 
-	restaurants := config.GetRestaurants(favSet)
-	return render(ctx, views.HomeIndex("Schniddzl.de - Deine Mittagskarte", views.Index(restaurants)))
+	restaurants := config.GetGroupedRestaurants(favSet)
+	return render(ctx, views.HomeIndex(views.Index(restaurants)))
 }

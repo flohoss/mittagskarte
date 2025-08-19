@@ -213,3 +213,4 @@ views/**/*_templ.go
 tmp/
 assets/**/style.css
 __debug*
+config/downloads/

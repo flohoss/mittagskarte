@@ -6,64 +6,65 @@ server:
   port: 8156
 
 restaurants:
-  avada:
-    name: "Avada"
-    description: "Sushi & Asiatisch"
-    url: "https://avada-nt.de/business-lunch/"
-    address: "Neckarstraße 1, 72622 Nürtingen"
-    phone: "+49 7022 9796098"
-    rest_days: ["Sunday", "Saturday"]
-    group: "Nürtingen"
-    parse:
-      update_cron: "30 10 * * 1,2"
-      navigate:
-        - locator: "//img[contains(@class, 'size-full')]"
-          attribute: "data-orig-file"
-      file_type: "image"
+  # avada:
+  #   name: "Avada"
+  #   description: "Sushi & Asiatisch"
+  #   url: "https://avada-nt.de/business-lunch/"
+  #   address: "Neckarstraße 1, 72622 Nürtingen"
+  #   phone: "+49 7022 9796098"
+  #   rest_days: ["Sunday", "Saturday"]
+  #   group: "Nürtingen"
+  #   parse:
+  #     update_cron: "30 10 * * 1,2"
+  #     navigate:
+  #       - locator: "//img[contains(@class, 'size-full')]"
+  #         attribute: "data-orig-file"
+  #     file_type: "image"
 
-  benz-metzgerei:
-    name: "Benz Metzgerei"
-    description: "Metzgerei"
-    url: "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/"
-    address: "Hirschstraße 18, 73257 Köngen"
-    phone: "+49 7024 81488"
-    rest_days: ["Sunday", "Saturday"]
-    group: "Köngen"
-    parse:
-      update_cron: "30 10 * * 1,2"
-      navigate:
-        - locator: "img.mailpoet_form_close_icon"
-        - locator: "//strong[contains(text(), 'Menüplan') and contains(text(), '{{date(fr,02.01.,-1)}}')]/ancestor::p/following-sibling::p[1]/a/img"
-          attribute: "src"
-      file_type: "image"
+  # benz_metzgerei:
+  #   name: "Benz Metzgerei"
+  #   description: "Metzgerei"
+  #   url: "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/"
+  #   address: "Hirschstraße 18, 73257 Köngen"
+  #   phone: "+49 7024 81488"
+  #   rest_days: ["Sunday", "Saturday"]
+  #   group: "Köngen"
+  #   parse:
+  #     update_cron: "30 10 * * 1,2"
+  #     navigate:
+  #       - locator: ".brlbs-btn-accept-only-essential"
+  #       - locator: ".mailpoet_form_close_icon"
+  #       - locator: "//strong[contains(text(), 'Menüplan') and contains(text(), '{{date(fr,02.01.,-1)}}')]/ancestor::p/following-sibling::p[1]/a/img"
+  #         attribute: "src"
+  #     file_type: "image"
 
-  blessing-kurz:
-    name: "Blessing-Kurz"
-    description: "Metzgerei"
-    url: "https://blessing-kurz.de/Tagesessen/"
-    address: "Unterdorfstraße 1, 73257 Köngen"
-    phone: "+49 7024 989895"
-    rest_days: ["Sunday", "Saturday"]
-    group: "Köngen"
-    parse:
-      update_cron: "30 10 * * 1,2"
-      navigate:
-        - locator: "#gdpr-cookie-accept"
-        - locator: "div.col-xs-12.col-sm-12.col-md-6"
+  # blessing_kurz:
+  #   name: "Blessing-Kurz"
+  #   description: "Metzgerei"
+  #   url: "https://blessing-kurz.de/Tagesessen/"
+  #   address: "Unterdorfstraße 1, 73257 Köngen"
+  #   phone: "+49 7024 989895"
+  #   rest_days: ["Sunday", "Saturday"]
+  #   group: "Köngen"
+  #   parse:
+  #     update_cron: "30 10 * * 1,2"
+  #     navigate:
+  #       - locator: "#cookieInfoBtnPrimary"
+  #       - locator: "div.col-xs-12.col-sm-12.col-md-6"
 
-  da-peppone:
-    name: "Da Peppone"
-    description: "Italienisch"
-    url: "https://dapeppone-restaurant.de/"
-    address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
-    phone: "+49 711 78784911"
-    rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Degerloch"
-    parse:
-      update_cron: "30 10 * * 2,3"
-      navigate:
-        - locator: "//a[contains(text(), 'Mittagskarte vom')]"
-      file_type: "pdf"
+  # da_peppone:
+  #   name: "Da Peppone"
+  #   description: "Italienisch"
+  #   url: "https://dapeppone-restaurant.de/"
+  #   address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
+  #   phone: "+49 711 78784911"
+  #   rest_days: ["Sunday", "Monday", "Saturday"]
+  #   group: "Degerloch"
+  #   parse:
+  #     update_cron: "30 10 * * 2,3"
+  #     navigate:
+  #       - locator: "//a[contains(text(), 'Mittagskarte vom')]"
+  #     file_type: "pdf"
 
   delta:
     name: "Delta"
@@ -88,6 +89,7 @@ restaurants:
     phone: "+49 721 72586001"
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
+    allow_upload: true
 
   fass:
     name: "Fass"
@@ -103,7 +105,7 @@ restaurants:
         - locator: "#maincontainer"
           style: ".sqrnav { display: none !important; }"
 
-  gasthaus-linde:
+  gasthaus_linde:
     name: "Gasthaus Linde"
     description: "Metzgerei"
     url: "https://www.gasthauslinde.de/Mittagstisch"
@@ -117,7 +119,7 @@ restaurants:
         - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
       file_type: "pdf"
 
-  hoflieferant-munz:
+  hoflieferant_munz:
     name: "Hoflieferant Munz"
     description: "Metzgerei"
     url: "https://www.hoflieferant-munz.de/aktuelles"
@@ -160,7 +162,7 @@ restaurants:
         - locator: "//div[@class='elementor-widget-container']"
           style: "#masthead { display: none !important; }"
 
-  meet-and-eat:
+  meet_and_eat:
     name: "Meet & Eat"
     description: "Imbiss"
     url: "http://meetundeat.com/"
@@ -244,14 +246,14 @@ restaurants:
       update_cron: "30 10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'Schaible')]"
-        - locator: "//a[contains(text(), 'Ok, ich akzeptiere.')]"
+        - locator: ".cm-btn-success"
         - locator: "div.artikel.firmenportrait"
           style: ".fb-header { display: none !important; }"
 
   schwedenscheuer:
     name: "Schwedenscheuer"
     description: "Deutsch"
-    url: "https://www.schwedenscheuer.de"
+    url: "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html"
     address: "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 7978527"
     rest_days: ["Sunday", "Saturday"]
@@ -259,7 +261,6 @@ restaurants:
     parse:
       update_cron: "30 10 * * 1,2"
       navigate:
-        - locator: "//a[contains(text(), 'Tageskarte')]"
         - locator: "#content"
 
   sw34:
@@ -273,7 +274,7 @@ restaurants:
     parse:
       update_cron: "30 10 * * 1,2"
       navigate:
-        - locator: "#deny"
+        - locator: ".brlbs-btn-accept-only-essential"
         - locator: "#speisekarte"
           style: ".elementor-top-section.elementor-sticky.elementor-sticky--active { display: none !important; }"
 

@@ -7,9 +7,11 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"gitlab.unjx.de/flohoss/mittag/pkg/humanize"
 )
 
 type FileType string
@@ -71,7 +73,13 @@ type Restaurant struct {
 	Phone       string      `mapstructure:"phone"`
 	Group       Group       `mapstructure:"group"`
 	Parse       Parse       `mapstructure:"parse"`
-	ImageUrl    string      `mapstructure:"-"`
+	AllowUpload bool        `mapstructure:"allow_upload"`
+	Menu        Menu        `mapstructure:"-"`
+}
+
+type Menu struct {
+	URL      string `mapstructure:"-"`
+	Modified string `mapstructure:"-"`
 }
 
 type GroupedRestaurants struct {
@@ -198,7 +206,13 @@ func GetServer() string {
 	return fmt.Sprintf("%s:%d", Cfg.Server.Address, Cfg.Server.Port)
 }
 
-func GetRestaurants(favSet map[string]struct{}) []GroupedRestaurants {
+func GetRestaurants() map[string]*Restaurant {
+	mu.RLock()
+	defer mu.RUnlock()
+	return Cfg.Restaurants
+}
+
+func GetGroupedRestaurants(favSet map[string]struct{}) []GroupedRestaurants {
 	mu.RLock()
 	defer mu.RUnlock()
 	r := Cfg.GroupedRestaurants
@@ -239,12 +253,22 @@ func GetRestaurants(favSet map[string]struct{}) []GroupedRestaurants {
 	return filtered
 }
 
-func GetRestaurant(name string) (*Restaurant, error) {
+func GetRestaurant(id string) (*Restaurant, error) {
 	mu.RLock()
 	defer mu.RUnlock()
-	restaurant, exists := Cfg.Restaurants[name]
+	restaurant, exists := Cfg.Restaurants[id]
 	if !exists {
-		return nil, fmt.Errorf("restaurant %s not found", name)
+		return nil, fmt.Errorf("restaurant %s not found", id)
 	}
 	return restaurant, nil
+}
+
+func SetMenu(url string, modified time.Time, restaurantID string) {
+	mu.Lock()
+	defer mu.Unlock()
+	Cfg.Restaurants[restaurantID].Menu = Menu{
+		URL:      url,
+		Modified: humanize.Since(modified),
+	}
+	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modified)
 }
