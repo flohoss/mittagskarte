@@ -36,7 +36,7 @@ const (
 	Koengen                Group = "Köngen"
 	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
 	Nuertingen             Group = "Nürtingen"
-	Favorites              Group = "Favorites"
+	Favorites              Group = "Favoriten"
 )
 
 func (g Group) String() string {
@@ -231,7 +231,7 @@ func GetRestaurants(favSet map[string]struct{}) []GroupedRestaurants {
 
 	if len(favourites) > 0 {
 		filtered = append([]GroupedRestaurants{{
-			Group:       "Favorites",
+			Group:       Favorites,
 			Restaurants: favourites,
 		}}, filtered...)
 	}
