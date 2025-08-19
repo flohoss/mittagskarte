@@ -26,8 +26,8 @@ templ Base(title string) {
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
 			<link rel="stylesheet" href={ getStyleSheet(os.Getenv("APP_VERSION")) }/>
 		</head>
-		<body class="p-3 xl:container">
-			<header class="mx-auto relative max-w-3xl flex justify-center py-5">
+		<body class="xl:container">
+			<header class="mx-auto relative max-w-3xl flex justify-center py-4 lg:py-8">
 				<img class="h-24 lg:h-40" src="/assets/logo.webp"/>
 				<div class="absolute top-1/2 -translate-y-1/2 right-3">
 					<div class="tooltip" data-tip={ "Aktuelle Version: " + os.Getenv("APP_VERSION") }>
