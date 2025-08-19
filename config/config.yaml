@@ -55,7 +55,7 @@ restaurants:
     name: "Da Peppone"
     description: "Italienisch"
     url: "https://dapeppone-restaurant.de/"
-    address: "Bopseräcker 1, 70597 Stuttgart-Degerloch"
+    address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
     phone: "+49 711 78784911"
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Degerloch"
@@ -84,7 +84,7 @@ restaurants:
     name: "EnBW"
     description: "Kantine"
     url: "https://www.enbw.com/unternehmen/standorte/stuttgart-fasanenhof/"
-    address: "Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof"
+    address: "EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof"
     phone: "+49 721 72586001"
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
@@ -207,7 +207,7 @@ restaurants:
     name: "Picchiorosso"
     description: "Italienisch"
     url: "https://picchiorosso.de/tageskarte/"
-    address: "Zettachring 12, 70567 Stuttgart-Fasanenhof"
+    address: "Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 7156767"
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"

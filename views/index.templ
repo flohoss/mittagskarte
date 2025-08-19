@@ -17,14 +17,14 @@ func getIconStroke(group config.Group) string {
 }
 
 templ Index(groups []config.GroupedRestaurants) {
-	<ul>
+	<ul class="grid gap-5">
 		for _, g := range groups {
-			<li class={ "text-xs opacity-60 tracking-wide text-gray-500 pt-10 pb-4", templ.KV("text-warning", g.Group == config.Favorites) }>{ g.Group }</li>
+			<li class={ "text-xs opacity-60 tracking-wide text-gray-500", templ.KV("text-primary", g.Group == config.Favorites) }>{ g.Group }</li>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-4">
 				for _, r := range g.Restaurants {
 					<li class="flex items-center justify-between gap-4">
 						<div class="flex items-center gap-4">
-							<div><img class="size-12 rounded-box border border-2 border-primary" src={ templ.URL("/thumbnails/" + r.ID + ".webp") }/></div>
+							<div><img class="size-12 rounded-box border border-2 border-white" src={ templ.URL("/thumbnails/" + r.ID + ".webp") }/></div>
 							<div>
 								<div>{ r.Name }</div>
 								<div class="text-xs font-semibold opacity-60 text-primary">{ r.Description }</div>
@@ -41,7 +41,7 @@ templ Index(groups []config.GroupedRestaurants) {
 								</div>
 							}
 							<div class="tooltip" data-tip="Navigieren">
-								<a target="_blank" class="icon">
+								<a href={ templ.URL("https://www.google.com/maps/search/?api=1&query=" + r.Address) } target="_blank" class="icon">
 									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"></path>
 									</svg>
