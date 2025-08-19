@@ -26,6 +26,9 @@ func SetupRouter(e *echo.Echo) {
 	thumbnails := e.Group("/thumbnails", longCacheLifetime)
 	thumbnails.Static("/", "config/thumbnails")
 
+	downloads := e.Group("/config/downloads", longCacheLifetime)
+	downloads.Static("/", "config/downloads")
+
 	e.GET("/robots.txt", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})

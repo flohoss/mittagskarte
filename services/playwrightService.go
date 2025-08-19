@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/playwright-community/playwright-go"
+	"gitlab.unjx.de/flohoss/mittag/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/download"
 	"gitlab.unjx.de/flohoss/mittag/internal/placeholder"
 )
@@ -40,7 +41,7 @@ func (s *PlaywrightService) close() {
 	s.pw.Stop()
 }
 
-func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
+func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, error) {
 	slog.Debug("scraping url", "url", url)
 	page, err := s.browser.NewPage(playwright.BrowserNewPageOptions{
 		BypassCSP:         playwright.Bool(true),
@@ -67,7 +68,7 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 			if err := selector.Click(); err != nil {
 				return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 			}
-		} else if parse.FileType == PDF || parse.FileType == Image {
+		} else if parse.FileType == config.PDF || parse.FileType == config.Image {
 			if n.Attribute == "" {
 				slog.Debug("download", "locator", n.Locator)
 				download, err := page.ExpectDownload(func() error {
@@ -107,17 +108,11 @@ func (s *PlaywrightService) doScrape(url string, parse *Parse) (string, error) {
 				})
 			} else {
 				slog.Debug("with full page")
-				var clip *playwright.Rect
-				if parse.Clip.Width != 0 {
-					slog.Debug("with clip", "offsetX", parse.Clip.OffsetX, "offsetY", parse.Clip.OffsetY, "width", parse.Clip.Width, "height", parse.Clip.Height)
-					clip = &playwright.Rect{X: parse.Clip.OffsetX, Y: parse.Clip.OffsetY, Width: parse.Clip.Width, Height: parse.Clip.Height}
-				}
 				_, err = page.Screenshot(playwright.PageScreenshotOptions{
 					Animations: playwright.ScreenshotAnimationsDisabled,
 					Path:       playwright.String(downloadPath),
 					FullPage:   playwright.Bool(true),
 					Type:       playwright.ScreenshotTypePng,
-					Clip:       clip,
 				})
 			}
 			if err != nil {
