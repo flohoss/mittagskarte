@@ -1,0 +1,13 @@
+{
+  "license": "Apache-2.0",
+  "scripts": {
+    "tw:dev": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --watch",
+    "tw:build": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.12",
+    "daisyui": "^5.0.50",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.12"
+  }
+}

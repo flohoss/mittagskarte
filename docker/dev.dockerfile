@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/a-h/templ/cmd/templ@latest
 
 COPY ./go.mod .
 COPY ./go.sum .

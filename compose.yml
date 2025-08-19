@@ -1,48 +1,20 @@
-networks:
-  net:
-    external: false
-
 services:
   backend:
-    container_name: backend
-    platform: linux/amd64
     build:
       context: .
-      dockerfile: ./docker/Dockerfile.dev
-    command: air -c .air.toml
-    environment:
-      - TZ=Europe/Berlin
-      - LOG_LEVEL=debug
-      - API_TOKEN=123456
+      dockerfile: docker/dev.dockerfile
+    working_dir: /app
+    command: templ generate --watch --proxybind="0.0.0.0" --proxy="http://localhost:8156" --cmd="go run ." --open-browser=false
     volumes:
       - .:/app/
     ports:
       - 4000:4000
-    networks:
-      - net
-
-  frontend:
-    container_name: frontend
-    image: node:lts
-    working_dir: /app/web
-    command: ../scripts/yarn.sh
-    volumes:
-      - .:/app/
-    ports:
-      - 9000:9000
-    networks:
-      - net
-
-  golang:
-    profiles: [ install ]
-    image: golang:1.24
-    working_dir: /app
-    volumes:
-      - .:/app/
+      - 7331:7331
 
   node:
-    profiles: [ install ]
-    image: node:lts
-    working_dir: /app/web
+    image: node:lts-alpine
+    working_dir: /app
+    entrypoint: sh -c "yarn install && yarn tw:dev"
+    tty: true
     volumes:
       - .:/app/
