@@ -209,9 +209,8 @@ dist
 # Built Visual Studio Code Extensions
 *.vsix
 
-storage/
+views/**/*_templ.go
 tmp/
-**/style.css
-report.xml
-profile.cov
+assets/**/style.css
 __debug*
+config/downloads/

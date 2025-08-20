@@ -1,9 +1,0 @@
-{
-  "id": "enbw",
-  "name": "EnBW",
-  "description": "Kantine",
-  "address": "Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof",
-  "rest_days": ["Sunday", "Saturday"],
-  "phone": "+49 721 72586001",
-  "group": "Fasanenhof"
-}
