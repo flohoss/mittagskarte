@@ -8,10 +8,30 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/services"
 	"gitlab.unjx.de/flohoss/mittag/views"
 )
 
-func handleIndex(ctx echo.Context) error {
+func contains(haistack []string, needle string) bool {
+	for _, hai := range haistack {
+		if hai == needle {
+			return true
+		}
+	}
+	return false
+}
+
+type MittagHandler struct {
+	mittag *services.Mittag
+}
+
+func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
+	return &MittagHandler{
+		mittag: mittag,
+	}
+}
+
+func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 	fav := strings.ToLower(ctx.QueryParam("fav"))
 
 	var favSet map[string]struct{}
@@ -48,4 +68,18 @@ func handleIndex(ctx echo.Context) error {
 
 	restaurants := config.GetGroupedRestaurants(favSet)
 	return render(ctx, views.HomeIndex(views.Index(restaurants)))
+}
+
+func (m *MittagHandler) handleUpload(ctx echo.Context) error {
+	id := ctx.Param("id")
+	if id == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Restaurant ID is required")
+	}
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "File upload failed: "+err.Error())
+	}
+
+	return m.mittag.UploadMenu(ctx, id, file)
 }

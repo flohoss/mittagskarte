@@ -53,6 +53,7 @@ var mu sync.RWMutex
 type GlobalConfig struct {
 	LogLevel           string                 `mapstructure:"log_level" validate:"omitempty,oneof=debug info warn error"`
 	TimeZone           string                 `mapstructure:"time_zone" validate:"required"`
+	APIToken           string                 `mapstructure:"api_token" validate:"required"`
 	Server             ServerSettings         `mapstructure:"server"`
 	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
 	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
@@ -271,4 +272,10 @@ func SetMenu(url string, modified time.Time, restaurantID string) {
 		Modified: humanize.Since(modified),
 	}
 	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modified)
+}
+
+func GetApiToken() string {
+	mu.RLock()
+	defer mu.RUnlock()
+	return Cfg.APIToken
 }

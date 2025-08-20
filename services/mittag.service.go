@@ -1,9 +1,17 @@
 package services
 
 import (
+	"fmt"
+	"io"
 	"log/slog"
+	"mime/multipart"
+	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
+	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/config"
 	"gitlab.unjx.de/flohoss/mittag/internal/hash"
@@ -138,6 +146,39 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) 
 		return err
 	}
 	return nil
+}
+
+func (r *Mittag) UploadMenu(ctx echo.Context, id string, file *multipart.FileHeader) error {
+	ext := filepath.Ext(file.Filename)
+	allowedExtensions := []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+	if !contains(allowedExtensions, ext) {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", ")))
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	rawPath := filepath.Join(TempDownloadFolder, id) + file.Filename
+	dst, err := os.Create(rawPath)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return err
+	}
+
+	filePath := filepath.Join(FinalDownloadFolder, id+".webp")
+	if err := r.convertToWebp(id, rawPath, filePath, ext == ".pdf"); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "die Datei kann nicht in das Format .webp konvertiert werden")
+	}
+
+	config.SetMenu(hash.AddHashQueryToFileName(filePath), time.Now(), id)
+	return ctx.Redirect(http.StatusSeeOther, "/")
 }
 
 func contains(haistack []string, needle string) bool {
