@@ -3,9 +3,9 @@ ARG V_NODE=lts
 ARG V_PLAYWIGHT=20
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
-RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
-
 WORKDIR /app
+
+RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
