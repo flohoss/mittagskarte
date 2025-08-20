@@ -1,5 +1,6 @@
 time_zone: "Etc/UTC"
 log_level: "info"
+api_token: "valid-key"
 
 server:
   address: "0.0.0.0"

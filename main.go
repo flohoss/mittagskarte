@@ -34,10 +34,12 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	r := services.NewMittag(config.GetRestaurants())
-	defer r.Close()
+	m := services.NewMittag(config.GetRestaurants())
+	defer m.Close()
 
-	handlers.SetupRouter(e)
+	mh := handlers.NewMittagHandler(m)
+
+	handlers.SetupRouter(e, mh)
 
 	slog.Info("Starting server", "url", fmt.Sprintf("http://%s", config.GetServer()))
 	slog.Error(e.Start(config.GetServer()).Error())

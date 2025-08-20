@@ -5,6 +5,8 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"gitlab.unjx.de/flohoss/mittag/config"
 )
 
 func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
@@ -19,7 +21,7 @@ func render(c echo.Context, cmp templ.Component) error {
 	return cmp.Render(c.Request().Context(), c.Response().Writer)
 }
 
-func SetupRouter(e *echo.Echo) {
+func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 	assets := e.Group("/assets", longCacheLifetime)
 	assets.Static("/", "assets")
 
@@ -33,5 +35,11 @@ func SetupRouter(e *echo.Echo) {
 		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
 	})
 
-	e.RouteNotFound("*", handleIndex)
+	e.POST("/upload/:id", mh.handleUpload, middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+		KeyLookup: "form:token",
+		Validator: func(key string, c echo.Context) (bool, error) {
+			return key == config.GetApiToken(), nil
+		},
+	}))
+	e.RouteNotFound("*", mh.handleIndex)
 }
