@@ -1,0 +1,53 @@
+package views
+
+import (
+	"gitlab.unjx.de/flohoss/mittag/config"
+	"strings"
+)
+
+templ Index(groups []config.GroupedRestaurants, openGroup string) {
+	<div class={ "grid gap-2", templ.KV("gap-8 lg:gap-10 xl:gap-14",groups[0].Group != config.Favorites) }>
+		for _, g := range groups {
+			<div class="grid gap-2">
+				if groups[0].Group == config.Favorites && g.Group != config.Favorites {
+					<div class={ "collapse bg-base-200 rounded-0 md:rounded-xl" }>
+						<input
+							type="checkbox"
+							if strings.EqualFold(openGroup, g.Group.String()) {
+								checked
+							}
+						/>
+						<div class="collapse-title font-semibold">{ g.Group }</div>
+						<div class="collapse-content text-sm">
+							<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+								for _, r := range g.Restaurants {
+									@Card(&g, r)
+								}
+							</div>
+						</div>
+					</div>
+				} else {
+					if g.Group != config.Favorites {
+						<div class="text-sm opacity-75 tracking-wide pl-6">{ g.Group }</div>
+					}
+					<div class="grid px-4 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+						for _, r := range g.Restaurants {
+							@Card(&g, r)
+						}
+					</div>
+				}
+			</div>
+			if g.Group == config.Favorites {
+				<div class="my-10"></div>
+			}
+		}
+	</div>
+}
+
+templ HomeIndex(
+	cmp templ.Component,
+) {
+	@Base(nil) {
+		@cmp
+	}
+}

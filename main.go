@@ -1,18 +1,14 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net/http"
+	"log/slog"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
-	"gitlab.unjx.de/flohoss/mittag/handler"
-	"gitlab.unjx.de/flohoss/mittag/internal/env"
+	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/handlers"
 	"gitlab.unjx.de/flohoss/mittag/services"
 )
 
@@ -31,34 +27,20 @@ func setupRouter() *echo.Echo {
 
 func main() {
 	e := setupRouter()
+	config.New()
 
-	env, err := env.Parse()
-	if err != nil {
-		e.Logger.Fatal(err.Error())
-	}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: config.GetLogLevel(),
+	}))
+	slog.SetDefault(logger)
 
-	e.Logger.SetLevel(env.GetLogLevel())
-	if env.GetLogLevel() == log.DEBUG {
-		e.Use(middleware.Logger())
-		e.Debug = true
-	}
+	m := services.NewMittag(config.GetRestaurants())
+	defer m.Close()
 
-	c := services.NewConfigParser()
-	r := services.NewMittag(c.Restaurants)
-	defer r.Close()
+	mh := handlers.NewMittagHandler(m)
 
-	handler.SetupRouter(e, handler.NewMittagHandler(r), env.APIToken)
+	handlers.SetupRouter(e, mh)
 
-	e.Logger.Infof("Server starting on http://localhost:%d", env.Port)
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	go func() {
-		if err := e.Start(fmt.Sprintf(":%d", env.Port)); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
-		}
-	}()
-
-	<-ctx.Done()
-	e.Logger.Info("Received shutdown signal. Exiting immediately.")
+	slog.Info("Starting server", "url", fmt.Sprintf("http://%s", config.GetServer()))
+	slog.Error(e.Start(config.GetServer()).Error())
 }

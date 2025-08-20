@@ -26,5 +26,5 @@ func HashFile(filePath string) []byte {
 }
 
 func AddHashQueryToFileName(filePath string) string {
-	return fmt.Sprintf("%s?hash=%x", filePath, HashFile(filePath))
+	return fmt.Sprintf("/%s?hash=%x", filePath, HashFile(filePath))
 }
