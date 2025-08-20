@@ -9,7 +9,6 @@ services:
     volumes:
       - .:/app/
     ports:
-      - 4000:4000
       - 7331:7331
 
   node:
