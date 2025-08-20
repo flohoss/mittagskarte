@@ -212,7 +212,7 @@ func GetRestaurants() map[string]*Restaurant {
 	return Cfg.Restaurants
 }
 
-func GetGroupedRestaurants(favSet map[string]struct{}) []GroupedRestaurants {
+func GetGroupedRestaurants(favSet map[string]string) []GroupedRestaurants {
 	mu.RLock()
 	defer mu.RUnlock()
 	r := Cfg.GroupedRestaurants
