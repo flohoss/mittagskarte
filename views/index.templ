@@ -6,8 +6,10 @@ templ Index(groups []config.GroupedRestaurants) {
 	<div class="grid gap-2 lg:gap-4">
 		for _, g := range groups {
 			<div class="grid gap-2">
-				<div class="text-xs opacity-60 tracking-wide text-gray-500">{ g.Group }</div>
-				<div class="flex flex-wrap gap-4">
+				if g.Group != config.Favorites {
+					<div class="text-xs opacity-60 tracking-wide text-gray-500 px-2">{ g.Group }</div>
+				}
+				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 					for _, r := range g.Restaurants {
 						@Card(&g, r)
 					}
