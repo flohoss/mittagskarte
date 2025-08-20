@@ -88,8 +88,7 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 							</svg>
 						</button>
 					</div>
-				}
-				if r.AllowUpload {
+				} else {
 					<div class="tooltip" data-tip="Menü hochladen">
 						<button onclick={ getModalAction(r, "upload") } class="btn btn-soft btn-sm btn-square">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
