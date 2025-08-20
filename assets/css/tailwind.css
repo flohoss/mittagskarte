@@ -2,7 +2,7 @@
 @plugin "daisyui";
 
 @plugin 'daisyui/theme' {
-  name: light;
+  name: autumn;
   default: true;
   prefersdark: false;
   --color-primary: #822a17;

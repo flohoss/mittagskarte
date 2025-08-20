@@ -33,9 +33,9 @@ function updateCountdown() {
   // color rules
   const countdownContainer = document.querySelector(".flex.gap-5");
   if (diff === 0) {
-    countdownContainer.style.color = "red"; // Lunch time
+    countdownContainer.style.color = "oklch(70.4% 0.191 22.216)"; // Lunch time
   } else if (diff <= 1000 * 60 * 60) {
-    countdownContainer.style.color = "orange"; // < 1h left
+    countdownContainer.style.color = "oklch(75% 0.183 55.934)"; // < 1h left
   } else {
     countdownContainer.style.color = ""; // default
   }
