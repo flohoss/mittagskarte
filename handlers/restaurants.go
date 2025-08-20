@@ -33,13 +33,14 @@ func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
 
 func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 	fav := strings.ToLower(ctx.QueryParam("fav"))
+	group := ctx.QueryParam("group")
 
-	var favSet map[string]struct{}
+	var favSet map[string]string
 	cookie, err := ctx.Cookie("favourites")
 	if err == nil {
 		decodedValue, _ := url.QueryUnescape(cookie.Value)
 		if err := json.Unmarshal([]byte(decodedValue), &favSet); err != nil || favSet == nil {
-			favSet = make(map[string]struct{})
+			favSet = make(map[string]string)
 		}
 	}
 
@@ -47,7 +48,7 @@ func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 		if _, exists := favSet[fav]; exists {
 			delete(favSet, fav)
 		} else {
-			favSet[fav] = struct{}{}
+			favSet[fav] = group
 		}
 	}
 
@@ -62,12 +63,35 @@ func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 	}
 	ctx.SetCookie(newCookie)
 
+	if fav != "" && group != "" {
+		ctx.SetCookie(&http.Cookie{
+			Name:     "lastGroup",
+			Value:    url.QueryEscape(group),
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   60,
+		})
+	}
+
+	preselectedGroup := ""
+	lastFavCookie, err := ctx.Cookie("lastGroup")
+	if err == nil {
+		preselectedGroup, _ = url.QueryUnescape(lastFavCookie.Value)
+
+		ctx.SetCookie(&http.Cookie{
+			Name:   "lastGroup",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
+	}
+
 	if fav != "" {
 		return ctx.Redirect(http.StatusFound, "/")
 	}
 
 	restaurants := config.GetGroupedRestaurants(favSet)
-	return render(ctx, views.HomeIndex(views.Index(restaurants)))
+	return render(ctx, views.HomeIndex(views.Index(restaurants, preselectedGroup)))
 }
 
 func (m *MittagHandler) handleUpload(ctx echo.Context) error {
