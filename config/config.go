@@ -74,7 +74,6 @@ type Restaurant struct {
 	Phone       string      `mapstructure:"phone"`
 	Group       Group       `mapstructure:"group"`
 	Parse       Parse       `mapstructure:"parse"`
-	AllowUpload bool        `mapstructure:"allow_upload"`
 	Menu        Menu        `mapstructure:"-"`
 }
 

@@ -90,7 +90,6 @@ restaurants:
     phone: "+49 721 72586001"
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
-    allow_upload: true
 
   fass:
     name: "Fass"
