@@ -16,7 +16,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Nürtingen"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//img[contains(@class, 'size-full')]"
           attribute: "data-orig-file"
@@ -40,7 +40,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Köngen"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "#cookieInfoBtnPrimary"
         - locator: "#tagesessen"
@@ -54,7 +54,7 @@ restaurants:
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Degerloch"
     parse:
-      update_cron: "30 10 * * 2,3"
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "a[href*='Speisekarte']"
       file_type: "pdf"
@@ -68,7 +68,7 @@ restaurants:
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Köngen"
     parse:
-      update_cron: "30 10 * * 2,3"
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "#cookie-settings-reject-all"
         - locator: "//a[contains(text(), 'Download')]"
@@ -92,7 +92,7 @@ restaurants:
     rest_days: ["Sunday", "Tuesday", "Saturday"]
     group: "Nürtingen"
     parse:
-      update_cron: "30 10 * * 1,3"
+      update_cron: "30 9,10 * * 1,3"
       navigate:
         - locator: "#maincontainer"
           style: ".sqrnav { display: none !important; }"
@@ -106,7 +106,7 @@ restaurants:
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Nürtingen"
     parse:
-      update_cron: "30 10 1-3 * *"
+      update_cron: "30 9,10 1-3 * *"
       navigate:
         - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
       file_type: "pdf"
@@ -120,7 +120,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Feuerbach"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//a[contains(text(), 'Download pdf')]"
       file_type: "pdf"
@@ -134,7 +134,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday", "Monday"]
     group: "Fasanenhof"
     parse:
-      update_cron: "30 10 * * 2,3"
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'Mittagskarte PDF')]"
       file_type: "pdf"
@@ -148,7 +148,7 @@ restaurants:
     rest_days: ["Sunday", "Friday", "Saturday"]
     group: "Fasanenhof"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//a[contains(text(), 'Alles ablehnen')]"
         - locator: "//div[@class='elementor-widget-container']"
@@ -163,7 +163,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
           attribute: "src"
@@ -178,7 +178,7 @@ restaurants:
     rest_days: ["Sunday", "Tuesday", "Wednesday", "Saturday"]
     group: "Köngen"
     parse:
-      update_cron: "30 10 * * 1,4"
+      update_cron: "30 9,10 * * 1,4"
       navigate:
         - locator: "p.paragraph-mittagstisch-right-corona"
           style: ".w-nav { display: none !important; }"
@@ -192,7 +192,7 @@ restaurants:
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Leinfelden-Echterdingen"
     parse:
-      update_cron: "30 10 * * 2,3"
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[span[contains(text(), 'Zum Mittagsangebot')]]"
       file_type: "pdf"
@@ -206,7 +206,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
     parse:
-      update_cron: "30 10 * * 1-5"
+      update_cron: "30 9,10 * * 1-5"
       navigate:
         - locator: ".avia-cookie-consent-button"
         - locator: "//h2[contains(text(), 'Mittagskarte')]/ancestor::div[contains(@class, 'post-entry')]"
@@ -221,7 +221,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Leinfelden-Echterdingen"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "div > p > a"
       file_type: "pdf"
@@ -235,7 +235,7 @@ restaurants:
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Feuerbach"
     parse:
-      update_cron: "30 10 * * 2,3"
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'Schaible')]"
         - locator: ".cm-btn-success"
@@ -251,7 +251,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Leinfelden-Echterdingen"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "[data-testid='uc-deny-all-button']"
         - locator: "#content"
@@ -265,7 +265,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Fasanenhof"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: ".brlbs-btn-accept-only-essential"
         - locator: "#speisekarte"
@@ -280,7 +280,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Feuerbach"
     parse:
-      update_cron: "30 10 * * 1,2"
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//h2[contains(text(), 'Feuerbach')]/parent::div/following-sibling::div//a[@title='Mittagskarte herunterladen']"
           attribute: "href"

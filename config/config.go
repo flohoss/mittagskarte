@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"gitlab.unjx.de/flohoss/mittag/pkg/humanize"
 )
 
 type FileType string
@@ -78,8 +77,8 @@ type Restaurant struct {
 }
 
 type Menu struct {
-	URL      string `mapstructure:"-"`
-	Modified string `mapstructure:"-"`
+	URL      string    `mapstructure:"-"`
+	Modified time.Time `mapstructure:"-"`
 }
 
 type GroupedRestaurants struct {
@@ -268,7 +267,7 @@ func SetMenu(url string, modified time.Time, restaurantID string) {
 	defer mu.Unlock()
 	Cfg.Restaurants[restaurantID].Menu = Menu{
 		URL:      url,
-		Modified: humanize.Since(modified),
+		Modified: modified,
 	}
 	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modified)
 }
