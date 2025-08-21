@@ -48,7 +48,7 @@
 }
 
 @utility btn {
-  @apply btn-sm rounded-r-xl rounded-l-xl justify-start btn-soft hover:shadow-none;
+  @apply btn-sm rounded-r-xl rounded-l-xl btn-soft hover:shadow-none flex flex-col items-center;
 }
 
 @utility my-card {
