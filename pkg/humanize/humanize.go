@@ -5,8 +5,11 @@ import (
 	"time"
 )
 
-func Since(t time.Time) string {
-	d := time.Since(t)
+func Since(t *time.Time) string {
+	if t == nil {
+		return "Kein Menü vorhanden"
+	}
+	d := time.Since(*t)
 	seconds := int(d.Seconds())
 
 	if seconds < 0 {
