@@ -77,8 +77,8 @@ type Restaurant struct {
 }
 
 type Menu struct {
-	URL      string    `mapstructure:"-"`
-	Modified time.Time `mapstructure:"-"`
+	URL      string     `mapstructure:"-"`
+	Modified *time.Time `mapstructure:"-"`
 }
 
 type GroupedRestaurants struct {
@@ -267,7 +267,7 @@ func SetMenu(url string, modified time.Time, restaurantID string) {
 	defer mu.Unlock()
 	Cfg.Restaurants[restaurantID].Menu = Menu{
 		URL:      url,
-		Modified: modified,
+		Modified: &modified,
 	}
 	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modified)
 }
