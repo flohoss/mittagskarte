@@ -38,6 +38,7 @@ jobs:
           file: docker/release.dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             V_GOLANG=${{ vars.V_GOLANG }}
             V_NODE=${{ vars.V_NODE }}

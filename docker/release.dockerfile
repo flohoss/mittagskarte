@@ -61,6 +61,9 @@ COPY --from=golang-builder /app/mittag .
 
 EXPOSE 8156
 
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+
 RUN chown -R 1000:1000 /app
 
 ENTRYPOINT ["dumb-init", "--"]
