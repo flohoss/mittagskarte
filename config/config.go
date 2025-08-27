@@ -223,7 +223,7 @@ func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRes
 	defer mu.RUnlock()
 	r := Cfg.GroupedRestaurants
 
-	if len(favSet) == 0 {
+	if len(favSet) == 0 && filter == "" {
 		return r
 	}
 

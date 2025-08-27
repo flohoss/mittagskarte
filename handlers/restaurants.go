@@ -85,7 +85,7 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, string
 		})
 	}
 
-	return favSet, favSet != nil, preselectedGroup
+	return favSet, len(favSet) > 0, preselectedGroup
 }
 
 func (m *MittagHandler) handleFilter(ctx echo.Context) error {
