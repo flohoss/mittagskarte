@@ -218,7 +218,7 @@ func GetRestaurants() map[string]*Restaurant {
 	return Cfg.Restaurants
 }
 
-func GetGroupedRestaurants(favSet map[string]string) []GroupedRestaurants {
+func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRestaurants {
 	mu.RLock()
 	defer mu.RUnlock()
 	r := Cfg.GroupedRestaurants
@@ -233,12 +233,14 @@ func GetGroupedRestaurants(favSet map[string]string) []GroupedRestaurants {
 	for _, group := range r {
 		var filteredRestaurants []*Restaurant
 		for _, restaurant := range group.Restaurants {
-			if _, ok := favSet[strings.ToLower(restaurant.ID)]; ok {
-				favourites = append(favourites, restaurant)
-				continue
-			}
+			if filter == "" || matches(filter, restaurant.Name) {
+				if _, ok := favSet[strings.ToLower(restaurant.ID)]; ok {
+					favourites = append(favourites, restaurant)
+					continue
+				}
 
-			filteredRestaurants = append(filteredRestaurants, restaurant)
+				filteredRestaurants = append(filteredRestaurants, restaurant)
+			}
 		}
 
 		if len(filteredRestaurants) > 0 {
