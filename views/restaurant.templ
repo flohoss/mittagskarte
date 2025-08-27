@@ -1,0 +1,29 @@
+package views
+
+import "gitlab.unjx.de/flohoss/mittag/config"
+
+func imgClass(m *config.Menu) string {
+	if m.Landscape {
+		return "w-full h-auto max-w-5xl"
+	}
+	return "h-full w-auto max-w-3xl"
+}
+
+templ Restaurant(r *config.Restaurant) {
+	<div class="flex-grow flex items-center justify-center overflow-hidden">
+		<img
+			src={ templ.URL(r.Menu.URL) }
+			alt={ r.Name }
+			class={ "object-contain", imgClass(&r.Menu) }
+		/>
+	</div>
+}
+
+templ RestaurantIndex(
+	r *config.Restaurant,
+	cmp templ.Component,
+) {
+	@Base(r) {
+		@cmp
+	}
+}

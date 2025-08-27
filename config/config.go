@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"image"
 	"log/slog"
 	"os"
 	"sort"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"gitlab.unjx.de/flohoss/mittag/internal/hash"
 )
 
 type FileType string
@@ -77,8 +79,9 @@ type Restaurant struct {
 }
 
 type Menu struct {
-	URL      string     `mapstructure:"-"`
-	Modified *time.Time `mapstructure:"-"`
+	URL       string     `mapstructure:"-"`
+	Modified  *time.Time `mapstructure:"-"`
+	Landscape bool       `mapstructure:"-"`
 }
 
 type GroupedRestaurants struct {
@@ -96,6 +99,10 @@ type Selector struct {
 	Locator   string `mapstructure:"locator"`
 	Attribute string `mapstructure:"attribute"`
 	Style     string `mapstructure:"style"`
+}
+
+func matches(q, s string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(q))
 }
 
 func init() {
@@ -262,14 +269,29 @@ func GetRestaurant(id string) (*Restaurant, error) {
 	return restaurant, nil
 }
 
-func SetMenu(url string, modified time.Time, restaurantID string) {
+func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 	mu.Lock()
 	defer mu.Unlock()
+
+	url := hash.AddHashQueryToFileName(filePath)
+
 	Cfg.Restaurants[restaurantID].Menu = Menu{
 		URL:      url,
-		Modified: &modified,
+		Modified: &modTime,
 	}
-	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modified)
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		return
+	}
+	Cfg.Restaurants[restaurantID].Menu.Landscape = image.Bounds().Dx() > image.Bounds().Dy()
+
+	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
 }
 
 func GetApiToken() string {

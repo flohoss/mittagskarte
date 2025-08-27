@@ -94,6 +94,14 @@ func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 	return render(ctx, views.HomeIndex(views.Index(restaurants, preselectedGroup)))
 }
 
+func (m *MittagHandler) handleRestaurant(ctx echo.Context) error {
+	r, err := config.GetRestaurant(ctx.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	return render(ctx, views.RestaurantIndex(r, views.Restaurant(r)))
+}
+
 func (m *MittagHandler) handleUpload(ctx echo.Context) error {
 	id := ctx.Param("id")
 	if id == "" {

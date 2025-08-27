@@ -53,11 +53,6 @@ restaurants:
     phone: "+49 711 78784911"
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Degerloch"
-    parse:
-      update_cron: "30 9,10 * * 2,3"
-      navigate:
-        - locator: "a[href*='Speisekarte']"
-      file_type: "pdf"
 
   delta:
     name: "Delta"

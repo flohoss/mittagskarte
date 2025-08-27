@@ -14,7 +14,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/internal/hash"
 )
 
 const (
@@ -100,7 +99,7 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 	i, err := os.Stat(filePath)
 	if !overwrite && !os.IsNotExist(err) {
 		slog.Debug("file already exists, skipping...", "filePath", filePath)
-		config.SetMenu(hash.AddHashQueryToFileName(filePath), i.ModTime(), restaurant.ID)
+		config.SetMenu(filePath, i.ModTime(), restaurant.ID)
 		return nil
 	}
 
@@ -130,7 +129,7 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 
 	i, err = os.Stat(filePath)
 	if !os.IsNotExist(err) {
-		config.SetMenu(hash.AddHashQueryToFileName(filePath), i.ModTime(), restaurant.ID)
+		config.SetMenu(filePath, i.ModTime(), restaurant.ID)
 	}
 	return nil
 }
@@ -177,7 +176,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context, id string, file *multipart.FileHea
 		return echo.NewHTTPError(http.StatusBadRequest, "die Datei kann nicht in das Format .webp konvertiert werden")
 	}
 
-	config.SetMenu(hash.AddHashQueryToFileName(filePath), time.Now(), id)
+	config.SetMenu(filePath, time.Now(), id)
 	return ctx.Redirect(http.StatusSeeOther, "/")
 }
 
