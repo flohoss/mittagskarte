@@ -19,36 +19,16 @@
   --color-primary-content: #333333;
 }
 
-@layer base {
-  .font-outline {
-    text-shadow:
-      -1px -1px 0 #fff,
-      1px -1px 0 #fff,
-      -1px 1px 0 #fff,
-      1px 1px 0 #fff;
-
-    @variant dark {
-      text-shadow:
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000;
-    }
-  }
-}
-
 @utility container {
   margin-inline: auto;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  @media (width >= theme(--breakpoint-xl)) {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-  }
 }
 
 @utility btn {
-  @apply btn-sm rounded-r-xl rounded-l-xl btn-soft hover:shadow-none flex flex-col items-center;
+  @apply rounded-r-xl rounded-l-xl btn-soft hover:shadow-none;
+}
+
+@utility my-btn {
+  @apply btn btn-sm w-full;
 }
 
 @utility my-card {

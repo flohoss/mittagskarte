@@ -2,6 +2,7 @@ package views
 
 import (
 	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/views/components"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ templ Index(groups []config.GroupedRestaurants, openGroup string) {
 						<div class="collapse-content text-sm">
 							<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 								for _, r := range g.Restaurants {
-									@Card(&g, r)
+									@components.Card(&g, r)
 								}
 							</div>
 						</div>
@@ -32,7 +33,7 @@ templ Index(groups []config.GroupedRestaurants, openGroup string) {
 					}
 					<div class="grid px-4 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 						for _, r := range g.Restaurants {
-							@Card(&g, r)
+							@components.Card(&g, r)
 						}
 					</div>
 				}

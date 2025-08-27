@@ -1,8 +1,11 @@
 package views
 
-import "os"
-import "time"
-import "gitlab.unjx.de/flohoss/mittag/config"
+import (
+	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/views/components"
+	"os"
+	"time"
+)
 
 func getTitle(r *config.Restaurant) string {
 	if r == nil {
@@ -33,10 +36,36 @@ templ Base(r *config.Restaurant) {
 			<meta name="apple-mobile-web-app-title" content="Schniddzl"/>
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
 			<link rel="stylesheet" href={ getStyleSheet(os.Getenv("APP_VERSION")) }/>
+			<script src="/assets/js/htmx.min.js" defer></script>
 		</head>
 		<body>
-			<header></header>
-			<main class="container">
+			<header class="bg-base-200">
+				<div class="navbar container px-6">
+					if r != nil {
+						<div class="navbar-start">
+							<div>
+								<a href="/" class="my-btn">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+									</svg>
+								</a>
+							</div>
+						</div>
+						<div class="navbar-center hidden lg:block text-lg font-semibold">{ getTitle(r) }</div>
+						<div class="navbar-end">
+							<div>
+								@components.Controls(r, false, false)
+							</div>
+						</div>
+					} else {
+						<div class="navbar-start"></div>
+						<div class="lg:navbar-end w-full">
+							@components.Filter()
+						</div>
+					}
+				</div>
+			</header>
+			<main class="container my-5 lg:my-10">
 				{ children... }
 			</main>
 		</body>

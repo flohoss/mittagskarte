@@ -1,0 +1,44 @@
+package components
+
+import (
+	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/pkg/humanize"
+)
+
+func getBgImage(r *config.Restaurant) string {
+	return "background-image: url(/thumbnails/" + r.ID + ".webp);"
+}
+
+func getIconFill(group config.Group) string {
+	if group == config.Favorites {
+		return "currentColor"
+	}
+	return "none"
+}
+
+func getIconStroke(group config.Group) string {
+	if group == config.Favorites {
+		return "none"
+	}
+	return "currentColor"
+}
+
+templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
+	<div class="group my-card">
+		<div class="flex items-center gap-2 px-2">
+			<div class="flex-1 truncate min-w-0">
+				<div class="truncate font-semibold">{ r.Name }</div>
+				<div class="truncate text-xs">{ humanize.Since(r.Menu.Modified) }</div>
+			</div>
+			if (g != nil) {
+				<a class={ "btn btn-ghost btn-link shrink-0 p-0", templ.KV("link-warning", g.Group == config.Favorites) } href={ templ.URL("/?fav=" + r.ID + "&group=" + r.Group.String()) }>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={ getIconFill(g.Group) } stroke-width="1.5" stroke={ getIconStroke(g.Group) } class="size-5">
+						<path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd"></path>
+					</svg>
+				</a>
+			}
+		</div>
+		<div class="h-28 w-full rounded-xl bg-cover bg-center opacity-60 group-hover:opacity-100 transition duration-300 ease-in" style={ getBgImage(r) }></div>
+		@Controls(r, true, g.Group == config.Favorites)
+	</div>
+}
