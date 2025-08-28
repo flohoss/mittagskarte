@@ -4,9 +4,9 @@ import "gitlab.unjx.de/flohoss/mittag/config"
 
 func imgClass(m *config.Menu) string {
 	if m.Landscape {
-		return "w-full h-auto max-w-5xl"
+		return "max-w-5xl"
 	}
-	return "h-full w-auto max-w-3xl"
+	return "max-w-3xl"
 }
 
 templ Restaurant(r *config.Restaurant) {
@@ -14,7 +14,7 @@ templ Restaurant(r *config.Restaurant) {
 		<img
 			src={ templ.URL(r.Menu.URL) }
 			alt={ r.Name }
-			class={ "object-contain", imgClass(&r.Menu) }
+			class={ "object-contain px-2 w-full h-auto", imgClass(&r.Menu) }
 		/>
 	</div>
 }
