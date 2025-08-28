@@ -108,6 +108,11 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 		return nil
 	}
 
+	if r.restaurants[restaurant.ID].Parse.UpdateCron == "" {
+		slog.Debug("no parse config, nothing to do...", "id", restaurant.ID)
+		return nil
+	}
+
 	tmpPath, err := ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
 	if err != nil {
 		return err
