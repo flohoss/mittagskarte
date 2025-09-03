@@ -37,6 +37,8 @@ templ Base(r *config.Restaurant) {
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
 			<link rel="stylesheet" href={ getStyleSheet(os.Getenv("APP_VERSION")) }/>
 			<script src="/assets/js/htmx.min.js" defer></script>
+			<script src="/assets/js/floating-ui/core@1.7.3" defer></script>
+			<script src="/assets/js/floating-ui/dom@1.7.3" defer></script>
 		</head>
 		<body>
 			<header class="bg-base-200">
