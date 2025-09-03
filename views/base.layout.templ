@@ -14,11 +14,12 @@ func getTitle(r *config.Restaurant) string {
 	return "Schniddzl.de - " + r.Name
 }
 
-func getStyleSheet(version string) string {
+func appendVersionQuery(url string) string {
+	version := os.Getenv("APP_VERSION")
 	if version == "" {
 		version = time.Now().Format("20060102150405")
 	}
-	return "/assets/css/style.css?v=" + version
+	return url + "?v=" + version
 }
 
 templ Base(r *config.Restaurant) {
@@ -35,11 +36,11 @@ templ Base(r *config.Restaurant) {
 			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
 			<meta name="apple-mobile-web-app-title" content="Schniddzl"/>
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-			<link rel="stylesheet" href={ getStyleSheet(os.Getenv("APP_VERSION")) }/>
-			<script src="/assets/js/htmx.min.js" defer></script>
-			<script src="/assets/js/floating-ui/core@1.7.3.js" defer></script>
-			<script src="/assets/js/floating-ui/dom@1.7.3.js" defer></script>
-			<script src="/assets/js/menu-tooltip.js" defer></script>
+			<link rel="stylesheet" href={ appendVersionQuery("/assets/css/style.css") }/>
+			<script src={ appendVersionQuery("/assets/js/htmx.min.js") } defer></script>
+			<script src={ appendVersionQuery("/assets/js/floating-ui/core.min.js") } defer></script>
+			<script src={ appendVersionQuery("/assets/js/floating-ui/dom.min.js") } defer></script>
+			<script src={ appendVersionQuery("/assets/js/menu-tooltip.js") } defer></script>
 		</head>
 		<body>
 			<header class="bg-base-200">
