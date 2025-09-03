@@ -7,6 +7,11 @@ function showTooltip(event, tooltipId) {
 
   if (!tooltip) return;
 
+  if (!tooltip._originalParent) {
+    tooltip._originalParent = tooltip.parentNode;
+    tooltip._originalNextSibling = tooltip.nextSibling;
+  }
+
   // Move tooltip to <body> to escape DaisyUI collapse overflow
   document.body.appendChild(tooltip);
 
@@ -31,6 +36,18 @@ function hideTooltip(event, tooltipId) {
   const tooltip = document.getElementById(tooltipId);
 
   if (!tooltip) return;
+
+  // Move tooltip back to original parent and position
+  if (tooltip._originalParent) {
+    if (tooltip._originalNextSibling) {
+      tooltip._originalParent.insertBefore(
+        tooltip,
+        tooltip._originalNextSibling
+      );
+    } else {
+      tooltip._originalParent.appendChild(tooltip);
+    }
+  }
 
   tooltip.classList.add("hidden");
 
