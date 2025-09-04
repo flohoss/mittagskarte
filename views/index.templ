@@ -21,7 +21,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 							/>
 							<div class="collapse-title font-semibold">{ g.Group }</div>
 							<div class="collapse-content text-sm">
-								<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+								<div class="card-grid">
 									for _, r := range g.Restaurants {
 										@components.Card(&g, r)
 									}
@@ -32,7 +32,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 						if g.Group != config.Favorites {
 							<div class="text-sm opacity-75 tracking-wide pl-6">{ g.Group }</div>
 						}
-						<div class="grid px-4 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+						<div class="px-4 card-grid">
 							for _, r := range g.Restaurants {
 								@components.Card(&g, r)
 							}
