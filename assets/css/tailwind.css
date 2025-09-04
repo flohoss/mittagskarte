@@ -5,8 +5,8 @@
   name: autumn;
   default: true;
   prefersdark: false;
-  --color-primary: #822a17;
-  --color-secondary: #f9ddb4;
+  --color-primary: #d29336;
+  --color-secondary: #9b7e3b;
   --color-secondary-content: #333333;
 }
 
@@ -14,8 +14,8 @@
   name: dark;
   default: false;
   prefersdark: true;
-  --color-primary: #f9ddb4;
-  --color-secondary: #822a17;
+  --color-primary: #d29336;
+  --color-secondary: #9b7e3b;
   --color-primary-content: #333333;
 }
 

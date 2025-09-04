@@ -46,7 +46,15 @@ templ Base(r *config.Restaurant) {
 		<body>
 			<header class="bg-base-200">
 				<div class="navbar container px-4 lg:px-6">
-					<div class="md:navbar-start"></div>
+					<div class="hidden md:flex md:navbar-start">
+						<a href="/" class="flex items-center gap-2 grayscale-25">
+							<img src="/assets/favicon/schniddzl.png" alt="Schniddzl.de - Deine Mittagskarte" class="size-10"/>
+							<div class="font-light font-stretch-semi-expanded">
+								<div class="text-xl text-primary">Schniddzl.de</div>
+								<div class="text-xs text-secondary">deine Mittagskarte</div>
+							</div>
+						</a>
+					</div>
 					<div class="md:navbar-end w-full">
 						@components.Filter()
 					</div>
