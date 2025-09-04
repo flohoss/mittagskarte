@@ -58,7 +58,7 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, string
 		Value:    encodedValue,
 		Path:     "/",
 		HttpOnly: true,
-		MaxAge:   30 * 24 * 60 * 60,
+		MaxAge:   400 * 24 * 60 * 60,
 	}
 	ctx.SetCookie(newCookie)
 
