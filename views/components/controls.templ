@@ -36,9 +36,9 @@ func tooltip(toolTipBottom bool) string {
 
 func imgClass(m *config.Menu) string {
 	if m.Landscape {
-		return "max-w-5xl"
+		return "max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl"
 	}
-	return "max-w-2xl"
+	return "max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl max-w-2xl"
 }
 
 templ Controls(r *config.Restaurant, toolTipBottom bool) {
@@ -47,7 +47,7 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 			<div class="relative inline-block">
 				<a
 					href={ templ.URL(r.Menu.URL) }
-					class="my-btn btn-info"
+					class="my-btn btn-primary"
 					onmouseenter={ templ.JSFuncCall("showTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
 					onmouseleave={ templ.JSFuncCall("hideTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
 				>
@@ -63,7 +63,7 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 		if r.Parse.UpdateCron != "" {
 			<div class={ "tooltip", tooltip(toolTipBottom) } data-tip="Aktualisieren">
 				<button
-					class="my-btn"
+					class="my-btn btn-neutral"
 					if r.Loading {
 						disabled
 					}
@@ -82,7 +82,7 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 			</div>
 		} else {
 			<div class={ "tooltip", tooltip(toolTipBottom) } data-tip="Hochladen">
-				<div onclick={ getModalAction(r, "upload") } class="my-btn">
+				<div onclick={ getModalAction(r, "upload") } class="my-btn btn-neutral">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"></path>
 					</svg>
@@ -90,21 +90,21 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 			</div>
 		}
 		<div class={ "tooltip", tooltip(toolTipBottom) } data-tip="Navigieren">
-			<a href={ templ.URL("https://www.google.com/maps/search/?api=1&query=" + r.Address) } class="my-btn">
+			<a href={ templ.URL("https://www.google.com/maps/search/?api=1&query=" + r.Address) } class="my-btn btn-neutral">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"></path>
 				</svg>
 			</a>
 		</div>
 		<div class={ "tooltip", tooltip(toolTipBottom) } data-tip="Anrufen">
-			<a href={ templ.URL("tel:" + r.Phone) } class="my-btn">
+			<a href={ templ.URL("tel:" + r.Phone) } class="my-btn btn-neutral">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"></path>
 				</svg>
 			</a>
 		</div>
 		<div class={ "tooltip", tooltip(toolTipBottom) } data-tip="Webseite">
-			<a href={ templ.URL(r.PageUrl) } class="my-btn btn-primary">
+			<a href={ templ.URL(r.PageUrl) } class="my-btn btn-neutral">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"></path>
 				</svg>
@@ -121,7 +121,7 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 						<input type="file" name="file" class="file-input w-full"/>
 					</div>
 					<div class="flex justify-end mt-5">
-						<button type="submit" class="btn btn-primary">
+						<button type="submit" class="btn btn-neutral">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"></path>
 							</svg>
