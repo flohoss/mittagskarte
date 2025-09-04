@@ -53,6 +53,11 @@ restaurants:
     phone: "+49 711 78784911"
     rest_days: ["Sunday", "Monday", "Saturday"]
     group: "Degerloch"
+    parse:
+      update_cron: "30 9,10 * * 1,2"
+      navigate:
+        - locator: "//a[contains(text(), 'MITTAGSKARTE')]"
+      file_type: "pdf"
 
   delta:
     name: "Delta"
