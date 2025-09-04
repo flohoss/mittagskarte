@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gitlab.unjx.de/flohoss/mittag/config"
+	"golang.org/x/time/rate"
 )
 
 func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
@@ -43,5 +45,25 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 			return key == config.GetApiToken(), nil
 		},
 	}))
+	timeout := 12 * time.Hour
+	e.PUT("/update/:id", mh.handleUpdate, middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
+		Store: middleware.NewRateLimiterMemoryStoreWithConfig(
+			middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(1 / timeout.Seconds()), Burst: 1, ExpiresIn: timeout},
+		),
+		IdentifierExtractor: func(ctx echo.Context) (string, error) {
+			restaurant := ctx.Param("id")
+			if restaurant == "" {
+				restaurant = "none"
+			}
+			return restaurant, nil
+		},
+		ErrorHandler: func(context echo.Context, err error) error {
+			return echo.NewHTTPError(http.StatusForbidden, nil)
+		},
+		DenyHandler: func(context echo.Context, identifier string, err error) error {
+			return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant (max 1/12h). Bitte versuchen Sie es in ein paar Minuten erneut.")
+		},
+	}))
+
 	e.RouteNotFound("*", mh.handleIndex)
 }

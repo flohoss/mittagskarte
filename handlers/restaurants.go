@@ -129,3 +129,16 @@ func (m *MittagHandler) handleUpload(ctx echo.Context) error {
 
 	return m.mittag.UploadMenu(ctx, id, file)
 }
+
+func (m *MittagHandler) handleUpdate(ctx echo.Context) error {
+	r, err := config.GetRestaurant(ctx.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if err := m.mittag.GetImageUrl(r, true); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return m.handleFilter(ctx)
+}

@@ -46,7 +46,7 @@ func (g Group) String() string {
 	return string(g)
 }
 
-var Cfg GlobalConfig
+var cfg GlobalConfig
 
 var validate *validator.Validate
 var mu sync.RWMutex
@@ -76,6 +76,7 @@ type Restaurant struct {
 	Group       Group       `mapstructure:"group"`
 	Parse       Parse       `mapstructure:"parse"`
 	Menu        Menu        `mapstructure:"-"`
+	Loading     bool        `mapstructure:"-"`
 }
 
 type Menu struct {
@@ -152,10 +153,10 @@ func ValidateAndLoadConfig(v *viper.Viper) error {
 	tempCfg.GroupedRestaurants = computeGroupedRestaurantsForMap(tempCfg.Restaurants)
 
 	mu.Lock()
-	Cfg = tempCfg
+	cfg = tempCfg
 	mu.Unlock()
 
-	os.Setenv("TZ", Cfg.TimeZone)
+	os.Setenv("TZ", cfg.TimeZone)
 	return nil
 }
 
@@ -194,7 +195,7 @@ func ConfigLoaded() bool {
 func GetLogLevel() slog.Level {
 	mu.RLock()
 	defer mu.RUnlock()
-	switch strings.ToLower(Cfg.LogLevel) {
+	switch strings.ToLower(cfg.LogLevel) {
 	case "debug":
 		return slog.LevelDebug
 	case "warn", "warning":
@@ -209,19 +210,19 @@ func GetLogLevel() slog.Level {
 func GetServer() string {
 	mu.RLock()
 	defer mu.RUnlock()
-	return fmt.Sprintf("%s:%d", Cfg.Server.Address, Cfg.Server.Port)
+	return fmt.Sprintf("%s:%d", cfg.Server.Address, cfg.Server.Port)
 }
 
 func GetRestaurants() map[string]*Restaurant {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Cfg.Restaurants
+	return cfg.Restaurants
 }
 
 func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRestaurants {
 	mu.RLock()
 	defer mu.RUnlock()
-	r := Cfg.GroupedRestaurants
+	r := cfg.GroupedRestaurants
 
 	if len(favSet) == 0 && filter == "" {
 		return r
@@ -264,7 +265,7 @@ func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRes
 func GetRestaurant(id string) (*Restaurant, error) {
 	mu.RLock()
 	defer mu.RUnlock()
-	restaurant, exists := Cfg.Restaurants[id]
+	restaurant, exists := cfg.Restaurants[id]
 	if !exists {
 		return nil, fmt.Errorf("restaurant %s not found", id)
 	}
@@ -277,7 +278,7 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 
 	url := hash.AddHashQueryToFileName(filePath)
 
-	Cfg.Restaurants[restaurantID].Menu = Menu{
+	cfg.Restaurants[restaurantID].Menu = Menu{
 		URL:      url,
 		Modified: &modTime,
 	}
@@ -291,7 +292,7 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 	if err != nil {
 		return
 	}
-	Cfg.Restaurants[restaurantID].Menu.Landscape = image.Bounds().Dx() > image.Bounds().Dy()
+	cfg.Restaurants[restaurantID].Menu.Landscape = image.Bounds().Dx() > image.Bounds().Dy()
 
 	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
 }
@@ -299,5 +300,11 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 func GetApiToken() string {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Cfg.APIToken
+	return cfg.APIToken
+}
+
+func (r *Restaurant) SetLoading(loading bool) {
+	mu.Lock()
+	defer mu.Unlock()
+	r.Loading = loading
 }
