@@ -46,28 +46,10 @@ templ Base(r *config.Restaurant) {
 		<body>
 			<header class="bg-base-200">
 				<div class="navbar container px-4 lg:px-6">
-					if r != nil {
-						<div class="navbar-start">
-							<div class="tooltip tooltip-bottom" data-tip="Zurück">
-								<a href="/" class="my-btn">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
-									</svg>
-								</a>
-							</div>
-						</div>
-						<div class="navbar-center hidden lg:block text-lg font-semibold">{ getTitle(r) }</div>
-						<div class="navbar-end">
-							<div>
-								@components.Controls(r, false, true)
-							</div>
-						</div>
-					} else {
-						<div class="md:navbar-start"></div>
-						<div class="md:navbar-end w-full">
-							@components.Filter()
-						</div>
-					}
+					<div class="md:navbar-start"></div>
+					<div class="md:navbar-end w-full">
+						@components.Filter()
+					</div>
 				</div>
 			</header>
 			<main class="container my-5 lg:my-10">

@@ -38,7 +38,6 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 	})
 
 	e.GET("/filter", mh.handleFilter)
-	e.GET("/restaurants/:id", mh.handleRestaurant)
 	e.POST("/upload/:id", mh.handleUpload, middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 		KeyLookup: "form:token",
 		Validator: func(key string, c echo.Context) (bool, error) {
@@ -65,5 +64,9 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 		},
 	}))
 
-	e.RouteNotFound("*", mh.handleIndex)
+	e.GET("/", mh.handleIndex)
+
+	e.Any("/*", func(c echo.Context) error {
+		return c.Redirect(http.StatusFound, "/")
+	})
 }
