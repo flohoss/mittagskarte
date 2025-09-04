@@ -44,7 +44,7 @@ func NewMittag(restaurants map[string]*config.Restaurant) *Mittag {
 			continue
 		}
 		id, err := r.cron.AddFunc(restaurants[id].Parse.UpdateCron, func() {
-			if err := r.getImageUrl(restaurants[id], true); err != nil {
+			if err := r.GetImageUrl(restaurants[id], true); err != nil {
 				slog.Error(err.Error())
 			}
 		})
@@ -80,7 +80,9 @@ func (r *Mittag) getImageUrls(overwrite bool) {
 	}
 }
 
-func (r *Mittag) getImageUrl(restaurant *config.Restaurant, overwrite bool) error {
+func (r *Mittag) GetImageUrl(restaurant *config.Restaurant, overwrite bool) error {
+	restaurant.SetLoading(true)
+	defer restaurant.SetLoading(false)
 	ps, err := newPlaywrightService()
 	if err != nil {
 		return err
