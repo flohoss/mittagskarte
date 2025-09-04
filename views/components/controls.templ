@@ -2,8 +2,8 @@ package components
 
 import "gitlab.unjx.de/flohoss/mittag/config"
 
-func getGridCols(r *config.Restaurant, showMenu bool) string {
-	if r.Menu.URL == "" || !showMenu {
+func getGridCols(r *config.Restaurant) string {
+	if r.Menu.URL == "" {
 		return "grid-cols-4"
 	}
 	return "grid-cols-5"
@@ -36,18 +36,18 @@ func tooltip(toolTipBottom bool) string {
 
 func imgClass(m *config.Menu) string {
 	if m.Landscape {
-		return "max-w-3xl"
+		return "max-w-5xl"
 	}
-	return "max-w-xl"
+	return "max-w-2xl"
 }
 
-templ Controls(r *config.Restaurant, showMenu bool, toolTipBottom bool) {
-	<div class={ "grid gap-2 w-full", getGridCols(r, showMenu) }>
-		if r.Menu.URL != "" && showMenu {
+templ Controls(r *config.Restaurant, toolTipBottom bool) {
+	<div class={ "grid gap-2 w-full", getGridCols(r) }>
+		if r.Menu.URL != "" {
 			<div class="relative inline-block">
 				<!-- Tooltip Trigger -->
 				<a
-					href={ templ.URL("/restaurants/" + r.ID) }
+					href={ templ.URL(r.Menu.URL) }
 					class="my-btn btn-info"
 					onmouseenter={ templ.JSFuncCall("showTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
 					onmouseleave={ templ.JSFuncCall("hideTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
