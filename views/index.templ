@@ -3,10 +3,9 @@ package views
 import (
 	"gitlab.unjx.de/flohoss/mittag/config"
 	"gitlab.unjx.de/flohoss/mittag/views/components"
-	"strings"
 )
 
-templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup string) {
+templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup config.Group) {
 	if len(groups) > 0 {
 		<div id="restaurants-container" class={ "grid gap-2", templ.KV("gap-8 lg:gap-10 xl:gap-14", !favApplied) }>
 			for _, g := range groups {
@@ -15,7 +14,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 						<div class={ "collapse bg-base-200 rounded-none sm:rounded-xl" }>
 							<input
 								type="checkbox"
-								if filterApplied || strings.EqualFold(openGroup, g.Group.String()) {
+								if filterApplied || openGroup == g.Group {
 									checked
 								}
 							/>
