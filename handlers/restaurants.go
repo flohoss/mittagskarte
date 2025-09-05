@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -35,12 +33,12 @@ func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
 func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, config.Group) {
 	group := ctx.QueryParam("group")
 
-	var favSet map[string]string
-	cookie, err := ctx.Cookie("favourites")
-	if err == nil {
-		decodedValue, _ := url.QueryUnescape(cookie.Value)
-		if err := json.Unmarshal([]byte(decodedValue), &favSet); err != nil || favSet == nil {
-			favSet = make(map[string]string)
+	favSet := make(map[string]string)
+	if cookie, err := ctx.Cookie("favourites"); err == nil && cookie.Value != "" {
+		for _, pair := range strings.Split(cookie.Value, ",") {
+			if kv := strings.SplitN(pair, ":", 2); len(kv) == 2 && kv[0] != "" && kv[1] != "" {
+				favSet[kv[0]] = kv[1]
+			}
 		}
 	}
 
@@ -52,21 +50,31 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, config
 		}
 	}
 
-	jsonValue, _ := json.Marshal(favSet)
-	encodedValue := url.QueryEscape(string(jsonValue))
-	newCookie := &http.Cookie{
-		Name:     "favourites",
-		Value:    encodedValue,
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   400 * 24 * 60 * 60,
+	if len(favSet) > 0 {
+		favPairs := make([]string, 0, len(favSet))
+		for k, v := range favSet {
+			favPairs = append(favPairs, k+":"+v)
+		}
+		ctx.SetCookie(&http.Cookie{
+			Name:     "favourites",
+			Value:    strings.Join(favPairs, ","),
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   400 * 24 * 60 * 60,
+		})
+	} else {
+		ctx.SetCookie(&http.Cookie{
+			Name:   "favourites",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
 	}
-	ctx.SetCookie(newCookie)
 
 	if fav != "" && group != "" {
 		ctx.SetCookie(&http.Cookie{
 			Name:     "lastGroup",
-			Value:    url.QueryEscape(group),
+			Value:    group,
 			Path:     "/",
 			HttpOnly: true,
 			MaxAge:   60,
@@ -74,13 +82,10 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, config
 	}
 
 	var preselectedGroup config.Group
-	lastFavCookie, err := ctx.Cookie("lastGroup")
-	if err == nil {
+	if lastFavCookie, err := ctx.Cookie("lastGroup"); err == nil {
 		if val, err := strconv.Atoi(lastFavCookie.Value); err == nil {
-			g := config.Group(uint8(val))
-			preselectedGroup = g
+			preselectedGroup = config.Group(uint8(val))
 		}
-
 		ctx.SetCookie(&http.Cookie{
 			Name:   "lastGroup",
 			Value:  "",
