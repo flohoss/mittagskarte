@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +18,54 @@ import (
 
 type FileType string
 type DayOfWeek string
-type Group string
+
+type Group uint8
+
+const (
+	Favorites Group = iota + 1
+	Degerloch
+	Fasanenhof
+	Feuerbach
+	Koengen
+	LeinfeldenEchterdingen
+	Nuertingen
+)
+
+var groupToString = map[Group]string{
+	Favorites:              "Favoriten",
+	Degerloch:              "Degerloch",
+	Fasanenhof:             "Fasanenhof",
+	Feuerbach:              "Feuerbach",
+	Koengen:                "Köngen",
+	LeinfeldenEchterdingen: "Leinfelden-Echterdingen",
+	Nuertingen:             "Nürtingen",
+}
+
+var stringToGroup = map[string]Group{
+	"Favoriten":               Favorites,
+	"Degerloch":               Degerloch,
+	"Fasanenhof":              Fasanenhof,
+	"Feuerbach":               Feuerbach,
+	"Köngen":                  Koengen,
+	"Leinfelden-Echterdingen": LeinfeldenEchterdingen,
+	"Nürtingen":               Nuertingen,
+}
+
+func (g Group) String() string {
+	if str, ok := groupToString[g]; ok {
+		return str
+	}
+	return ""
+}
+
+func (g Group) ID() string {
+	return strconv.Itoa(int(g))
+}
+
+func ParseGroup(s string) (Group, bool) {
+	g, ok := stringToGroup[s]
+	return g, ok
+}
 
 const (
 	ConfigFolder = "./config/"
@@ -32,19 +80,7 @@ const (
 	Thursday  DayOfWeek = "Thursday"
 	Friday    DayOfWeek = "Friday"
 	Saturday  DayOfWeek = "Saturday"
-
-	Degerloch              Group = "Degerloch"
-	Fasanenhof             Group = "Fasanenhof"
-	Feuerbach              Group = "Feuerbach"
-	Koengen                Group = "Köngen"
-	LeinfeldenEchterdingen Group = "Leinfelden-Echterdingen"
-	Nuertingen             Group = "Nürtingen"
-	Favorites              Group = "Favoriten"
 )
-
-func (g Group) String() string {
-	return string(g)
-}
 
 var cfg GlobalConfig
 

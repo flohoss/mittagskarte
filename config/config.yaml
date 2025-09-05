@@ -14,7 +14,7 @@ restaurants:
     address: "Neckarstraße 1, 72622 Nürtingen"
     phone: "+49 7022 9796098"
     rest_days: ["Sunday", "Saturday"]
-    group: "Nürtingen"
+    group: 7
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -29,7 +29,7 @@ restaurants:
     address: "Hirschstraße 18, 73257 Köngen"
     phone: "+49 7024 81488"
     rest_days: ["Sunday", "Saturday"]
-    group: "Köngen"
+    group: 5
 
   blessing:
     name: "Blessing-Kurz"
@@ -38,7 +38,7 @@ restaurants:
     address: "Unterdorfstraße 1, 73257 Köngen"
     phone: "+49 7024 989895"
     rest_days: ["Sunday", "Saturday"]
-    group: "Köngen"
+    group: 5
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -52,7 +52,7 @@ restaurants:
     address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
     phone: "+49 711 78784911"
     rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Degerloch"
+    group: 2
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -66,7 +66,7 @@ restaurants:
     address: "Plochinger Straße 22, 73257 Köngen"
     phone: "+49 7024 466833"
     rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Köngen"
+    group: 5
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -81,7 +81,7 @@ restaurants:
     address: "EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof"
     phone: "+49 721 72586001"
     rest_days: ["Sunday", "Saturday"]
-    group: "Fasanenhof"
+    group: 3
 
   fass:
     name: "Fass"
@@ -90,7 +90,7 @@ restaurants:
     address: "Bahnhofstraße 10, 72644 Oberboihingen"
     phone: "+49 7022 61185"
     rest_days: ["Sunday", "Tuesday", "Saturday"]
-    group: "Nürtingen"
+    group: 7
     parse:
       update_cron: "30 9,10 * * 1,3"
       navigate:
@@ -104,7 +104,7 @@ restaurants:
     address: "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen"
     phone: "+49 7022 62306"
     rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Nürtingen"
+    group: 7
     parse:
       update_cron: "30 9,10 1-3 * *"
       navigate:
@@ -118,7 +118,7 @@ restaurants:
     address: "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 36591400"
     rest_days: ["Sunday", "Saturday"]
-    group: "Feuerbach"
+    group: 4
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -132,7 +132,7 @@ restaurants:
     address: "Europaplatz 12, 70565 Stuttgart-Fasanenhof"
     phone: "+49 711 56619918"
     rest_days: ["Sunday", "Saturday", "Monday"]
-    group: "Fasanenhof"
+    group: 3
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -146,7 +146,7 @@ restaurants:
     address: "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 99772624"
     rest_days: ["Sunday", "Friday", "Saturday"]
-    group: "Fasanenhof"
+    group: 3
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -161,7 +161,7 @@ restaurants:
     address: "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof"
     phone: "+49 157 30664255"
     rest_days: ["Sunday", "Saturday"]
-    group: "Fasanenhof"
+    group: 3
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -176,7 +176,7 @@ restaurants:
     address: "Oberdorfstraße 20, 73257 Köngen"
     phone: "+49 7024 81979"
     rest_days: ["Sunday", "Tuesday", "Wednesday", "Saturday"]
-    group: "Köngen"
+    group: 5
     parse:
       update_cron: "30 9,10 * * 1,4"
       navigate:
@@ -190,7 +190,7 @@ restaurants:
     address: "Burgstraße 4, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 7944180"
     rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Leinfelden-Echterdingen"
+    group: 6
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -204,7 +204,7 @@ restaurants:
     address: "Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 7156767"
     rest_days: ["Sunday", "Saturday"]
-    group: "Fasanenhof"
+    group: 3
     parse:
       update_cron: "30 9,10 * * 1-5"
       navigate:
@@ -219,7 +219,7 @@ restaurants:
     address: "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 791725"
     rest_days: ["Sunday", "Saturday"]
-    group: "Leinfelden-Echterdingen"
+    group: 6
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -233,7 +233,7 @@ restaurants:
     address: "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 8104528"
     rest_days: ["Sunday", "Monday", "Saturday"]
-    group: "Feuerbach"
+    group: 4
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -249,7 +249,7 @@ restaurants:
     address: "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 7978527"
     rest_days: ["Sunday", "Saturday"]
-    group: "Leinfelden-Echterdingen"
+    group: 6
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -263,7 +263,7 @@ restaurants:
     address: "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 62042252"
     rest_days: ["Sunday", "Saturday"]
-    group: "Fasanenhof"
+    group: 3
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -278,7 +278,7 @@ restaurants:
     address: "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 85680030"
     rest_days: ["Sunday", "Saturday"]
-    group: "Feuerbach"
+    group: 4
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
