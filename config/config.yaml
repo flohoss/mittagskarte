@@ -1,5 +1,5 @@
 time_zone: "Etc/UTC"
-log_level: "info"
+log_level: "debug"
 api_token: "valid-key"
 
 server:
@@ -22,7 +22,7 @@ restaurants:
           attribute: "data-orig-file"
       file_type: "image"
 
-  benz_metzgerei:
+  benz:
     name: "Benz Metzgerei"
     description: "Metzgerei"
     url: "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/"
@@ -31,7 +31,7 @@ restaurants:
     rest_days: ["Sunday", "Saturday"]
     group: "Köngen"
 
-  blessing_kurz:
+  blessing:
     name: "Blessing-Kurz"
     description: "Metzgerei"
     url: "https://blessing-kurz.de/de/tagesessen/"
@@ -45,7 +45,7 @@ restaurants:
         - locator: "#cookieInfoBtnPrimary"
         - locator: "#tagesessen"
 
-  da_peppone:
+  peppone:
     name: "Da Peppone"
     description: "Italienisch"
     url: "https://dapeppone-restaurant.de/"
@@ -97,7 +97,7 @@ restaurants:
         - locator: "#maincontainer"
           style: ".sqrnav { display: none !important; }"
 
-  gasthaus_linde:
+  linde:
     name: "Gasthaus Linde"
     description: "Metzgerei"
     url: "https://www.gasthauslinde.de/Mittagstisch"
@@ -111,7 +111,7 @@ restaurants:
         - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
       file_type: "pdf"
 
-  hoflieferant_munz:
+  munz:
     name: "Hoflieferant Munz"
     description: "Metzgerei"
     url: "https://www.hoflieferant-munz.de/aktuelles"
@@ -154,7 +154,7 @@ restaurants:
         - locator: "//div[@class='elementor-widget-container']"
           style: "#masthead { display: none !important; }"
 
-  meet_and_eat:
+  meet:
     name: "Meet & Eat"
     description: "Imbiss"
     url: "http://meetundeat.com/"
@@ -197,7 +197,7 @@ restaurants:
         - locator: "//a[span[contains(text(), 'Zum Mittagsangebot')]]"
       file_type: "pdf"
 
-  picchiorosso:
+  picchio:
     name: "Picchiorosso"
     description: "Italienisch"
     url: "https://picchiorosso.de/tageskarte/"
@@ -212,7 +212,7 @@ restaurants:
         - locator: "//h2[contains(text(), 'Mittagskarte')]/ancestor::div[contains(@class, 'post-entry')]"
           style: "#header { display: none !important; } .av_textblock_section { display: none !important; } .hr { display: none !important; } .avia-button-wrap { display: none !important; }"
 
-  ratsstuben:
+  stuben:
     name: "Ratsstuben"
     description: "Deutsch"
     url: "https://ratsstuben.de/wochenkarte/"
@@ -242,7 +242,7 @@ restaurants:
         - locator: "div.artikel.firmenportrait"
           style: ".fb-header { display: none !important; }"
 
-  schwedenscheuer:
+  scheuer:
     name: "Schwedenscheuer"
     description: "Deutsch"
     url: "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html"
