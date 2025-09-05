@@ -25,7 +25,7 @@ func getIconStroke(group config.Group) string {
 
 templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 	<div class="group my-card">
-		<div class="flex items-center gap-2 px-2">
+		<div class="flex items-center gap-2 px-1">
 			<div class="flex-1 truncate min-w-0">
 				<div class="truncate font-semibold">{ r.Name }</div>
 				<div class="truncate text-xs">{ humanize.Since(r.Menu.Modified) }</div>
