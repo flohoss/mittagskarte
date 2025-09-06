@@ -27,8 +27,8 @@ const (
 	Feuerbach
 	Koengen
 	LeinfeldenEchterdingen
-	Nuertingen
 	Moehringen
+	Nuertingen
 )
 
 var groupToString = map[Group]string{
