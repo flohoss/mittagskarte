@@ -36,9 +36,9 @@ func tooltip(toolTipBottom bool) string {
 
 func imgClass(m *config.Menu) string {
 	if m.Landscape {
-		return "max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl"
+		return "lg:max-w-2xl xl:max-w-4xl"
 	}
-	return "max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl max-w-2xl"
+	return "lg:max-w-xl max-w-2xl"
 }
 
 templ Controls(r *config.Restaurant, toolTipBottom bool) {
