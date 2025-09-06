@@ -29,7 +29,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 						</div>
 					} else {
 						if g.Group != config.Favorites {
-							<div class="text-sm opacity-75 tracking-wide pl-6">{ g.Group }</div>
+							<div class="text-sm opacity-75 tracking-wide pl-5">{ g.Group }</div>
 						}
 						<div class="px-4 card-grid">
 							for _, r := range g.Restaurants {
