@@ -29,6 +29,7 @@ const (
 	Koengen
 	LeinfeldenEchterdingen
 	Nuertingen
+	Moehringen
 )
 
 var groupToString = map[Group]string{
@@ -38,6 +39,7 @@ var groupToString = map[Group]string{
 	Feuerbach:              "Feuerbach",
 	Koengen:                "Köngen",
 	LeinfeldenEchterdingen: "Leinfelden-Echterdingen",
+	Moehringen:             "Möhringen",
 	Nuertingen:             "Nürtingen",
 }
 
@@ -48,6 +50,7 @@ var stringToGroup = map[string]Group{
 	"Feuerbach":               Feuerbach,
 	"Köngen":                  Koengen,
 	"Leinfelden-Echterdingen": LeinfeldenEchterdingen,
+	"Möhringen":               Moehringen,
 	"Nürtingen":               Nuertingen,
 }
 
@@ -110,6 +113,7 @@ type Restaurant struct {
 	RestDays    []DayOfWeek `mapstructure:"rest_days"`
 	Phone       string      `mapstructure:"phone"`
 	Group       Group       `mapstructure:"group"`
+	New         bool        `mapstructure:"new"`
 	Parse       Parse       `mapstructure:"parse"`
 	Menu        Menu        `mapstructure:"-"`
 	Loading     bool        `mapstructure:"-"`
@@ -127,9 +131,10 @@ type GroupedRestaurants struct {
 }
 
 type Parse struct {
-	UpdateCron string     `mapstructure:"update_cron"`
-	Navigate   []Selector `mapstructure:"navigate"`
-	FileType   FileType   `mapstructure:"file_type"`
+	UpdateCron     string     `mapstructure:"update_cron"`
+	Navigate       []Selector `mapstructure:"navigate"`
+	DirectDownload string     `mapstructure:"direct_download"`
+	FileType       FileType   `mapstructure:"file_type"`
 }
 
 type Selector struct {
