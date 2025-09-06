@@ -2,6 +2,12 @@ const { computePosition, offset, flip, shift, autoUpdate } =
   window.FloatingUIDOM;
 
 function showTooltip(event, tooltipId) {
+  const displayHelper = document.querySelector("#display-helper");
+  const style = window.getComputedStyle(displayHelper);
+  if (style.display === "none") {
+    return;
+  }
+
   const trigger = event.target;
   const tooltip = document.getElementById(tooltipId);
 
