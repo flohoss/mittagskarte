@@ -60,7 +60,7 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 			return echo.NewHTTPError(http.StatusForbidden, nil)
 		},
 		DenyHandler: func(context echo.Context, identifier string, err error) error {
-			return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant (max 1/12h). Bitte versuchen Sie es in ein paar Minuten erneut.")
+			return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant. Bitte versuchen Sie es später erneut.")
 		},
 	}))
 
