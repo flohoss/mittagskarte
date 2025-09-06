@@ -1,5 +1,5 @@
-time_zone: "Etc/UTC"
-log_level: "debug"
+time_zone: "Europe/Berlin"
+log_level: "info"
 api_token: "valid-key"
 
 server:
@@ -298,7 +298,7 @@ restaurants:
       navigate:
         - locator: ".brlbs-btn-accept-only-essential"
         - locator: "#speisekarte"
-          style: ".elementor-top-section.elementor-sticky.elementor-sticky--active { display: none !important; }"
+          style: ".elementor-top-section.elementor-sticky.elementor-sticky--active, .brlbs-cmpnt-widget { display: none !important; }"
 
   troelsch:
     name: "Troelsch"
