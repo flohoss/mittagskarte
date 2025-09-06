@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -15,6 +17,15 @@ const (
 	maxRetries     = 5
 	initialBackoff = 2 * time.Second
 )
+
+func DownloadWithCurl(downloadPath, fullURL string) (string, error) {
+	cmd := exec.Command("curl", "-L", "-o", downloadPath, fullURL)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("curl failed: %v, output: %s", err, string(output))
+	}
+	return downloadPath, nil
+}
 
 func File(downloadPath string, fullUrl string) (string, error) {
 	// Parse the URL to get the file extension
@@ -40,6 +51,7 @@ func File(downloadPath string, fullUrl string) (string, error) {
 	backoff := initialBackoff
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
+		slog.Debug("downloading file", "url", fullUrl, "attempt", attempt+1)
 		// Make the HTTP GET request
 		res, err := http.Get(fileURL.String())
 		if err != nil {

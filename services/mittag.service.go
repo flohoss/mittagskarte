@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/internal/download"
 )
 
 const (
@@ -115,7 +116,12 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 		return nil
 	}
 
-	tmpPath, err := ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
+	tmpPath := ""
+	if r.restaurants[restaurant.ID].Parse.DirectDownload != "" {
+		tmpPath, err = download.DownloadWithCurl(TempDownloadFolder+restaurant.ID+".pdf", r.restaurants[restaurant.ID].Parse.DirectDownload)
+	} else {
+		tmpPath, err = ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
+	}
 	if err != nil {
 		return err
 	}
