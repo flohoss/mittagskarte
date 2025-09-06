@@ -17,7 +17,6 @@ import (
 )
 
 type FileType string
-type DayOfWeek string
 
 type Group uint8
 
@@ -75,14 +74,6 @@ const (
 
 	PDF   FileType = "pdf"
 	Image FileType = "image"
-
-	Sunday    DayOfWeek = "Sunday"
-	Monday    DayOfWeek = "Monday"
-	Tuesday   DayOfWeek = "Tuesday"
-	Wednesday DayOfWeek = "Wednesday"
-	Thursday  DayOfWeek = "Thursday"
-	Friday    DayOfWeek = "Friday"
-	Saturday  DayOfWeek = "Saturday"
 )
 
 var cfg GlobalConfig
@@ -105,18 +96,19 @@ type ServerSettings struct {
 }
 
 type Restaurant struct {
-	ID          string      `mapstructure:"-"`
-	Name        string      `mapstructure:"name"`
-	Description string      `mapstructure:"description"`
-	PageUrl     string      `mapstructure:"url"`
-	Address     string      `mapstructure:"address"`
-	RestDays    []DayOfWeek `mapstructure:"rest_days"`
-	Phone       string      `mapstructure:"phone"`
-	Group       Group       `mapstructure:"group"`
-	New         bool        `mapstructure:"new"`
-	Parse       Parse       `mapstructure:"parse"`
-	Menu        Menu        `mapstructure:"-"`
-	Loading     bool        `mapstructure:"-"`
+	ID            string              `mapstructure:"-"`
+	Name          string              `mapstructure:"name"`
+	Description   string              `mapstructure:"description"`
+	PageUrl       string              `mapstructure:"url"`
+	Address       string              `mapstructure:"address"`
+	RestDaysSlice []string            `mapstructure:"rest_days"`
+	RestDays      map[string]struct{} `mapstructure:"-"`
+	Phone         string              `mapstructure:"phone"`
+	Group         Group               `mapstructure:"group"`
+	New           bool                `mapstructure:"new"`
+	Parse         Parse               `mapstructure:"parse"`
+	Menu          Menu                `mapstructure:"-"`
+	Loading       bool                `mapstructure:"-"`
 }
 
 type Menu struct {
@@ -191,6 +183,7 @@ func ValidateAndLoadConfig(v *viper.Viper) error {
 		return fmt.Errorf("configuration validation failed: %w", err)
 	}
 
+	normalizeRestaurant(tempCfg.Restaurants)
 	tempCfg.GroupedRestaurants = computeGroupedRestaurantsForMap(tempCfg.Restaurants)
 
 	mu.Lock()
@@ -199,6 +192,15 @@ func ValidateAndLoadConfig(v *viper.Viper) error {
 
 	os.Setenv("TZ", cfg.TimeZone)
 	return nil
+}
+
+func normalizeRestaurant(restaurants map[string]*Restaurant) {
+	for _, r := range restaurants {
+		r.RestDays = make(map[string]struct{})
+		for _, day := range r.RestDaysSlice {
+			r.RestDays[day] = struct{}{}
+		}
+	}
 }
 
 func computeGroupedRestaurantsForMap(restaurants map[string]*Restaurant) []GroupedRestaurants {
@@ -348,4 +350,12 @@ func (r *Restaurant) SetLoading(loading bool) {
 	mu.Lock()
 	defer mu.Unlock()
 	r.Loading = loading
+}
+
+func (r *Restaurant) IsClosed() bool {
+	mu.RLock()
+	defer mu.RUnlock()
+	today := time.Now().Weekday().String()
+	_, exists := r.RestDays[today]
+	return exists
 }
