@@ -14,7 +14,7 @@ restaurants:
     address: 'Neckarstraße 1, 72622 Nürtingen'
     phone: '+49 7022 9796098'
     rest_days:
-      - 'Sunday'
+      - 'Friday'
       - 'Saturday'
     group: 8
     parse:
@@ -32,7 +32,6 @@ restaurants:
     phone: '+49 7024 81488'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
     group: 5
 
   blessing:
@@ -43,7 +42,6 @@ restaurants:
     phone: '+49 7024 989895'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
     group: 5
     parse:
       update_cron: '30 9,10 * * 1,2'
@@ -58,8 +56,6 @@ restaurants:
     address: 'Lohäckerstraße 11, 70567 Stuttgart-Möhringen'
     phone: '+49 711 78784911'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Tuesday'
     group: 7
     new: true
@@ -75,8 +71,6 @@ restaurants:
     address: 'Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch'
     phone: '+49 711 78784911'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 2
     parse:
@@ -92,8 +86,6 @@ restaurants:
     address: 'Plochinger Straße 22, 73257 Köngen'
     phone: '+49 7024 466833'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 5
     parse:
@@ -121,8 +113,6 @@ restaurants:
     address: 'Bahnhofstraße 10, 72644 Oberboihingen'
     phone: '+49 7022 61185'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Tuesday'
     group: 8
     parse:
@@ -138,8 +128,6 @@ restaurants:
     address: 'Wasserburgstraße 3, 72622 Nürtingen-Zizishausen'
     phone: '+49 7022 62306'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 8
     parse:
@@ -156,7 +144,6 @@ restaurants:
     phone: '+49 711 36591400'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
     group: 4
     parse:
       update_cron: '30 9,10 * * 1,2'
@@ -171,8 +158,6 @@ restaurants:
     address: 'Europaplatz 12, 70565 Stuttgart-Fasanenhof'
     phone: '+49 711 56619918'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 3
     parse:
@@ -188,9 +173,7 @@ restaurants:
     address: 'Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof'
     phone: '+49 711 99772624'
     rest_days:
-      - 'Sunday'
       - 'Saturday'
-      - 'Friday'
     group: 3
     parse:
       update_cron: '30 9,10 * * 1,2'
@@ -207,7 +190,6 @@ restaurants:
     phone: '+49 711 78784708'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
     group: 6
     new: true
     parse:
@@ -240,8 +222,6 @@ restaurants:
     address: 'Oberdorfstraße 20, 73257 Köngen'
     phone: '+49 7024 81979'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Tuesday'
       - 'Wednesday'
     group: 5
@@ -258,8 +238,6 @@ restaurants:
     address: 'Burgstraße 4, 70771 Leinfelden-Echterdingen'
     phone: '+49 711 7944180'
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 6
     parse:
@@ -291,9 +269,6 @@ restaurants:
     url: 'https://ratsstuben.de/wochenkarte/'
     address: 'Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen'
     phone: '+49 711 791725'
-    rest_days:
-      - 'Sunday'
-      - 'Saturday'
     group: 6
     parse:
       update_cron: '30 9,10 * * 1,2'
@@ -309,7 +284,6 @@ restaurants:
     phone: '+49 711 8104528'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
       - 'Monday'
     group: 4
     parse:
@@ -328,7 +302,6 @@ restaurants:
     phone: '+49 711 7978527'
     rest_days:
       - 'Sunday'
-      - 'Saturday'
     group: 6
     parse:
       update_cron: '30 9,10 * * 1,2'
@@ -359,9 +332,6 @@ restaurants:
     url: 'https://www.troelsch.de/ueber-uns/standorte/'
     address: 'Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach'
     phone: '+49 711 85680030'
-    rest_days:
-      - 'Sunday'
-      - 'Saturday'
     group: 4
     parse:
       update_cron: '30 9,10 * * 1,2'
