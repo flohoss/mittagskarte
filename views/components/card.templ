@@ -23,6 +23,13 @@ func getIconStroke(group config.Group) string {
 	return "currentColor"
 }
 
+func getOpacity(closed bool) string {
+	if closed {
+		return "opacity-20 group-hover:opacity-60"
+	}
+	return "opacity-60 group-hover:opacity-100"
+}
+
 templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 	{{ closed := r.IsClosed() }}
 	<div class="group my-card">
@@ -46,7 +53,7 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 				</a>
 			}
 		</div>
-		<div class={ "relative h-28 w-full rounded-xl bg-cover bg-center opacity-60 group-hover:opacity-100 transition duration-300 ease-in", templ.KV("grayscale-75", closed) } style={ getBgImage(r) }></div>
+		<div class={ "relative h-28 w-full rounded-xl bg-cover bg-center transition duration-300 ease-in", templ.KV("grayscale-75", closed), getOpacity(closed) } style={ getBgImage(r) }></div>
 		if (closed) {
 			<div class="badge badge-soft rounded-xl badge-sm absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-15">Heute Geschlossen</div>
 		}
