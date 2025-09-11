@@ -1,4 +1,4 @@
-# Mittag
+# Mittagskarte
 
 [https://schniddzl.de](https://schniddzl.de) - Deine Mittagskarte
 
