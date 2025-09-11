@@ -43,9 +43,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            V_GOLANG=${{ vars.V_GOLANG }}
-            V_NODE=${{ vars.V_NODE }}
-            V_ALPINE=${{ vars.V_ALPINE }}
             APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             BUILD_TIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             REPO=https://github.com/${{ github.repository }}

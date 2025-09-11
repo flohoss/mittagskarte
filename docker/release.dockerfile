@@ -1,7 +1,7 @@
 ARG V_GOLANG=1.24
 ARG V_NODE=lts
 ARG V_ALPINE=3
-ARG V_PLAYWIGHT=20
+ARG V_PLAYWRIGHT=20
 FROM alpine:${V_ALPINE} AS logo
 WORKDIR /app
 RUN apk add figlet
@@ -44,7 +44,7 @@ RUN yarn run tw:build
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
+RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
