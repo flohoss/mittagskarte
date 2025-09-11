@@ -1,18 +1,14 @@
 # Mittag
 
-[![pipeline status](https://gitlab.unjx.de/flohoss/mittag/badges/main/pipeline.svg)](https://gitlab.unjx.de/flohoss/mittag/-/commits/main)
+[https://schniddzl.de](https://schniddzl.de) - Deine Mittagskarte
 
-## Run development server
+## Dev
 
-```sh
-./scripts/dev.sh
-docker compose run --rm yarn install --frozen-lockfile
-docker compose --profile dev up
-```
-
-## Build mittag image
-
-```sh
-./scripts/dev.sh
-docker compose --profile build build
-```
+```bash
+# Upgrade node packages
+docker compose run --rm node yarn upgrade
+# Upgrade golang packages
+docker compose run --rm backend go get -u && go mod tidy
+# Run dev server
+docker compose up --build --force-recreate
+````

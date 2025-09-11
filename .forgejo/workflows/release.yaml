@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   prepare:
@@ -16,7 +16,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: git.unjx.de/${{ github.repository }}
+          images: ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest
             type=raw,value=${{ github.ref_name }}
@@ -24,16 +24,16 @@ jobs:
             maintainer=${{ github.actor }}
             org.opencontainers.image.title=Mittag
             org.opencontainers.image.licenses=Apache-2.0
-            org.opencontainers.image.description=What do you want to eat?
-            org.opencontainers.image.vendor=Unjx
+            org.opencontainers.image.description=Schniddzl.de - deine Mittagskarte
+            org.opencontainers.image.vendor=flohoss
             org.opencontainers.image.version=${{ github.ref_name }}
 
-      - name: Login to Forgejo Container Registry
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
-          registry: git.unjx.de
+          registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.CI_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         uses: docker/build-push-action@v6
@@ -48,5 +48,6 @@ jobs:
             V_ALPINE=${{ vars.V_ALPINE }}
             APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             BUILD_TIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            REPO=https://github.com/${{ github.repository }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.CI_TOKEN }}
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}

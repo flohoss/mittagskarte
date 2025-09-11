@@ -14,7 +14,7 @@ services:
   node:
     image: node:lts-alpine
     working_dir: /app
-    entrypoint: sh -c "yarn install && yarn tw:dev"
+    command: sh -c "yarn install && yarn tw:dev"
     tty: true
     volumes:
       - .:/app/
