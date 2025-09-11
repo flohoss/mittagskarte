@@ -22,8 +22,8 @@ jobs:
             type=raw,value=${{ github.ref_name }}
           labels: |
             maintainer=${{ github.actor }}
-            org.opencontainers.image.title=Mittag
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.title=Mittagskarte
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.description=Schniddzl.de - deine Mittagskarte
             org.opencontainers.image.vendor=flohoss
             org.opencontainers.image.version=${{ github.ref_name }}
