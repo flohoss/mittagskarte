@@ -56,7 +56,7 @@ templ Base(r *config.Restaurant) {
 							</div>
 						</a>
 					</div>
-					<div class="md:navbar-end w-full gap-2">
+					<div class="md:navbar-end flex w-full items-center gap-2">
 						<div class="tooltip tooltip-bottom" data-tip={ os.Getenv("APP_VERSION") }>
 							<a href={ templ.URL(os.Getenv("REPO")) } class="btn btn-circle btn-ghost">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor" class="size-8 text-base-content">
