@@ -25,6 +25,10 @@
   @apply rounded-r-xl rounded-l-xl shadow-none hover:shadow-none;
 }
 
+@utility btn-icon {
+  @apply size-5 flex-shrink-0;
+}
+
 @utility my-btn {
   @apply btn btn-sm w-full;
 }
