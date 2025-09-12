@@ -115,6 +115,8 @@ type Menu struct {
 	URL       string     `mapstructure:"-"`
 	Modified  *time.Time `mapstructure:"-"`
 	Landscape bool       `mapstructure:"-"`
+	Width     string     `mapstructure:"-"`
+	Height    string     `mapstructure:"-"`
 }
 
 type GroupedRestaurants struct {
@@ -336,6 +338,8 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 		return
 	}
 	cfg.Restaurants[restaurantID].Menu.Landscape = image.Bounds().Dx() > image.Bounds().Dy()
+	cfg.Restaurants[restaurantID].Menu.Width = fmt.Sprintf("%dpx", image.Bounds().Dx())
+	cfg.Restaurants[restaurantID].Menu.Height = fmt.Sprintf("%dpx", image.Bounds().Dy())
 
 	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
 }
