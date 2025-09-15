@@ -1,6 +1,11 @@
 const { computePosition, offset, flip, shift, autoUpdate } =
   window.FloatingUIDOM;
 
+// Store a reference to the active tooltip and its cleanup function
+let activeTooltipId = null;
+let activeTooltipCleanup = null;
+let hideTimeout;
+
 function showTooltip(event, tooltipId) {
   const displayHelper = document.querySelector("#display-helper");
   const style = window.getComputedStyle(displayHelper);
@@ -8,10 +13,21 @@ function showTooltip(event, tooltipId) {
     return;
   }
 
+  // Clear any pending hide actions
+  clearTimeout(hideTimeout);
+
+  // If a different tooltip is already active, hide it first
+  if (activeTooltipId && activeTooltipId !== tooltipId) {
+    hideTooltip(null, activeTooltipId);
+  }
+
   const trigger = event.target;
   const tooltip = document.getElementById(tooltipId);
 
   if (!tooltip) return;
+
+  // Set the currently active tooltip
+  activeTooltipId = tooltipId;
 
   if (!tooltip._originalParent) {
     tooltip._originalParent = tooltip.parentNode;
@@ -23,7 +39,12 @@ function showTooltip(event, tooltipId) {
 
   tooltip.classList.remove("hidden");
 
-  trigger._tooltipCleanup = autoUpdate(trigger, tooltip, () => {
+  // Add event listeners to the tooltip itself
+  tooltip.addEventListener("mouseenter", handleTooltipMouseEnter);
+  tooltip.addEventListener("mouseleave", handleTooltipMouseLeave);
+
+  // Store the cleanup function for the trigger element
+  activeTooltipCleanup = autoUpdate(trigger, tooltip, () => {
     computePosition(trigger, tooltip, {
       placement: "right",
       middleware: [offset(8), flip(), shift({ padding: 8 })],
@@ -38,27 +59,46 @@ function showTooltip(event, tooltipId) {
 }
 
 function hideTooltip(event, tooltipId) {
-  const trigger = event.target;
-  const tooltip = document.getElementById(tooltipId);
+  // Use a timeout to delay hiding the tooltip
+  hideTimeout = setTimeout(() => {
+    const tooltip = document.getElementById(tooltipId);
 
-  if (!tooltip) return;
+    if (!tooltip) return;
 
-  // Move tooltip back to original parent and position
-  if (tooltip._originalParent) {
-    if (tooltip._originalNextSibling) {
-      tooltip._originalParent.insertBefore(
-        tooltip,
-        tooltip._originalNextSibling
-      );
-    } else {
-      tooltip._originalParent.appendChild(tooltip);
+    // Remove event listeners from the tooltip
+    tooltip.removeEventListener("mouseenter", handleTooltipMouseEnter);
+    tooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
+
+    // Move tooltip back to original parent and position
+    if (tooltip._originalParent) {
+      if (tooltip._originalNextSibling) {
+        tooltip._originalParent.insertBefore(
+          tooltip,
+          tooltip._originalNextSibling
+        );
+      } else {
+        tooltip._originalParent.appendChild(tooltip);
+      }
     }
-  }
 
-  tooltip.classList.add("hidden");
+    tooltip.classList.add("hidden");
 
-  if (trigger._tooltipCleanup) {
-    trigger._tooltipCleanup();
-    trigger._tooltipCleanup = null;
+    // Cleanup the floating-ui autoUpdate
+    if (activeTooltipCleanup) {
+      activeTooltipCleanup();
+      activeTooltipCleanup = null;
+    }
+    activeTooltipId = null;
+  }, 100); // 100ms delay
+}
+
+function handleTooltipMouseEnter() {
+  clearTimeout(hideTimeout);
+}
+
+function handleTooltipMouseLeave(event) {
+  // Re-hide the tooltip after a delay
+  if (activeTooltipId) {
+    hideTooltip(event, activeTooltipId);
   }
 }
