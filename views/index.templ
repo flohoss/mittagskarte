@@ -51,7 +51,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 templ HomeIndex(
 	cmp templ.Component,
 ) {
-	@Base(nil) {
+	@Base(true) {
 		@cmp
 	}
 }

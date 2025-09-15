@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gitlab.unjx.de/flohoss/mittag/config"
+	"gitlab.unjx.de/flohoss/mittag/views"
 	"golang.org/x/time/rate"
 )
 
@@ -63,6 +64,10 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 			return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant. Bitte versuchen Sie es später erneut.")
 		},
 	}))
+
+	e.GET("/impressum", func(c echo.Context) error {
+		return render(c, views.ImpressumIndex(views.Impressum()))
+	})
 
 	e.GET("/", mh.handleIndex)
 
