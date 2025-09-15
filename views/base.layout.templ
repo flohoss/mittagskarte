@@ -56,7 +56,7 @@ templ Base(r *config.Restaurant) {
 							</div>
 						</a>
 					</div>
-					<div class="md:navbar-end">
+					<div class="md:navbar-end w-full">
 						@components.Filter()
 					</div>
 				</div>
@@ -65,7 +65,10 @@ templ Base(r *config.Restaurant) {
 				<div id="display-helper" class="hidden lg:block"></div>
 				{ children... }
 			</main>
-			<footer class="footer footer-horizontal footer-center bg-base-200 text-base-content p-5">
+			<footer class="footer footer-horizontal footer-center bg-base-200 text-base-content p-5 gap-5">
+				<aside>
+					<p class="text-sm text-gray-600 dark:text-gray-400">Schniddzl.de - Dein Mittagstisch für die Region Stuttgart</p>
+				</aside>
 				<nav class="grid grid-flow-col gap-4">
 					<a href={ templ.URL(os.Getenv("REPO")) } class="my-link">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor" class="size-6">
