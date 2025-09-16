@@ -88,6 +88,7 @@ type GlobalConfig struct {
 	Server             ServerSettings         `mapstructure:"server"`
 	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
 	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
+	Social             []Social               `mapstructure:"social"`
 }
 
 type ServerSettings struct {
@@ -135,6 +136,11 @@ type Selector struct {
 	Locator   string `mapstructure:"locator"`
 	Attribute string `mapstructure:"attribute"`
 	Style     string `mapstructure:"style"`
+}
+
+type Social struct {
+	Icon string `mapstructure:"icon"`
+	URL  string `mapstructure:"url"`
 }
 
 func matches(q, s string) bool {
@@ -362,4 +368,10 @@ func (r *Restaurant) IsClosed() bool {
 	today := time.Now().Weekday().String()
 	_, exists := r.RestDays[today]
 	return exists
+}
+
+func GetSocial() []Social {
+	mu.RLock()
+	defer mu.RUnlock()
+	return cfg.Social
 }
