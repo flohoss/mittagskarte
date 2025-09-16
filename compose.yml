@@ -6,6 +6,9 @@ services:
     platform: linux/amd64
     working_dir: /app
     command: templ generate --watch --proxybind="0.0.0.0" --proxy="http://localhost:8156" --cmd="go run ." --open-browser=false
+    environment:
+      - APP_DESCRIPTION=deine Mittagskarte für die Region Stuttgart
+      - APP_TITLE=Schniddzl.de
     volumes:
       - .:/app/
     ports:
