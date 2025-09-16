@@ -49,6 +49,7 @@ templ Controls(r *config.Restaurant, toolTipBottom bool) {
 					href={ templ.URL(r.Menu.URL) }
 					class="my-btn btn-primary"
 					target="_blank"
+					data-lg-blank
 					rel="noopener noreferrer"
 					onmouseenter={ templ.JSFuncCall("showTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
 					onmouseleave={ templ.JSFuncCall("hideTooltip", templ.JSExpression("event"), "tooltip_menu_"+r.ID) }
