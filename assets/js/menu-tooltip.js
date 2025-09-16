@@ -6,8 +6,26 @@ let activeTooltipId = null;
 let activeTooltipCleanup = null;
 let hideTimeout;
 
+const links = document.querySelectorAll("[data-lg-blank]");
+const displayHelper = document.querySelector("#display-helper");
+
+function updateTargets() {
+  const style = window.getComputedStyle(displayHelper);
+  const isLg = style.display !== "none";
+
+  links.forEach((link) => {
+    if (isLg) {
+      link.setAttribute("target", "_blank");
+    } else {
+      link.removeAttribute("target");
+    }
+  });
+}
+
+updateTargets();
+window.addEventListener("resize", updateTargets);
+
 function showTooltip(event, tooltipId) {
-  const displayHelper = document.querySelector("#display-helper");
   const style = window.getComputedStyle(displayHelper);
   if (style.display === "none") {
     return;
