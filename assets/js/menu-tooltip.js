@@ -62,7 +62,7 @@ function showTooltip(event, tooltipId) {
 }
 
 // Hide tooltip
-function hideTooltip(tooltipId, immediate = false) {
+function hideTooltip(tooltipId) {
   const doHide = () => {
     const tooltip = document.getElementById(tooltipId);
     if (!tooltip) return;
@@ -86,8 +86,7 @@ function hideTooltip(tooltipId, immediate = false) {
   };
 
   clearTimeout(hideTimeout);
-  if (immediate) doHide();
-  else hideTimeout = setTimeout(doHide, 100);
+  hideTimeout = setTimeout(doHide, 250);
 }
 
 function handleTooltipMouseEnter() {
