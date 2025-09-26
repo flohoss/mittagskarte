@@ -139,8 +139,9 @@ type Selector struct {
 }
 
 type Social struct {
-	Icon string `mapstructure:"icon"`
-	URL  string `mapstructure:"url"`
+	Icon        string `mapstructure:"icon"`
+	URL         string `mapstructure:"url"`
+	Description string `mapstructure:"description"`
 }
 
 func matches(q, s string) bool {
