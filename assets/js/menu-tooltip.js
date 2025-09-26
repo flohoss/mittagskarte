@@ -1,50 +1,37 @@
 const { computePosition, offset, flip, shift, autoUpdate } =
   window.FloatingUIDOM;
 
-// Store a reference to the active tooltip and its cleanup function
 let activeTooltipId = null;
-let activeTooltipCleanup = null;
 let hideTimeout;
 
 const links = document.querySelectorAll("[data-lg-blank]");
 const displayHelper = document.querySelector("#display-helper");
 
+// Update links target based on #display-helper visibility
 function updateTargets() {
-  const style = window.getComputedStyle(displayHelper);
-  const isLg = style.display !== "none";
-
+  const isLg = window.getComputedStyle(displayHelper).display !== "none";
   links.forEach((link) => {
-    if (isLg) {
-      link.setAttribute("target", "_blank");
-    } else {
-      link.removeAttribute("target");
-    }
+    if (isLg) link.setAttribute("target", "_blank");
+    else link.removeAttribute("target");
   });
 }
 
 updateTargets();
 window.addEventListener("resize", updateTargets);
 
+// Show tooltip
 function showTooltip(event, tooltipId) {
-  const style = window.getComputedStyle(displayHelper);
-  if (style.display === "none") {
-    return;
-  }
+  const tooltip = document.getElementById(tooltipId);
+  if (!tooltip || window.getComputedStyle(displayHelper).display === "none") return;
 
-  // Clear any pending hide actions
   clearTimeout(hideTimeout);
 
-  // If a different tooltip is already active, hide it first
+  // Hide previous tooltip immediately if switching
   if (activeTooltipId && activeTooltipId !== tooltipId) {
-    hideTooltip(null, activeTooltipId);
+    hideTooltip(activeTooltipId, true);
   }
 
   const trigger = event.target;
-  const tooltip = document.getElementById(tooltipId);
-
-  if (!tooltip) return;
-
-  // Set the currently active tooltip
   activeTooltipId = tooltipId;
 
   if (!tooltip._originalParent) {
@@ -52,62 +39,55 @@ function showTooltip(event, tooltipId) {
     tooltip._originalNextSibling = tooltip.nextSibling;
   }
 
-  // Move tooltip to <body> to escape DaisyUI collapse overflow
   document.body.appendChild(tooltip);
-
   tooltip.classList.remove("hidden");
 
-  // Add event listeners to the tooltip itself
   tooltip.addEventListener("mouseenter", handleTooltipMouseEnter);
   tooltip.addEventListener("mouseleave", handleTooltipMouseLeave);
 
-  // Store the cleanup function for the trigger element
-  activeTooltipCleanup = autoUpdate(trigger, tooltip, () => {
+  // Cleanup previous tooltip autoUpdate if exists
+  if (tooltip._cleanup) {
+    try { tooltip._cleanup(); } catch (e) { }
+  }
+
+  // Store autoUpdate cleanup on tooltip itself
+  tooltip._cleanup = autoUpdate(trigger, tooltip, () => {
     computePosition(trigger, tooltip, {
       placement: "right",
       middleware: [offset(8), flip(), shift({ padding: 8 })],
     }).then(({ x, y }) => {
-      Object.assign(tooltip.style, {
-        position: "absolute",
-        left: `${x}px`,
-        top: `${y}px`,
-      });
+      Object.assign(tooltip.style, { position: "absolute", left: `${x}px`, top: `${y}px` });
     });
   });
 }
 
-function hideTooltip(event, tooltipId) {
-  // Use a timeout to delay hiding the tooltip
-  hideTimeout = setTimeout(() => {
+// Hide tooltip
+function hideTooltip(tooltipId, immediate = false) {
+  const doHide = () => {
     const tooltip = document.getElementById(tooltipId);
-
     if (!tooltip) return;
 
-    // Remove event listeners from the tooltip
     tooltip.removeEventListener("mouseenter", handleTooltipMouseEnter);
     tooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
 
-    // Move tooltip back to original parent and position
     if (tooltip._originalParent) {
-      if (tooltip._originalNextSibling) {
-        tooltip._originalParent.insertBefore(
-          tooltip,
-          tooltip._originalNextSibling
-        );
-      } else {
-        tooltip._originalParent.appendChild(tooltip);
-      }
+      if (tooltip._originalNextSibling) tooltip._originalParent.insertBefore(tooltip, tooltip._originalNextSibling);
+      else tooltip._originalParent.appendChild(tooltip);
     }
 
     tooltip.classList.add("hidden");
 
-    // Cleanup the floating-ui autoUpdate
-    if (activeTooltipCleanup) {
-      activeTooltipCleanup();
-      activeTooltipCleanup = null;
+    if (tooltip._cleanup) {
+      try { tooltip._cleanup(); } catch (e) { }
+      tooltip._cleanup = null;
     }
-    activeTooltipId = null;
-  }, 100); // 100ms delay
+
+    if (activeTooltipId === tooltipId) activeTooltipId = null;
+  };
+
+  clearTimeout(hideTimeout);
+  if (immediate) doHide();
+  else hideTimeout = setTimeout(doHide, 100);
 }
 
 function handleTooltipMouseEnter() {
@@ -115,8 +95,5 @@ function handleTooltipMouseEnter() {
 }
 
 function handleTooltipMouseLeave(event) {
-  // Re-hide the tooltip after a delay
-  if (activeTooltipId) {
-    hideTooltip(event, activeTooltipId);
-  }
+  if (activeTooltipId) hideTooltip(activeTooltipId);
 }
