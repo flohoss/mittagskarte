@@ -7,12 +7,20 @@ import (
 	"time"
 )
 
-func getTitle() string {
-	return os.Getenv("APP_TITLE")
+func getTitle(title string) string {
+	appTitle := os.Getenv("APP_TITLE")
+	if title == "" {
+		return appTitle
+	}
+	return appTitle + " - " + title
 }
 
 func getDescription() string {
-	return getTitle() + " - " + os.Getenv("APP_DESCRIPTION")
+	return os.Getenv("APP_DESCRIPTION")
+}
+
+func getTitleAndDescription() string {
+	return getTitle("") + " - " + getDescription()
 }
 
 func appendVersionQuery(url string) string {
@@ -30,14 +38,14 @@ func getLogoClass(searchBar bool) string {
 	return "navbar-start"
 }
 
-templ Base(searchBar bool) {
+templ Base(title string, searchBar bool) {
 	<!DOCTYPE html>
 	<html lang="de">
 		<head>
 			<meta charset="UTF-8"/>
-			<title>{ getTitle() }</title>
+			<title>{ getTitle(title) }</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="description" content={ getDescription() }/>
+			<meta name="description" content={ getTitle(title) }/>
 			<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96"/>
 			<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg"/>
 			<link rel="shortcut icon" href="/assets/favicon/favicon.ico"/>
@@ -78,7 +86,7 @@ templ Base(searchBar bool) {
 			<footer class="bg-base-200 text-base-content p-5">
 				<div class="container px-4 flex flex-col md:flex-row justify-center md:justify-between items-center gap-5 text-center text-sm">
 					<aside>
-						<p>{ getDescription() } - <a class="link" href="/impressum">Impressum</a> - <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a></p>
+						<p>{ getTitleAndDescription() } - <a class="link" href="/impressum">Impressum</a> - <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a></p>
 					</aside>
 					<nav class="flex gap-2 items-center">
 						for _, social := range config.GetSocial() {
