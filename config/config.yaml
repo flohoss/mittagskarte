@@ -69,7 +69,6 @@ restaurants:
     rest_days:
       - 'Tuesday'
     group: 7
-    new: true
     parse:
       update_cron: '30 9,10 * * 1,3'
       direct_download: 'https://davvero-stuttgart.de/download/mittagskarte.pdf'
@@ -202,7 +201,6 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 6
-    new: true
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:

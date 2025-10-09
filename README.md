@@ -91,6 +91,19 @@ The `attribute` field is an optional html attribute that will be used to find th
 
 The `style` field is an optional style that can be used to hide elements that are not needed.
 
+### Groups
+
+If you want to add a new Area to the app, you have to add it to the `Group` struct in `config.go`.
+Included Areas are currently:
+
+- Degerloch
+- Fasanenhof
+- Feuerbach
+- Köngen
+- Leinfelden-Echterdingen
+- Moehringen
+- Nürtingen
+
 ## Development
 
 ### Run locally with docker compose
