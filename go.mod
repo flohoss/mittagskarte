@@ -1,14 +1,13 @@
 module gitlab.unjx.de/flohoss/mittag
 
-go 1.24.0
-
-toolchain go1.24.7
+go 1.25
 
 require (
 	github.com/a-h/templ v0.3.943
 	github.com/chai2010/webp v1.4.0
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/go-fitz v1.24.15
-	github.com/go-playground/validator/v10 v10.27.0
+	github.com/go-playground/validator/v10 v10.28.0
 	github.com/goodsign/monday v1.0.2
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lmittmann/tint v1.1.2
@@ -16,14 +15,13 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/snabb/isoweek v1.0.3
 	github.com/spf13/viper v1.21.0
-	golang.org/x/time v0.13.0
+	golang.org/x/time v0.14.0
 	gopkg.in/gographics/imagick.v2 v2.7.0
 )
 
 require (
 	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
 	github.com/ebitengine/purego v0.9.0 // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -45,8 +43,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
 )
