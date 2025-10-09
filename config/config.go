@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"gitlab.unjx.de/flohoss/mittag/internal/hash"
@@ -158,6 +159,9 @@ func New() {
 	viper.SetDefault("time_zone", "Etc/UTC")
 	viper.SetDefault("server.address", "0.0.0.0")
 	viper.SetDefault("server.port", 8156)
+	viper.SetDefault("api_token", "replace-me")
+	viper.SetDefault("social", []Social{})
+	viper.SetDefault("restaurants", map[string]*Restaurant{})
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -180,6 +184,39 @@ func New() {
 		slog.Error("Initial configuration validation failed", "error", err)
 		os.Exit(1)
 	}
+
+	setupViperWatcher()
+}
+
+func setupViperWatcher() {
+	var (
+		mu    sync.Mutex
+		timer *time.Timer
+	)
+
+	debounce := func(d time.Duration, fn func()) {
+		mu.Lock()
+		defer mu.Unlock()
+
+		if timer != nil {
+			timer.Stop()
+		}
+		timer = time.AfterFunc(d, fn)
+	}
+
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		debounce(2*time.Second, func() {
+			slog.Info("Config changed, reloading")
+			err := ValidateAndLoadConfig(viper.GetViper())
+			if err != nil {
+				slog.Error("Failed to reload configuration, keeping old settings", "error", err)
+				return
+			}
+			slog.Info("Config reloaded successfully")
+		})
+	})
+
+	viper.WatchConfig()
 }
 
 func ValidateAndLoadConfig(v *viper.Viper) error {
