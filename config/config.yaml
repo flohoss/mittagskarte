@@ -1,351 +1,359 @@
-time_zone: 'Europe/Berlin'
-log_level: 'info'
-api_token: 'valid-key'
+time_zone: "Europe/Berlin"
+log_level: "info"
+api_token: "valid-key"
+
+meta:
+  title: "Schniddzl.de"
+  description: "deine Mittagskarte für die Region Stuttgart"
+  social:
+    - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M512 96L127.9 96C110.3 96 96 110.5 96 128.3L96 511.7C96 529.5 110.3 544 127.9 544L512 544C529.6 544 544 529.5 544 511.7L544 128.3C544 110.5 529.6 96 512 96zM231.4 480L165 480L165 266.2L231.5 266.2L231.5 480L231.4 480zM198.2 160C219.5 160 236.7 177.2 236.7 198.5C236.7 219.8 219.5 237 198.2 237C176.9 237 159.7 219.8 159.7 198.5C159.7 177.2 176.9 160 198.2 160zM480.3 480L413.9 480L413.9 376C413.9 351.2 413.4 319.3 379.4 319.3C344.8 319.3 339.5 346.3 339.5 374.2L339.5 480L273.1 480L273.1 266.2L336.8 266.2L336.8 295.4L337.7 295.4C346.6 278.6 368.3 260.9 400.6 260.9C467.8 260.9 480.3 305.2 480.3 362.8L480.3 480z"/></svg>'
+      url: "https://www.linkedin.com/in/florianhoss/"
+      description: "LinkedIn"
+    - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M544 160C544 124.7 515.3 96 480 96L160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160zM361.8 471.7C361.8 469.9 361.8 465.7 361.9 460.1C362 448.7 362 431.3 362 416.4C362 400.8 356.8 390.9 350.7 385.7C387.7 381.6 426.7 376.5 426.7 312.6C426.7 294.4 420.2 285.3 409.6 273.6C411.3 269.3 417 251.6 407.9 228.6C394 224.3 362.2 246.5 362.2 246.5C335.6 239 305.6 239 279 246.5C279 246.5 247.2 224.3 233.3 228.6C224.2 251.5 229.8 269.2 231.6 273.6C221 285.3 216 294.4 216 312.6C216 376.2 253.3 381.6 290.3 385.7C285.5 390 281.2 397.4 279.7 408C270.2 412.3 245.9 419.7 231.4 394.1C222.3 378.3 205.9 377 205.9 377C189.7 376.8 204.8 387.2 204.8 387.2C215.6 392.2 223.2 411.4 223.2 411.4C232.9 441.1 279.3 431.1 279.3 431.1C279.3 440.1 279.4 452.8 279.4 461.7C279.4 466.5 279.5 470.3 279.5 471.7C279.5 476 276.5 481.2 268 479.7C202 457.6 155.8 394.8 155.8 321.4C155.8 229.6 226 159.9 317.8 159.9C409.6 159.9 484 229.6 484 321.4C484.1 394.8 439.3 457.7 373.3 479.7C364.9 481.2 361.8 476 361.8 471.7zM271.3 416.9C271.1 415.4 272.4 414.1 274.3 413.7C276.2 413.5 278 414.3 278.2 415.6C278.5 416.9 277.2 418.2 275.2 418.6C273.3 419 271.5 418.2 271.3 416.9zM262.2 420.1C260 420.3 258.5 419.2 258.5 417.7C258.5 416.4 260 415.3 262 415.3C263.9 415.1 265.7 416.2 265.7 417.7C265.7 419 264.2 420.1 262.2 420.1zM247.9 417.9C246 417.5 244.7 416 245.1 414.7C245.5 413.4 247.5 412.8 249.2 413.2C251.2 413.8 252.5 415.3 252 416.6C251.6 417.9 249.6 418.5 247.9 417.9zM235.4 410.6C233.9 409.3 233.5 407.4 234.5 406.5C235.4 405.4 237.3 405.6 238.8 407.1C240.1 408.4 240.6 410.4 239.7 411.2C238.8 412.3 236.9 412.1 235.4 410.6zM226.9 400.6C225.8 399.1 225.8 397.4 226.9 396.7C228 395.8 229.7 396.5 230.6 398C231.7 399.5 231.7 401.3 230.6 402.1C229.7 402.7 228 402.1 226.9 400.6zM220.6 391.8C219.5 390.5 219.3 389 220.2 388.3C221.1 387.4 222.6 387.9 223.7 388.9C224.8 390.2 225 391.7 224.1 392.4C223.2 393.3 221.7 392.8 220.6 391.8zM214.6 385.4C213.3 384.8 212.7 383.7 213.1 382.8C213.5 382.2 214.6 381.9 215.9 382.4C217.2 383.1 217.8 384.2 217.4 385C217 385.9 215.7 386.1 214.6 385.4z"/></svg>'
+      url: "https://github.com/flohoss/"
+      description: "GitHub"
+    - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM457.1 180L353.3 298.6L475.4 460L379.8 460L305 362.1L219.3 460L171.8 460L282.8 333.1L165.7 180L263.7 180L331.4 269.5L409.6 180L457.1 180zM419.3 431.6L249.4 206.9L221.1 206.9L392.9 431.6L419.3 431.6z"/></svg>'
+      url: "https://x.com/flohoss/"
+      description: "X (ehemals Twitter)"
 
 server:
-  address: '0.0.0.0'
+  address: "0.0.0.0"
   port: 8156
 
-social:
-  - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M512 96L127.9 96C110.3 96 96 110.5 96 128.3L96 511.7C96 529.5 110.3 544 127.9 544L512 544C529.6 544 544 529.5 544 511.7L544 128.3C544 110.5 529.6 96 512 96zM231.4 480L165 480L165 266.2L231.5 266.2L231.5 480L231.4 480zM198.2 160C219.5 160 236.7 177.2 236.7 198.5C236.7 219.8 219.5 237 198.2 237C176.9 237 159.7 219.8 159.7 198.5C159.7 177.2 176.9 160 198.2 160zM480.3 480L413.9 480L413.9 376C413.9 351.2 413.4 319.3 379.4 319.3C344.8 319.3 339.5 346.3 339.5 374.2L339.5 480L273.1 480L273.1 266.2L336.8 266.2L336.8 295.4L337.7 295.4C346.6 278.6 368.3 260.9 400.6 260.9C467.8 260.9 480.3 305.2 480.3 362.8L480.3 480z"/></svg>'
-    url: 'https://www.linkedin.com/in/florianhoss/'
-    description: 'LinkedIn'
-  - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M544 160C544 124.7 515.3 96 480 96L160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160zM361.8 471.7C361.8 469.9 361.8 465.7 361.9 460.1C362 448.7 362 431.3 362 416.4C362 400.8 356.8 390.9 350.7 385.7C387.7 381.6 426.7 376.5 426.7 312.6C426.7 294.4 420.2 285.3 409.6 273.6C411.3 269.3 417 251.6 407.9 228.6C394 224.3 362.2 246.5 362.2 246.5C335.6 239 305.6 239 279 246.5C279 246.5 247.2 224.3 233.3 228.6C224.2 251.5 229.8 269.2 231.6 273.6C221 285.3 216 294.4 216 312.6C216 376.2 253.3 381.6 290.3 385.7C285.5 390 281.2 397.4 279.7 408C270.2 412.3 245.9 419.7 231.4 394.1C222.3 378.3 205.9 377 205.9 377C189.7 376.8 204.8 387.2 204.8 387.2C215.6 392.2 223.2 411.4 223.2 411.4C232.9 441.1 279.3 431.1 279.3 431.1C279.3 440.1 279.4 452.8 279.4 461.7C279.4 466.5 279.5 470.3 279.5 471.7C279.5 476 276.5 481.2 268 479.7C202 457.6 155.8 394.8 155.8 321.4C155.8 229.6 226 159.9 317.8 159.9C409.6 159.9 484 229.6 484 321.4C484.1 394.8 439.3 457.7 373.3 479.7C364.9 481.2 361.8 476 361.8 471.7zM271.3 416.9C271.1 415.4 272.4 414.1 274.3 413.7C276.2 413.5 278 414.3 278.2 415.6C278.5 416.9 277.2 418.2 275.2 418.6C273.3 419 271.5 418.2 271.3 416.9zM262.2 420.1C260 420.3 258.5 419.2 258.5 417.7C258.5 416.4 260 415.3 262 415.3C263.9 415.1 265.7 416.2 265.7 417.7C265.7 419 264.2 420.1 262.2 420.1zM247.9 417.9C246 417.5 244.7 416 245.1 414.7C245.5 413.4 247.5 412.8 249.2 413.2C251.2 413.8 252.5 415.3 252 416.6C251.6 417.9 249.6 418.5 247.9 417.9zM235.4 410.6C233.9 409.3 233.5 407.4 234.5 406.5C235.4 405.4 237.3 405.6 238.8 407.1C240.1 408.4 240.6 410.4 239.7 411.2C238.8 412.3 236.9 412.1 235.4 410.6zM226.9 400.6C225.8 399.1 225.8 397.4 226.9 396.7C228 395.8 229.7 396.5 230.6 398C231.7 399.5 231.7 401.3 230.6 402.1C229.7 402.7 228 402.1 226.9 400.6zM220.6 391.8C219.5 390.5 219.3 389 220.2 388.3C221.1 387.4 222.6 387.9 223.7 388.9C224.8 390.2 225 391.7 224.1 392.4C223.2 393.3 221.7 392.8 220.6 391.8zM214.6 385.4C213.3 384.8 212.7 383.7 213.1 382.8C213.5 382.2 214.6 381.9 215.9 382.4C217.2 383.1 217.8 384.2 217.4 385C217 385.9 215.7 386.1 214.6 385.4z"/></svg>'
-    url: 'https://github.com/flohoss/'
-    description: 'GitHub'
-  - icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM457.1 180L353.3 298.6L475.4 460L379.8 460L305 362.1L219.3 460L171.8 460L282.8 333.1L165.7 180L263.7 180L331.4 269.5L409.6 180L457.1 180zM419.3 431.6L249.4 206.9L221.1 206.9L392.9 431.6L419.3 431.6z"/></svg>'
-    url: 'https://x.com/flohoss/'
-    description: 'X (ehemals Twitter)'
+umami_analytics:
+  enabled: false
+  domain: "analytics.fhoss.de"
+  website_id: "433f1487-0b11-4fb8-a22e-68d9ea60cfe7"
 
 restaurants:
   avada:
-    name: 'Avada'
-    description: 'Sushi & Asiatisch'
-    url: 'https://avada-nt.de/mittagsmenu/'
-    address: 'Neckarstraße 1, 72622 Nürtingen'
-    phone: '+49 7022 9796098'
+    name: "Avada"
+    description: "Sushi & Asiatisch"
+    url: "https://avada-nt.de/mittagsmenu/"
+    address: "Neckarstraße 1, 72622 Nürtingen"
+    phone: "+49 7022 9796098"
     rest_days:
-      - 'Friday'
-      - 'Saturday'
+      - "Friday"
+      - "Saturday"
     group: 8
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//img[contains(@class, 'size-full')]"
-          attribute: 'data-orig-file'
-      file_type: 'image'
+          attribute: "data-orig-file"
+      file_type: "image"
 
   benz:
-    name: 'Benz Metzgerei'
-    description: 'Metzgerei'
-    url: 'https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/'
-    address: 'Hirschstraße 18, 73257 Köngen'
-    phone: '+49 7024 81488'
+    name: "Benz Metzgerei"
+    description: "Metzgerei"
+    url: "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/"
+    address: "Hirschstraße 18, 73257 Köngen"
+    phone: "+49 7024 81488"
     rest_days:
-      - 'Sunday'
+      - "Sunday"
     group: 5
 
   blessing:
-    name: 'Blessing-Kurz'
-    description: 'Metzgerei'
-    url: 'https://blessing-kurz.de/de/tagesessen/'
-    address: 'Unterdorfstraße 1, 73257 Köngen'
-    phone: '+49 7024 989895'
+    name: "Blessing-Kurz"
+    description: "Metzgerei"
+    url: "https://blessing-kurz.de/de/tagesessen/"
+    address: "Unterdorfstraße 1, 73257 Köngen"
+    phone: "+49 7024 989895"
     rest_days:
-      - 'Sunday'
+      - "Sunday"
     group: 5
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: '#cookieInfoBtnPrimary'
-        - locator: '#tagesessen'
+        - locator: "#cookieInfoBtnPrimary"
+        - locator: "#tagesessen"
 
   davvero:
-    name: 'Davvero'
-    description: 'Italienisch'
-    url: 'https://www.davvero-stuttgart.de/index.html'
-    address: 'Lohäckerstraße 11, 70567 Stuttgart-Möhringen'
-    phone: '+49 711 78784911'
+    name: "Davvero"
+    description: "Italienisch"
+    url: "https://www.davvero-stuttgart.de/index.html"
+    address: "Lohäckerstraße 11, 70567 Stuttgart-Möhringen"
+    phone: "+49 711 78784911"
     rest_days:
-      - 'Tuesday'
+      - "Tuesday"
     group: 7
     parse:
-      update_cron: '30 9,10 * * 1,3'
-      direct_download: 'https://davvero-stuttgart.de/download/mittagskarte.pdf'
-      file_type: 'pdf'
+      update_cron: "30 9,10 * * 1,3"
+      direct_download: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
+      file_type: "pdf"
 
   peppone:
-    name: 'Da Peppone'
-    description: 'Italienisch'
-    url: 'https://dapeppone-restaurant.de/'
-    address: 'Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch'
-    phone: '+49 711 78784911'
+    name: "Da Peppone"
+    description: "Italienisch"
+    url: "https://dapeppone-restaurant.de/"
+    address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
+    phone: "+49 711 78784911"
     rest_days:
-      - 'Monday'
+      - "Monday"
     group: 2
     parse:
-      update_cron: '30 9,10 * * 2,3'
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'MITTAGSKARTE')]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   delta:
-    name: 'Delta'
-    description: 'Thailändisch'
-    url: 'https://www.delta-koengen.de/menü/'
-    address: 'Plochinger Straße 22, 73257 Köngen'
-    phone: '+49 7024 466833'
+    name: "Delta"
+    description: "Thailändisch"
+    url: "https://www.delta-koengen.de/menü/"
+    address: "Plochinger Straße 22, 73257 Köngen"
+    phone: "+49 7024 466833"
     rest_days:
-      - 'Monday'
+      - "Monday"
     group: 5
     parse:
-      update_cron: '30 9,10 * * 2,3'
+      update_cron: "30 9,10 * * 2,3"
       navigate:
-        - locator: '#cookie-settings-reject-all'
+        - locator: "#cookie-settings-reject-all"
         - locator: "//a[contains(text(), 'Download')]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   enbw:
-    name: 'EnBW'
-    description: 'Kantine'
-    url: 'https://www.enbw.com/unternehmen/standorte/stuttgart-fasanenhof/'
-    address: 'EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof'
-    phone: '+49 721 72586001'
+    name: "EnBW"
+    description: "Kantine"
+    url: "https://www.enbw.com/unternehmen/standorte/stuttgart-fasanenhof/"
+    address: "EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof"
+    phone: "+49 721 72586001"
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
+      - "Sunday"
+      - "Saturday"
     group: 3
 
   fass:
-    name: 'Fass'
-    description: 'Deutsch'
-    url: 'http://www.gasthaus-fass.de/mittagstisch'
-    address: 'Bahnhofstraße 10, 72644 Oberboihingen'
-    phone: '+49 7022 61185'
+    name: "Fass"
+    description: "Deutsch"
+    url: "http://www.gasthaus-fass.de/mittagstisch"
+    address: "Bahnhofstraße 10, 72644 Oberboihingen"
+    phone: "+49 7022 61185"
     rest_days:
-      - 'Tuesday'
+      - "Tuesday"
     group: 8
     parse:
-      update_cron: '30 9,10 * * 1,3'
+      update_cron: "30 9,10 * * 1,3"
       navigate:
-        - locator: '#maincontainer'
-          style: '.sqrnav { display: none !important; }'
+        - locator: "#maincontainer"
+          style: ".sqrnav { display: none !important; }"
 
   linde:
-    name: 'Gasthaus Linde'
-    description: 'Metzgerei'
-    url: 'https://www.gasthauslinde.de/Mittagstisch'
-    address: 'Wasserburgstraße 3, 72622 Nürtingen-Zizishausen'
-    phone: '+49 7022 62306'
+    name: "Gasthaus Linde"
+    description: "Metzgerei"
+    url: "https://www.gasthauslinde.de/Mittagstisch"
+    address: "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen"
+    phone: "+49 7022 62306"
     rest_days:
-      - 'Monday'
+      - "Monday"
     group: 8
     parse:
-      update_cron: '30 9,10 1-3 * *'
+      update_cron: "30 9,10 1-3 * *"
       navigate:
         - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   munz:
-    name: 'Hoflieferant Munz'
-    description: 'Metzgerei'
-    url: 'https://www.hoflieferant-munz.de/aktuelles'
-    address: 'Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach'
-    phone: '+49 711 36591400'
+    name: "Hoflieferant Munz"
+    description: "Metzgerei"
+    url: "https://www.hoflieferant-munz.de/aktuelles"
+    address: "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach"
+    phone: "+49 711 36591400"
     rest_days:
-      - 'Sunday'
+      - "Sunday"
     group: 4
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//a[contains(text(), 'Download pdf')]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   khoi:
-    name: 'Khoi'
-    description: 'Vietnamesisch'
-    url: 'https://www.khoi-restaurant.de/speisekarte/'
-    address: 'Europaplatz 12, 70565 Stuttgart-Fasanenhof'
-    phone: '+49 711 56619918'
+    name: "Khoi"
+    description: "Vietnamesisch"
+    url: "https://www.khoi-restaurant.de/speisekarte/"
+    address: "Europaplatz 12, 70565 Stuttgart-Fasanenhof"
+    phone: "+49 711 56619918"
     rest_days:
-      - 'Monday'
+      - "Monday"
     group: 3
     parse:
-      update_cron: '30 9,10 * * 2,3'
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'Mittagskarte PDF')]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   koe5:
-    name: 'KÖ5'
-    description: 'Deutsch'
-    url: 'https://koe5.de/'
-    address: 'Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof'
-    phone: '+49 711 99772624'
+    name: "KÖ5"
+    description: "Deutsch"
+    url: "https://koe5.de/"
+    address: "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof"
+    phone: "+49 711 99772624"
     rest_days:
-      - 'Saturday'
+      - "Saturday"
     group: 3
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//a[contains(text(), 'Alles ablehnen')]"
         - locator: "//div[@class='elementor-widget-container']"
-          style: '#masthead { display: none !important; }'
+          style: "#masthead { display: none !important; }"
 
   lunica:
     name: "L'unica"
-    description: 'Italienisch'
-    url: 'https://www.lunica-restaurant.de/mittagstisch-lunica-restaurant-echterdingen.html'
-    address: 'Hauptstraße 33,70771 Leinfelden-Echterdingen'
-    phone: '+49 711 78784708'
+    description: "Italienisch"
+    url: "https://www.lunica-restaurant.de/mittagstisch-lunica-restaurant-echterdingen.html"
+    address: "Hauptstraße 33,70771 Leinfelden-Echterdingen"
+    phone: "+49 711 78784708"
     rest_days:
-      - 'Sunday'
+      - "Sunday"
     group: 6
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "[data-testid='uc-deny-all-button']"
-        - locator: 'div.row.mittagstisch_tafel'
+        - locator: "div.row.mittagstisch_tafel"
 
   meet:
-    name: 'Meet & Eat'
-    description: 'Imbiss'
-    url: 'http://meetundeat.com/'
-    address: 'Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof'
-    phone: '+49 157 30664255'
+    name: "Meet & Eat"
+    description: "Imbiss"
+    url: "http://meetundeat.com/"
+    address: "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof"
+    phone: "+49 157 30664255"
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
+      - "Sunday"
+      - "Saturday"
     group: 3
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: '.et_pb_image_1 > span:nth-child(1) > img:nth-child(1)'
-          attribute: 'src'
-      file_type: 'image'
+        - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
+          attribute: "src"
+      file_type: "image"
 
   ochsen:
-    name: 'Ochsen'
-    description: 'Deutsch'
-    url: 'http://www.ochsen-koengen.de'
-    address: 'Oberdorfstraße 20, 73257 Köngen'
-    phone: '+49 7024 81979'
+    name: "Ochsen"
+    description: "Deutsch"
+    url: "http://www.ochsen-koengen.de"
+    address: "Oberdorfstraße 20, 73257 Köngen"
+    phone: "+49 7024 81979"
     rest_days:
-      - 'Tuesday'
-      - 'Wednesday'
+      - "Tuesday"
+      - "Wednesday"
     group: 5
     parse:
-      update_cron: '30 9,10 * * 1,4'
+      update_cron: "30 9,10 * * 1,4"
       navigate:
-        - locator: 'p.paragraph-mittagstisch-right-corona'
-          style: '.w-nav { display: none !important; }'
+        - locator: "p.paragraph-mittagstisch-right-corona"
+          style: ".w-nav { display: none !important; }"
 
   paulaner:
-    name: 'Paulaner'
-    description: 'Deutsch'
-    url: 'https://paulaner-le.de/speisen-getraenke/mittagstisch.html'
-    address: 'Burgstraße 4, 70771 Leinfelden-Echterdingen'
-    phone: '+49 711 7944180'
+    name: "Paulaner"
+    description: "Deutsch"
+    url: "https://paulaner-le.de/speisen-getraenke/mittagstisch.html"
+    address: "Burgstraße 4, 70771 Leinfelden-Echterdingen"
+    phone: "+49 711 7944180"
     rest_days:
-      - 'Monday'
+      - "Monday"
     group: 6
     parse:
-      update_cron: '30 9,10 * * 2,3'
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[span[contains(text(), 'Zum Mittagsangebot')]]"
-      file_type: 'pdf'
+      file_type: "pdf"
 
   picchio:
-    name: 'Picchiorosso'
-    description: 'Italienisch'
-    url: 'https://picchiorosso.de/tageskarte/'
-    address: 'Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof'
-    phone: '+49 711 7156767'
+    name: "Picchiorosso"
+    description: "Italienisch"
+    url: "https://picchiorosso.de/tageskarte/"
+    address: "Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof"
+    phone: "+49 711 7156767"
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
+      - "Sunday"
+      - "Saturday"
     group: 3
     parse:
-      update_cron: '30 9,10 * * 1-5'
+      update_cron: "30 9,10 * * 1-5"
       navigate:
-        - locator: '.avia-cookie-consent-button'
+        - locator: ".avia-cookie-consent-button"
         - locator: "//h2[contains(text(), 'Mittagskarte')]/ancestor::div[contains(@class, 'post-entry')]"
-          style: '#header { display: none !important; } .av_textblock_section { display: none !important; } .hr { display: none !important; } .avia-button-wrap { display: none !important; }'
+          style: "#header { display: none !important; } .av_textblock_section { display: none !important; } .hr { display: none !important; } .avia-button-wrap { display: none !important; }"
 
   stuben:
-    name: 'Ratsstuben'
-    description: 'Deutsch'
-    url: 'https://ratsstuben.de/wochenkarte/'
-    address: 'Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen'
-    phone: '+49 711 791725'
+    name: "Ratsstuben"
+    description: "Deutsch"
+    url: "https://ratsstuben.de/wochenkarte/"
+    address: "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen"
+    phone: "+49 711 791725"
     group: 6
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: 'div > p > a'
-      file_type: 'pdf'
+        - locator: "div > p > a"
+      file_type: "pdf"
 
   schaible:
-    name: 'Schaible'
-    description: 'Metzgerei'
-    url: 'https://www.feuerbach.de/aktuelles/mittagstisch/'
-    address: 'Staufeneckstraße 1, 70469 Stuttgart-Feuerbach'
-    phone: '+49 711 8104528'
+    name: "Schaible"
+    description: "Metzgerei"
+    url: "https://www.feuerbach.de/aktuelles/mittagstisch/"
+    address: "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach"
+    phone: "+49 711 8104528"
     rest_days:
-      - 'Sunday'
-      - 'Monday'
+      - "Sunday"
+      - "Monday"
     group: 4
     parse:
-      update_cron: '30 9,10 * * 2,3'
+      update_cron: "30 9,10 * * 2,3"
       navigate:
         - locator: "//a[contains(text(), 'Schaible')]"
-        - locator: '.cm-btn-success'
-        - locator: 'div.artikel.firmenportrait'
-          style: '.fb-header { display: none !important; }'
+        - locator: ".cm-btn-success"
+        - locator: "div.artikel.firmenportrait"
+          style: ".fb-header { display: none !important; }"
 
   scheuer:
-    name: 'Schwedenscheuer'
-    description: 'Deutsch'
-    url: 'https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html'
-    address: 'Hauptstraße 71/1, 70771 Leinfelden-Echterdingen'
-    phone: '+49 711 7978527'
+    name: "Schwedenscheuer"
+    description: "Deutsch"
+    url: "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html"
+    address: "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen"
+    phone: "+49 711 7978527"
     rest_days:
-      - 'Sunday'
+      - "Sunday"
     group: 6
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "[data-testid='uc-deny-all-button']"
-        - locator: '#content'
+        - locator: "#content"
 
   sw34:
-    name: 'SW34'
-    description: 'Eventlocation'
-    url: 'https://sw34.restaurant/essen-trinken'
-    address: 'Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof'
-    phone: '+49 711 62042252'
+    name: "SW34"
+    description: "Eventlocation"
+    url: "https://sw34.restaurant/essen-trinken"
+    address: "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof"
+    phone: "+49 711 62042252"
     rest_days:
-      - 'Sunday'
-      - 'Saturday'
+      - "Sunday"
+      - "Saturday"
     group: 3
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: '.brlbs-btn-accept-only-essential'
-        - locator: '#speisekarte'
-          style: '.elementor-top-section.elementor-sticky.elementor-sticky--active, .brlbs-cmpnt-widget { display: none !important; }'
+        - locator: ".brlbs-btn-accept-only-essential"
+        - locator: "#speisekarte"
+          style: ".elementor-top-section.elementor-sticky.elementor-sticky--active, .brlbs-cmpnt-widget { display: none !important; }"
 
   troelsch:
-    name: 'Troelsch'
-    description: 'Bäckerei'
-    url: 'https://www.troelsch.de/ueber-uns/standorte/'
-    address: 'Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach'
-    phone: '+49 711 85680030'
+    name: "Troelsch"
+    description: "Bäckerei"
+    url: "https://www.troelsch.de/ueber-uns/standorte/"
+    address: "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach"
+    phone: "+49 711 85680030"
     group: 4
     parse:
-      update_cron: '30 9,10 * * 1,2'
+      update_cron: "30 9,10 * * 1,2"
       navigate:
         - locator: "//h2[contains(text(), 'Feuerbach')]/parent::div/following-sibling::div//a[@title='Mittagskarte herunterladen']"
-          attribute: 'href'
-          style: '.collapse:not(.show) { display: block !important; }'
-      file_type: 'pdf'
+          attribute: "href"
+          style: ".collapse:not(.show) { display: block !important; }"
+      file_type: "pdf"
