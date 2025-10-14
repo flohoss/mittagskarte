@@ -22,7 +22,8 @@ window.addEventListener("resize", updateTargets);
 // Show tooltip
 function showTooltip(event, tooltipId) {
   const tooltip = document.getElementById(tooltipId);
-  if (!tooltip || window.getComputedStyle(displayHelper).display === "none") return;
+  if (!tooltip || window.getComputedStyle(displayHelper).display === "none")
+    return;
 
   clearTimeout(hideTimeout);
 
@@ -47,7 +48,9 @@ function showTooltip(event, tooltipId) {
 
   // Cleanup previous tooltip autoUpdate if exists
   if (tooltip._cleanup) {
-    try { tooltip._cleanup(); } catch (e) { }
+    try {
+      tooltip._cleanup();
+    } catch (e) {}
   }
 
   // Store autoUpdate cleanup on tooltip itself
@@ -56,7 +59,11 @@ function showTooltip(event, tooltipId) {
       placement: "right",
       middleware: [offset(8), flip(), shift({ padding: 8 })],
     }).then(({ x, y }) => {
-      Object.assign(tooltip.style, { position: "absolute", left: `${x}px`, top: `${y}px` });
+      Object.assign(tooltip.style, {
+        position: "absolute",
+        left: `${x}px`,
+        top: `${y}px`,
+      });
     });
   });
 }
@@ -71,14 +78,20 @@ function hideTooltip(tooltipId) {
     tooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
 
     if (tooltip._originalParent) {
-      if (tooltip._originalNextSibling) tooltip._originalParent.insertBefore(tooltip, tooltip._originalNextSibling);
+      if (tooltip._originalNextSibling)
+        tooltip._originalParent.insertBefore(
+          tooltip,
+          tooltip._originalNextSibling
+        );
       else tooltip._originalParent.appendChild(tooltip);
     }
 
     tooltip.classList.add("hidden");
 
     if (tooltip._cleanup) {
-      try { tooltip._cleanup(); } catch (e) { }
+      try {
+        tooltip._cleanup();
+      } catch (e) {}
       tooltip._cleanup = null;
     }
 
@@ -86,7 +99,7 @@ function hideTooltip(tooltipId) {
   };
 
   clearTimeout(hideTimeout);
-  hideTimeout = setTimeout(doHide, 250);
+  hideTimeout = setTimeout(doHide, 150);
 }
 
 function handleTooltipMouseEnter() {
