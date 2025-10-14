@@ -60,8 +60,8 @@ templ Base(title string, searchBar bool) {
 						<a href="/" class="flex items-center gap-2">
 							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
 							<div class="font-light font-stretch-semi-expanded">
-								<div class="text-xl font-semibold">{ meta.Title }</div>
-								<div class="text-xs">{ meta.Description }</div>
+								<div class="text-xl font-semibold whitespace-nowrap">{ meta.Title }</div>
+								<div class="text-xs truncate whitespace-nowrap">{ meta.Description }</div>
 							</div>
 						</a>
 					</div>
