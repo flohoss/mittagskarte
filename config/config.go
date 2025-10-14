@@ -37,6 +37,7 @@ type GlobalConfig struct {
 	TimeZone           string                 `mapstructure:"time_zone" validate:"required"`
 	APIToken           string                 `mapstructure:"api_token" validate:"required"`
 	Meta               Meta                   `mapstructure:"meta"`
+	Impressum          Impressum              `mapstructure:"impressum"`
 	UMAMIAnalytics     UMAMIAnalytics         `mapstructure:"umami_analytics"`
 	Server             ServerSettings         `mapstructure:"server"`
 	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
@@ -47,6 +48,11 @@ type Meta struct {
 	Title       string   `mapstructure:"title" validate:"required"`
 	Description string   `mapstructure:"description" validate:"required"`
 	Social      []Social `mapstructure:"social"`
+}
+
+type Impressum struct {
+	Enabled     bool   `mapstructure:"enabled"`
+	Responsible string `mapstructure:"responsible"`
 }
 
 type UMAMIAnalytics struct {
@@ -381,6 +387,12 @@ func GetMeta() Meta {
 	mu.RLock()
 	defer mu.RUnlock()
 	return cfg.Meta
+}
+
+func GetImpressum() Impressum {
+	mu.RLock()
+	defer mu.RUnlock()
+	return cfg.Impressum
 }
 
 func GetAnalytics() UMAMIAnalytics {

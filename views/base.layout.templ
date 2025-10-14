@@ -79,7 +79,13 @@ templ Base(title string, searchBar bool) {
 			<footer class="bg-base-200 text-base-content p-5">
 				<div class="container px-4 flex flex-col md:flex-row justify-center md:justify-between items-center gap-5 text-center text-sm">
 					<aside>
-						<p>{ meta.Title + " - " + meta.Description } - <a class="link" href="/impressum">Impressum</a> - <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a></p>
+						<p>
+							{ meta.Title + " - " + meta.Description }
+							if config.GetImpressum().Enabled {
+								- <a class="link" href="/impressum">Impressum</a>
+							}
+							- <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a>
+						</p>
 					</aside>
 					<nav class="flex gap-2 items-center">
 						for _, social := range meta.Social {
