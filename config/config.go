@@ -86,10 +86,23 @@ type GlobalConfig struct {
 	LogLevel           string                 `mapstructure:"log_level" validate:"omitempty,oneof=debug info warn error"`
 	TimeZone           string                 `mapstructure:"time_zone" validate:"required"`
 	APIToken           string                 `mapstructure:"api_token" validate:"required"`
+	Meta               Meta                   `mapstructure:"meta"`
+	UMAMIAnalytics     UMAMIAnalytics         `mapstructure:"umami_analytics"`
 	Server             ServerSettings         `mapstructure:"server"`
 	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
 	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
-	Social             []Social               `mapstructure:"social"`
+}
+
+type Meta struct {
+	Title       string   `mapstructure:"title" validate:"required"`
+	Description string   `mapstructure:"description" validate:"required"`
+	Social      []Social `mapstructure:"social"`
+}
+
+type UMAMIAnalytics struct {
+	Enabled   bool   `mapstructure:"enabled"`
+	Domain    string `mapstructure:"domain"`
+	WebsiteID string `mapstructure:"website_id"`
 }
 
 type ServerSettings struct {
@@ -156,11 +169,17 @@ func init() {
 
 func New() {
 	viper.SetDefault("log_level", "info")
-	viper.SetDefault("time_zone", "Etc/UTC")
-	viper.SetDefault("server.address", "0.0.0.0")
-	viper.SetDefault("server.port", 8156)
+	viper.SetDefault("time_zone", "Europe/Berlin")
+	viper.SetDefault("server", ServerSettings{
+		Address: "0.0.0.0",
+		Port:    8156,
+	})
 	viper.SetDefault("api_token", "replace-me")
-	viper.SetDefault("social", []Social{})
+	viper.SetDefault("meta", Meta{
+		Title:       "Schniddzl.de",
+		Description: "deine Mittagskarte für die Region Stuttgart",
+		Social:      []Social{},
+	})
 	viper.SetDefault("restaurants", map[string]*Restaurant{})
 
 	viper.SetConfigName("config")
@@ -408,8 +427,14 @@ func (r *Restaurant) IsClosed() bool {
 	return exists
 }
 
-func GetSocial() []Social {
+func GetMeta() Meta {
 	mu.RLock()
 	defer mu.RUnlock()
-	return cfg.Social
+	return cfg.Meta
+}
+
+func GetAnalytics() UMAMIAnalytics {
+	mu.RLock()
+	defer mu.RUnlock()
+	return cfg.UMAMIAnalytics
 }

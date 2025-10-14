@@ -7,22 +7,6 @@ import (
 	"time"
 )
 
-func getTitle(title string) string {
-	appTitle := os.Getenv("APP_TITLE")
-	if title == "" {
-		return appTitle
-	}
-	return appTitle + " - " + title
-}
-
-func getDescription() string {
-	return os.Getenv("APP_DESCRIPTION")
-}
-
-func getTitleAndDescription() string {
-	return getTitle("") + " - " + getDescription()
-}
-
 func appendVersionQuery(url string) string {
 	version := os.Getenv("APP_VERSION")
 	if version == "" {
@@ -39,13 +23,20 @@ func getLogoClass(searchBar bool) string {
 }
 
 templ Base(title string, searchBar bool) {
+	{{
+		analytics := config.GetAnalytics()
+		meta := config.GetMeta()
+		if title == "" {
+			title = meta.Title + " - " + meta.Description
+		}
+	}}
 	<!DOCTYPE html>
 	<html lang="de">
 		<head>
 			<meta charset="UTF-8"/>
-			<title>{ getTitle(title) }</title>
+			<title>{ title }</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="description" content={ getTitle(title) }/>
+			<meta name="description" content={ meta.Title + " - " + meta.Description }/>
 			<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96"/>
 			<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg"/>
 			<link rel="shortcut icon" href="/assets/favicon/favicon.ico"/>
@@ -53,7 +44,9 @@ templ Base(title string, searchBar bool) {
 			<meta name="apple-mobile-web-app-title" content="Schniddzl"/>
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
 			<link rel="stylesheet" href={ appendVersionQuery("/assets/css/style.css") }/>
-			<script defer src={ templ.URL("https://" + os.Getenv("UMAMI_DOMAIN") + "/script.js") } data-website-id="433f1487-0b11-4fb8-a22e-68d9ea60cfe7"></script>
+			if analytics.Enabled {
+				<script defer src={ templ.URL("https://" + analytics.Domain + "/script.js") } data-website-id={ analytics.WebsiteID }></script>
+			}
 			<script src={ appendVersionQuery("/assets/js/htmx.min.js") } defer></script>
 			<script src={ appendVersionQuery("/assets/js/floating-ui/core.min.js") } defer></script>
 			<script src={ appendVersionQuery("/assets/js/floating-ui/dom.min.js") } defer></script>
@@ -65,10 +58,10 @@ templ Base(title string, searchBar bool) {
 				<div class="navbar container px-4 lg:px-6">
 					<div class={ getLogoClass(searchBar) }>
 						<a href="/" class="flex items-center gap-2">
-							<img src="/assets/favicon/schniddzl.webp" alt="Schniddzl.de - Deine Mittagskarte" class="size-10"/>
+							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
 							<div class="font-light font-stretch-semi-expanded">
-								<div class="text-xl font-semibold">Schniddzl.de</div>
-								<div class="text-xs">deine Mittagskarte</div>
+								<div class="text-xl font-semibold">{ meta.Title }</div>
+								<div class="text-xs">{ meta.Description }</div>
 							</div>
 						</a>
 					</div>
@@ -86,10 +79,10 @@ templ Base(title string, searchBar bool) {
 			<footer class="bg-base-200 text-base-content p-5">
 				<div class="container px-4 flex flex-col md:flex-row justify-center md:justify-between items-center gap-5 text-center text-sm">
 					<aside>
-						<p>{ getTitleAndDescription() } - <a class="link" href="/impressum">Impressum</a> - <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a></p>
+						<p>{ meta.Title + " - " + meta.Description } - <a class="link" href="/impressum">Impressum</a> - <a class="link tooltip" data-tip="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a></p>
 					</aside>
 					<nav class="flex gap-2 items-center">
-						for _, social := range config.GetSocial() {
+						for _, social := range meta.Social {
 							<a target="_blank" data-lg-blank class="btn btn-circle btn-ghost tooltip" data-tip={ social.Description } href={ templ.URL(social.URL) }>
 								@templ.Raw(social.Icon)
 							</a>

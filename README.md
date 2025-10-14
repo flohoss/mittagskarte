@@ -13,9 +13,6 @@ services:
     image: ghcr.io/flohoss/mittagskarte:latest
     container_name: mittagskarte
     restart: always
-    environment:
-      APP_DESCRIPTION: deine Mittagskarte für die Region Stuttgart
-      APP_TITLE: Schniddzl.de
     volumes:
       - ./config:/app/config
     ports:

@@ -3,7 +3,6 @@ package views
 import (
 	"gitlab.unjx.de/flohoss/mittag/config"
 	"gitlab.unjx.de/flohoss/mittag/views/components"
-	"os"
 )
 
 templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup config.Group) {
@@ -52,7 +51,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 templ HomeIndex(
 	cmp templ.Component,
 ) {
-	@Base(os.Getenv("APP_DESCRIPTION"), true) {
+	@Base("", true) {
 		@cmp
 	}
 }
