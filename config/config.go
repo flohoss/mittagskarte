@@ -126,11 +126,20 @@ func init() {
 func New() {
 	viper.SetDefault("log_level", "info")
 	viper.SetDefault("time_zone", "Europe/Berlin")
+	viper.SetDefault("api_token", "replace-me")
 	viper.SetDefault("server", ServerSettings{
 		Address: "0.0.0.0",
 		Port:    8156,
 	})
-	viper.SetDefault("api_token", "replace-me")
+	viper.SetDefault("impressum", Impressum{
+		Enabled:     false,
+		Responsible: "",
+	})
+	viper.SetDefault("umami_analytics", UMAMIAnalytics{
+		Enabled:   false,
+		Domain:    "",
+		WebsiteID: "",
+	})
 	viper.SetDefault("meta", Meta{
 		Title:       "Schniddzl.de",
 		Description: "deine Mittagskarte für die Region Stuttgart",
