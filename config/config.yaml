@@ -16,6 +16,10 @@ meta:
       url: "https://x.com/flohoss/"
       description: "X (ehemals Twitter)"
 
+impressum:
+  enabled: true
+  responsible: "Florian Hoss"
+
 server:
   address: "0.0.0.0"
   port: 8156

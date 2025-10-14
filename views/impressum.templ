@@ -1,62 +1,72 @@
 package views
 
+import "gitlab.unjx.de/flohoss/mittag/config"
+
 templ Impressum() {
-	<div class="px-4">
-		<h1 class="text-2xl font-semibold mb-4">Impressum</h1>
-		<section class="mb-6">
-			<h2 class="text-lg font-medium">Angaben gemäß § 5 TMG</h2>
-			<address class="not-italic mt-3 text-sm space-y-1">
-				<!-- ERSETZE die folgenden Platzhalter -->
-				<div><strong>Florian Hoss</strong></div>
-				<div>Beethovenstraße 13</div>
-				<div>73257 Köngen</div>
-			</address>
+	<main class="max-w-3xl mx-auto">
+		<h1 class="text-xl font-bold mb-4">Hinweis gemäß § 5 TMG</h1>
+		<div class="bg-base-200 rounded-lg p-4 mb-6">
+			<p class="font-semibold">Diese Website ist ein <strong>rein privates, nicht-kommerzielles Online-Angebot</strong>.</p>
+			<p class="mt-2">Sie verfolgt <strong>keine geschäftsmäßigen oder journalistisch-redaktionellen Zwecke</strong>.</p>
+		</div>
+		<section class="mb-6" aria-labelledby="verantwortlich">
+			<h2 id="verantwortlich" class="text-sm font-medium">Verantwortlich für den Inhalt:</h2>
+			<p class="mt-1 text-base font-semibold">{ config.GetImpressum().Responsible }</p>
 		</section>
-		<section class="mb-6">
-			<h2 class="text-lg font-medium">Kontakt</h2>
-			<ul class="mt-3 text-sm space-y-1">
-				<li>E-Mail: <a href="mailto:schniddzl@xhoss.de" class="link link-secondary">schniddzl@xhoss.de</a></li>
-			</ul>
+		<section class="mb-6" aria-labelledby="kontakt">
+			<h2 id="kontakt" class="text-sm font-medium">Kontakt:</h2>
+			<p class="mt-1 text-base"><a href="mailto:website@xhoss.de" class="text-primary hover:underline">website@xhoss.de</a></p>
 		</section>
-		<section class="mb-6">
-			<h2 class="text-lg font-medium">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-			<p class="mt-3 text-sm">
-				Florian Hoss
-				<br/>
-				Beethovenstraße 13, 73257 Köngen
-			</p>
+		<section class="text-sm mb-8">
+			<h3 class="font-medium mb-1">Anschrift</h3>
+			<p>Eine ladungsfähige Anschrift ist nach aktueller Rechtslage <strong>nicht erforderlich</strong>, da dieses Angebot <strong>nicht unter die Impressumspflicht gemäß § 5 TMG bzw. § 55 RStV</strong> fällt.</p>
 		</section>
+		<h1 class="mt-20 text-xl font-bold mb-4">Datenschutzhinweis (DSGVO)</h1>
+		<p class="mb-4">Diese Website wird <strong>rein privat</strong> betrieben. Es erfolgt <strong>keine Erhebung, Verarbeitung oder Nutzung personenbezogener Daten</strong> im Sinne der DSGVO, außer in den nachfolgend genannten Fällen.</p>
 		<section class="mb-6">
-			<h2 class="text-lg font-medium">Haftungsausschluss (Disclaimer)</h2>
-			<p class="mt-3 text-sm">
-				Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.
-				Unsere Website zeigt öffentlich zugängliche Mittagsangebote (z. B. PDF-Speisekarten) von Restaurants. Für die Inhalte, Preise und Aktualität dieser externen Angebote sind ausschließlich die jeweiligen Restaurants verantwortlich.
-			</p>
+			<h2 class="text-lg font-semibold mb-2">1. Server-Logs</h2>
+			<p>Beim Aufruf dieser Website können durch den Hosting-Provider automatisch technische Daten (z. B. IP-Adresse, Zeitpunkt, Browsertyp) in sogenannten <strong>Server-Logfiles</strong> gespeichert werden.<br/>Diese Daten dienen ausschließlich der <strong>Sicherheit und Fehlersuche</strong> und werden <strong>nicht ausgewertet oder weitergegeben</strong>.</p>
 		</section>
 		<section class="mb-6">
-			<h2 class="text-lg font-medium">Urheberrecht</h2>
-			<p class="mt-3 text-sm">
-				Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Vervielfältigung, Bearbeitung oder Weiterverbreitung bedürfen der schriftlichen Zustimmung des jeweiligen Rechteinhabers.
-			</p>
+			<h2 class="text-lg font-semibold mb-2">2. Kontaktaufnahme per E-Mail</h2>
+			<p>Wenn du per E-Mail Kontakt aufnimmst, werden die angegebenen Daten ausschließlich zur Bearbeitung deiner Anfrage verwendet.<br/>Die Daten werden <strong>nicht an Dritte weitergegeben</strong> und nach Abschluss gelöscht.</p>
 		</section>
 		<section class="mb-6">
-			<h2 class="text-lg font-medium">Streitschlichtung</h2>
-			<p class="mt-3 text-sm">
-				Die Europäische Kommission hat die Plattform zur Online-Streitbeilegung (OS) mit Wirkung zum 20. Juli 2025 eingestellt.
-				Eine Liste der Verbraucherschlichtungsstellen in den Mitgliedsstaaten, Norwegen und Island finden Sie hier: 
-				<a href="https://consumer-redress.ec.europa.eu/dispute-resolution-bodies" class="link link-secondary">https://consumer-redress.ec.europa.eu/dispute-resolution-bodies</a>.
-			</p>
-			<p class="mt-2 text-sm">
-				Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-			</p>
+			<h2 class="text-lg font-semibold mb-2">3. Keine Cookies / Kein Tracking</h2>
+			<p>Diese Website verwendet <strong>keine Cookies</strong>, <strong>kein Google Analytics</strong>, <strong>kein Matomo</strong> und <strong>keine Social-Media-Plugins</strong>.<br/>Es findet <strong>kein Tracking</strong> oder Profiling statt.</p>
 		</section>
-		<section>
-			<h2 class="text-lg font-medium">Hinweis zur Nutzung von Restaurant-PDFs</h2>
-			<p class="mt-3 text-sm">
-				Auf dieser Webseite werden von Restaurants veröffentlichte PDF-Speisekarten eingebettet oder verlinkt. Die PDFs stammen von den jeweiligen Restaurant-Webseiten und werden hier nur zur besseren Auffindbarkeit bereitgestellt. Bitte prüfe bei Fragen zu Preisen, Allergenen oder Verfügbarkeit die Angaben beim jeweiligen Restaurant.
-			</p>
+		<section class="mb-6">
+			<h2 class="text-lg font-semibold mb-2">4. Externe Inhalte</h2>
+			<p>Falls externe Inhalte (z. B. eingebettete Bilder, Videos oder Fonts) verwendet werden, werden sie nach Möglichkeit <strong>lokal eingebunden</strong>.<br/>Sollten Inhalte aus externen Quellen eingebettet sein, gelten deren Datenschutzbestimmungen.</p>
 		</section>
-	</div>
+		<section class="mb-6">
+			<h2 class="text-lg font-semibold mb-2">5. Rechte der Nutzer:innen</h2>
+			<p>Da keine personenbezogenen Daten verarbeitet werden, entstehen im Normalfall <strong>keine Betroffenenrechte</strong> nach Art. 15 ff. DSGVO.<br/>Solltest du dennoch Fragen zur Datenverarbeitung haben, kannst du dich jederzeit per E-Mail an mich wenden.</p>
+		</section>
+		if (config.GetAnalytics().Enabled) {
+			<section class="mb-6">
+				<h2 class="text-lg font-semibold mb-2">6. Nutzung von Umami (Webanalyse)</h2>
+				<p>
+					Diese Website verwendet <strong>Umami</strong>, ein datenschutzfreundliches Webanalyse-Tool
+					(<a href="https://umami.is" target="_blank" class="text-primary hover:underline">https://umami.is</a>).
+					Umami dient der anonymen Auswertung der Website-Nutzung, um das Angebot technisch zu verbessern.
+				</p>
+				<p class="mt-2">
+					Dabei werden <strong>keine Cookies</strong> gesetzt und keine personenbezogenen Daten gespeichert.
+					Die IP-Adresse wird nur in anonymisierter Form verarbeitet, sodass kein Rückschluss auf einzelne Personen möglich ist.
+					Es findet <strong>kein Tracking über Websites hinweg</strong> statt.
+				</p>
+				<p class="mt-2">
+					Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer technisch optimierten
+					und nutzerfreundlichen Website).
+				</p>
+			</section>
+		}
+		<footer class="mt-8 text-sm text-base-content/70">
+			<p><em>Stand: Oktober 2025</em></p>
+			<p><em>Quelle: Eigene Erstellung, angelehnt an § 5 TMG und DSGVO Art. 12 ff.</em></p>
+		</footer>
+	</main>
 }
 
 templ ImpressumIndex(

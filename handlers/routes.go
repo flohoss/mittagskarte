@@ -66,7 +66,10 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 	}))
 
 	e.GET("/impressum", func(c echo.Context) error {
-		return render(c, views.ImpressumIndex(views.Impressum()))
+		if config.GetImpressum().Enabled {
+			return render(c, views.ImpressumIndex(views.Impressum()))
+		}
+		return c.Redirect(http.StatusFound, "/")
 	})
 
 	e.GET("/", mh.handleIndex)
