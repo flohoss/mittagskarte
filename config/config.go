@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -19,62 +18,13 @@ import (
 
 type FileType string
 
-type Group uint8
-
-const (
-	Favorites Group = iota + 1
-	Degerloch
-	Fasanenhof
-	Feuerbach
-	Koengen
-	LeinfeldenEchterdingen
-	Moehringen
-	Nuertingen
-)
-
-var groupToString = map[Group]string{
-	Favorites:              "Favoriten",
-	Degerloch:              "Degerloch",
-	Fasanenhof:             "Fasanenhof",
-	Feuerbach:              "Feuerbach",
-	Koengen:                "Köngen",
-	LeinfeldenEchterdingen: "Leinfelden-Echterdingen",
-	Moehringen:             "Möhringen",
-	Nuertingen:             "Nürtingen",
-}
-
-var stringToGroup = map[string]Group{
-	"Favoriten":               Favorites,
-	"Degerloch":               Degerloch,
-	"Fasanenhof":              Fasanenhof,
-	"Feuerbach":               Feuerbach,
-	"Köngen":                  Koengen,
-	"Leinfelden-Echterdingen": LeinfeldenEchterdingen,
-	"Möhringen":               Moehringen,
-	"Nürtingen":               Nuertingen,
-}
-
-func (g Group) String() string {
-	if str, ok := groupToString[g]; ok {
-		return str
-	}
-	return ""
-}
-
-func (g Group) ID() string {
-	return strconv.Itoa(int(g))
-}
-
-func ParseGroup(s string) (Group, bool) {
-	g, ok := stringToGroup[s]
-	return g, ok
-}
-
 const (
 	ConfigFolder = "./config/"
 
 	PDF   FileType = "pdf"
 	Image FileType = "image"
+
+	Favorites string = "Favoriten"
 )
 
 var cfg GlobalConfig
@@ -119,7 +69,7 @@ type Restaurant struct {
 	RestDaysSlice []string            `mapstructure:"rest_days"`
 	RestDays      map[string]struct{} `mapstructure:"-"`
 	Phone         string              `mapstructure:"phone"`
-	Group         Group               `mapstructure:"group"`
+	Group         string              `mapstructure:"group"`
 	New           bool                `mapstructure:"new"`
 	Parse         Parse               `mapstructure:"parse"`
 	Menu          Menu                `mapstructure:"-"`
@@ -135,7 +85,7 @@ type Menu struct {
 }
 
 type GroupedRestaurants struct {
-	Group       Group
+	Group       string
 	Restaurants []*Restaurant
 }
 
@@ -269,7 +219,7 @@ func normalizeRestaurant(restaurants map[string]*Restaurant) {
 }
 
 func computeGroupedRestaurantsForMap(restaurants map[string]*Restaurant) []GroupedRestaurants {
-	groupMap := make(map[Group][]*Restaurant)
+	groupMap := make(map[string][]*Restaurant)
 	for id, r := range restaurants {
 		r.ID = id
 		groupMap[r.Group] = append(groupMap[r.Group], r)

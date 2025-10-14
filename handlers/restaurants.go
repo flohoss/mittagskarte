@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
+	"net/url"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -30,8 +30,8 @@ func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
 	}
 }
 
-func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, config.Group) {
-	group := ctx.QueryParam("group")
+func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, string) {
+	group := url.QueryEscape(ctx.QueryParam("group"))
 
 	favSet := make(map[string]string)
 	if cookie, err := ctx.Cookie("favourites"); err == nil && cookie.Value != "" {
@@ -81,11 +81,9 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, config
 		})
 	}
 
-	var preselectedGroup config.Group
+	var preselectedGroup string
 	if lastFavCookie, err := ctx.Cookie("lastGroup"); err == nil {
-		if val, err := strconv.Atoi(lastFavCookie.Value); err == nil {
-			preselectedGroup = config.Group(uint8(val))
-		}
+		preselectedGroup, _ = url.QueryUnescape(lastFavCookie.Value)
 		ctx.SetCookie(&http.Cookie{
 			Name:   "lastGroup",
 			Value:  "",
@@ -102,7 +100,7 @@ func (m *MittagHandler) handleFilter(ctx echo.Context) error {
 	favSet, favApplied, _ := cookieReader(ctx, "")
 	restaurants := config.GetGroupedRestaurants(favSet, q)
 
-	return render(ctx, views.Index(restaurants, favApplied, q != "", 0))
+	return render(ctx, views.Index(restaurants, favApplied, q != "", ""))
 }
 
 func (m *MittagHandler) handleIndex(ctx echo.Context) error {

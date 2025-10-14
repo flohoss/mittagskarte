@@ -5,7 +5,7 @@ import (
 	"gitlab.unjx.de/flohoss/mittag/views/components"
 )
 
-templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup config.Group) {
+templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup string) {
 	if len(groups) > 0 {
 		<div id="restaurants-container" class={ "grid gap-2", templ.KV("gap-8 lg:gap-10 xl:gap-14", !favApplied) }>
 			for _, g := range groups {

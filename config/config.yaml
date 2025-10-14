@@ -35,7 +35,7 @@ restaurants:
     rest_days:
       - "Friday"
       - "Saturday"
-    group: 8
+    group: "Nürtingen"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -51,7 +51,7 @@ restaurants:
     phone: "+49 7024 81488"
     rest_days:
       - "Sunday"
-    group: 5
+    group: "Köngen"
 
   blessing:
     name: "Blessing-Kurz"
@@ -61,7 +61,7 @@ restaurants:
     phone: "+49 7024 989895"
     rest_days:
       - "Sunday"
-    group: 5
+    group: "Köngen"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -76,7 +76,7 @@ restaurants:
     phone: "+49 711 78784911"
     rest_days:
       - "Tuesday"
-    group: 7
+    group: "Möhringen"
     parse:
       update_cron: "30 9,10 * * 1,3"
       direct_download: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
@@ -90,7 +90,7 @@ restaurants:
     phone: "+49 711 78784911"
     rest_days:
       - "Monday"
-    group: 2
+    group: "Degerloch"
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -105,7 +105,7 @@ restaurants:
     phone: "+49 7024 466833"
     rest_days:
       - "Monday"
-    group: 5
+    group: "Köngen"
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -122,7 +122,7 @@ restaurants:
     rest_days:
       - "Sunday"
       - "Saturday"
-    group: 3
+    group: "Fasanenhof"
 
   fass:
     name: "Fass"
@@ -132,7 +132,7 @@ restaurants:
     phone: "+49 7022 61185"
     rest_days:
       - "Tuesday"
-    group: 8
+    group: "Nürtingen"
     parse:
       update_cron: "30 9,10 * * 1,3"
       navigate:
@@ -147,7 +147,7 @@ restaurants:
     phone: "+49 7022 62306"
     rest_days:
       - "Monday"
-    group: 8
+    group: "Nürtingen"
     parse:
       update_cron: "30 9,10 1-3 * *"
       navigate:
@@ -162,7 +162,7 @@ restaurants:
     phone: "+49 711 36591400"
     rest_days:
       - "Sunday"
-    group: 4
+    group: "Feuerbach"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -177,7 +177,7 @@ restaurants:
     phone: "+49 711 56619918"
     rest_days:
       - "Monday"
-    group: 3
+    group: "Fasanenhof"
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -192,7 +192,7 @@ restaurants:
     phone: "+49 711 99772624"
     rest_days:
       - "Saturday"
-    group: 3
+    group: "Fasanenhof"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -208,7 +208,7 @@ restaurants:
     phone: "+49 711 78784708"
     rest_days:
       - "Sunday"
-    group: 6
+    group: "Leinfelden-Echterdingen"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -224,7 +224,7 @@ restaurants:
     rest_days:
       - "Sunday"
       - "Saturday"
-    group: 3
+    group: "Fasanenhof"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -241,7 +241,7 @@ restaurants:
     rest_days:
       - "Tuesday"
       - "Wednesday"
-    group: 5
+    group: "Köngen"
     parse:
       update_cron: "30 9,10 * * 1,4"
       navigate:
@@ -256,7 +256,7 @@ restaurants:
     phone: "+49 711 7944180"
     rest_days:
       - "Monday"
-    group: 6
+    group: "Leinfelden-Echterdingen"
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -272,7 +272,7 @@ restaurants:
     rest_days:
       - "Sunday"
       - "Saturday"
-    group: 3
+    group: "Fasanenhof"
     parse:
       update_cron: "30 9,10 * * 1-5"
       navigate:
@@ -286,7 +286,7 @@ restaurants:
     url: "https://ratsstuben.de/wochenkarte/"
     address: "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 791725"
-    group: 6
+    group: "Leinfelden-Echterdingen"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -302,7 +302,7 @@ restaurants:
     rest_days:
       - "Sunday"
       - "Monday"
-    group: 4
+    group: "Feuerbach"
     parse:
       update_cron: "30 9,10 * * 2,3"
       navigate:
@@ -319,7 +319,7 @@ restaurants:
     phone: "+49 711 7978527"
     rest_days:
       - "Sunday"
-    group: 6
+    group: "Leinfelden-Echterdingen"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -335,7 +335,7 @@ restaurants:
     rest_days:
       - "Sunday"
       - "Saturday"
-    group: 3
+    group: "Fasanenhof"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
@@ -349,7 +349,7 @@ restaurants:
     url: "https://www.troelsch.de/ueber-uns/standorte/"
     address: "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 85680030"
-    group: 4
+    group: "Feuerbach"
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
