@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
 
 env:
@@ -46,7 +46,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
+      - name: Build and push Docker image
+        id: docker
         uses: docker/build-push-action@v6
         with:
           file: ${{ env.DOCKERFILE_PATH }}
@@ -59,3 +60,36 @@ jobs:
             REPO=https://github.com/${{ github.repository }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Capture Docker digest
+        run: |
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ steps.meta.outputs.tags }})
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
+      - name: Gather commits since last tag
+        id: commits
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            git_log=$(git log --pretty=format:'* %s' )
+          else
+            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %s')
+          fi
+          echo "COMMITS=$git_log" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Docker image for this release:
+
+            ```
+            ${{ env.IMAGE_DIGEST }}
+            ```
+
+            Commits included in this release:
+            ${{ env.COMMITS }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
