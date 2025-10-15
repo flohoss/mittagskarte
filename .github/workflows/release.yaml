@@ -29,18 +29,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-            gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-            libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev
+      - name: Build custom CGO image
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dev.dockerfile
+          push: false
+          tags: cgo-builder:latest
+          load: true
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: docker://cgo-builder:latest
         with:
-          distribution: goreleaser
-          version: '~> v2'
-          args: release --clean
+          entrypoint: /bin/bash
+          args: -c "goreleaser release --clean"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CGO_ENABLED: 1
           REPO: ${{ github.repository }}

@@ -19,6 +19,7 @@ COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
 RUN go install github.com/a-h/templ/cmd/templ@latest
+RUN go install github.com/goreleaser/goreleaser/v2@latest
 
 COPY ./go.mod .
 COPY ./go.sum .
