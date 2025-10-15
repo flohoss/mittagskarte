@@ -29,7 +29,7 @@ RUN go mod download
 
 COPY . .
 RUN templ generate
-RUN go build -ldflags="-s -w" main.go
+RUN go build -ldflags="-s -w" -o mittagskarte main.go
 
 FROM node:${V_NODE}-alpine AS node-builder
 WORKDIR /app
