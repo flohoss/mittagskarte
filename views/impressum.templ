@@ -10,14 +10,18 @@ templ Impressum() {
 			<p class="font-semibold">Diese Website ist ein <strong>rein privates, nicht-kommerzielles Online-Angebot</strong>.</p>
 			<p class="mt-2">Sie verfolgt <strong>keine geschäftsmäßigen oder journalistisch-redaktionellen Zwecke</strong>.</p>
 		</div>
-		<section class="mb-6" aria-labelledby="verantwortlich">
-			<h2 id="verantwortlich" class="text-sm font-medium">Verantwortlich für den Inhalt:</h2>
-			<p class="mt-1 text-base font-semibold">{ impressum.Responsible }</p>
-		</section>
-		<section class="mb-6" aria-labelledby="kontakt">
-			<h2 id="kontakt" class="text-sm font-medium">Kontakt:</h2>
-			<p class="mt-1"><a href={ "mailto:" + impressum.Email } class="link">{ impressum.Email }</a></p>
-		</section>
+		if impressum.Responsible != "" {
+			<section class="mb-6" aria-labelledby="verantwortlich">
+				<h2 id="verantwortlich" class="text-sm font-medium">Verantwortlich für den Inhalt:</h2>
+				<p class="mt-1 text-base font-semibold">{ impressum.Responsible }</p>
+			</section>
+		}
+		if impressum.Email != "" {
+			<section class="mb-6" aria-labelledby="kontakt">
+				<h2 id="kontakt" class="text-sm font-medium">Kontakt:</h2>
+				<p class="mt-1"><a href={ "mailto:" + impressum.Email } class="link">{ impressum.Email }</a></p>
+			</section>
+		}
 		<section class="text-sm mb-8">
 			<h3 class="font-medium mb-1">Anschrift</h3>
 			<p>Eine ladungsfähige Anschrift ist nach aktueller Rechtslage <strong>nicht erforderlich</strong>, da dieses Angebot <strong>nicht unter die Impressumspflicht gemäß § 5 TMG bzw. § 55 RStV</strong> fällt.</p>
