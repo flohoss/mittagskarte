@@ -63,40 +63,35 @@ jobs:
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
-      - name: Capture Docker image reference
-        run: |
-          echo "IMAGE_REF=${{ env.IMAGE_NAME }}@${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
+      - name: Capture Docker digest
+        run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
       - name: Gather commits since last tag
         run: |
-          # Get the latest tag (if any)
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -z "$LAST_TAG" ]; then
-            git_log=$(git log --pretty=format:'* %B%n' --no-merges)
+            GIT_LOG=$(git log --pretty=format:'  - %s (%h)%n    %b')
           else
-            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %B%n' --no-merges)
+            GIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:'  - %s (%h)%n    %b')
           fi
 
           echo "COMMITS<<EOF" >> $GITHUB_ENV
-          echo "$git_log" >> $GITHUB_ENV
+          echo "$GIT_LOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
-      - name: Prepare release notes
-        run: |
-          RELEASE_BODY="Docker image for this release:
-
-          \`${{ env.IMAGE_REF }}\`
-
-          Commits included in this release:
-          ${COMMITS}"
-          echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          body: ${{ env.RELEASE_BODY }}
+          body: |
+            Docker image for this release:
+
+            ```
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_DIGEST }}
+            ```
+
+            Commits included in this release:
+            ${{ env.COMMITS }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
