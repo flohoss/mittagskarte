@@ -66,9 +66,9 @@
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
 "@napi-rs/wasm-runtime@^1.0.5":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@napi-rs/wasm-runtime/-/wasm-runtime-1.0.6.tgz#ba6cf875b7bf96052d0de29a91b029c94c6e9a48"
-  integrity sha512-DXj75ewm11LIWUk198QSKUTxjyRjsBwk09MuMk5DGK+GDUtyPhhEHOGP/Xwwj3DjQXXkivoBirmOnKrLfc0+9g==
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@napi-rs/wasm-runtime/-/wasm-runtime-1.0.7.tgz#dcfea99a75f06209a235f3d941e3460a51e9b14c"
+  integrity sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw==
   dependencies:
     "@emnapi/core" "^1.5.0"
     "@emnapi/runtime" "^1.5.0"
@@ -297,9 +297,9 @@ chownr@^3.0.0:
   integrity sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==
 
 daisyui@^5.0.50:
-  version "5.1.29"
-  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.1.29.tgz#07a1564bfaea4cd63f9469f055398f9dc502742d"
-  integrity sha512-4eZhqCXO7CJVNGytTZEIQYJz3fah2gPleuqp4qUD4fD8WoEQIYzKwlOewi8nPaz6NX7vvSLZ+YSjt5Z5zqacGw==
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.3.2.tgz#3d7ca4f7aa9831832b2f13969ad02d014d20ce29"
+  integrity sha512-hw6NmQvFHdZI1Zb94EX+vA0DhuXGfqwQInDQ6XNZ5dgkoDy+e01P4OkJ8umAQAAzVSKGwm6QDMXOw6eJV63OEQ==
 
 detect-libc@^1.0.3:
   version "1.0.3"
