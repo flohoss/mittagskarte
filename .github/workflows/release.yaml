@@ -38,15 +38,13 @@ jobs:
           load: true
 
       - name: Run GoReleaser inside built image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/app" \
+            -v "${{ github.workspace }}/.git:/app/.git" \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -w /app \
-            -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
+            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
             -e CGO_ENABLED=1 \
-            -e REPO="${REPO}" \
-            cgo-builder:latest bash -c "goreleaser release --clean"
+            -e REPO="${{ github.repository }}" \
+            cgo-builder:latest bash -c "git config --global --add safe.directory /app && goreleaser release --clean"
