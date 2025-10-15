@@ -53,8 +53,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
-          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }},mode=max
           build-args: |
             APP_VERSION=${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }}
             BUILD_TIME=${{ steps.meta.outputs.labels['org.opencontainers.image.created'] }}
