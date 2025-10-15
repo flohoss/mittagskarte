@@ -3,6 +3,7 @@ package views
 import "gitlab.unjx.de/flohoss/mittag/config"
 
 templ Impressum() {
+	{{ impressum := config.GetImpressum() }}
 	<div class="max-w-3xl mx-auto px-4">
 		<h1 class="text-xl font-bold mb-4">Hinweis gemäß § 5 TMG</h1>
 		<div class="bg-base-200 rounded-lg p-4 mb-6">
@@ -11,11 +12,11 @@ templ Impressum() {
 		</div>
 		<section class="mb-6" aria-labelledby="verantwortlich">
 			<h2 id="verantwortlich" class="text-sm font-medium">Verantwortlich für den Inhalt:</h2>
-			<p class="mt-1 text-base font-semibold">{ config.GetImpressum().Responsible }</p>
+			<p class="mt-1 text-base font-semibold">{ impressum.Responsible }</p>
 		</section>
 		<section class="mb-6" aria-labelledby="kontakt">
 			<h2 id="kontakt" class="text-sm font-medium">Kontakt:</h2>
-			<p class="mt-1 text-base"><a href="mailto:website@xhoss.de" class="text-primary hover:underline">website@xhoss.de</a></p>
+			<p class="mt-1"><a href={ "mailto:" + impressum.Email } class="link">{ impressum.Email }</a></p>
 		</section>
 		<section class="text-sm mb-8">
 			<h3 class="font-medium mb-1">Anschrift</h3>
