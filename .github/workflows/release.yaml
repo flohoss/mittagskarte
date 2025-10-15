@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Push Docker Image, and Create Release
 
 on:
   push:
@@ -62,14 +62,13 @@ jobs:
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Capture Docker digest
-        run: |
-          echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
+        run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
       - name: Gather commits since last tag
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ || echo "")
           if [ -z "$LAST_TAG" ]; then
-            git_log=$(git log --pretty=format:'* %s' )
+            git_log=$(git log --pretty=format:'* %s')
           else
             git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %s')
           fi
