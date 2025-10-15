@@ -23,7 +23,7 @@ WORKDIR /app
 RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libmagickwand-6.q16-6 imagemagick libmupdf3 libnss3 libnet1 \
+    libmagickwand-6.q16-6 imagemagick libmupdf-dev libnss3 libnet1 \
     apt-transport-https ca-certificates curl dumb-init && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
