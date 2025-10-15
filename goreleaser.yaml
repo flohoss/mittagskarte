@@ -22,9 +22,9 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
-      - '{{ .Env.IMAGE_NAME }}:latest-amd64'
-      - '{{ .Env.IMAGE_NAME }}:v{{ .Major }}-amd64'
-      - '{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64'
+      - '{{ .Env.IMAGE_NAME }}:latest'
+      - '{{ .Env.IMAGE_NAME }}:v{{ .Major }}'
+      - '{{ .Env.IMAGE_NAME }}:{{ .Tag }}'
     build_flag_templates:
       - '--build-arg=DATE={{ .Date }}'
       - '--build-arg=VERSION={{ .Tag }}'
@@ -39,13 +39,13 @@ dockers:
 docker_manifests:
   - name_template: '{{ .Env.IMAGE_NAME }}:{{ .Tag }}'
     image_templates:
-      - '{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64'
+      - '{{ .Env.IMAGE_NAME }}:{{ .Tag }}'
   - name_template: '{{ .Env.IMAGE_NAME }}:v{{ .Major }}'
     image_templates:
-      - '{{ .Env.IMAGE_NAME }}:v{{ .Major }}-amd64'
+      - '{{ .Env.IMAGE_NAME }}:v{{ .Major }}'
   - name_template: '{{ .Env.IMAGE_NAME }}:latest'
     image_templates:
-      - '{{ .Env.IMAGE_NAME }}:latest-amd64'
+      - '{{ .Env.IMAGE_NAME }}:latest'
 
 changelog:
   sort: asc
