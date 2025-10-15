@@ -23,9 +23,12 @@ WORKDIR /app
 RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libmagickwand-6.q16-6 imagemagick libmupdf-dev libnss3 libnet1 \
+    gnupg libc6-dev libnss3-dev libnet-dev build-essential \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
     apt-transport-https ca-certificates curl dumb-init && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=logo /app/logo.txt .
 COPY --from=node-builder /app/assets/favicon/ ./assets/favicon/
