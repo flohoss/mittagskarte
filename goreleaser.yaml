@@ -9,8 +9,19 @@ before:
     - templ generate
 
 builds:
-  - env:
+  - id: 'mittagskarte'
+    # Essential for C dependencies (like ImageMagick) to be compiled
+    env:
       - CGO_ENABLED=1
+    # These flags tell the Go linker to try to link statically.
+    # The -extldflags "-static" is often the key for CGO dependencies.
+    ldflags:
+      - -s -w
+      - -extldflags "-static"
+    # Use the 'netgo' tag to statically link the net package, avoiding DNS issues
+    tags:
+      - netgo
+      - osusergo
     goos:
       - linux
     goarch:
