@@ -68,9 +68,9 @@ jobs:
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ || echo "")
           if [ -z "$LAST_TAG" ]; then
-            git_log=$(git log --pretty=format:'* %s')
+            git_log=$(git log --pretty=format:'* %B%n')
           else
-            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %s')
+            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %B%n')
           fi
           echo "COMMITS=$git_log" >> $GITHUB_ENV
 
