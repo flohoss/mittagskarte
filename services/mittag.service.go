@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/internal/download"
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
-	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/internal/download"
 )
 
 const (

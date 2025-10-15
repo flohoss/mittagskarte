@@ -5,10 +5,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/services"
+	"github.com/flohoss/mittagskarte/views"
 	"github.com/labstack/echo/v4"
-	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/services"
-	"gitlab.unjx.de/flohoss/mittag/views"
 )
 
 func contains(haistack []string, needle string) bool {

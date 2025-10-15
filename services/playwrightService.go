@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/internal/download"
+	"github.com/flohoss/mittagskarte/internal/placeholder"
 	"github.com/playwright-community/playwright-go"
-	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/internal/download"
-	"gitlab.unjx.de/flohoss/mittag/internal/placeholder"
 )
 
 func newPlaywrightService() (*PlaywrightService, error) {

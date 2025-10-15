@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/views"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/views"
 	"golang.org/x/time/rate"
 )
 

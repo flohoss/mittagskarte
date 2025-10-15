@@ -5,11 +5,11 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/handlers"
+	"github.com/flohoss/mittagskarte/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"gitlab.unjx.de/flohoss/mittag/config"
-	"gitlab.unjx.de/flohoss/mittag/handlers"
-	"gitlab.unjx.de/flohoss/mittag/services"
 )
 
 func setupRouter() *echo.Echo {

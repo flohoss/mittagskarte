@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/flohoss/mittagskarte/internal/hash"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"gitlab.unjx.de/flohoss/mittag/internal/hash"
 )
 
 type FileType string
