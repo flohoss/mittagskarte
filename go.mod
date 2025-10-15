@@ -1,4 +1,4 @@
-module gitlab.unjx.de/flohoss/mittag
+module github.com/flohoss/mittagskarte
 
 go 1.25
 
