@@ -63,11 +63,9 @@ jobs:
 
       - name: Capture Docker digest
         run: |
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ steps.meta.outputs.tags }})
-          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+          echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
       - name: Gather commits since last tag
-        id: commits
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ || echo "")
           if [ -z "$LAST_TAG" ]; then
