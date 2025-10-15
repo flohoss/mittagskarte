@@ -22,10 +22,10 @@ WORKDIR /app
 
 RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium
 
-# Install Playwright runtime dependencies and dumb-init
-RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium && \
-    apt-get update && apt-get install -y --no-install-recommends dumb-init && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    apt-transport-https ca-certificates curl dumb-init && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=logo /app/logo.txt .
 COPY --from=node-builder /app/assets/favicon/ ./assets/favicon/
