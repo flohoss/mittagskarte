@@ -32,7 +32,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-            build-essential libc6-dev \
+            libwebp-dev build-essential libc6-dev \
             libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev
 
       - name: Run GoReleaser
