@@ -30,21 +30,23 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build custom CGO image
-        id: docker_build
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: dev.dockerfile
-          push: false
+          file: docker/dev.dockerfile
           tags: cgo-builder:latest
           load: true
 
-      - name: Run GoReleaser
-        uses: docker://cgo-builder:latest
-        with:
-          entrypoint: /bin/bash
-          args: -c "goreleaser release --clean"
+      - name: Run GoReleaser inside built image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CGO_ENABLED: 1
           REPO: ${{ github.repository }}
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/app" \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -w /app \
+            -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
+            -e CGO_ENABLED=1 \
+            -e REPO="${REPO}" \
+            cgo-builder:latest bash -c "goreleaser release --clean"
