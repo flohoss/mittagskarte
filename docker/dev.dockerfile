@@ -10,7 +10,7 @@ RUN npx -y playwright@$V_PLAYWIGHT install-deps chromium
 RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
     libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
-    apt-transport-https ca-certificates curl git > /dev/null 2>&1 && \
+    apt-transport-https ca-certificates curl git docker.io > /dev/null 2>&1 && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
