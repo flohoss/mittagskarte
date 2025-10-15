@@ -13,6 +13,11 @@ builds:
       - CGO_ENABLED=1
     ldflags:
       - -s -w
+      - -linkmode external
+      - -extldflags '-static'
+    tags:
+      - netgo
+      - osusergo
     goos:
       - linux
     goarch:
