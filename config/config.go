@@ -139,7 +139,20 @@ func New() {
 		Description: "deine Mittagskarte für die Region Stuttgart",
 		Social:      []Social{},
 	})
-	viper.SetDefault("restaurants", map[string]*Restaurant{})
+	viper.SetDefault("restaurants", map[string]*Restaurant{
+		"sw34": {
+			Name:        "SW34",
+			Description: "Eventlocation",
+			PageUrl:     "https://sw34.restaurant/essen-trinken",
+			Address:     "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
+			Phone:       "+49 711 62042252",
+			Group:       "Fasanenhof",
+			RestDays: map[string]struct{}{
+				"Saturday": {},
+				"Sunday":   {},
+			},
+		},
+	})
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
