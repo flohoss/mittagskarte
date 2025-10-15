@@ -3,7 +3,7 @@ module github.com/flohoss/mittagskarte
 go 1.25
 
 require (
-	github.com/a-h/templ v0.3.943
+	github.com/a-h/templ v0.3.960
 	github.com/chai2010/webp v1.4.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/go-fitz v1.24.15
