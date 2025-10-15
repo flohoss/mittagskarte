@@ -53,6 +53,7 @@ type Meta struct {
 type Impressum struct {
 	Enabled     bool   `mapstructure:"enabled"`
 	Responsible string `mapstructure:"responsible"`
+	Email       string `mapstructure:"email"`
 }
 
 type UMAMIAnalytics struct {
@@ -131,15 +132,8 @@ func New() {
 		Address: "0.0.0.0",
 		Port:    8156,
 	})
-	viper.SetDefault("impressum", Impressum{
-		Enabled:     false,
-		Responsible: "",
-	})
-	viper.SetDefault("umami_analytics", UMAMIAnalytics{
-		Enabled:   false,
-		Domain:    "",
-		WebsiteID: "",
-	})
+	viper.SetDefault("impressum", Impressum{})
+	viper.SetDefault("umami_analytics", UMAMIAnalytics{})
 	viper.SetDefault("meta", Meta{
 		Title:       "Schniddzl.de",
 		Description: "deine Mittagskarte für die Region Stuttgart",
