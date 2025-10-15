@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -66,13 +68,18 @@ jobs:
 
       - name: Gather commits since last tag
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ || echo "")
+          # Get the latest tag, if any
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
           if [ -z "$LAST_TAG" ]; then
-            git_log=$(git log --pretty=format:'* %B%n')
+            git_log=$(git log --pretty=format:'* %B%n' --no-merges)
           else
-            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %B%n')
+            git_log=$(git log $LAST_TAG..HEAD --pretty=format:'* %B%n' --no-merges)
           fi
-          echo "COMMITS=$git_log" >> $GITHUB_ENV
+
+          echo "COMMITS<<EOF" >> $GITHUB_ENV
+          echo "$git_log" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
