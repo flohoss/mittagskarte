@@ -63,12 +63,13 @@ jobs:
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
-      - name: Capture Docker digest
-        run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
+      - name: Capture Docker image reference
+        run: |
+          echo "IMAGE_REF=${{ env.IMAGE_NAME }}@${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
       - name: Gather commits since last tag
         run: |
-          # Get the latest tag, if any
+          # Get the latest tag (if any)
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
@@ -81,19 +82,21 @@ jobs:
           echo "$git_log" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Prepare release notes
+        run: |
+          RELEASE_BODY="Docker image for this release:
+
+          \`${{ env.IMAGE_REF }}\`
+
+          Commits included in this release:
+          ${COMMITS}"
+          echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          body: |
-            Docker image for this release:
-
-            ```
-            ${{ env.IMAGE_DIGEST }}
-            ```
-
-            Commits included in this release:
-            ${{ env.COMMITS }}
+          body: ${{ env.RELEASE_BODY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
