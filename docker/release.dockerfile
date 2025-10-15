@@ -7,6 +7,30 @@ WORKDIR /app
 RUN apk add figlet
 RUN figlet Mittagskarte > logo.txt
 
+FROM node:${V_NODE}-slim AS golang-builder
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gnupg libc6-dev libnss3-dev libnet-dev build-essential \
+    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    apt-transport-https ca-certificates && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY --from=golang /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
+
+RUN go install github.com/a-h/templ/cmd/templ@latest
+
+COPY ./go.mod .
+COPY ./go.sum .
+RUN go mod download
+
+COPY . .
+RUN templ generate
+RUN go build -ldflags="-s -w" main.go
+
 FROM node:${V_NODE}-alpine AS node-builder
 WORKDIR /app
 
@@ -34,21 +58,19 @@ COPY --from=logo /app/logo.txt .
 COPY --from=node-builder /app/assets/favicon/ ./assets/favicon/
 COPY --from=node-builder /app/assets/js/ ./assets/js/
 COPY --from=node-builder /app/assets/css/style.css ./assets/css/style.css
-
-# Copy compiled Go binary from GoReleaser
-COPY mittagskarte ./mittagskarte
+COPY --from=golang-builder /app/mittagskarte .
+COPY ./docker/entrypoint.sh .
 
 EXPOSE 8156
 
-ARG VERSION
-ENV VERSION=$VERSION
-ARG DATE
-ENV DATE=$DATE
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+ARG BUILD_TIME
+ENV BUILD_TIME=$BUILD_TIME
 ARG REPO
 ENV REPO=$REPO
 
 RUN chown -R 1000:1000 /app
 
-ENTRYPOINT ["dumb-init", "--"]
 USER node
-CMD ["/app/mittagskarte"]
+ENTRYPOINT ["dumb-init", "--", "/app/entrypoint.sh"]

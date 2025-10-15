@@ -1,4 +1,4 @@
-name: goreleaser
+name: Build and Push Docker Image
 
 on:
   push:
@@ -6,21 +6,27 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  goreleaser:
+  prepare:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: stable
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ github.ref_name }}
+          labels: |
+            maintainer=${{ github.actor }}
+            org.opencontainers.image.title=Mittagskarte
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.description=Schniddzl.de - deine Mittagskarte
+            org.opencontainers.image.vendor=flohoss
+            org.opencontainers.image.version=${{ github.ref_name }}
 
       - name: Login to Container Registry
         uses: docker/login-action@v3
@@ -29,21 +35,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build custom CGO image
-        uses: docker/build-push-action@v5
+      - name: Build
+        uses: docker/build-push-action@v6
         with:
-          context: .
-          file: docker/dev.dockerfile
-          tags: cgo-builder:latest
-          load: true
-
-      - name: Run GoReleaser inside built image
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/app" \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -w /app \
-            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-            -e CGO_ENABLED=1 \
-            -e REPO="${{ github.repository }}" \
-            cgo-builder:latest bash -c "git config --global --add safe.directory /app && goreleaser release --clean"
+          file: docker/release.dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            BUILD_TIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            REPO=https://github.com/${{ github.repository }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
