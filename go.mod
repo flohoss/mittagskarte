@@ -13,7 +13,6 @@ require (
 	github.com/lmittmann/tint v1.1.2
 	github.com/playwright-community/playwright-go v0.5200.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/snabb/isoweek v1.0.3
 	github.com/spf13/viper v1.21.0
 	golang.org/x/time v0.14.0
 	gopkg.in/gographics/imagick.v2 v2.7.0
