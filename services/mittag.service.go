@@ -157,6 +157,9 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) 
 	if err != nil {
 		return err
 	}
+	if err := r.im.ResizeWebp(filePath, filePath); err != nil {
+		return err
+	}
 	return nil
 }
 
