@@ -20,9 +20,8 @@ restaurants:
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: "//img[contains(@class, 'size-full')]"
-          attribute: "data-orig-file"
-      file_type: "image"
+        - locator: ".vamtam-grid:has(img)"
+          style: "#qlwapp { display: none !important; }"
 
   benz:
     name: "Benz Metzgerei"
@@ -209,7 +208,7 @@ restaurants:
     parse:
       update_cron: "30 9,10 * * 1,2"
       navigate:
-        - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
+        - locator: "#speisekarte img"
           attribute: "src"
       file_type: "image"
 
