@@ -73,7 +73,7 @@ See `config/config.yaml` for a full example.
 
 **Notes:**
 
-- Only `name` and `pageurl` are strictly required for each restaurant.
+- Only `name` and `url` are strictly required for each restaurant.
 - If `parse` is empty, `api_token` **must** be set.
 - Menus are automatically resized to a maximum width of 1920px.
 
@@ -85,27 +85,27 @@ See `config/config.yaml` for a full example.
 
 ```yaml
 parse:
-  updatecron: "30 9,10 * * 1,3"
-  directdownload: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
-  filetype: "pdf"
+  update_cron: "30 9,10 * * 1,3"
+  direct_download: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
+  file_type: "pdf"
 ```
 
 **Image download via CSS selector**
 
 ```yaml
 parse:
-  updatecron: "30 9,10 * * 1,2"
+  update_cron: "30 9,10 * * 1,2"
   navigate:
     - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
       attribute: "src"
-  filetype: "image"
+  file_type: "image"
 ```
 
 **HTML scraping**
 
 ```yaml
 parse:
-  updatecron: "30 9,10 * * 1,4"
+  update_cron: "30 9,10 * * 1,4"
   navigate:
     - locator: "p.paragraph-mittagstisch-right-corona"
       style: ".w-nav { display: none !important; }"
@@ -115,10 +115,10 @@ parse:
 
 ```yaml
 parse:
-  updatecron: "30 9,10 1-3 * *"
+  update_cron: "30 9,10 1-3 * *"
   navigate:
     - locator: "//a[contains(text(), 'Mittagstisch')]"
-  filetype: "pdf"
+  file_type: "pdf"
 ```
 
 All `navigate` steps use:
