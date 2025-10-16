@@ -1,11 +1,28 @@
 # Mittagskarte
 
-This is the open source project for the [Schniddzl.de](https://schniddzl.de) app.
+Open-source project for [Schniddzl.de](https://schniddzl.de), fetching and displaying restaurant menus automatically.
+
+---
+
+## Table of Contents
+
+1. [Deployment](#deployment)
+2. [How It Works](#how-it-works)
+   - [Configuration](#configuration)
+   - [Examples](#examples)
+   - [Dynamic Dates in Selectors](#dynamic-dates-in-selectors)
+
+3. [Development](#development)
+   - [Run Locally with Docker Compose](#run-locally-with-docker-compose)
+   - [Update Dependencies](#update-dependencies)
+
+---
 
 ## Deployment
 
-This will pull the latest image from ghcr.io and deploy it to the provided port.
-To open the app use the following link: [http://localhost:8156](http://localhost:8156)
+Deploy using Docker Compose. It pulls the latest image and exposes the app on the specified port.
+
+Open the app locally: [http://localhost:8156](http://localhost:8156)
 
 ```yaml
 services:
@@ -19,115 +36,170 @@ services:
       - "8156:8156"
 ```
 
-## How does it work?
+---
 
-The app parses a config file for restaurants and their menus.
-It then downloads the menus and converts them to webp files for faster loading.
+## How It Works
 
-For the app to understand where it has to look for the menu, it needs to be written in a special format.
+Mittagskarte fetches restaurant menus and converts them into fast-loading **webp** images.
 
-To understand, please refer to the `config.go` file in the `config` directory.
-There you can see a struct called Parse:
+Key features:
 
-```go
-type Parse struct {
-	UpdateCron     string     `mapstructure:"update_cron"`
-	Navigate       []Selector `mapstructure:"navigate"`
-	DirectDownload string     `mapstructure:"direct_download"`
-	FileType       FileType   `mapstructure:"file_type"`
-}
-```
+- Downloads menus in PDF or image formats
+- Scrapes menus from HTML pages
+- Converts menus to webp, **reducing images wider than 1920px**
+- Updates menus automatically based on a cron schedule
 
-The `update_cron` field defines when the app should update the menu.
-Use [https://crontab.guru/](https://crontab.guru/) to generate a valid cron expression
+---
 
-The `direct_download` field defines where the app should look for a direct download of a menu.
-The `file_type` field defines the file type of the menu ('pdf' or 'image' or leave empty for html screenscraping).
+## Configuration
 
-The `navigate` field defines where the app should look for the menu.
-It is a list of selectors that will be used to find the menu.
+See `config/config.yaml` for a full example.
 
-Examples:
+### Key Fields
+
+| Key                | Description                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `api_token`        | Required if a restaurant has **no parse section**. Used to upload a menu image manually.              |
+| `impressum`        | Show legal info on the page (`enabled: true`) with `responsible` name and `email`.                    |
+| `log_level`        | Logging verbosity (`debug`, `info`, `warn`, `error`)                                                  |
+| `meta.title`       | Website title                                                                                         |
+| `meta.description` | Suffix for the HTML description. Full HTML `<meta>` description = `{meta.title} - {meta.description}` |
+| `meta.social`      | Array of social media links (optional)                                                                |
+| `restaurants`      | Dictionary of restaurants                                                                             |
+| `server.address`   | Host to bind (`0.0.0.0` for all interfaces)                                                           |
+| `server.port`      | Port to serve the app                                                                                 |
+| `time_zone`        | Used for scheduling updates                                                                           |
+| `umami_analytics`  | Optional analytics integration (`enabled`, `domain`, `websiteid`)                                     |
+
+**Notes:**
+
+- Only `name` and `pageurl` are strictly required for each restaurant.
+- If `parse` is empty, `api_token` **must** be set.
+- Menus are automatically resized to a maximum width of 1920px.
+
+---
+
+## Examples
+
+**Direct PDF download**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,3"
-  direct_download: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
-  file_type: "pdf"
+  updatecron: "30 9,10 * * 1,3"
+  directdownload: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
+  filetype: "pdf"
 ```
+
+**Image download via CSS selector**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,2"
+  updatecron: "30 9,10 * * 1,2"
   navigate:
     - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
       attribute: "src"
-  file_type: "image"
+  filetype: "image"
 ```
+
+**HTML scraping**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,4"
+  updatecron: "30 9,10 * * 1,4"
   navigate:
     - locator: "p.paragraph-mittagstisch-right-corona"
       style: ".w-nav { display: none !important; }"
 ```
 
+**PDF link via XPath**
+
 ```yaml
 parse:
-  update_cron: "30 9,10 1-3 * *"
+  updatecron: "30 9,10 1-3 * *"
   navigate:
-    - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
-  file_type: "pdf"
+    - locator: "//a[contains(text(), 'Mittagstisch')]"
+  filetype: "pdf"
 ```
 
-The `locator` field is an XPath or CSS selector used to locate the menu element on the page. You can find the appropriate selector using your browser’s Developer Tools (Inspect Element).
-
-The `locator` field can contain the `date()` function, which will be replaced at runtime. It supports named arguments for flexible formatting:
-
-| Argument | Description                                                                                                    |
-| -------- | -------------------------------------------------------------------------------------------------------------- |
-| `format` | Go `time` or `monday` date format string, e.g., `02.01.2006`, `Jan`, `Monday, 02 January 2006`.                |
-| `lang`   | Locale/language for the output. Supported: `en`, `de`. Defaults to `en`.                                       |
-| `day`    | Weekday to adjust to (`monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Optional. |
-| `offset` | Number of weeks to shift the date. `-1` for last week, `0` for this week, `1` for next week. Optional.         |
-| `upper`  | Set to `true` to convert the output to uppercase. Optional.                                                    |
-
-Examples
-
-Full month in German
+All `navigate` steps use:
 
 ```yaml
-{
-  # //div[@class='calendar-header']//span[text()='Oktober']
-  "locator": "//div[@class='calendar-header']//span[text()='{{date(format=January, lang=de)}}']",
-
-  # //div[@class='calendar']//span[text()='10.10.2025']
-  "locator": "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']",
-}
+- locator: "<CSS or XPath selector>"
+  attribute: "<optional HTML attribute to fetch>"
+  style: "<optional CSS to hide unwanted elements>"
 ```
 
-The `attribute` field is an optional html attribute that will be used to find the link of the menu to be downloaded.
+---
 
-The `style` field is an optional style that can be used to hide elements that are not needed.
+## Dynamic Dates in Selectors
+
+Use `{{date(...)}}` to match menus dynamically.
+
+| Argument | Description                                                             |
+| -------- | ----------------------------------------------------------------------- |
+| `format` | Go time format (e.g., `02.01.2006`, `Jan`)                              |
+| `lang`   | Language (`en`, `de`). Defaults to `en`                                 |
+| `day`    | Weekday to adjust to (`monday`, `tuesday`, etc.)                        |
+| `offset` | Number of weeks to shift (`-1` last week, `0` this week, `1` next week) |
+| `upper`  | Convert output to uppercase                                             |
+
+**Example:**
+
+```yaml
+"locator": "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
+```
+
+## Thumbnails
+
+You can add custom thumbnails for restaurants to be displayed in the app.
+
+### How to Add Thumbnails
+
+1. **Folder**: Place your thumbnails inside the `config/thumbnails` directory.
+2. **File Name**: Name the thumbnail file exactly like the restaurant key in your `restaurants` section, with a `.webp` extension.
+   - Example: For the restaurant key `sw34`, the thumbnail must be:
+
+     ```
+     config/thumbnails/sw34.webp
+     ```
+
+3. **Format**: Only **WebP** format is supported.
+
+### Usage
+
+The app automatically uses the thumbnail for a restaurant:
+
+```css
+background-image: url(/thumbnails/<restaurant_key>.webp);
+```
+
+Example with `sw34`:
+
+```css
+background-image: url(/thumbnails/sw34.webp);
+```
+
+> Note: WebP is required. You can convert images online using [https://mazanoke.y8o.de/](https://mazanoke.y8o.de/).
+
+---
 
 ## Development
 
-### Run locally with docker compose
-
-When running docker compose locally it will automatically create a config.yaml file if not existing.
-Changes to the file are automatically detected.
+### Run Locally with Docker Compose
 
 ```bash
-# Run dev server
 docker compose up --build --force-recreate
 ```
 
-### Updates
+- Auto-creates `config.yaml` if missing
+- Detects changes automatically
+
+### Update Dependencies
 
 ```bash
-# Upgrade node packages
+# Node packages
 docker compose run --rm node yarn upgrade
-# Upgrade golang packages
+
+# Go packages
 docker compose run --rm backend go get -u && go mod tidy
 ```
