@@ -133,11 +133,9 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 
 	os.Remove(tmpPath)
 
-	if r.restaurants[restaurant.ID].Parse.FileType != config.PDF && r.restaurants[restaurant.ID].Parse.FileType != config.Image {
-		err = r.im.Trim(filePath)
-		if err != nil {
-			return err
-		}
+	err = r.im.Trim(filePath)
+	if err != nil {
+		return err
 	}
 
 	i, err = os.Stat(filePath)
