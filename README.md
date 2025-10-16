@@ -81,8 +81,31 @@ parse:
   file_type: "pdf"
 ```
 
-The `locator` field is a XPath/CSS selector that will be used to find the menu (you can use this in the developer tool of the browser to find the right XPath/CSS selector).
-It can have placeholders (`{{month}}`, `{{monthShortUpper}}` or `{{year}}`) that will be replaced with for example `January`, `Jan` or `2022`.
+The `locator` field is an XPath or CSS selector used to locate the menu element on the page. You can find the appropriate selector using your browser’s Developer Tools (Inspect Element).
+
+The `locator` field can contain the `date()` function, which will be replaced at runtime. It supports named arguments for flexible formatting:
+
+| Argument | Description                                                                                                    |
+| -------- | -------------------------------------------------------------------------------------------------------------- |
+| `format` | Go `time` or `monday` date format string, e.g., `02.01.2006`, `Jan`, `Monday, 02 January 2006`.                |
+| `lang`   | Locale/language for the output. Supported: `en`, `de`. Defaults to `en`.                                       |
+| `day`    | Weekday to adjust to (`monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Optional. |
+| `offset` | Number of weeks to shift the date. `-1` for last week, `0` for this week, `1` for next week. Optional.         |
+| `upper`  | Set to `true` to convert the output to uppercase. Optional.                                                    |
+
+Examples
+
+Full month in German
+
+```yaml
+{
+  # //div[@class='calendar-header']//span[text()='Oktober']
+  "locator": "//div[@class='calendar-header']//span[text()='{{date(format=January, lang=de)}}']",
+
+  # //div[@class='calendar']//span[text()='10.10.2025']
+  "locator": "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']",
+}
+```
 
 The `attribute` field is an optional html attribute that will be used to find the link of the menu to be downloaded.
 
