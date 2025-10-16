@@ -32,6 +32,13 @@ restaurants:
     rest_days:
       - "Sunday"
     group: "Köngen"
+    parse:
+      update_cron: "30 9,10 * * 1,2"
+      navigate:
+        - locator: "#CookieBoxSaveButton"
+        - locator: "//p[strong[contains(text(), '{{date(format=02.01.2006,day=friday,offset=-1)}}')]]/following-sibling::p[1]/a"
+          attribute: "href"
+      file_type: "image"
 
   blessing:
     name: "Blessing-Kurz"
@@ -161,7 +168,7 @@ restaurants:
     parse:
       update_cron: "30 9,10 1-3 * *"
       navigate:
-        - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{monthShortUpper}}')]"
+        - locator: "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{date(format=Jan,lang=de,upper=true)}}')]"
       file_type: "pdf"
 
   munz:
