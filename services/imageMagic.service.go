@@ -79,10 +79,32 @@ func (ic *ImageMagic) Trim(filePath string) error {
 	if err := mw.ReadImage(filePath); err != nil {
 		return fmt.Errorf("failed to read image: %w", err)
 	}
-	mw.SetImageBackgroundColor(imagick.NewPixelWand())
-	if err := mw.TrimImage(0); err != nil {
-		return fmt.Errorf("failed to trim image: %w", err)
+
+	trimColor := func(color string) error {
+		pixel := imagick.NewPixelWand()
+		defer pixel.Destroy()
+		pixel.SetColor(color)
+		mw.SetImageBackgroundColor(pixel)
+
+		mw.SetImageFuzz(0.05)
+		if err := mw.TrimImage(0); err != nil {
+			return fmt.Errorf("failed to trim %s: %w", color, err)
+		}
+
+		mw.SetImagePage(0, 0, 0, 0)
+		return nil
 	}
+
+	// First trim white edges
+	if err := trimColor("white"); err != nil {
+		return err
+	}
+
+	// Then trim black edges
+	if err := trimColor("black"); err != nil {
+		return err
+	}
+
 	if err := mw.WriteImage(filePath); err != nil {
 		return fmt.Errorf("failed to write image: %w", err)
 	}
