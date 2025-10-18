@@ -9,7 +9,7 @@ server:
 restaurants:
   avada:
     name: "Avada"
-    description: "Sushi & Asiatisch"
+    tags: ["Asiatisch", "Sushi", "Japanisch", "Fisch", "Reis"]
     url: "https://avada-nt.de/mittagsmenu/"
     address: "Neckarstraße 1, 72622 Nürtingen"
     phone: "+49 7022 9796098"
@@ -25,7 +25,7 @@ restaurants:
 
   benz:
     name: "Benz Metzgerei"
-    description: "Metzgerei"
+    tags: ["Metzgerei", "Fleisch", "Schnitzel", "Wurst", "Regional"]
     url: "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/"
     address: "Hirschstraße 18, 73257 Köngen"
     phone: "+49 7024 81488"
@@ -42,7 +42,7 @@ restaurants:
 
   blessing:
     name: "Blessing-Kurz"
-    description: "Metzgerei"
+    tags: ["Metzgerei", "Fleisch", "Wurst", "Hausgemacht", "Schwäbisch"]
     url: "https://blessing-kurz.de/de/tagesessen/"
     address: "Unterdorfstraße 1, 73257 Köngen"
     phone: "+49 7024 989895"
@@ -57,7 +57,7 @@ restaurants:
 
   damama:
     name: "Da Mama"
-    description: "Italienisch"
+    tags: ["Italienisch", "Pizza", "Pasta", "Authentisch", "Antipasti"]
     url: "https://da-mamma.de/"
     address: "Bahnhofstraße 17, 73240 Wendlingen am Neckar"
     phone: "+49 7024 8685216"
@@ -71,7 +71,7 @@ restaurants:
 
   davvero:
     name: "Davvero"
-    description: "Italienisch"
+    tags: ["Italienisch", "Pizza", "Pasta", "Risotto", "Mediterran"]
     url: "https://www.davvero-stuttgart.de/index.html"
     address: "Lohäckerstraße 11, 70567 Stuttgart-Möhringen"
     phone: "+49 711 78784911"
@@ -85,7 +85,7 @@ restaurants:
 
   etcan:
     name: "Et.Can."
-    description: "Steakhouse"
+    tags: ["Steakhouse", "Fleisch", "Grill", "Steak", "Amerikanisch"]
     url: "https://et-can.de/mittagskarte/"
     address: "Schäferhauser Straße 18, 73240 Wendlingen am Neckar"
     phone: "+49 177 6474213"
@@ -101,7 +101,7 @@ restaurants:
 
   peppone:
     name: "Da Peppone"
-    description: "Italienisch"
+    tags: ["Italienisch", "Pizza", "Pasta", "Ristorante", "Steinofen"]
     url: "https://dapeppone-restaurant.de/"
     address: "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch"
     phone: "+49 711 78784911"
@@ -116,7 +116,7 @@ restaurants:
 
   delta:
     name: "Delta"
-    description: "Thailändisch"
+    tags: ["Thailändisch", "Asiatisch", "Curry", "Scharf", "Reis"]
     url: "https://www.delta-koengen.de/menü/"
     address: "Plochinger Straße 22, 73257 Köngen"
     phone: "+49 7024 466833"
@@ -132,7 +132,7 @@ restaurants:
 
   enbw:
     name: "EnBW"
-    description: "Kantine"
+    tags: ["Kantine", "Büffet", "Deutsch", "Mitarbeiter", "Günstig"]
     url: "https://www.enbw.com/unternehmen/standorte/stuttgart-fasanenhof/"
     address: "EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof"
     phone: "+49 721 72586001"
@@ -143,7 +143,7 @@ restaurants:
 
   fass:
     name: "Fass"
-    description: "Deutsch"
+    tags: ["Deutsch", "Gasthaus", "Schwäbisch", "Schnitzel", "Hausmannskost"]
     url: "http://www.gasthaus-fass.de/mittagstisch"
     address: "Bahnhofstraße 10, 72644 Oberboihingen"
     phone: "+49 7022 61185"
@@ -158,7 +158,7 @@ restaurants:
 
   linde:
     name: "Gasthaus Linde"
-    description: "Metzgerei"
+    tags: ["Metzgerei", "Fleisch", "Gasthaus", "Regional", "Schwäbisch"]
     url: "https://www.gasthauslinde.de/Mittagstisch"
     address: "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen"
     phone: "+49 7022 62306"
@@ -173,7 +173,7 @@ restaurants:
 
   munz:
     name: "Hoflieferant Munz"
-    description: "Metzgerei"
+    tags: ["Metzgerei", "Fleisch", "Wurst", "Premium", "Hoflieferant"]
     url: "https://www.hoflieferant-munz.de/aktuelles"
     address: "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 36591400"
@@ -188,7 +188,7 @@ restaurants:
 
   khoi:
     name: "Khoi"
-    description: "Vietnamesisch"
+    tags: ["Vietnamesisch", "Asiatisch", "Pho", "Frisch", "Suppen"]
     url: "https://www.khoi-restaurant.de/speisekarte/"
     address: "Europaplatz 12, 70565 Stuttgart-Fasanenhof"
     phone: "+49 711 56619918"
@@ -203,7 +203,7 @@ restaurants:
 
   koe5:
     name: "KÖ5"
-    description: "Deutsch"
+    tags: ["Deutsch", "Modern", "Bistro", "Burger", "Salate"]
     url: "https://koe5.de/"
     address: "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 99772624"
@@ -219,7 +219,7 @@ restaurants:
 
   lunica:
     name: "L'unica"
-    description: "Italienisch"
+    tags: ["Italienisch", "Pizza", "Pasta", "Fisch", "Elegant"]
     url: "https://www.lunica-restaurant.de/mittagstisch-lunica-restaurant-echterdingen.html"
     address: "Hauptstraße 33,70771 Leinfelden-Echterdingen"
     phone: "+49 711 78784708"
@@ -234,7 +234,7 @@ restaurants:
 
   meet:
     name: "Meet & Eat"
-    description: "Imbiss"
+    tags: ["Imbiss", "Schnell", "Burger", "Döner", "Günstig"]
     url: "http://meetundeat.com/"
     address: "Schelmenwasenstraße 7, 70567 Stuttgart-Fasanenhof"
     phone: "+49 157 30664255"
@@ -251,7 +251,7 @@ restaurants:
 
   ochsen:
     name: "Ochsen"
-    description: "Deutsch"
+    tags: ["Deutsch", "Gasthaus", "Schwäbisch", "Fleisch", "Tradionell"]
     url: "http://www.ochsen-koengen.de"
     address: "Oberdorfstraße 20, 73257 Köngen"
     phone: "+49 7024 81979"
@@ -267,7 +267,7 @@ restaurants:
 
   paulaner:
     name: "Paulaner"
-    description: "Deutsch"
+    tags: ["Deutsch", "Bayerisch", "Bier", "Schnitzel", "Weißwurst"]
     url: "https://paulaner-le.de/speisen-getraenke/mittagstisch.html"
     address: "Burgstraße 4, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 7944180"
@@ -282,7 +282,7 @@ restaurants:
 
   picchio:
     name: "Picchiorosso"
-    description: "Italienisch"
+    tags: ["Italienisch", "Pizza", "Pasta", "Fisch", "Ristorante"]
     url: "https://picchiorosso.de/tageskarte/"
     address: "Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 7156767"
@@ -299,7 +299,7 @@ restaurants:
 
   stuben:
     name: "Ratsstuben"
-    description: "Deutsch"
+    tags: ["Deutsch", "Gasthaus", "Regional", "Schnitzel", "Hausmannskost"]
     url: "https://ratsstuben.de/wochenkarte/"
     address: "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 791725"
@@ -312,7 +312,7 @@ restaurants:
 
   schaible:
     name: "Schaible"
-    description: "Metzgerei"
+    tags: ["Metzgerei", "Fleisch", "Wurst", "Regional", "Handwerk"]
     url: "https://www.feuerbach.de/aktuelles/mittagstisch/"
     address: "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 8104528"
@@ -330,7 +330,7 @@ restaurants:
 
   scheuer:
     name: "Schwedenscheuer"
-    description: "Deutsch"
+    tags: ["Deutsch", "Schwedenplatte", "Fleisch", "Rustikal", "Gemütlich"]
     url: "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html"
     address: "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen"
     phone: "+49 711 7978527"
@@ -345,7 +345,7 @@ restaurants:
 
   sw34:
     name: "SW34"
-    description: "Eventlocation"
+    tags: ["Eventlocation", "Modern", "Gehobene Küche", "Crossover", "Stylisch"]
     url: "https://sw34.restaurant/essen-trinken"
     address: "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof"
     phone: "+49 711 62042252"
@@ -362,7 +362,7 @@ restaurants:
 
   troelsch:
     name: "Troelsch"
-    description: "Bäckerei"
+    tags: ["Bäckerei", "Backwaren", "Snacks", "Suppen", "Frühstück"]
     url: "https://www.troelsch.de/ueber-uns/standorte/"
     address: "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach"
     phone: "+49 711 85680030"
