@@ -2,7 +2,8 @@ const { computePosition, offset, flip, shift, autoUpdate } =
   window.FloatingUIDOM;
 
 let activeTooltipId = null;
-let hideTimeout;
+let hideTimeout = null;
+let activeTooltip = null;
 
 const links = document.querySelectorAll("[data-lg-blank]");
 const displayHelper = document.querySelector("#display-helper");
@@ -19,41 +20,83 @@ function updateTargets() {
 updateTargets();
 window.addEventListener("resize", updateTargets);
 
+// Helper function to immediately hide any active tooltip
+function hideActiveTooltipImmediate() {
+  if (activeTooltip && activeTooltipId) {
+    // Clear any pending hide timeout
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    
+    // Remove event listeners
+    activeTooltip.removeEventListener("mouseenter", handleTooltipMouseEnter);
+    activeTooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
+
+    // Restore to original position
+    if (activeTooltip._originalParent) {
+      if (activeTooltip._originalNextSibling)
+        activeTooltip._originalParent.insertBefore(
+          activeTooltip,
+          activeTooltip._originalNextSibling
+        );
+      else activeTooltip._originalParent.appendChild(activeTooltip);
+    }
+
+    // Hide tooltip
+    activeTooltip.classList.add("hidden");
+
+    // Cleanup positioning
+    if (activeTooltip._cleanup) {
+      try {
+        activeTooltip._cleanup();
+      } catch (e) {}
+      activeTooltip._cleanup = null;
+    }
+
+    // Reset state
+    activeTooltipId = null;
+    activeTooltip = null;
+  }
+}
+
 // Show tooltip
 function showTooltip(event, tooltipId) {
   const tooltip = document.getElementById(tooltipId);
   if (!tooltip || window.getComputedStyle(displayHelper).display === "none")
     return;
 
-  clearTimeout(hideTimeout);
-
-  // Hide previous tooltip immediately if switching
-  if (activeTooltipId && activeTooltipId !== tooltipId) {
-    hideTooltip(activeTooltipId, true);
+  // If this is already the active tooltip, do nothing
+  if (activeTooltipId === tooltipId) {
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    return;
   }
+
+  // Hide any currently active tooltip immediately
+  hideActiveTooltipImmediate();
 
   const trigger = event.target;
   activeTooltipId = tooltipId;
+  activeTooltip = tooltip;
 
+  // Store original position if not already stored
   if (!tooltip._originalParent) {
     tooltip._originalParent = tooltip.parentNode;
     tooltip._originalNextSibling = tooltip.nextSibling;
   }
 
+  // Move to body and show
   document.body.appendChild(tooltip);
   tooltip.classList.remove("hidden");
 
+  // Add event listeners
   tooltip.addEventListener("mouseenter", handleTooltipMouseEnter);
   tooltip.addEventListener("mouseleave", handleTooltipMouseLeave);
 
-  // Cleanup previous tooltip autoUpdate if exists
-  if (tooltip._cleanup) {
-    try {
-      tooltip._cleanup();
-    } catch (e) {}
-  }
-
-  // Store autoUpdate cleanup on tooltip itself
+  // Setup positioning
   tooltip._cleanup = autoUpdate(trigger, tooltip, () => {
     computePosition(trigger, tooltip, {
       placement: "right",
@@ -68,44 +111,33 @@ function showTooltip(event, tooltipId) {
   });
 }
 
-// Hide tooltip
+// Hide tooltip with delay
 function hideTooltip(tooltipId) {
-  const doHide = () => {
-    const tooltip = document.getElementById(tooltipId);
-    if (!tooltip) return;
-
-    tooltip.removeEventListener("mouseenter", handleTooltipMouseEnter);
-    tooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
-
-    if (tooltip._originalParent) {
-      if (tooltip._originalNextSibling)
-        tooltip._originalParent.insertBefore(
-          tooltip,
-          tooltip._originalNextSibling
-        );
-      else tooltip._originalParent.appendChild(tooltip);
-    }
-
-    tooltip.classList.add("hidden");
-
-    if (tooltip._cleanup) {
-      try {
-        tooltip._cleanup();
-      } catch (e) {}
-      tooltip._cleanup = null;
-    }
-
-    if (activeTooltipId === tooltipId) activeTooltipId = null;
-  };
-
-  clearTimeout(hideTimeout);
-  hideTimeout = setTimeout(doHide, 150);
+  // Only hide if this is the currently active tooltip
+  if (activeTooltipId !== tooltipId) return;
+  
+  // Clear any existing timeout
+  if (hideTimeout) {
+    clearTimeout(hideTimeout);
+  }
+  
+  // Set new timeout
+  hideTimeout = setTimeout(() => {
+    hideActiveTooltipImmediate();
+  }, 150);
 }
 
 function handleTooltipMouseEnter() {
-  clearTimeout(hideTimeout);
+  // Cancel hide timeout when mouse enters tooltip
+  if (hideTimeout) {
+    clearTimeout(hideTimeout);
+    hideTimeout = null;
+  }
 }
 
-function handleTooltipMouseLeave(event) {
-  if (activeTooltipId) hideTooltip(activeTooltipId);
+function handleTooltipMouseLeave() {
+  // Hide the currently active tooltip when mouse leaves
+  if (activeTooltipId) {
+    hideTooltip(activeTooltipId);
+  }
 }
