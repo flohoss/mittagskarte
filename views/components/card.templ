@@ -43,7 +43,14 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 		<div class="flex items-center gap-2 px-1">
 			<div class="flex-1 truncate min-w-0">
 				<div class="truncate font-semibold">{ r.Name }</div>
-				<div class="truncate text-xs">{ humanize.Since(r.Menu.Modified) }</div>
+				<div class="grid gap-1">
+					<div class="truncate text-xs">{ humanize.Since(r.Menu.Modified) }</div>
+					<div class="flex flex-wrap gap-1 mb-1">
+						for _, tag := range r.Tags {
+							<span class="badge badge-xs badge-secondary rounded-xl">{ tag }</span>
+						}
+					</div>
+				</div>
 			</div>
 			if (r.New && g.Group != config.Favorites) {
 				<div class="tooltip tooltip-bottom" data-tip="Neu hinzugefügt!">
