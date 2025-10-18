@@ -70,7 +70,7 @@ type ServerSettings struct {
 type Restaurant struct {
 	ID            string              `mapstructure:"-"`
 	Name          string              `mapstructure:"name"`
-	Description   string              `mapstructure:"description"`
+	Tags          []string            `mapstructure:"tags"`
 	PageUrl       string              `mapstructure:"url"`
 	Address       string              `mapstructure:"address"`
 	RestDaysSlice []string            `mapstructure:"rest_days"`
@@ -141,12 +141,12 @@ func New() {
 	})
 	viper.SetDefault("restaurants", map[string]*Restaurant{
 		"sw34": {
-			Name:        "SW34",
-			Description: "Eventlocation",
-			PageUrl:     "https://sw34.restaurant/essen-trinken",
-			Address:     "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
-			Phone:       "+49 711 62042252",
-			Group:       "Fasanenhof",
+			Name:    "SW34",
+			Tags:    []string{"Eventlocation", "Modern", "Gehobene Küche", "Crossover", "Stylisch"},
+			PageUrl: "https://sw34.restaurant/essen-trinken",
+			Address: "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
+			Phone:   "+49 711 62042252",
+			Group:   "Fasanenhof",
 			RestDays: map[string]struct{}{
 				"Saturday": {},
 				"Sunday":   {},
