@@ -57,11 +57,11 @@ templ Base(title string, searchBar bool) {
 			<header class="bg-base-200">
 				<div class="navbar container px-4 lg:px-6">
 					<div class={ getLogoClass(searchBar) }>
-						<a href="/" class="flex items-center gap-2">
-							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
-							<div class="font-light font-stretch-semi-expanded">
-								<div class="text-xl font-semibold whitespace-nowrap">{ meta.Title }</div>
-								<div class="text-xs truncate whitespace-nowrap">{ meta.Description }</div>
+						<a href="/" class="flex items-center gap-2 min-w-0">
+							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10 flex-shrink-0"/>
+							<div class="font-light font-stretch-semi-expanded min-w-0">
+								<div class="text-xl font-semibold truncate">{ meta.Title }</div>
+								<div class="text-xs truncate">{ meta.Description }</div>
 							</div>
 						</a>
 					</div>
