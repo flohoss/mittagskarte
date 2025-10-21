@@ -110,6 +110,9 @@ jobs:
           echo "COMMITS<<EOF" >> $GITHUB_ENV
           cat /tmp/commits.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+          
+          # Set the previous tag for changelog link
+          echo "PREVIOUS_TAG=${LAST_TAG}" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -142,6 +145,6 @@ jobs:
 
             ---
 
-            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.ref_name }}
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ env.PREVIOUS_TAG || 'HEAD' }}...${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
