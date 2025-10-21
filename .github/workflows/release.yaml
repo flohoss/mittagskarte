@@ -96,6 +96,8 @@ jobs:
         run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
       - name: Gather commits since last tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           echo "📋 Last tag: ${LAST_TAG:-'None (first release)'}"
