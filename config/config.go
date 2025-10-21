@@ -119,6 +119,26 @@ func matches(q, s string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(q))
 }
 
+func matchesRestaurant(filter string, restaurant *Restaurant) bool {
+	if filter == "" {
+		return true
+	}
+
+	// Check restaurant name
+	if matches(filter, restaurant.Name) {
+		return true
+	}
+
+	// Check tags
+	for _, tag := range restaurant.Tags {
+		if matches(filter, tag) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func init() {
 	os.Mkdir(ConfigFolder, os.ModePerm)
 	validate = validator.New()
@@ -314,7 +334,7 @@ func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRes
 	for _, group := range r {
 		var filteredRestaurants []*Restaurant
 		for _, restaurant := range group.Restaurants {
-			if filter == "" || matches(filter, restaurant.Name) {
+			if matchesRestaurant(filter, restaurant) {
 				if _, ok := favSet[strings.ToLower(restaurant.ID)]; ok {
 					favourites = append(favourites, restaurant)
 					continue

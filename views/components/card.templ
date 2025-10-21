@@ -47,7 +47,17 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 					<div class="truncate text-xs">{ humanize.Since(r.Menu.Modified) }</div>
 					<div class="flex flex-wrap gap-1 mb-1">
 						for _, tag := range r.Tags {
-							<span class="badge badge-xs badge-secondary rounded-xl">{ tag }</span>
+							<button
+								class="badge badge-xs badge-secondary rounded-xl hover:badge-primary cursor-pointer transition-colors"
+								hx-get="/filter"
+								hx-vals={ `{"q": "` + tag + `"}` }
+								hx-target="#restaurants-container"
+								hx-swap="innerHTML"
+								hx-on:click="document.querySelector('input[name=q]').value = this.textContent"
+								title={ "Nach '" + tag + "' filtern" }
+							>
+								{ tag }
+							</button>
 						}
 					</div>
 				</div>
