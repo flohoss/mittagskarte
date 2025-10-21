@@ -135,7 +135,7 @@ templ Base(title string, searchBar bool) {
 				window.addEventListener('error', function(e) {
 					console.error('Global error:', e.error);
 					const toast = document.createElement('div');
-					toast.className = 'alert alert-error rounded-xl';
+					toast.className = 'alert alert-error rounded-lg';
 					toast.innerHTML = '<span>Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu.</span>';
 					document.getElementById('toast-container').appendChild(toast);
 					setTimeout(() => toast.remove(), 8000);
@@ -144,7 +144,7 @@ templ Base(title string, searchBar bool) {
 				window.addEventListener('unhandledrejection', function(e) {
 					console.error('Unhandled promise rejection:', e.reason);
 					const toast = document.createElement('div');
-					toast.className = 'alert alert-warning rounded-xl';
+					toast.className = 'alert alert-warning rounded-lg';
 					toast.innerHTML = '<span>Ein Netzwerkfehler ist aufgetreten. Bitte versuchen Sie es erneut.</span>';
 					document.getElementById('toast-container').appendChild(toast);
 					setTimeout(() => toast.remove(), 6000);

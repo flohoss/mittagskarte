@@ -12,7 +12,7 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 			for _, g := range groups {
 				<div class="grid gap-2">
 					if favApplied && g.Group != config.Favorites {
-						<div class={ "collapse bg-base-200 rounded-none sm:rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200" }>
+						<div class={ "collapse bg-base-200 rounded-none sm:rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200" }>
 							<input
 								type="checkbox"
 								id={ "group-" + g.Group }

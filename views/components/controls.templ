@@ -133,13 +133,11 @@ templ Controls(r *config.Restaurant) {
 				<form action={ templ.URL("/upload/" + r.ID) } method="post" enctype="multipart/form-data" class="space-y-4">
 					<div class="mb-4">
 						<h3 class="font-bold text-lg mb-2">Menü für { r.Name } hochladen</h3>
-						<p class="text-sm text-base-content/70">Laden Sie ein neues Menü für dieses Restaurant hoch. Unterstützte Formate: PDF, JPG, PNG, WebP</p>
+						<p class="text-sm text-base-content/70">Laden Sie ein neues Menü für dieses Restaurant hoch.</p>
 					</div>
 					
-					<div class="form-control">
-						<label class="label" for={ "token_" + r.ID }>
-							<span class="label-text">API Token</span>
-						</label>
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">API Token</legend>
 						<input 
 							id={ "token_" + r.ID }
 							required 
@@ -149,12 +147,10 @@ templ Controls(r *config.Restaurant) {
 							class="input input-bordered w-full"
 							autocomplete="off"
 						/>
-					</div>
+					</fieldset>
 					
-					<div class="form-control">
-						<label class="label" for={ "file_" + r.ID }>
-							<span class="label-text">Menü-Datei</span>
-						</label>
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Menü-Datei</legend>
 						<input 
 							id={ "file_" + r.ID }
 							type="file" 
@@ -163,7 +159,8 @@ templ Controls(r *config.Restaurant) {
 							accept=".pdf,.jpg,.jpeg,.png,.webp"
 							required
 						/>
-					</div>
+						<p class="label">Unterstützte Formate: PDF, JPG, PNG, WebP</p>
+					</fieldset>
 					
 					<div class="modal-action">
 						<button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">
