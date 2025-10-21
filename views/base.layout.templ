@@ -7,12 +7,21 @@ import (
 	"time"
 )
 
-func appendVersionQuery(url string) string {
-	version := os.Getenv("VERSION")
-	if version == "" {
-		version = time.Now().Format("20060102150405")
+var appVersion string
+
+func init() {
+	appVersion = os.Getenv("APP_VERSION")
+	if appVersion == "" {
+		appVersion = os.Getenv("VERSION")
 	}
-	return url + "?v=" + version
+	if appVersion == "" {
+		// Use build time as fallback for cache busting
+		appVersion = time.Now().Format("20060102150405")
+	}
+}
+
+func appendVersionQuery(url string) string {
+	return url + "?v=" + appVersion
 }
 
 func getLogoClass(searchBar bool) string {
@@ -37,12 +46,32 @@ templ Base(title string, searchBar bool) {
 			<title>{ title }</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="description" content={ meta.Title + " - " + meta.Description }/>
+			<!-- Open Graph meta tags for social sharing -->
+			<meta property="og:title" content={ title }/>
+			<meta property="og:description" content={ meta.Title + " - " + meta.Description }/>
+			<meta property="og:type" content="website"/>
+			<meta property="og:image" content="/assets/favicon/web-app-manifest-512x512.png"/>
+			<meta property="og:locale" content="de_DE"/>
+			<!-- Twitter Card meta tags -->
+			<meta name="twitter:card" content="summary"/>
+			<meta name="twitter:title" content={ title }/>
+			<meta name="twitter:description" content={ meta.Title + " - " + meta.Description }/>
+			<meta name="twitter:image" content="/assets/favicon/web-app-manifest-512x512.png"/>
+			<!-- Favicon and icons -->
 			<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96"/>
 			<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg"/>
 			<link rel="shortcut icon" href="/assets/favicon/favicon.ico"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
 			<meta name="apple-mobile-web-app-title" content="Schniddzl"/>
+			<meta name="apple-mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+			<meta name="theme-color" content="#ffffff"/>
+			<meta name="msapplication-TileColor" content="#ffffff"/>
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+			if analytics.Enabled {
+				<link rel="dns-prefetch" href={ "//"+analytics.Domain }/>
+			}
+			<!-- Stylesheets -->
 			<link rel="stylesheet" href={ appendVersionQuery("/assets/css/style.css") }/>
 			if analytics.Enabled {
 				<script defer src={ templ.URL("https://" + analytics.Domain + "/script.js") } data-website-id={ analytics.WebsiteID }></script>
@@ -54,6 +83,10 @@ templ Base(title string, searchBar bool) {
 			<script src={ appendVersionQuery("/assets/js/update.js") } defer></script>
 		</head>
 		<body class="flex flex-col min-h-screen">
+			<!-- Skip to main content for accessibility -->
+			<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-primary text-primary-content px-4 py-2 rounded z-50">
+				Zum Hauptinhalt springen
+			</a>
 			<header class="bg-base-200">
 				<div class="navbar container px-4 lg:px-6">
 					<div class={ getLogoClass(searchBar) }>
@@ -72,8 +105,8 @@ templ Base(title string, searchBar bool) {
 					}
 				</div>
 			</header>
-			<main class="container my-5 lg:my-10 flex-grow">
-				<div id="display-helper" class="hidden lg:block"></div>
+			<main id="main-content" class="container my-5 lg:my-10 flex-grow" role="main">
+				<div id="display-helper" class="hidden lg:block" aria-hidden="true"></div>
 				{ children... }
 			</main>
 			<footer class="bg-base-200 text-base-content p-5">
@@ -97,6 +130,26 @@ templ Base(title string, searchBar bool) {
 				</div>
 			</footer>
 			<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2"></div>
+			<!-- Global error boundary -->
+			<script>
+				window.addEventListener('error', function(e) {
+					console.error('Global error:', e.error);
+					const toast = document.createElement('div');
+					toast.className = 'alert alert-error rounded-xl';
+					toast.innerHTML = '<span>Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu.</span>';
+					document.getElementById('toast-container').appendChild(toast);
+					setTimeout(() => toast.remove(), 8000);
+				});
+				
+				window.addEventListener('unhandledrejection', function(e) {
+					console.error('Unhandled promise rejection:', e.reason);
+					const toast = document.createElement('div');
+					toast.className = 'alert alert-warning rounded-xl';
+					toast.innerHTML = '<span>Ein Netzwerkfehler ist aufgetreten. Bitte versuchen Sie es erneut.</span>';
+					document.getElementById('toast-container').appendChild(toast);
+					setTimeout(() => toast.remove(), 6000);
+				});
+			</script>
 		</body>
 	</html>
 }
