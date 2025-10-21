@@ -23,7 +23,7 @@
 }
 
 @utility btn {
-  @apply rounded-r-xl rounded-l-xl shadow-none hover:shadow-none;
+  @apply rounded-r-lg rounded-l-lg shadow-none hover:shadow-none;
 }
 
 @utility btn-icon {

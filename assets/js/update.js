@@ -20,7 +20,7 @@ function stopUpdate(event) {
 function showToast(isError, message) {
   const toast = document.createElement("div");
   toast.className =
-    (isError ? "alert alert-error" : "alert alert-info") + " rounded-xl";
+    (isError ? "alert alert-error" : "alert alert-info") + " rounded-lg";
   toast.innerHTML = `<span>${message}</span>`;
 
   const container = document.getElementById("toast-container");
