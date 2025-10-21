@@ -13,20 +13,6 @@ func getBgImageWithFallback(r *config.Restaurant) string {
 	return "background-image: url(/thumbnails/" + r.ID + ".webp), linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);"
 }
 
-func getIconFill(group string) string {
-	if group == config.Favorites {
-		return "currentColor"
-	}
-	return "none"
-}
-
-func getIconStroke(group string) string {
-	if group == config.Favorites {
-		return "none"
-	}
-	return "currentColor"
-}
-
 func getOpacity(closed bool) string {
 	if closed {
 		return "opacity-20 group-hover:opacity-60"
@@ -46,6 +32,13 @@ func favTooltip(fav bool) string {
 		return "Aus Favoriten entfernen"
 	}
 	return "Zu Favoriten hinzufügen"
+}
+
+func getStarIconClass(group string) string {
+	if group == config.Favorites {
+		return "icon-[heroicons--star-solid] size-5"
+	}
+	return "icon-[heroicons--star] size-5"
 }
 
 templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
@@ -78,9 +71,7 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 			</div>
 			if (r.New && g.Group != config.Favorites) {
 				<div title="Neu hinzugefügt!">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-warning animate-pulse">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5"></path>
-					</svg>
+					<span class="icon-[heroicons--bell] size-5 text-warning animate-pulse"></span>
 				</div>
 			}
 			if (g != nil) {
@@ -90,9 +81,7 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 					href={ templ.URL("/?fav=" + r.ID + "&group=" + r.Group) }
 					aria-label={ favTooltip(g.Group == config.Favorites) }
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={ getIconFill(g.Group) } stroke-width="1.5" stroke={ getIconStroke(g.Group) } class="size-5">
-						<path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd"></path>
-					</svg>
+					<span class={ getStarIconClass(g.Group) }></span>
 				</a>
 			}
 		</div>

@@ -198,7 +198,7 @@ docker compose up --build --force-recreate
 
 ```bash
 # Node packages
-docker compose run --rm node yarn upgrade
+docker compose run --rm node yarn upgrade --latest
 
 # Go packages
 docker compose run --rm backend go get -u && go mod tidy
