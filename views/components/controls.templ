@@ -42,7 +42,7 @@ func getButtonClass(isDisabled bool) string {
 }
 
 templ Controls(r *config.Restaurant) {
-	<div class={ "grid gap-1 w-full", getGridCols(r) }>
+	<div class={ "grid gap-2 w-full", getGridCols(r) }>
 		if r.Menu.URL != "" {
 			<div class="relative inline-block">
 				<a
