@@ -20,21 +20,9 @@ templ Filter() {
 				spellcheck="false"
 				aria-describedby="search-help"
 			/>
-			<!-- Container for loading spinner and clear button -->
-			<div class="flex-shrink-0 relative w-6 h-6 flex items-center justify-center">
-				<div id="search-loading" class="htmx-indicator absolute">
-					<span class="loading loading-spinner loading-sm text-base-content"></span>
-				</div>
-				<button
-					type="button"
-					id="clear-search"
-					class="absolute p-1 rounded-full text-base-content/50 hover:text-base-content hover:bg-base-300/50 transition-all duration-200 hidden"
-					onclick="clearSearch()"
-					aria-label="Suche löschen"
-					title="Suche löschen"
-				>
-					<span class="icon-[heroicons--x-mark] size-4"></span>
-				</button>
+			<!-- Loading spinner -->
+			<div id="search-loading" class="htmx-indicator flex-shrink-0">
+				<span class="loading loading-spinner loading-sm text-base-content"></span>
 			</div>
 		</div>
 		<div id="search-help" class="sr-only">
@@ -42,138 +30,29 @@ templ Filter() {
 		</div>
 	</div>
 	<script>
-		// Search functionality with performance optimizations
-		class SearchManager {
-			constructor() {
-				this.input = document.getElementById('search-input');
-				this.clearBtn = document.getElementById('clear-search');
-				this.lastValue = '';
-				this.debounceTimer = null;
-				this.isLoading = false;
-				
-				this.init();
-			}
+		// Simple search focus management
+		document.addEventListener('DOMContentLoaded', () => {
+			const input = document.getElementById('search-input');
+			if (!input) return;
 			
-			init() {
-				if (!this.input || !this.clearBtn) return;
-				
-				// Initial state
-				this.updateClearButton();
-				
-				// Event listeners
-				this.input.addEventListener('input', this.handleInput.bind(this));
-				this.input.addEventListener('focus', this.handleFocus.bind(this));
-				this.input.addEventListener('blur', this.handleBlur.bind(this));
-				
-				// Keyboard shortcuts
-				this.input.addEventListener('keydown', this.handleKeydown.bind(this));
-				
-				document.body.addEventListener('htmx:beforeRequest', this.handleLoadingStart.bind(this));
-				document.body.addEventListener('htmx:afterRequest', this.handleLoadingEnd.bind(this));
-				
-				// Handle browser back/forward navigation
-				window.addEventListener('popstate', this.handlePopState.bind(this));
-			}
-			
-			handleInput() {
-				this.updateClearButton();
-				this.lastValue = this.input.value;
-			}
-			
-			handleFocus() {
-				this.input.parentElement.classList.add('ring-2', 'ring-primary/20');
-			}
-			
-			handleBlur() {
-				this.input.parentElement.classList.remove('ring-2', 'ring-primary/20');
-			}
-			
-			handleKeydown(e) {
-				// ESC key clears search
-				if (e.key === 'Escape') {
-					e.preventDefault();
-					this.clearSearch();
-					this.input.blur();
-				}
-				
-				// Ctrl/Cmd + K focuses search (common shortcut)
+			// Global keyboard shortcuts
+			document.addEventListener('keydown', (e) => {
+				// Ctrl/Cmd + K focuses search (prevent default to override browser behavior)
 				if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
 					e.preventDefault();
-					this.input.focus();
-					this.input.select();
+					input.focus();
+					input.select();
 				}
-			}
+			});
 			
-			handlePopState() {
-				// Update search when navigating back/forward
+			// Handle browser back/forward navigation
+			window.addEventListener('popstate', () => {
 				const urlParams = new URLSearchParams(window.location.search);
 				const query = urlParams.get('q') || '';
-				if (this.input.value !== query) {
-					this.input.value = query;
-					this.updateClearButton();
+				if (input.value !== query) {
+					input.value = query;
 				}
-			}
-			
-			handleLoadingStart(event) {
-				// Only handle our search requests
-				if (event.detail.elt === this.input) {
-					this.isLoading = true;
-					this.updateClearButton();
-				}
-			}
-			
-			handleLoadingEnd(event) {
-				// Only handle our search requests
-				if (event.detail.elt === this.input) {
-					this.isLoading = false;
-					this.updateClearButton();
-				}
-			}
-			
-			updateClearButton() {
-				// Hide clear button when loading or when input is empty
-				if (this.isLoading || this.input.value.trim().length === 0) {
-					this.clearBtn.classList.add('hidden');
-				} else {
-					this.clearBtn.classList.remove('hidden');
-				}
-			}
-			
-			clearSearch() {
-				this.input.value = '';
-				this.clearBtn.classList.add('hidden');
-				this.input.focus();
-				
-				// Trigger HTMX request with empty query
-				htmx.ajax('GET', '/filter?q=', {
-					target: '#restaurants-container',
-					swap: 'innerHTML'
-				});
-				
-				// Update URL without query parameter
-				const url = new URL(window.location);
-				url.searchParams.delete('q');
-				window.history.replaceState({}, '', url);
-			}
-		}
-		
-		// Global function for onclick handler
-		function clearSearch() {
-			if (window.searchManager) {
-				window.searchManager.clearSearch();
-			}
-		}
-		
-		// Initialize when DOM is ready
-		document.addEventListener('DOMContentLoaded', () => {
-			window.searchManager = new SearchManager();
-		});
-		
-		// Re-initialize after HTMX swaps (for SPA-like behavior)
-		document.body.addEventListener('htmx:afterSwap', () => {
-			if (document.getElementById('search-input')) {
-				window.searchManager = new SearchManager();
-			}
+			});
 		});
 	</script>
 }
