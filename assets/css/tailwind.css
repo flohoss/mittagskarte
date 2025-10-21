@@ -35,7 +35,7 @@
 }
 
 @utility my-card {
-  @apply relative grid gap-1 flex-shrink-0;
+  @apply relative grid gap-2 flex-shrink-0;
 }
 
 @utility card-grid {
