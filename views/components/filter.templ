@@ -1,14 +1,15 @@
 package components
 
 templ Filter() {
-	<label class="input w-full lg:w-100 rounded-xl">
+	<label class="input w-full lg:w-100 rounded-xl relative">
 		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
 			<path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
 		</svg>
 		<input
 			type="search"
 			name="q"
-			class="grow"
+			id="search-input"
+			class="grow pr-8"
 			placeholder="Gebe einen Suchbegriff ein"
 			hx-get="/filter"
 			hx-trigger="keyup changed delay:300ms"
@@ -16,5 +17,62 @@ templ Filter() {
 			hx-swap="innerHTML"
 			autocomplete="off"
 		/>
+		<button
+			type="button"
+			id="clear-search"
+			class="absolute right-2 top-1/2 transform -translate-y-1/2 text-base-content/50 hover:text-base-content hidden"
+			onclick="clearSearch()"
+			title="Suche löschen"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+			</svg>
+		</button>
 	</label>
+	<script>
+		function initClearButtonWatcher() {
+			const input = document.getElementById('search-input');
+			const clearBtn = document.getElementById('clear-search');
+			
+			function updateClearButton() {
+				if (input.value.length > 0) {
+					clearBtn.classList.remove('hidden');
+				} else {
+					clearBtn.classList.add('hidden');
+				}
+			}
+			
+			updateClearButton();
+			
+			input.addEventListener('input', updateClearButton);
+			const observer = new MutationObserver(updateClearButton);
+			observer.observe(input, { 
+				attributes: true, 
+				attributeFilter: ['value'] 
+			});
+			
+			let lastValue = input.value;
+			setInterval(() => {
+				if (input.value !== lastValue) {
+					lastValue = input.value;
+					updateClearButton();
+				}
+			}, 100);
+		}
+		
+		function clearSearch() {
+			const input = document.getElementById('search-input');
+			const clearBtn = document.getElementById('clear-search');
+			input.value = '';
+			clearBtn.classList.add('hidden');
+			
+			// Directly trigger HTMX request with empty query
+			htmx.ajax('GET', '/filter?q=', {
+				target: '#restaurants-container',
+				swap: 'innerHTML'
+			});
+		}
+		
+		document.addEventListener('DOMContentLoaded', initClearButtonWatcher);
+	</script>
 }
