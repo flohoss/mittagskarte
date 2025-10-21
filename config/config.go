@@ -115,8 +115,8 @@ type Social struct {
 	Description string `mapstructure:"description"`
 }
 
-func matches(q, s string) bool {
-	return strings.Contains(strings.ToLower(s), strings.ToLower(q))
+func matchesLower(lowerFilter, s string) bool {
+	return strings.Contains(strings.ToLower(s), lowerFilter)
 }
 
 func matchesRestaurant(filter string, restaurant *Restaurant) bool {
@@ -124,16 +124,39 @@ func matchesRestaurant(filter string, restaurant *Restaurant) bool {
 		return true
 	}
 
+	// Convert filter to lowercase once for efficiency
+	lowerFilter := strings.ToLower(filter)
+
 	// Check restaurant name
-	if matches(filter, restaurant.Name) {
+	if matchesLower(lowerFilter, restaurant.Name) {
 		return true
 	}
 
 	// Check tags
 	for _, tag := range restaurant.Tags {
-		if matches(filter, tag) {
+		if matchesLower(lowerFilter, tag) {
 			return true
 		}
+	}
+
+	// Check group/city
+	if matchesLower(lowerFilter, restaurant.Group) {
+		return true
+	}
+
+	// Check address
+	if matchesLower(lowerFilter, restaurant.Address) {
+		return true
+	}
+
+	// Check URL (domain part)
+	if matchesLower(lowerFilter, restaurant.PageUrl) {
+		return true
+	}
+
+	// Check phone number
+	if matchesLower(lowerFilter, restaurant.Phone) {
+		return true
 	}
 
 	return false
