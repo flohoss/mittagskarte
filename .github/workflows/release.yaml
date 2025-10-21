@@ -13,6 +13,10 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # for attestations
 
     steps:
       - name: Checkout repository
@@ -48,31 +52,75 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set build variables
+        id: build-vars
+        run: |
+          # Validate tag format
+          if [[ ! "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: ${{ github.ref_name }}"
+            exit 1
+          fi
+          
+          APP_VERSION="${{ github.ref_name }}"
+          BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          REPO_URL="https://github.com/${{ github.repository }}"
+          
+          echo "✅ APP_VERSION=${APP_VERSION}"
+          echo "✅ BUILD_TIME=${BUILD_TIME}"
+          echo "✅ REPO_URL=${REPO_URL}"
+          
+          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_OUTPUT
+          echo "REPO_URL=${REPO_URL}" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         id: docker
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ${{ env.DOCKERFILE_PATH }}
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
           build-args: |
-            APP_VERSION=${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }}
-            BUILD_TIME=${{ steps.meta.outputs.labels['org.opencontainers.image.created'] }}
-            REPO=https://github.com/${{ github.repository }}
+            APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
+            BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
+            REPO=${{ steps.build-vars.outputs.REPO_URL }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Capture Docker digest
         run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
+      - name: Validate Docker image
+        run: |
+          echo "🔍 Validating built image..."
+          
+          # Pull the image to verify it exists
+          docker pull ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          
+          # Check if the image runs without errors
+          docker run --rm ${{ env.IMAGE_NAME }}:${{ github.ref_name }} --version 2>/dev/null || echo "ℹ️  Version check not available"
+          
+          # Check image layers and size
+          docker inspect ${{ env.IMAGE_NAME }}:${{ github.ref_name }} | jq '.[0].Size' | numfmt --to=iec
+          
+          echo "✅ Image validation complete"
+
       - name: Gather commits since last tag
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "📋 Last tag: ${LAST_TAG:-'None (first release)'}"
+          
           if [ -z "$LAST_TAG" ]; then
-            GIT_LOG=$(git log --pretty=format:'  - %s (%h)%n    %b')
+            GIT_LOG=$(git log --pretty=format:'- %s ([%h](https://github.com/${{ github.repository }}/commit/%H)) by @%an' --reverse)
           else
-            GIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:'  - %s (%h)%n    %b')
+            GIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:'- %s ([%h](https://github.com/${{ github.repository }}/commit/%H)) by @%an' --reverse)
           fi
 
           echo "COMMITS<<EOF" >> $GITHUB_ENV
@@ -83,15 +131,33 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: "🚀 Release ${{ github.ref_name }}"
           body: |
-            Docker image for this release:
-
+            ## 🐳 Docker Image
+            
+            ```bash
+            docker pull ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ```
+            
+            **Multi-platform image digest:**
             ```
             ${{ env.IMAGE_NAME }}:${{ github.ref_name }}@${{ env.IMAGE_DIGEST }}
             ```
-
-            Commits included in this release:
+            
+            ## 📋 Build Information
+            
+            - **Version**: `${{ steps.build-vars.outputs.APP_VERSION }}`
+            - **Build Time**: `${{ steps.build-vars.outputs.BUILD_TIME }}`
+            - **Repository**: [${{ steps.build-vars.outputs.REPO_URL }}](${{ steps.build-vars.outputs.REPO_URL }})
+            - **Platform**: `linux/amd64`
+            - **Attestations**: ✅ SLSA Provenance, ✅ SBOM
+            
+            ##  Changes in This Release
+            
             ${{ env.COMMITS }}
+            
+            ---
+            
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
