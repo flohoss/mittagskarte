@@ -22,21 +22,24 @@ templ Filter() {
 				spellcheck="false"
 				aria-describedby="search-help"
 			/>
-			<div id="search-loading" class="htmx-indicator">
-				<span class="loading loading-spinner loading-sm text-primary"></span>
+			<!-- Container for loading spinner and clear button -->
+			<div class="flex-shrink-0 relative w-6 h-6 flex items-center justify-center">
+				<div id="search-loading" class="htmx-indicator absolute">
+					<span class="loading loading-spinner loading-sm text-base-content"></span>
+				</div>
+				<button
+					type="button"
+					id="clear-search"
+					class="absolute p-1 rounded-full text-base-content/50 hover:text-base-content hover:bg-base-300/50 transition-all duration-200 hidden"
+					onclick="clearSearch()"
+					aria-label="Suche löschen"
+					title="Suche löschen"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+				</button>
 			</div>
-			<button
-				type="button"
-				id="clear-search"
-				class="flex-shrink-0 p-1 rounded-full text-base-content/50 hover:text-base-content hover:bg-base-300/50 transition-all duration-200 hidden"
-				onclick="clearSearch()"
-				aria-label="Suche löschen"
-				title="Suche löschen"
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-				</svg>
-			</button>
 		</div>
 		<div id="search-help" class="sr-only">
 			Suchen Sie nach Restaurantname, Küchenart oder Tags. Die Suche erfolgt automatisch während der Eingabe.
@@ -50,6 +53,7 @@ templ Filter() {
 				this.clearBtn = document.getElementById('clear-search');
 				this.lastValue = '';
 				this.debounceTimer = null;
+				this.isLoading = false;
 				
 				this.init();
 			}
@@ -67,6 +71,9 @@ templ Filter() {
 				
 				// Keyboard shortcuts
 				this.input.addEventListener('keydown', this.handleKeydown.bind(this));
+				
+				document.body.addEventListener('htmx:beforeRequest', this.handleLoadingStart.bind(this));
+				document.body.addEventListener('htmx:afterRequest', this.handleLoadingEnd.bind(this));
 				
 				// Handle browser back/forward navigation
 				window.addEventListener('popstate', this.handlePopState.bind(this));
@@ -111,11 +118,28 @@ templ Filter() {
 				}
 			}
 			
+			handleLoadingStart(event) {
+				// Only handle our search requests
+				if (event.detail.elt === this.input) {
+					this.isLoading = true;
+					this.updateClearButton();
+				}
+			}
+			
+			handleLoadingEnd(event) {
+				// Only handle our search requests
+				if (event.detail.elt === this.input) {
+					this.isLoading = false;
+					this.updateClearButton();
+				}
+			}
+			
 			updateClearButton() {
-				if (this.input.value.trim().length > 0) {
-					this.clearBtn.classList.remove('hidden');
-				} else {
+				// Hide clear button when loading or when input is empty
+				if (this.isLoading || this.input.value.trim().length === 0) {
 					this.clearBtn.classList.add('hidden');
+				} else {
+					this.clearBtn.classList.remove('hidden');
 				}
 			}
 			
