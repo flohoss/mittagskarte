@@ -1,6 +1,7 @@
 package views
 
 import (
+	"fmt"
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/views/components"
 )
@@ -11,25 +12,37 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 			for _, g := range groups {
 				<div class="grid gap-2">
 					if favApplied && g.Group != config.Favorites {
-						<div class={ "collapse bg-base-200 rounded-none sm:rounded-xl" }>
+						<div class={ "collapse bg-base-200 rounded-none sm:rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200" }>
 							<input
 								type="checkbox"
+								id={ "group-" + g.Group }
+								aria-label={ "Gruppe " + g.Group + " ein-/ausklappen" }
 								if filterApplied || openGroup == g.Group {
 									checked
 								}
 							/>
-							<div class="collapse-title font-semibold">{ g.Group }</div>
-							<div class="collapse-content text-sm">
-								<div class="card-grid">
-									for _, r := range g.Restaurants {
-										@components.Card(&g, r)
-									}
+							<div class="collapse-title font-semibold text-base-content/90 hover:text-base-content transition-colors duration-200">
+								<span class="flex items-center gap-2">
+									<span>{ g.Group }</span>
+									<span class="text-xs opacity-60 font-normal">({ fmt.Sprintf("%d", len(g.Restaurants)) })</span>
+								</span>
+							</div>
+							<div class="collapse-content">
+								<div class="pt-2">
+									<div class="card-grid">
+										for _, r := range g.Restaurants {
+											@components.Card(&g, r)
+										}
+									</div>
 								</div>
 							</div>
 						</div>
 					} else {
 						if g.Group != config.Favorites {
-							<div class="text-sm opacity-75 tracking-wide pl-5">{ g.Group }</div>
+							<div class="text-sm opacity-75 tracking-wide pl-5 font-medium text-base-content/80 flex items-center gap-2">
+								<span>{ g.Group }</span>
+								<span class="text-xs opacity-60">({ fmt.Sprintf("%d", len(g.Restaurants)) })</span>
+							</div>
 						}
 						<div class="px-4 card-grid">
 							for _, r := range g.Restaurants {
@@ -39,12 +52,26 @@ templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied b
 					}
 				</div>
 				if g.Group == config.Favorites {
-					<div class="my-4"></div>
+					<div class="divider my-6">
+						<span class="text-sm text-base-content/60 font-medium">Alle Restaurants</span>
+					</div>
 				}
 			}
 		</div>
 	} else {
-		<div class="flex justify-center">Keine Restaurants gefunden...</div>
+		<div class="flex flex-col items-center justify-center py-16 px-4">
+			<div class="text-center space-y-4">
+				<div class="w-16 h-16 mx-auto mb-4 opacity-30">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+					</svg>
+				</div>
+				<h3 class="text-lg font-semibold text-base-content/80">Keine Restaurants gefunden</h3>
+				<p class="text-sm text-base-content/60 max-w-md">
+					Versuchen Sie, Ihre Suchkriterien anzupassen oder entfernen Sie einige Filter, um mehr Ergebnisse zu erhalten.
+				</p>
+			</div>
+		</div>
 	}
 }
 
@@ -52,6 +79,8 @@ templ HomeIndex(
 	cmp templ.Component,
 ) {
 	@Base("", true) {
-		@cmp
+		<main role="main" class="container mx-auto">
+			@cmp
+		</main>
 	}
 }

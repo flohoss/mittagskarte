@@ -1,78 +1,159 @@
 package components
 
 templ Filter() {
-	<label class="input w-full lg:w-100 rounded-xl relative">
-		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-			<path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
-		</svg>
-		<input
-			type="search"
-			name="q"
-			id="search-input"
-			class="grow pr-8"
-			placeholder="Gebe einen Suchbegriff ein"
-			hx-get="/filter"
-			hx-trigger="keyup changed delay:200ms"
-			hx-target="#restaurants-container"
-			hx-swap="innerHTML"
-			autocomplete="off"
-		/>
-		<button
-			type="button"
-			id="clear-search"
-			class="absolute right-2 top-1/2 transform -translate-y-1/2 text-base-content/50 hover:text-base-content hidden"
-			onclick="clearSearch()"
-			title="Suche löschen"
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-				<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+	<div class="relative w-full lg:w-100">
+		<label for="search-input" class="sr-only">Restaurant suchen</label>
+		<div class="input w-full rounded-xl relative flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200">
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-base-content/60 flex-shrink-0">
+				<path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
 			</svg>
-		</button>
-	</label>
+			<input
+				type="search"
+				name="q"
+				id="search-input"
+				class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
+				placeholder="Restaurant, Küche oder Tags suchen..."
+				hx-get="/filter"
+				hx-trigger="keyup changed delay:300ms"
+				hx-target="#restaurants-container"
+				hx-swap="innerHTML"
+				hx-indicator="#search-loading"
+				autocomplete="off"
+				spellcheck="false"
+				aria-describedby="search-help"
+			/>
+			<div id="search-loading" class="htmx-indicator">
+				<span class="loading loading-spinner loading-sm text-primary"></span>
+			</div>
+			<button
+				type="button"
+				id="clear-search"
+				class="flex-shrink-0 p-1 rounded-full text-base-content/50 hover:text-base-content hover:bg-base-300/50 transition-all duration-200 hidden"
+				onclick="clearSearch()"
+				aria-label="Suche löschen"
+				title="Suche löschen"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		</div>
+		<div id="search-help" class="sr-only">
+			Suchen Sie nach Restaurantname, Küchenart oder Tags. Die Suche erfolgt automatisch während der Eingabe.
+		</div>
+	</div>
 	<script>
-		function initClearButtonWatcher() {
-			const input = document.getElementById('search-input');
-			const clearBtn = document.getElementById('clear-search');
+		// Search functionality with performance optimizations
+		class SearchManager {
+			constructor() {
+				this.input = document.getElementById('search-input');
+				this.clearBtn = document.getElementById('clear-search');
+				this.lastValue = '';
+				this.debounceTimer = null;
+				
+				this.init();
+			}
 			
-			function updateClearButton() {
-				if (input.value.length > 0) {
-					clearBtn.classList.remove('hidden');
-				} else {
-					clearBtn.classList.add('hidden');
+			init() {
+				if (!this.input || !this.clearBtn) return;
+				
+				// Initial state
+				this.updateClearButton();
+				
+				// Event listeners
+				this.input.addEventListener('input', this.handleInput.bind(this));
+				this.input.addEventListener('focus', this.handleFocus.bind(this));
+				this.input.addEventListener('blur', this.handleBlur.bind(this));
+				
+				// Keyboard shortcuts
+				this.input.addEventListener('keydown', this.handleKeydown.bind(this));
+				
+				// Handle browser back/forward navigation
+				window.addEventListener('popstate', this.handlePopState.bind(this));
+			}
+			
+			handleInput() {
+				this.updateClearButton();
+				this.lastValue = this.input.value;
+			}
+			
+			handleFocus() {
+				this.input.parentElement.classList.add('ring-2', 'ring-primary/20');
+			}
+			
+			handleBlur() {
+				this.input.parentElement.classList.remove('ring-2', 'ring-primary/20');
+			}
+			
+			handleKeydown(e) {
+				// ESC key clears search
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					this.clearSearch();
+					this.input.blur();
+				}
+				
+				// Ctrl/Cmd + K focuses search (common shortcut)
+				if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+					e.preventDefault();
+					this.input.focus();
+					this.input.select();
 				}
 			}
 			
-			updateClearButton();
-			
-			input.addEventListener('input', updateClearButton);
-			const observer = new MutationObserver(updateClearButton);
-			observer.observe(input, { 
-				attributes: true, 
-				attributeFilter: ['value'] 
-			});
-			
-			let lastValue = input.value;
-			setInterval(() => {
-				if (input.value !== lastValue) {
-					lastValue = input.value;
-					updateClearButton();
+			handlePopState() {
+				// Update search when navigating back/forward
+				const urlParams = new URLSearchParams(window.location.search);
+				const query = urlParams.get('q') || '';
+				if (this.input.value !== query) {
+					this.input.value = query;
+					this.updateClearButton();
 				}
-			}, 100);
-		}
-		
-		function clearSearch() {
-			const input = document.getElementById('search-input');
-			const clearBtn = document.getElementById('clear-search');
-			input.value = '';
-			clearBtn.classList.add('hidden');
+			}
 			
-			// Directly trigger HTMX request with empty query
-			htmx.ajax('GET', '/filter?q=', {
-				target: '#restaurants-container',
-				swap: 'innerHTML'
-			});
+			updateClearButton() {
+				if (this.input.value.trim().length > 0) {
+					this.clearBtn.classList.remove('hidden');
+				} else {
+					this.clearBtn.classList.add('hidden');
+				}
+			}
+			
+			clearSearch() {
+				this.input.value = '';
+				this.clearBtn.classList.add('hidden');
+				this.input.focus();
+				
+				// Trigger HTMX request with empty query
+				htmx.ajax('GET', '/filter?q=', {
+					target: '#restaurants-container',
+					swap: 'innerHTML'
+				});
+				
+				// Update URL without query parameter
+				const url = new URL(window.location);
+				url.searchParams.delete('q');
+				window.history.replaceState({}, '', url);
+			}
 		}
 		
-		document.addEventListener('DOMContentLoaded', initClearButtonWatcher);
+		// Global function for onclick handler
+		function clearSearch() {
+			if (window.searchManager) {
+				window.searchManager.clearSearch();
+			}
+		}
+		
+		// Initialize when DOM is ready
+		document.addEventListener('DOMContentLoaded', () => {
+			window.searchManager = new SearchManager();
+		});
+		
+		// Re-initialize after HTMX swaps (for SPA-like behavior)
+		document.body.addEventListener('htmx:afterSwap', () => {
+			if (document.getElementById('search-input')) {
+				window.searchManager = new SearchManager();
+			}
+		});
 	</script>
 }
