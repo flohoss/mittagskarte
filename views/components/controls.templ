@@ -55,7 +55,7 @@ templ Controls(r *config.Restaurant) {
 					onmouseleave={ templ.JSFuncCall("hideTooltip", "tooltip_menu_"+r.ID) }
 					aria-label="Menü anzeigen"
 				>
-					<span class="icon-[heroicons--document] btn-icon"></span>
+					<span class="icon-[heroicons--document-text] btn-icon"></span>
 				</a>
 				<div
 					id={ "tooltip_menu_" + r.ID }
