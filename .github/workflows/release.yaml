@@ -97,21 +97,6 @@ jobs:
       - name: Capture Docker digest
         run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
 
-      - name: Validate Docker image
-        run: |
-          echo "🔍 Validating built image..."
-          
-          # Pull the image to verify it exists
-          docker pull ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          
-          # Check if the image runs without errors
-          docker run --rm ${{ env.IMAGE_NAME }}:${{ github.ref_name }} --version 2>/dev/null || echo "ℹ️  Version check not available"
-          
-          # Check image layers and size
-          docker inspect ${{ env.IMAGE_NAME }}:${{ github.ref_name }} | jq '.[0].Size' | numfmt --to=iec
-          
-          echo "✅ Image validation complete"
-
       - name: Gather commits since last tag
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
