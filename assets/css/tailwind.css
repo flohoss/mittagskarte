@@ -24,6 +24,10 @@
 
 @utility btn {
   @apply rounded-r-lg rounded-l-lg shadow-none hover:shadow-none;
+  
+  &:active:not(.btn-active) {
+    translate: none !important;
+  }
 }
 
 @utility btn-icon {
