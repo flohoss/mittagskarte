@@ -7,12 +7,13 @@ Open-source project for [Schniddzl.de](https://schniddzl.de), fetching and displ
 ## Table of Contents
 
 1. [Deployment](#deployment)
-2. [How It Works](#how-it-works)
-   - [Configuration](#configuration)
-   - [Examples](#examples)
-   - [Dynamic Dates in Selectors](#dynamic-dates-in-selectors)
-
-3. [Development](#development)
+2. [Health Check](#health-check)
+3. [How It Works](#how-it-works)
+4. [Configuration](#configuration)
+5. [Examples](#examples)
+6. [Dynamic Dates in Selectors](#dynamic-dates-in-selectors)
+7. [Thumbnails](#thumbnails)
+8. [Development](#development)
    - [Run Locally with Docker Compose](#run-locally-with-docker-compose)
    - [Update Dependencies](#update-dependencies)
 
@@ -33,8 +34,16 @@ services:
     volumes:
       - ./config:/app/config
     ports:
-      - "8156:8156"
+      - '8156:8156'
 ```
+
+---
+
+## Health Check
+
+**`GET /health`** or **`HEAD /health`**
+
+Returns `200 OK` with a simple response body (`.`) to indicate the application is running.
 
 ---
 
@@ -85,48 +94,48 @@ See `config/config.yaml` for a full example.
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,3"
-  direct_download: "https://davvero-stuttgart.de/download/mittagskarte.pdf"
-  file_type: "pdf"
+  update_cron: '30 9,10 * * 1,3'
+  direct_download: 'https://davvero-stuttgart.de/download/mittagskarte.pdf'
+  file_type: 'pdf'
 ```
 
 **Image download via CSS selector**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,2"
+  update_cron: '30 9,10 * * 1,2'
   navigate:
-    - locator: ".et_pb_image_1 > span:nth-child(1) > img:nth-child(1)"
-      attribute: "src"
-  file_type: "image"
+    - locator: '.et_pb_image_1 > span:nth-child(1) > img:nth-child(1)'
+      attribute: 'src'
+  file_type: 'image'
 ```
 
 **HTML scraping**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 * * 1,4"
+  update_cron: '30 9,10 * * 1,4'
   navigate:
-    - locator: "p.paragraph-mittagstisch-right-corona"
-      style: ".w-nav { display: none !important; }"
+    - locator: 'p.paragraph-mittagstisch-right-corona'
+      style: '.w-nav { display: none !important; }'
 ```
 
 **PDF link via XPath**
 
 ```yaml
 parse:
-  update_cron: "30 9,10 1-3 * *"
+  update_cron: '30 9,10 1-3 * *'
   navigate:
     - locator: "//a[contains(text(), 'Mittagstisch')]"
-  file_type: "pdf"
+  file_type: 'pdf'
 ```
 
 All `navigate` steps use:
 
 ```yaml
-- locator: "<CSS or XPath selector>"
-  attribute: "<optional HTML attribute to fetch>"
-  style: "<optional CSS to hide unwanted elements>"
+- locator: '<CSS or XPath selector>'
+  attribute: '<optional HTML attribute to fetch>'
+  style: '<optional CSS to hide unwanted elements>'
 ```
 
 ---
@@ -146,7 +155,7 @@ Use `{{date(...)}}` to match menus dynamically.
 **Example:**
 
 ```yaml
-"locator": "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
+'locator': "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
 ```
 
 ## Thumbnails
