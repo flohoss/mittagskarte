@@ -1,40 +1,74 @@
+function getButtonElements(button) {
+  return {
+    button,
+    spinner: button.firstChild,
+    icon: button.lastChild
+  };
+}
+
+function setButtonLoadingState(elements, isLoading) {
+  elements.button.disabled = isLoading;
+
+  if (isLoading) {
+    elements.spinner.classList.remove("hidden");
+    elements.icon.classList.add("hidden");
+  } else {
+    elements.spinner.classList.add("hidden");
+    elements.icon.classList.remove("hidden");
+  }
+}
+
+function createToastElement(isError, message) {
+  const toast = document.createElement("div");
+  const alertType = isError ? "alert-error" : "alert-info";
+  toast.className = `alert ${alertType} rounded-lg`;
+  toast.innerHTML = `<span>${message}</span>`;
+  return toast;
+}
+
+function addToastToContainer(toast) {
+  const container = document.getElementById("toast-container");
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}
+
+function parseServerResponse(responseText) {
+  try {
+    return JSON.parse(responseText || "");
+  } catch {
+    return null;
+  }
+}
+
+function isErrorResponse(status) {
+  return status >= 300;
+}
+
+function hasErrorMessage(parsedResponse) {
+  return parsedResponse && parsedResponse.message;
+}
+
 function startUpdate(event) {
-  const button = event.target;
-  const spinner = event.target.firstChild;
-  const icon = event.target.lastChild;
-  button.disabled = true;
-  spinner.classList.remove("hidden");
-  icon.classList.add("hidden");
+  const elements = getButtonElements(event.target);
+  setButtonLoadingState(elements, true);
 }
 
 function stopUpdate(event) {
   handleResponse(event);
-  const button = event.target;
-  const spinner = event.target.firstChild;
-  const icon = event.target.lastChild;
-  button.disabled = false;
-  spinner.classList.add("hidden");
-  icon.classList.remove("hidden");
+  const elements = getButtonElements(event.target);
+  setButtonLoadingState(elements, false);
 }
 
 function showToast(isError, message) {
-  const toast = document.createElement("div");
-  toast.className =
-    (isError ? "alert alert-error" : "alert alert-info") + " rounded-lg";
-  toast.innerHTML = `<span>${message}</span>`;
-
-  const container = document.getElementById("toast-container");
-  container.appendChild(toast);
-
-  setTimeout(() => toast.remove(), 5000);
+  const toast = createToastElement(isError, message);
+  addToastToContainer(toast);
 }
 
 function handleResponse(event) {
   const xhr = event.detail.xhr;
-  const serverMessage = xhr.responseText || "";
-  const msg = JSON.parse(serverMessage);
+  const parsedResponse = parseServerResponse(xhr.responseText);
 
-  if (xhr.status >= 300 && msg && msg.message) {
-    showToast(true, msg.message);
+  if (isErrorResponse(xhr.status) && hasErrorMessage(parsedResponse)) {
+    showToast(true, parsedResponse.message);
   }
 }
