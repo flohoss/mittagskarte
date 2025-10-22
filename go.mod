@@ -7,6 +7,7 @@ require (
 	github.com/chai2010/webp v1.4.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/go-fitz v1.24.15
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/goodsign/monday v1.0.2
 	github.com/labstack/echo/v4 v4.13.4
@@ -22,7 +23,6 @@ require (
 	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
 	github.com/ebitengine/purego v0.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
-	github.com/go-chi/chi/v5 v5.2.3 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

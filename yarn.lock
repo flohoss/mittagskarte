@@ -359,7 +359,7 @@ confbox@^0.2.2:
   resolved "https://registry.yarnpkg.com/confbox/-/confbox-0.2.2.tgz#8652f53961c74d9e081784beed78555974a9c110"
   integrity sha512-1NB+BKqhtNipMsov4xI/NnhCKp9XG9NamYp5PVm9klAT0fsrNPjaFICsCFhNhwZJKNh7zB/3q8qXz0E9oaMNtQ==
 
-daisyui@^5.3.4:
+daisyui@^5.3.7:
   version "5.3.7"
   resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.3.7.tgz#9dd8c8fc773e5cac60deb6ebeffd51ef75702a0f"
   integrity sha512-0+8PaSGift0HlIQABCeZzWOBV5Nx/vsI2TihB9hbaEyZENPlZZz+se2JnAH5rz9gBYTyDLB7NJup8hkREr6WBw==
