@@ -7,6 +7,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/views"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
@@ -25,6 +26,8 @@ func render(c echo.Context, cmp templ.Component) error {
 }
 
 func SetupRouter(e *echo.Echo, mh *MittagHandler) {
+	e.Use(echo.WrapMiddleware(chimiddleware.Heartbeat("/health")))
+
 	assets := e.Group("/assets", longCacheLifetime)
 	assets.Static("/", "assets")
 
