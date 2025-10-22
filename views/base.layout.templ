@@ -12,23 +12,12 @@ var appVersion string
 func init() {
 	appVersion = os.Getenv("APP_VERSION")
 	if appVersion == "" {
-		appVersion = os.Getenv("VERSION")
-	}
-	if appVersion == "" {
-		// Use build time as fallback for cache busting
 		appVersion = time.Now().Format("20060102150405")
 	}
 }
 
 func appendVersionQuery(url string) string {
 	return url + "?v=" + appVersion
-}
-
-func getLogoClass(searchBar bool) string {
-	if searchBar {
-		return "hidden md:flex md:navbar-start"
-	}
-	return "navbar-start"
 }
 
 templ Base(title string, searchBar bool) {
@@ -83,25 +72,37 @@ templ Base(title string, searchBar bool) {
 				Zum Hauptinhalt springen
 			</a>
 			<header class="bg-base-200">
-				<div class="navbar container px-4 lg:px-6">
-					<div class={ getLogoClass(searchBar) }>
-						<a href="/" class="flex items-center gap-2 min-w-0">
-							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10 flex-shrink-0"/>
-							<div class="font-light font-stretch-semi-expanded min-w-0">
-								<div class="text-xl font-semibold truncate">{ meta.Title }</div>
-								<div class="text-xs truncate">{ meta.Description }</div>
-							</div>
-						</a>
-					</div>
+				<div class="container px-4 md:px-6">
 					if searchBar {
-						<div class="md:navbar-end w-full">
-							@components.Filter()
+						<div class="flex items-center gap-4 md:justify-between py-4">
+							<a href="/" class="flex items-center gap-2 flex-shrink-0">
+								<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
+								<div class="font-light font-stretch-semi-expanded min-w-0 hidden md:block">
+									<div class="text-xl font-semibold truncate">{ meta.Title }</div>
+									<div class="text-xs truncate">{ meta.Description }</div>
+								</div>
+							</a>
+							<div class="flex-1 md:flex-initial md:max-w-md">
+								@components.Filter()
+							</div>
+						</div>
+					} else {
+						<div class="navbar">
+							<div class="navbar-start">
+								<a href="/" class="flex items-center gap-2 min-w-0">
+									<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10 flex-shrink-0"/>
+									<div class="font-light font-stretch-semi-expanded min-w-0">
+										<div class="text-xl font-semibold truncate">{ meta.Title }</div>
+										<div class="text-xs truncate">{ meta.Description }</div>
+									</div>
+								</a>
+							</div>
 						</div>
 					}
 				</div>
 			</header>
-			<main id="main-content" class="container my-5 lg:my-10 flex-grow" role="main">
-				<div id="display-helper" class="hidden lg:block" aria-hidden="true"></div>
+			<main id="main-content" class="container my-5 md:my-10 flex-grow" role="main">
+				<div id="display-helper" class="hidden md:block" aria-hidden="true"></div>
 				{ children... }
 			</main>
 			<footer class="bg-base-200 text-base-content p-5">
