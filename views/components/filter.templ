@@ -46,14 +46,18 @@ templ Filter() {
 			});
 
             // Clear search on Escape
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    input.value = '';
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                    input.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
-                }
-            });
+			input.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					input.value = '';
+					// Explicitly trigger HTMX request for empty query
+					if (window.htmx) {
+						htmx.ajax('GET', '/filter?q=', {
+							target: '#restaurants-container',
+							swap: 'innerHTML'
+						});
+					}
+				}
+			});
 			
 			// Handle browser back/forward navigation
 			window.addEventListener('popstate', () => {
