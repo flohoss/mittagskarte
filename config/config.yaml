@@ -217,6 +217,16 @@ restaurants:
         - locator: "//div[@class='elementor-widget-container']"
           style: '#masthead { display: none !important; }'
 
+  koebaplounge:
+    name: 'KÖbap Lounge 187'
+    tags: ['Döner', 'Pizza']
+    url: 'https://www.instagram.com/kobap_lounge'
+    address: 'Imanuel-Maier-Straße 2, 73257 Köngen'
+    phone: '+497024 9620386'
+    rest_days:
+      - 'Sunday'
+    group: 'Köngen'
+
   lunica:
     name: "L'unica"
     tags: ['Italienisch', 'Pizza', 'Pasta']
@@ -374,3 +384,13 @@ restaurants:
           attribute: 'href'
           style: '.collapse:not(.show) { display: block !important; }'
       file_type: 'pdf'
+
+  zen:
+    name: 'Zen'
+    tags: ['Asiatisch', 'Fusionfood']
+    url: 'https://www.zenasia.de/'
+    address: 'Imanuel-Maier-Straße 2, 73257 Köngen'
+    phone: '+497024 4095564'
+    rest_days:
+      - 'Sunday'
+    group: 'Köngen'
