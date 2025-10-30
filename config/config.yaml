@@ -67,7 +67,7 @@ restaurants:
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
-        - locator: '#peehzr'
+        - locator: "//div[contains(concat(' ', normalize-space(@class), ' '), ' sp-text-wrapper ') and contains(., 'Mittagstisch')]"
 
   davvero:
     name: 'Davvero'
