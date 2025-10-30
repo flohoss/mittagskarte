@@ -57,7 +57,7 @@ jobs:
         run: |
           # Validate tag format
           if [[ ! "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid tag format: ${{ github.ref_name }}"
+            echo "Invalid tag format: ${{ github.ref_name }}"
             exit 1
           fi
 
@@ -65,9 +65,9 @@ jobs:
           BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           REPO_URL="https://github.com/${{ github.repository }}"
 
-          echo "✅ APP_VERSION=${APP_VERSION}"
-          echo "✅ BUILD_TIME=${BUILD_TIME}"
-          echo "✅ REPO_URL=${REPO_URL}"
+          echo "APP_VERSION=${APP_VERSION}"
+          echo "BUILD_TIME=${BUILD_TIME}"
+          echo "REPO_URL=${REPO_URL}"
 
           echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_OUTPUT
           echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_OUTPUT
@@ -100,17 +100,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          echo "📋 Last tag: ${LAST_TAG:-'None (first release)'}"
-          
+          echo "Last tag: ${LAST_TAG:-'None (first release)'}"
+
           # Get commits using GitHub API
           ENDPOINT="/repos/${{ github.repository }}/compare/${LAST_TAG:-$(git rev-list --max-parents=0 HEAD)}...HEAD"
-          
+
           gh api "$ENDPOINT" --jq '.commits[]? | "- \(.commit.message | split("\n")[0]) ([\(.sha[0:7])](https://github.com/${{ github.repository }}/commit/\(.sha))) by @\(.author.login // .commit.author.name)"' > /tmp/commits.txt
 
           echo "COMMITS<<EOF" >> $GITHUB_ENV
           cat /tmp/commits.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          
+
           # Set the previous tag for changelog link
           echo "PREVIOUS_TAG=${LAST_TAG}" >> $GITHUB_ENV
 
@@ -118,9 +118,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: '🚀 Release ${{ github.ref_name }}'
+          name: 'Release ${{ github.ref_name }}'
           body: |
-            ## 🐳 Docker Image
+            ## Docker Image
 
             ```bash
             docker pull ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
@@ -131,13 +131,13 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ github.ref_name }}@${{ env.IMAGE_DIGEST }}
             ```
 
-            ## 📋 Build Information
+            ## Build Information
 
             - **Version**: `${{ steps.build-vars.outputs.APP_VERSION }}`
             - **Build Time**: `${{ steps.build-vars.outputs.BUILD_TIME }}`
             - **Repository**: [${{ steps.build-vars.outputs.REPO_URL }}](${{ steps.build-vars.outputs.REPO_URL }})
             - **Platform**: `linux/amd64`
-            - **Attestations**: ✅ SLSA Provenance, ✅ SBOM
+            - **Attestations**: SLSA Provenance, SBOM
 
             ##  Changes in This Release
 
