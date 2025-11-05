@@ -197,6 +197,7 @@ background-image: url(/thumbnails/sw34.webp);
 ### Run Locally with Docker Compose
 
 ```bash
+docker compose run --rm yarn install --frozen-lockfile
 docker compose up --build --force-recreate
 ```
 
@@ -206,11 +207,15 @@ Go to http://localhost:7331 to view the app.
 
 ### Update Dependencies
 
-```bash
-# Node packages
-docker compose run --rm yarn upgrade --latest
+#### Node packages
 
-# Go packages
+```sh
+docker compose run --rm yarn upgrade --latest
+```
+
+#### Go modules
+
+```sh
 docker compose run --rm go get -u && go mod tidy
 ```
 

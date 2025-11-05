@@ -30,7 +30,6 @@ COPY ./go.mod .
 COPY ./go.sum .
 RUN go mod download
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --network-timeout 30000 --silent
-
 COPY --from=logo /app/logo.txt /logo.txt
+
+ENTRYPOINT [ "/app/docker/dev.entrypoint.sh" ]
