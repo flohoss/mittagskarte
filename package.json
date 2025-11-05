@@ -21,5 +21,9 @@
     "bracketSpacing": true,
     "arrowParens": "always",
     "printWidth": 160
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
+    "htmx.org": "^2.0.8"
   }
 }
