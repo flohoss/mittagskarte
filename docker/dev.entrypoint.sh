@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+mkdir -p /app/assets/js
+
 cp /app/node_modules/htmx.org/dist/htmx.min.js /app/assets/js/htmx.min.js
 
 cp /app/node_modules/@floating-ui/core/dist/floating-ui.core.umd.min.js /app/assets/js/floating-ui.core.umd.min.js
