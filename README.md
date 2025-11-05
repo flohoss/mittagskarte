@@ -212,3 +212,9 @@ docker compose run --rm node yarn upgrade --latest
 # Go packages
 docker compose run --rm backend go get -u && go mod tidy
 ```
+
+### Build release
+
+```sh
+docker build --platform=linux/amd64 -f docker/dockerfile -t mittagskarte .
+```
