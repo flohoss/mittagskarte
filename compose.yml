@@ -4,8 +4,6 @@ services:
       context: .
       dockerfile: docker/dev.dockerfile
     platform: linux/amd64
-    working_dir: /app
-    entrypoint: /app/docker/dev.entrypoint.sh
     environment:
       - APP_DESCRIPTION=deine Mittagskarte für die Region Stuttgart
       - APP_TITLE=Schniddzl.de
@@ -17,7 +15,7 @@ services:
   tailwind:
     image: node:lts-alpine
     working_dir: /app
-    command: sh -c "yarn install && yarn tw:dev"
+    command: yarn tw:dev
     tty: true
     volumes:
       - .:/app/
