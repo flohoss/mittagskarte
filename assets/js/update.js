@@ -1,15 +1,15 @@
 function getButtonElements(target) {
   // If target is a form, find the submit button
   const button = target.tagName === 'FORM' ? target.querySelector('[type="submit"]') : target;
-  
+
   // Find spinner and icon by their classes
   const spinner = button.querySelector('.loading-spinner');
   const icon = button.querySelector('.icon-\\[heroicons--arrow-path\\], .icon-\\[heroicons--arrow-up-tray\\]');
-  
+
   return {
     button,
     spinner,
-    icon
+    icon,
   };
 }
 
@@ -17,31 +17,31 @@ function setButtonLoadingState(elements, isLoading) {
   elements.button.disabled = isLoading;
 
   if (isLoading) {
-    elements.spinner.classList.remove("hidden");
-    elements.icon.classList.add("hidden");
+    elements.spinner.classList.remove('hidden');
+    elements.icon.classList.add('hidden');
   } else {
-    elements.spinner.classList.add("hidden");
-    elements.icon.classList.remove("hidden");
+    elements.spinner.classList.add('hidden');
+    elements.icon.classList.remove('hidden');
   }
 }
 
 function createToastElement(isError, message) {
-  const toast = document.createElement("div");
-  const alertType = isError ? "alert-error" : "alert-info";
+  const toast = document.createElement('div');
+  const alertType = isError ? 'alert-error' : 'alert-info';
   toast.className = `alert ${alertType} rounded-lg`;
   toast.innerHTML = `<span>${message}</span>`;
   return toast;
 }
 
 function addToastToContainer(toast) {
-  const container = document.getElementById("toast-container");
+  const container = document.getElementById('toast-container');
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 5000);
 }
 
 function parseServerResponse(responseText) {
   try {
-    return JSON.parse(responseText || "");
+    return JSON.parse(responseText || '');
   } catch {
     return null;
   }
@@ -59,6 +59,18 @@ function startUpdate(event) {
   const elements = getButtonElements(event.target);
   setButtonLoadingState(elements, true);
 }
+
+document.addEventListener('htmx:configRequest', function (event) {
+  const path = event.detail.path;
+  if (path.includes('/update/') || path.includes('/upload/')) {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      const query = searchInput.value || '';
+      const separator = path.includes('?') ? '&' : '?';
+      event.detail.path = path + separator + 'q=' + encodeURIComponent(query);
+    }
+  }
+});
 
 function stopUpdate(event) {
   handleResponse(event);
