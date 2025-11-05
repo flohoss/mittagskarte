@@ -5,7 +5,6 @@ go 1.25
 require (
 	github.com/a-h/templ v0.3.960
 	github.com/chai2010/webp v1.4.0
-	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/go-fitz v1.24.15
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-playground/validator/v10 v10.28.0
@@ -22,6 +21,7 @@ require (
 require (
 	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
 	github.com/ebitengine/purego v0.9.1 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.11 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/flohoss/mittagskarte/internal/hash"
-	"github.com/fsnotify/fsnotify"
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 )
@@ -218,39 +217,6 @@ func New() {
 		slog.Error("Initial configuration validation failed", "error", err)
 		os.Exit(1)
 	}
-
-	setupViperWatcher()
-}
-
-func setupViperWatcher() {
-	var (
-		mu    sync.Mutex
-		timer *time.Timer
-	)
-
-	debounce := func(d time.Duration, fn func()) {
-		mu.Lock()
-		defer mu.Unlock()
-
-		if timer != nil {
-			timer.Stop()
-		}
-		timer = time.AfterFunc(d, fn)
-	}
-
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		debounce(2*time.Second, func() {
-			slog.Info("Config changed, reloading")
-			err := ValidateAndLoadConfig(viper.GetViper())
-			if err != nil {
-				slog.Error("Failed to reload configuration, keeping old settings", "error", err)
-				return
-			}
-			slog.Info("Config reloaded successfully")
-		})
-	})
-
-	viper.WatchConfig()
 }
 
 func ValidateAndLoadConfig(v *viper.Viper) error {
