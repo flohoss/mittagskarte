@@ -10,6 +10,7 @@ templ Filter() {
 				name="q"
 				id="search-input"
 				class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
+				placeholder="Restaurant suchen..."
 				hx-get="/filter"
 				hx-trigger="input delay:200ms"
 				hx-target="#restaurants-container"
@@ -34,20 +35,6 @@ templ Filter() {
 				} else {
 					shortcut.innerHTML = '<span class="me-1">Ctrl</span>K';
 				}
-			}
-
-			// Responsive placeholder
-			const input = document.getElementById('search-input');
-			if (input) {
-				const setPlaceholder = () => {
-					if (window.innerWidth < 1024) {
-						input.placeholder = 'Restaurant suchen...';
-					} else {
-						input.placeholder = 'Restaurantname, Tags oder Ort suchen...';
-					}
-				};
-				setPlaceholder();
-				window.addEventListener('resize', setPlaceholder);
 			}
 		});
 		// Simple search focus management
