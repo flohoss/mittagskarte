@@ -62,11 +62,11 @@ templ Controls(r *config.Restaurant) {
 					class="hidden absolute z-50 p-2 rounded-lg bg-base-100 shadow-xl border border-base-300 max-h-screen overflow-y-auto"
 					style="will-change: transform; -webkit-transform: translateZ(0);"
 				>
-					<img 
-						height={ r.Menu.Height } 
-						width={ r.Menu.Width } 
-						src={ templ.URL(r.Menu.URL) } 
-						alt={ "Menü von " + r.Name } 
+					<img
+						height={ r.Menu.Height }
+						width={ r.Menu.Width }
+						src={ templ.URL(r.Menu.URL) }
+						alt={ "Menü von " + r.Name }
 						class={ "object-contain w-auto", imgClass(&r.Menu) }
 						loading="lazy"
 					/>
@@ -98,9 +98,9 @@ templ Controls(r *config.Restaurant) {
 				<span class="icon-[heroicons--arrow-up-tray] btn-icon"></span>
 			</button>
 		}
-		<a 
-			href={ templ.URL("https://www.google.com/maps/search/?api=1&query=" + r.Address) } 
-			target="_blank" 
+		<a
+			href={ templ.URL("https://www.google.com/maps/search/?api=1&query=" + r.Address) }
+			target="_blank"
 			rel="noopener noreferrer"
 			class="my-btn btn-neutral hover:btn-primary transition-colors duration-200"
 			title="Navigieren"
@@ -108,17 +108,17 @@ templ Controls(r *config.Restaurant) {
 		>
 			<span class="icon-[heroicons--map] btn-icon"></span>
 		</a>
-		<a 
-			href={ templ.URL("tel:" + r.Phone) } 
+		<a
+			href={ templ.URL("tel:" + r.Phone) }
 			class="my-btn btn-neutral hover:btn-success transition-colors duration-200"
 			title="Anrufen"
 			aria-label={ "Anrufen: " + r.Phone }
 		>
 			<span class="icon-[heroicons--phone] btn-icon"></span>
 		</a>
-		<a 
-			href={ templ.URL(r.PageUrl) } 
-			target="_blank" 
+		<a
+			href={ templ.URL(r.PageUrl) }
+			target="_blank"
 			rel="noopener noreferrer"
 			class="my-btn btn-neutral hover:btn-info transition-colors duration-200"
 			title="Webseite"
@@ -130,44 +130,60 @@ templ Controls(r *config.Restaurant) {
 	if r.Parse.UpdateCron == "" {
 		<dialog id={ getModalID(r, "upload") } class="modal">
 			<div class="modal-box max-w-md">
-				<form action={ templ.URL("/upload/" + r.ID) } method="post" enctype="multipart/form-data" class="space-y-4">
+				<form
+					action="#"
+					hx-post={ templ.URL("/upload/" + r.ID) }
+					enctype="multipart/form-data"
+					class="space-y-4"
+					hx-target="#restaurants-container"
+					hx-swap="innerHTML"
+					hx-on::before-request={ templ.JSFuncCall("startUpdate", templ.JSExpression("event")) }
+					hx-on::after-request={ templ.JSFuncCall("stopUpdate", templ.JSExpression("event")) }
+				>
 					<div class="mb-4">
 						<h3 class="font-bold text-lg mb-2">Menü für { r.Name } hochladen</h3>
 						<p class="text-sm text-base-content/70">Laden Sie ein neues Menü für dieses Restaurant hoch.</p>
 					</div>
-					
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">API Token</legend>
-						<input 
+						<input
 							id={ "token_" + r.ID }
-							required 
-							type="password" 
-							placeholder="Geben Sie Ihren API Token ein" 
-							name="token" 
+							required
+							type="password"
+							placeholder="Geben Sie Ihren API Token ein"
+							name="token"
 							class="input input-bordered w-full"
 							autocomplete="off"
 						/>
 					</fieldset>
-					
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Menü-Datei</legend>
-						<input 
+						<input
 							id={ "file_" + r.ID }
-							type="file" 
-							name="file" 
+							type="file"
+							name="file"
 							class="file-input file-input-bordered w-full"
 							accept=".pdf,.jpg,.jpeg,.png,.webp"
 							required
 						/>
 						<p class="label">Unterstützte Formate: PDF, JPG, PNG, WebP</p>
 					</fieldset>
-					
 					<div class="modal-action">
 						<button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">
 							Abbrechen
 						</button>
-						<button type="submit" class="btn btn-primary">
-							<span class="icon-[heroicons--arrow-up-tray] w-4 h-4 mr-2"></span>
+						<button
+							type="submit"
+							class="btn btn-primary flex items-center gap-2"
+							if r.Loading {
+								disabled
+								aria-label="Wird hochgeladen..."
+							} else {
+								aria-label="Menü hochladen"
+							}
+						>
+							<span class={ "loading loading-spinner btn-icon", templ.KV("hidden",!r.Loading) }></span>
+							<span class={ "icon-[heroicons--arrow-up-tray] btn-icon transition-transform duration-200", templ.KV("hidden",r.Loading) }></span>
 							Hochladen
 						</button>
 					</div>

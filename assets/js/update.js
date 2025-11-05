@@ -1,8 +1,15 @@
-function getButtonElements(button) {
+function getButtonElements(target) {
+  // If target is a form, find the submit button
+  const button = target.tagName === 'FORM' ? target.querySelector('[type="submit"]') : target;
+  
+  // Find spinner and icon by their classes
+  const spinner = button.querySelector('.loading-spinner');
+  const icon = button.querySelector('.icon-\\[heroicons--arrow-path\\], .icon-\\[heroicons--arrow-up-tray\\]');
+  
   return {
     button,
-    spinner: button.firstChild,
-    icon: button.lastChild
+    spinner,
+    icon
   };
 }
 

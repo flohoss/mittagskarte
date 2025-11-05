@@ -116,9 +116,9 @@ func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 }
 
 func (m *MittagHandler) handleUpload(ctx echo.Context) error {
-	id := ctx.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Restaurant ID is required")
+	r, err := config.GetRestaurant(ctx.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
 	file, err := ctx.FormFile("file")
@@ -126,7 +126,11 @@ func (m *MittagHandler) handleUpload(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "File upload failed: "+err.Error())
 	}
 
-	return m.mittag.UploadMenu(ctx, id, file)
+	if err := m.mittag.UploadMenu(ctx, r, file); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return m.handleFilter(ctx)
 }
 
 func (m *MittagHandler) handleUpdate(ctx echo.Context) error {
