@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/flohoss/mittagskarte/internal/hash"
+	"github.com/flohoss/mittagskarte/internal/checksum"
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 )
@@ -365,7 +365,7 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	url := hash.AddHashQueryToFileName(filePath)
+	url := checksum.SuffixQuery(filePath)
 
 	cfg.Restaurants[restaurantID].Menu = Menu{
 		URL:      url,
