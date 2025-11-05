@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -161,11 +160,13 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) 
 	return nil
 }
 
-func (r *Mittag) UploadMenu(ctx echo.Context, id string, file *multipart.FileHeader) error {
+func (r *Mittag) UploadMenu(ctx echo.Context, restaurant *config.Restaurant, file *multipart.FileHeader) error {
+	restaurant.SetLoading(true)
+	defer restaurant.SetLoading(false)
 	ext := filepath.Ext(file.Filename)
 	allowedExtensions := []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
 	if !contains(allowedExtensions, ext) {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", ")))
+		return fmt.Errorf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", "))
 	}
 
 	src, err := file.Open()
@@ -174,7 +175,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context, id string, file *multipart.FileHea
 	}
 	defer src.Close()
 
-	rawPath := filepath.Join(TempDownloadFolder, id) + file.Filename
+	rawPath := filepath.Join(TempDownloadFolder, restaurant.ID) + file.Filename
 	dst, err := os.Create(rawPath)
 	if err != nil {
 		return err
@@ -185,13 +186,13 @@ func (r *Mittag) UploadMenu(ctx echo.Context, id string, file *multipart.FileHea
 		return err
 	}
 
-	filePath := filepath.Join(FinalDownloadFolder, id+".webp")
-	if err := r.convertToWebp(id, rawPath, filePath, ext == ".pdf"); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "die Datei kann nicht in das Format .webp konvertiert werden")
+	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
+	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
+		return fmt.Errorf("die Datei kann nicht in das Format .webp konvertiert werden")
 	}
 
-	config.SetMenu(filePath, time.Now(), id)
-	return ctx.Redirect(http.StatusSeeOther, "/")
+	config.SetMenu(filePath, time.Now(), restaurant.ID)
+	return nil
 }
 
 func contains(haistack []string, needle string) bool {
