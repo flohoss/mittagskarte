@@ -72,17 +72,17 @@ templ Base(title string, searchBar bool) {
 				Zum Hauptinhalt springen
 			</a>
 			<header class="bg-base-200">
-				<div class="container px-4 md:px-6">
+				<div class="container px-4 lg:px-6">
 					if searchBar {
-						<div class="flex items-center gap-4 md:justify-between py-4">
+						<div class="flex items-center gap-4 lg:justify-between py-4">
 							<a href="/" class="flex items-center gap-2 flex-shrink-0">
 								<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
-								<div class="font-light font-stretch-semi-expanded min-w-0 hidden md:block">
+								<div class="font-light font-stretch-semi-expanded min-w-0 hidden lg:block">
 									<div class="text-xl font-semibold truncate">{ meta.Title }</div>
 									<div class="text-xs truncate">{ meta.Description }</div>
 								</div>
 							</a>
-							<div class="flex-1 md:flex-initial md:max-w-md">
+							<div class="flex-1 lg:flex-initial lg:max-w-md">
 								@components.Filter()
 							</div>
 						</div>
@@ -101,12 +101,12 @@ templ Base(title string, searchBar bool) {
 					}
 				</div>
 			</header>
-			<main id="main-content" class="container my-5 md:my-10 flex-grow" role="main">
-				<div id="display-helper" class="hidden md:block" aria-hidden="true"></div>
+			<main id="main-content" class="container my-5 lg:my-10 flex-grow" role="main">
+				<div id="display-helper" class="hidden lg:block" aria-hidden="true"></div>
 				{ children... }
 			</main>
 			<footer class="bg-base-200 text-base-content p-5">
-				<div class="container px-4 flex flex-col md:flex-row justify-center md:justify-between items-center gap-5 text-center text-sm">
+				<div class="container px-4 flex flex-col lg:flex-row justify-center lg:justify-between items-center gap-5 text-center text-sm">
 					<aside>
 						<p>
 							{ meta.Title + " - " + meta.Description }

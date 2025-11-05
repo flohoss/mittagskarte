@@ -10,7 +10,6 @@ templ Filter() {
 				name="q"
 				id="search-input"
 				class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
-				placeholder="Restaurantname, Tags oder Ort suchen..."
 				hx-get="/filter"
 				hx-trigger="keyup changed delay:200ms"
 				hx-target="#restaurants-container"
@@ -19,14 +18,14 @@ templ Filter() {
 				spellcheck="false"
 				aria-describedby="search-help"
 			/>
-			<kbd class="kbd kbd-sm font-mono opacity-50" id="search-shortcut"></kbd>
+			<kbd class="hidden lg:block kbd kbd-sm font-mono opacity-50" id="search-shortcut"></kbd>
 		</div>
 		<div id="search-help" class="sr-only">
 			Suchen Sie nach Restaurantname, Tags oder Ort. Die Suche erfolgt automatisch während der Eingabe.
 		</div>
 	</div>
 	<script>
-		// Set shortcut key label for Mac/Windows
+		// Set shortcut key label for Mac/Windows and responsive placeholder
 		document.addEventListener('DOMContentLoaded', () => {
 			const shortcut = document.getElementById('search-shortcut');
 			if (shortcut) {
@@ -35,6 +34,20 @@ templ Filter() {
 				} else {
 					shortcut.innerHTML = '<span class="me-1">Ctrl</span>K';
 				}
+			}
+
+			// Responsive placeholder
+			const input = document.getElementById('search-input');
+			if (input) {
+				const setPlaceholder = () => {
+					if (window.innerWidth < 1024) {
+						input.placeholder = 'Restaurant suchen...';
+					} else {
+						input.placeholder = 'Restaurantname, Tags oder Ort suchen...';
+					}
+				};
+				setPlaceholder();
+				window.addEventListener('resize', setPlaceholder);
 			}
 		});
 		// Simple search focus management
