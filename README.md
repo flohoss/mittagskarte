@@ -201,16 +201,17 @@ docker compose up --build --force-recreate
 ```
 
 - Auto-creates `config.yaml` if missing
-- Detects changes automatically
+
+Go to http://localhost:7331 to view the app.
 
 ### Update Dependencies
 
 ```bash
 # Node packages
-docker compose run --rm node yarn upgrade --latest
+docker compose run --rm yarn upgrade --latest
 
 # Go packages
-docker compose run --rm backend go get -u && go mod tidy
+docker compose run --rm go get -u && go mod tidy
 ```
 
 ### Build release
