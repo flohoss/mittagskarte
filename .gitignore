@@ -216,5 +216,5 @@ __debug*
 config/downloads/
 
 assets/js/htmx.min.js
-assets/js/floating-ui.core.browser.min.mjs
-assets/js/floating-ui.dom.browser.min.mjs
+assets/js/floating-ui.core.umd.min.js
+assets/js/floating-ui.dom.umd.min.js

@@ -62,8 +62,8 @@ templ Base(title string, searchBar bool) {
 				<script defer src={ templ.URL("https://" + analytics.Domain + "/script.js") } data-website-id={ analytics.WebsiteID }></script>
 			}
 			<script src={ appendVersionQuery("/assets/js/htmx.min.js") } defer></script>
-			<script src={ appendVersionQuery("/assets/js/floating-ui/core.min.js") } defer></script>
-			<script src={ appendVersionQuery("/assets/js/floating-ui/dom.min.js") } defer></script>
+			<script src={ appendVersionQuery("/assets/js/floating-ui.core.umd.min.js") } defer></script>
+			<script src={ appendVersionQuery("/assets/js/floating-ui.dom.umd.min.js") } defer></script>
 			<script src={ appendVersionQuery("/assets/js/menu-tooltip.js") } defer></script>
 			<script src={ appendVersionQuery("/assets/js/update.js") } defer></script>
 		</head>

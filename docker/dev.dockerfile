@@ -20,6 +20,9 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
 RUN go install github.com/a-h/templ/cmd/templ@latest
 
+COPY ./package.json ./yarn.lock ./
+RUN yarn install --frozen-lockfile
+
 COPY ./go.mod .
 COPY ./go.sum .
 RUN go mod download
