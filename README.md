@@ -33,6 +33,14 @@ services:
     restart: always
     volumes:
       - ./config:/app/config
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
     ports:
       - '8156:8156'
 ```
