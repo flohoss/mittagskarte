@@ -72,57 +72,43 @@ templ Base(title string, searchBar bool) {
 				Zum Hauptinhalt springen
 			</a>
 			<header class="bg-base-200">
-				<div class="container px-4 lg:px-6">
-					if searchBar {
-						<div class="flex items-center gap-4 lg:justify-between py-4">
-							<a href="/" class="flex items-center gap-2 flex-shrink-0">
-								<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
-								<div class="font-light font-stretch-semi-expanded min-w-0 hidden lg:block">
-									<div class="text-xl font-semibold truncate">{ meta.Title }</div>
-									<div class="text-xs truncate">{ meta.Description }</div>
-								</div>
-							</a>
+				<div class="container px-4 lg:px-6 py-3">
+					<div class="flex items-center gap-4 lg:justify-between">
+						<a href="/" class="flex items-center gap-2 flex-shrink-0">
+							<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10"/>
+							<div class="font-light font-stretch-semi-expanded min-w-0 hidden lg:block">
+								<div class="text-xl font-semibold truncate">{ meta.Title }</div>
+								<div class="text-xs truncate">{ meta.Description }</div>
+							</div>
+						</a>
+						if searchBar {
 							<div class="flex-1 lg:flex-initial lg:max-w-md">
 								@components.Filter()
 							</div>
-						</div>
-					} else {
-						<div class="navbar">
-							<div class="navbar-start">
-								<a href="/" class="flex items-center gap-2 min-w-0">
-									<img src="/assets/favicon/schniddzl.webp" alt={ meta.Title } class="size-10 flex-shrink-0"/>
-									<div class="font-light font-stretch-semi-expanded min-w-0">
-										<div class="text-xl font-semibold truncate">{ meta.Title }</div>
-										<div class="text-xs truncate">{ meta.Description }</div>
-									</div>
-								</a>
-							</div>
-						</div>
-					}
+						}
+					</div>
 				</div>
 			</header>
 			<main id="main-content" class="container my-5 lg:my-10 flex-grow" role="main">
 				<div id="display-helper" class="hidden lg:block" aria-hidden="true"></div>
 				{ children... }
 			</main>
-			<footer class="bg-base-200 text-base-content p-5">
+			<footer class="bg-base-200 text-base-content p-3">
 				<div class="container px-4 flex flex-col lg:flex-row justify-center lg:justify-between items-center gap-5 text-center text-sm">
-					<aside>
-						<p>
-							{ meta.Title + " - " + meta.Description }
-							if config.GetImpressum().Enabled {
-								- <a class="link" href="/impressum">Impressum</a>
-							}
-							- <a class="link" title="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a>
-						</p>
-					</aside>
-					<nav class="flex gap-2 items-center">
+					<div>
+						{ meta.Title + " - " + meta.Description }
+						if config.GetImpressum().Enabled {
+							- <a class="link" href="/impressum">Impressum</a>
+						}
+						- <a class="link" title="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a>
+					</div>
+					<div class="flex gap-2 items-center">
 						for _, social := range meta.Social {
 							<a target="_blank" data-lg-blank class="btn btn-circle btn-ghost" title={ social.Description } href={ templ.URL(social.URL) }>
 								@templ.Raw(social.Icon)
 							</a>
 						}
-					</nav>
+					</div>
 				</div>
 			</footer>
 			<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2"></div>
