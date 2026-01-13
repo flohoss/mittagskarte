@@ -4,9 +4,6 @@ services:
       context: .
       dockerfile: docker/dev.dockerfile
     platform: linux/amd64
-    environment:
-      - APP_DESCRIPTION=deine Mittagskarte für die Region Stuttgart
-      - APP_TITLE=Schniddzl.de
     volumes:
       - .:/app/
     ports:
