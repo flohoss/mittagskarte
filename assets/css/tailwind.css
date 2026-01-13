@@ -6,8 +6,9 @@
   name: corporate;
   default: true;
   prefersdark: false;
-  --color-neutral: #d1d1d1;
+  --color-neutral: #efefef;
   --color-neutral-content: #333333;
+  --color-base-200: #f9f9f9;
 }
 
 @plugin 'daisyui/theme' {
@@ -24,14 +25,14 @@
 
 @utility btn {
   @apply rounded-r-lg rounded-l-lg shadow-none hover:shadow-none;
-  
+
   &:active:not(.btn-active) {
     translate: none !important;
   }
 }
 
 @utility btn-icon {
-  @apply size-5 flex-shrink-0;
+  @apply size-5 shrink-0;
 }
 
 @utility my-btn {
@@ -39,7 +40,7 @@
 }
 
 @utility my-card {
-  @apply relative grid gap-2 flex-shrink-0;
+  @apply relative grid gap-2 shrink-0;
 }
 
 @utility card-grid {
