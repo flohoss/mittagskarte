@@ -85,7 +85,7 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 				if err != nil {
 					return "", fmt.Errorf("could not get attribute %s: %w", n.Attribute, err)
 				}
-				downloadPath, err = download.File(downloadPath, imgSrc)
+				downloadPath, err = download.Curl(downloadPath, imgSrc)
 				if err != nil {
 					return "", fmt.Errorf("could not download file %s: %w", imgSrc, err)
 				}
