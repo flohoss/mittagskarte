@@ -95,13 +95,11 @@ func (r *Mittag) GetImageUrl(restaurant *config.Restaurant, overwrite bool) erro
 }
 
 func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaurant, overwrite bool) error {
-	slog.Debug("getting image url", "id", restaurant.ID)
-
 	filePath := FinalDownloadFolder + restaurant.ID + ".webp"
 	i, err := os.Stat(filePath)
 	if !overwrite && !os.IsNotExist(err) {
 		slog.Debug("file already exists, skipping...", "filePath", filePath)
-		config.SetMenu(filePath, i.ModTime(), restaurant.ID)
+		config.SetMenu(filePath, i.ModTime(), restaurant.ID, overwrite)
 		return nil
 	}
 
@@ -115,9 +113,10 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 		return nil
 	}
 
+	slog.Debug("getting image url", "id", restaurant.ID)
 	tmpPath := ""
 	if r.restaurants[restaurant.ID].Parse.DirectDownload != "" {
-		tmpPath, err = download.DownloadWithCurl(TempDownloadFolder+restaurant.ID+".pdf", r.restaurants[restaurant.ID].Parse.DirectDownload)
+		tmpPath, err = download.Curl(TempDownloadFolder+restaurant.ID+".pdf", r.restaurants[restaurant.ID].Parse.DirectDownload)
 	} else {
 		tmpPath, err = ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
 	}
@@ -139,7 +138,7 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 
 	i, err = os.Stat(filePath)
 	if !os.IsNotExist(err) {
-		config.SetMenu(filePath, i.ModTime(), restaurant.ID)
+		config.SetMenu(filePath, i.ModTime(), restaurant.ID, overwrite)
 	}
 	return nil
 }
@@ -191,7 +190,7 @@ func (r *Mittag) UploadMenu(ctx echo.Context, restaurant *config.Restaurant, fil
 		return fmt.Errorf("die Datei kann nicht in das Format .webp konvertiert werden")
 	}
 
-	config.SetMenu(filePath, time.Now(), restaurant.ID)
+	config.SetMenu(filePath, time.Now(), restaurant.ID, true)
 	return nil
 }
 
