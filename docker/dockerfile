@@ -1,12 +1,4 @@
-ARG V_GOLANG=1.25
 ARG V_NODE=24
-ARG V_ALPINE=3
-ARG V_PLAYWRIGHT=20
-FROM alpine:${V_ALPINE} AS logo
-WORKDIR /app
-RUN apk add figlet > /dev/null 2>&1
-RUN figlet Mittagskarte > logo.txt
-
 FROM node:${V_NODE}-slim AS golang-builder
 WORKDIR /app
 
@@ -21,11 +13,10 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
 COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
-RUN go install github.com/a-h/templ/cmd/templ@latest > /dev/null 2>&1
-
+RUN go install github.com/a-h/templ/cmd/templ@v0.3.960
 COPY ./go.mod .
 COPY ./go.sum .
-RUN go mod download > /dev/null 2>&1
+RUN go mod download
 
 COPY . .
 RUN templ generate
@@ -44,7 +35,7 @@ RUN yarn run tw:build
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@$V_PLAYWRIGHT install-deps chromium > /dev/null 2>&1
+RUN npx -y playwright@v1.57.0 install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     libnss3 libnet1 dumb-init ca-certificates curl \
@@ -52,7 +43,7 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=logo /app/logo.txt .
+COPY ./docker/coder-mini.txt /coder-mini.txt
 
 COPY --from=node-builder /app/assets/favicon/ ./assets/favicon/
 COPY --from=node-builder /app/assets/js/ ./assets/js/
