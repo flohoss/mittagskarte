@@ -6,7 +6,6 @@ require (
 	github.com/a-h/templ v0.3.977
 	github.com/chai2010/webp v1.4.0
 	github.com/gen2brain/go-fitz v1.24.15
-	github.com/go-chi/chi/v5 v5.2.4
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/goodsign/monday v1.0.2
 	github.com/labstack/echo/v4 v4.15.0
