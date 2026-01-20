@@ -6,54 +6,31 @@ import (
 	"github.com/flohoss/mittagskarte/views/components"
 )
 
-templ Index(groups []config.GroupedRestaurants, favApplied bool, filterApplied bool, openGroup string) {
+func spacing(isFavorite bool) string {
+	if isFavorite {
+		return "my-6"
+	}
+	return "my-2"
+}
+
+templ Index(groups []config.GroupedRestaurants, filterApplied bool, openGroup string) {
 	if len(groups) > 0 {
-		<div id="restaurants-container" class={ "grid gap-2", templ.KV("gap-8 lg:gap-10 xl:gap-14", !favApplied) }>
+		<div id="restaurants-container" class="grid gap-2">
 			for _, g := range groups {
 				<div class="grid gap-2">
-					if favApplied && g.Group != config.Favorites {
-						<div class={ "collapse bg-base-200 rounded-none sm:rounded-lg" }>
-							<input
-								type="checkbox"
-								id={ "group-" + g.Group }
-								aria-label={ "Gruppe " + g.Group + " ein-/ausklappen" }
-								if filterApplied || openGroup == g.Group {
-									checked
-								}
-							/>
-							<div class="collapse-title font-semibold text-base-content/90 hover:text-base-content transition-colors duration-200">
-								<span class="flex items-center gap-2">
-									<span>{ g.Group }</span>
-									<span class="text-xs opacity-60 font-normal">({ fmt.Sprintf("%d", len(g.Restaurants)) })</span>
-								</span>
-							</div>
-							<div class="collapse-content">
-								<div class="pt-2">
-									<div class="card-grid">
-										for _, r := range g.Restaurants {
-											@components.Card(&g, r)
-										}
-									</div>
-								</div>
-							</div>
-						</div>
-					} else {
-						if g.Group != config.Favorites {
-							<div class="text-sm opacity-75 tracking-wide pl-5 font-medium text-base-content/80 flex items-center gap-2">
-								<span>{ g.Group }</span>
-								<span class="text-xs opacity-60">({ fmt.Sprintf("%d", len(g.Restaurants)) })</span>
-							</div>
-						}
-						<div class="px-4 card-grid">
-							for _, r := range g.Restaurants {
-								@components.Card(&g, r)
-							}
+					if g.Group != config.Favorites {
+						<div class="text-sm opacity-75 tracking-wide pl-5 font-medium text-base-content/80 flex items-center gap-2">
+							<span>{ g.Group }</span>
+							<span class="text-xs opacity-60">({ fmt.Sprintf("%d", len(g.Restaurants)) })</span>
 						</div>
 					}
+					<div class="px-4 card-grid">
+						for _, r := range g.Restaurants {
+							@components.Card(&g, r)
+						}
+					</div>
 				</div>
-				if g.Group == config.Favorites {
-					<div class="my-4"></div>
-				}
+				<div class={ spacing(g.Group == config.Favorites) }></div>
 			}
 		</div>
 	} else {
