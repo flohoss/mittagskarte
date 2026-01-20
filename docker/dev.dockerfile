@@ -24,7 +24,7 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
 COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
-RUN go install github.com/a-h/templ/cmd/templ@latest > /dev/null 2>&1
+RUN go install github.com/a-h/templ/cmd/templ@v0.3.960 > /dev/null 2>&1
 
 COPY ./go.mod .
 COPY ./go.sum .
