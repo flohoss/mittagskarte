@@ -26,7 +26,4 @@ RUN go mod download
 # https://patorjk.com/software/taag/#p=display&f=Coder+Mini&t=Mittagskarte&x=none&v=4&h=4&w=80&we=false
 COPY ./docker/coder-mini.txt /coder-mini.txt
 
-ENV APP_VERSION=0.0.0.0-dev
-ENV BUILD_TIME=2026-01-01T12:00:00Z
-
 ENTRYPOINT [ "/app/docker/dev.entrypoint.sh" ]

@@ -9,6 +9,5 @@ cp /app/node_modules/@floating-ui/core/dist/floating-ui.core.umd.min.js /app/ass
 cp /app/node_modules/@floating-ui/dom/dist/floating-ui.dom.umd.min.js /app/assets/js/floating-ui.dom.umd.min.js
 
 cat /coder-mini.txt
-echo -n "Version: ${APP_VERSION} Build Time: ${BUILD_TIME}"
 
 templ generate --watch --proxybind="0.0.0.0" --proxy="http://localhost:8156" --cmd="go run ." --open-browser=false
