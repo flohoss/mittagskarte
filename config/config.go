@@ -361,7 +361,7 @@ func GetRestaurant(id string) (*Restaurant, error) {
 	return restaurant, nil
 }
 
-func SetMenu(filePath string, modTime time.Time, restaurantID string) {
+func SetMenu(filePath string, modTime time.Time, restaurantID string, new bool) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -385,7 +385,9 @@ func SetMenu(filePath string, modTime time.Time, restaurantID string) {
 	cfg.Restaurants[restaurantID].Menu.Width = fmt.Sprintf("%dpx", image.Bounds().Dx())
 	cfg.Restaurants[restaurantID].Menu.Height = fmt.Sprintf("%dpx", image.Bounds().Dy())
 
-	slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
+	if new {
+		slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
+	}
 }
 
 func GetApiToken() string {

@@ -1,5 +1,5 @@
 time_zone: 'Europe/Berlin'
-log_level: 'info'
+log_level: 'debug'
 api_token: 'replace-me'
 
 server:
