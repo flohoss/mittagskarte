@@ -13,7 +13,7 @@ func spacing(isFavorite bool) string {
 	return "my-2"
 }
 
-templ Index(groups []config.GroupedRestaurants, filterApplied bool, openGroup string) {
+templ Index(groups []config.GroupedRestaurants) {
 	if len(groups) > 0 {
 		<div id="restaurants-container" class="grid gap-2">
 			for _, g := range groups {
