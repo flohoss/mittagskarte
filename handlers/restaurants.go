@@ -30,7 +30,7 @@ func NewMittagHandler(mittag *services.Mittag) *MittagHandler {
 	}
 }
 
-func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, string) {
+func cookieReader(ctx echo.Context, fav string) (map[string]string, string) {
 	group := url.QueryEscape(ctx.QueryParam("group"))
 
 	favSet := make(map[string]string)
@@ -92,27 +92,27 @@ func cookieReader(ctx echo.Context, fav string) (map[string]string, bool, string
 		})
 	}
 
-	return favSet, len(favSet) > 0, preselectedGroup
+	return favSet, preselectedGroup
 }
 
 func (m *MittagHandler) handleFilter(ctx echo.Context) error {
 	q := ctx.QueryParam("q")
-	favSet, favApplied, _ := cookieReader(ctx, "")
+	favSet, _ := cookieReader(ctx, "")
 	restaurants := config.GetGroupedRestaurants(favSet, q)
 
-	return render(ctx, views.Index(restaurants, favApplied, q != "", ""))
+	return render(ctx, views.Index(restaurants, q != "", ""))
 }
 
 func (m *MittagHandler) handleIndex(ctx echo.Context) error {
 	fav := strings.ToLower(ctx.QueryParam("fav"))
-	favSet, favApplied, preselectedGroup := cookieReader(ctx, fav)
+	favSet, preselectedGroup := cookieReader(ctx, fav)
 
 	if fav != "" {
 		return ctx.Redirect(http.StatusFound, "/")
 	}
 
 	restaurants := config.GetGroupedRestaurants(favSet, "")
-	return render(ctx, views.HomeIndex(views.Index(restaurants, favApplied, false, preselectedGroup)))
+	return render(ctx, views.HomeIndex(views.Index(restaurants, false, preselectedGroup)))
 }
 
 func (m *MittagHandler) handleUpload(ctx echo.Context) error {
