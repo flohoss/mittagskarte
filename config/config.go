@@ -38,6 +38,7 @@ type GlobalConfig struct {
 	Meta               Meta                   `mapstructure:"meta"`
 	Impressum          Impressum              `mapstructure:"impressum"`
 	UMAMIAnalytics     UMAMIAnalytics         `mapstructure:"umami_analytics"`
+	SentryDSN          string                 `mapstructure:"sentry_dsn"`
 	Server             ServerSettings         `mapstructure:"server"`
 	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
 	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
