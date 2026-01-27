@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
@@ -39,6 +40,7 @@ func initSentry(sentryDSN string) {
 		slog.Error("sentry.Init", "error", err)
 		os.Exit(1)
 	}
+	sentry.CaptureMessage("Mittagskarte started")
 }
 
 func main() {
@@ -59,4 +61,6 @@ func main() {
 
 	slog.Info("Starting server", "url", fmt.Sprintf("http://%s", config.GetServer()))
 	slog.Error(e.Start(config.GetServer()).Error())
+
+	defer sentry.Flush(2 * time.Second)
 }
