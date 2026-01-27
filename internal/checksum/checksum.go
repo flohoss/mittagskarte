@@ -6,6 +6,8 @@ import (
 	"io"
 	"log/slog"
 	"os"
+
+	"github.com/getsentry/sentry-go"
 )
 
 func ChecksumFile(filePath string) uint32 {
@@ -18,6 +20,7 @@ func ChecksumFile(filePath string) uint32 {
 
 	h := crc32.NewIEEE()
 	if _, err := io.Copy(h, f); err != nil {
+		sentry.CaptureException(err)
 		slog.Error(err.Error())
 		return 0
 	}

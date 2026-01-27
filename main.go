@@ -52,6 +52,8 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
+	initSentry(config.GetSentryDSN())
+
 	m := services.NewMittag(config.GetRestaurants())
 	defer m.Close()
 
