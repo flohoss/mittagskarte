@@ -12,6 +12,7 @@ import (
 
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/internal/download"
+	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 )
@@ -69,11 +70,13 @@ func (r *Mittag) Close() {
 func (r *Mittag) getImageUrls(overwrite bool) {
 	ps, err := newPlaywrightService()
 	if err != nil {
+		sentry.CaptureException(err)
 		return
 	}
 	defer ps.close()
 	for id := range r.restaurants {
 		if err := r.doGetImageUrl(ps, r.restaurants[id], overwrite); err != nil {
+			sentry.CaptureException(err)
 			slog.Error(err.Error())
 			continue
 		}

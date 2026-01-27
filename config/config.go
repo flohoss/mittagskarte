@@ -297,6 +297,12 @@ func GetLogLevel() slog.Level {
 	}
 }
 
+func GetSentryDSN() string {
+	mu.RLock()
+	defer mu.RUnlock()
+	return cfg.SentryDSN
+}
+
 func GetServer() string {
 	mu.RLock()
 	defer mu.RUnlock()
