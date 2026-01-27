@@ -1,6 +1,7 @@
 time_zone: 'Europe/Berlin'
 log_level: 'debug'
 api_token: 'replace-me'
+sentry_dsn: ''
 
 server:
   address: '0.0.0.0'
