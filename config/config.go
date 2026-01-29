@@ -315,6 +315,25 @@ func GetRestaurants() map[string]*Restaurant {
 	return cfg.Restaurants
 }
 
+func GetAllCrons() map[string]map[string]*Restaurant {
+	mu.RLock()
+	defer mu.RUnlock()
+	cronJobs := make(map[string]map[string]*Restaurant)
+	restaurants := GetRestaurants()
+
+	for id, restaurant := range restaurants {
+		if restaurant.Parse.UpdateCron == "" {
+			continue
+		}
+		if _, ok := cronJobs[restaurant.Parse.UpdateCron]; !ok {
+			cronJobs[restaurant.Parse.UpdateCron] = make(map[string]*Restaurant)
+		}
+		cronJobs[restaurant.Parse.UpdateCron][id] = restaurant
+	}
+
+	return cronJobs
+}
+
 func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRestaurants {
 	mu.RLock()
 	defer mu.RUnlock()
