@@ -1,8 +1,9 @@
 {
   "license": "MIT",
   "scripts": {
-    "tw:dev": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --watch",
-    "tw:build": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --minify"
+    "dev": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --watch",
+    "build": "npx @tailwindcss/cli -i ./assets/css/tailwind.css -o ./assets/css/style.css --minify",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@iconify/json": "^2.2.430",
@@ -12,18 +13,19 @@
     "prettier": "^3.8.0",
     "tailwindcss": "^4.1.18"
   },
-  "prettier": {
-    "tabWidth": 2,
-    "useTabs": false,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "bracketSpacing": true,
-    "arrowParens": "always",
-    "printWidth": 160
-  },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
     "htmx.org": "^2.0.8"
+  },
+  "prettier": {
+    "printWidth": 160,
+    "singleQuote": true,
+    "semi": true,
+    "tabWidth": 2,
+    "useTabs": false,
+    "trailingComma": "es5",
+    "endOfLine": "lf",
+    "bracketSpacing": true,
+    "arrowParens": "always"
   }
 }
