@@ -30,7 +30,7 @@ RUN yarn install --frozen-lockfile --network-timeout 30000 --silent
 
 COPY ./views/ ./views/
 COPY ./assets/ ./assets/
-RUN yarn run tw:build
+RUN yarn run build
 
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
