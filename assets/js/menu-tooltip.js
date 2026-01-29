@@ -1,5 +1,4 @@
-const { computePosition, offset, flip, shift, autoUpdate } =
-  window.FloatingUIDOM;
+const { computePosition, offset, flip, shift, autoUpdate } = window.FloatingUIDOM;
 
 const tooltipState = {
   activeId: null,
@@ -17,25 +16,25 @@ const tooltipState = {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
     }
-  }
+  },
 };
 
 const elements = {
-  links: document.querySelectorAll("[data-lg-blank]"),
-  displayHelper: document.querySelector("#display-helper")
+  links: document.querySelectorAll('[data-lg-blank]'),
+  displayHelper: document.querySelector('#display-helper'),
 };
 
 function isLargeScreen() {
-  return window.getComputedStyle(elements.displayHelper).display !== "none";
+  return window.getComputedStyle(elements.displayHelper).display !== 'none';
 }
 
 function setLinkTargets() {
   const shouldOpenInNewTab = isLargeScreen();
   elements.links.forEach((link) => {
     if (shouldOpenInNewTab) {
-      link.setAttribute("target", "_blank");
+      link.setAttribute('target', '_blank');
     } else {
-      link.removeAttribute("target");
+      link.removeAttribute('target');
     }
   });
 }
@@ -62,8 +61,8 @@ function restoreTooltipPosition(tooltip) {
 }
 
 function removeTooltipEventListeners(tooltip) {
-  tooltip.removeEventListener("mouseenter", handleTooltipMouseEnter);
-  tooltip.removeEventListener("mouseleave", handleTooltipMouseLeave);
+  tooltip.removeEventListener('mouseenter', handleTooltipMouseEnter);
+  tooltip.removeEventListener('mouseleave', handleTooltipMouseLeave);
 }
 
 function hideActiveTooltipImmediate() {
@@ -74,7 +73,7 @@ function hideActiveTooltipImmediate() {
   tooltipState.clearHideTimeout();
   removeTooltipEventListeners(tooltip);
   restoreTooltipPosition(tooltip);
-  tooltip.classList.add("hidden");
+  tooltip.classList.add('hidden');
   cleanupTooltipPositioning(tooltip);
   tooltipState.reset();
 }
@@ -95,24 +94,26 @@ function storeOriginalTooltipPosition(tooltip) {
 }
 
 function addTooltipEventListeners(tooltip) {
-  tooltip.addEventListener("mouseenter", handleTooltipMouseEnter);
-  tooltip.addEventListener("mouseleave", handleTooltipMouseLeave);
+  tooltip.addEventListener('mouseenter', handleTooltipMouseEnter);
+  tooltip.addEventListener('mouseleave', handleTooltipMouseLeave);
 }
 
 function setupTooltipPositioning(trigger, tooltip) {
   tooltip._cleanup = autoUpdate(trigger, tooltip, () => {
     computePosition(trigger, tooltip, {
-      placement: "right",
+      placement: 'right',
       middleware: [offset(8), flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) => {
-      Object.assign(tooltip.style, {
-        position: "absolute",
-        left: `${x}px`,
-        top: `${y}px`,
+    })
+      .then(({ x, y }) => {
+        Object.assign(tooltip.style, {
+          position: 'absolute',
+          left: `${x}px`,
+          top: `${y}px`,
+        });
+      })
+      .catch((error) => {
+        console.warn('Error positioning tooltip:', error);
       });
-    }).catch(error => {
-      console.warn('Error positioning tooltip:', error);
-    });
   });
 }
 
@@ -134,7 +135,7 @@ function showTooltip(event, tooltipId) {
 
   storeOriginalTooltipPosition(tooltip);
   document.body.appendChild(tooltip);
-  tooltip.classList.remove("hidden");
+  tooltip.classList.remove('hidden');
   addTooltipEventListeners(tooltip);
   setupTooltipPositioning(trigger, tooltip);
 }
@@ -159,4 +160,4 @@ function handleTooltipMouseLeave() {
 }
 
 setLinkTargets();
-window.addEventListener("resize", setLinkTargets);
+window.addEventListener('resize', setLinkTargets);
