@@ -12,9 +12,9 @@ import (
 
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/internal/download"
+	"github.com/flohoss/mittagskarte/internal/scheduler"
 	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
-	"github.com/robfig/cron/v3"
 )
 
 const (
@@ -31,32 +31,29 @@ func init() {
 type Mittag struct {
 	restaurants map[string]*config.Restaurant
 	im          *ImageMagic
-	cron        *cron.Cron
+	scheduler   *scheduler.Scheduler
 }
 
 func NewMittag(restaurants map[string]*config.Restaurant) *Mittag {
 	r := &Mittag{
 		restaurants: restaurants,
 		im:          NewimageMagic(),
-		cron:        cron.New(),
+		scheduler:   scheduler.New(),
 	}
-	for id := range restaurants {
-		if restaurants[id].Parse.UpdateCron == "" {
-			continue
-		}
-		id, err := r.cron.AddFunc(restaurants[id].Parse.UpdateCron, func() {
-			if err := r.GetImageUrl(restaurants[id], true); err != nil {
-				slog.Error(err.Error())
-			}
+
+	var cronJobs = config.GetAllCrons()
+	for sTime, restaurants := range cronJobs {
+		r.scheduler.Add(sTime, func() {
+			r.getImageUrls(restaurants, true)
 		})
-		if err != nil {
-			slog.Error(err.Error())
-			continue
+		var ids []string
+		for id := range restaurants {
+			ids = append(ids, id)
 		}
-		slog.Debug("added cron job", "id", id, "schedule", r.cron.Entry(id).Schedule)
+		slog.Debug("added cron job", "schedule", sTime, "restaurants", strings.Join(ids, ","))
 	}
-	r.cron.Start()
-	go r.getImageUrls(false)
+
+	go r.getImageUrls(nil, false)
 
 	return r
 }
@@ -67,15 +64,20 @@ func (r *Mittag) Close() {
 	}
 }
 
-func (r *Mittag) getImageUrls(overwrite bool) {
+func (r *Mittag) getImageUrls(restaurants map[string]*config.Restaurant, overwrite bool) {
 	ps, err := newPlaywrightService()
 	if err != nil {
 		sentry.CaptureException(err)
 		return
 	}
 	defer ps.close()
-	for id := range r.restaurants {
-		if err := r.doGetImageUrl(ps, r.restaurants[id], overwrite); err != nil {
+
+	if restaurants == nil {
+		restaurants = r.restaurants
+	}
+
+	for id := range restaurants {
+		if err := r.doGetImageUrl(ps, restaurants[id], overwrite); err != nil {
 			sentry.CaptureException(err)
 			slog.Error(err.Error())
 			continue
