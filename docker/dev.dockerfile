@@ -1,4 +1,4 @@
-ARG V_NODE=24
+ARG V_NODE=25
 ARG V_GOLANG=1.25
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final

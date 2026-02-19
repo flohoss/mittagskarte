@@ -1,4 +1,4 @@
-ARG V_NODE=24
+ARG V_NODE=25
 FROM node:${V_NODE}-slim AS golang-builder
 WORKDIR /app
 
