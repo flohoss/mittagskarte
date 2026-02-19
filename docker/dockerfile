@@ -35,11 +35,12 @@ RUN yarn run build
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@v1.57.0 install-deps chromium > /dev/null 2>&1
+RUN npx -y playwright@v1.58.0 install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     libnss3 libnet1 dumb-init ca-certificates curl \
     libmagickwand-6.q16-6 imagemagick libmupdf-dev > /dev/null 2>&1 && \
+    apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
