@@ -18,6 +18,7 @@ restaurants:
       - 'Friday'
       - 'Saturday'
     group: 'Nürtingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -33,6 +34,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Köngen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -50,6 +52,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Köngen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -65,6 +68,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Wendlingen am Neckar'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -79,6 +83,7 @@ restaurants:
     rest_days:
       - 'Tuesday'
     group: 'Möhringen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,3'
       direct_download: 'https://davvero-stuttgart.de/download/mittagskarte.pdf'
@@ -94,6 +99,7 @@ restaurants:
       - 'Monday'
       - 'Tuesday'
     group: 'Wendlingen am Neckar'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 3,4'
       navigate:
@@ -109,6 +115,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Degerloch'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -124,6 +131,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Köngen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -141,6 +149,7 @@ restaurants:
       - 'Sunday'
       - 'Saturday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
 
   fass:
     name: 'Fass'
@@ -151,6 +160,7 @@ restaurants:
     rest_days:
       - 'Tuesday'
     group: 'Nürtingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,3'
       navigate:
@@ -166,6 +176,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Leinfelden-Echterdingen'
+    created_at: '2026-02-19'
 
   linde:
     name: 'Gasthaus Linde'
@@ -176,6 +187,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Nürtingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 1-3 * *'
       navigate:
@@ -191,6 +203,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Feuerbach'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -206,6 +219,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -221,6 +235,7 @@ restaurants:
     rest_days:
       - 'Saturday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -237,6 +252,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Köngen'
+    created_at: '2025-10-01'
 
   lunica:
     name: "L'unica"
@@ -247,6 +263,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Leinfelden-Echterdingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -263,6 +280,7 @@ restaurants:
       - 'Sunday'
       - 'Saturday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -280,6 +298,7 @@ restaurants:
       - 'Tuesday'
       - 'Wednesday'
     group: 'Köngen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,4'
       navigate:
@@ -295,6 +314,7 @@ restaurants:
     rest_days:
       - 'Monday'
     group: 'Leinfelden-Echterdingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -311,6 +331,7 @@ restaurants:
       - 'Sunday'
       - 'Saturday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1-5'
       navigate:
@@ -325,6 +346,7 @@ restaurants:
     address: 'Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen'
     phone: '+49 711 791725'
     group: 'Leinfelden-Echterdingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -341,6 +363,7 @@ restaurants:
       - 'Sunday'
       - 'Monday'
     group: 'Feuerbach'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 2,3'
       navigate:
@@ -358,6 +381,7 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Leinfelden-Echterdingen'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -374,6 +398,7 @@ restaurants:
       - 'Sunday'
       - 'Saturday'
     group: 'Fasanenhof'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -388,6 +413,7 @@ restaurants:
     address: 'Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach'
     phone: '+49 711 85680030'
     group: 'Feuerbach'
+    created_at: '2025-10-01'
     parse:
       update_cron: '30 9,10 * * 1,2'
       navigate:
@@ -405,3 +431,4 @@ restaurants:
     rest_days:
       - 'Sunday'
     group: 'Köngen'
+    created_at: '2025-10-01'
