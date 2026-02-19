@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"log/slog"
+	"math/rand"
 	"time"
 
 	"github.com/flohoss/mittagskarte/config"
@@ -51,11 +52,35 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 		return "", fmt.Errorf("could not create page: %v", err)
 	}
 	defer page.Close()
-	if _, err = page.Goto(url, playwright.PageGotoOptions{
-		WaitUntil: playwright.WaitUntilStateLoad,
+
+	// Add anti-detection measures
+	page.SetExtraHTTPHeaders(map[string]string{
+		"User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+		"Accept-Language": "de-DE,de;q=0.9",
+		"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+		"Accept-Encoding": "gzip, deflate, br",
+		"DNT":             "1",
+	})
+
+	if err := page.AddInitScript(playwright.Script{
+		Content: playwright.String("Object.defineProperty(navigator, 'webdriver', { get: () => false });"),
 	}); err != nil {
+		slog.Warn("could not add init script", "err", err)
+	}
+
+	// Add human-like delay
+	time.Sleep(time.Duration(rand.Intn(3)+2) * time.Second)
+
+	response, err := page.Goto(url, playwright.PageGotoOptions{
+		WaitUntil: playwright.WaitUntilStateLoad,
+	})
+	if err != nil {
 		return "", fmt.Errorf("could not navigate to first page: %v", err)
 	}
+	if response.Status() >= 400 {
+		return "", fmt.Errorf("received non-success status code: %d", response.Status())
+	}
+
 	downloadPath := fmt.Sprintf("%s%d", TempDownloadFolder, time.Now().Unix())
 	for i, n := range parse.Navigate {
 		if n.Style != "" {
@@ -65,6 +90,7 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 		selector := page.Locator(n.Locator).First()
 		if i < len(parse.Navigate)-1 {
 			slog.Debug("navigate", "locator", n.Locator)
+			time.Sleep(time.Duration(rand.Intn(2)+1) * time.Second)
 			if err := selector.Click(); err != nil {
 				return "", fmt.Errorf("could not click on %s: %w", n.Locator, err)
 			}
