@@ -12,6 +12,7 @@ import (
 
 	"github.com/flohoss/mittagskarte/internal/checksum"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 )
 
@@ -77,7 +78,7 @@ type Restaurant struct {
 	RestDays      map[string]struct{} `mapstructure:"-"`
 	Phone         string              `mapstructure:"phone"`
 	Group         string              `mapstructure:"group"`
-	New           bool                `mapstructure:"new"`
+	CreatedAt     time.Time           `mapstructure:"created_at"`
 	Parse         Parse               `mapstructure:"parse"`
 	Menu          Menu                `mapstructure:"-"`
 	Loading       bool                `mapstructure:"-"`
@@ -222,7 +223,7 @@ func New() {
 
 func ValidateAndLoadConfig(v *viper.Viper) error {
 	var tempCfg GlobalConfig
-	if err := v.Unmarshal(&tempCfg); err != nil {
+	if err := v.Unmarshal(&tempCfg, viper.DecodeHook(mapstructure.StringToTimeHookFunc("2006-01-02"))); err != nil {
 		return fmt.Errorf("failed to unmarshal configuration: %w", err)
 	}
 
@@ -434,6 +435,10 @@ func (r *Restaurant) IsClosed() bool {
 	today := time.Now().Weekday().String()
 	_, exists := r.RestDays[today]
 	return exists
+}
+
+func (r *Restaurant) IsNew() bool {
+	return r.CreatedAt.After(time.Now().Add(-168 * time.Hour)) // 1 week
 }
 
 func GetMeta() Meta {
