@@ -157,6 +157,16 @@ restaurants:
         - locator: '#maincontainer'
           style: '.sqrnav { display: none !important; }'
 
+  goldaecker:
+    name: 'Goldäcker'
+    tags: ['Italienisch', 'Pizza', 'Pasta']
+    url: 'https://www.goldaecker.com'
+    address: 'Leinfelder Straße 103, 70771 Leinfelden-Echterdingen'
+    phone: '+49 711 84957399'
+    rest_days:
+      - 'Monday'
+    group: 'Leinfelden-Echterdingen'
+
   linde:
     name: 'Gasthaus Linde'
     tags: ['Schwäbisch']
