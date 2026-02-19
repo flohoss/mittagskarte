@@ -76,7 +76,6 @@ templ Controls(r *config.Restaurant) {
 		if r.Parse.UpdateCron != "" {
 			<button
 				class={ getButtonClass(r.Loading) }
-				title="Aktualisieren"
 				if r.Loading {
 					disabled
 					aria-label="Wird aktualisiert..."
@@ -94,7 +93,7 @@ templ Controls(r *config.Restaurant) {
 				<span class={ "icon-[heroicons--arrow-path] btn-icon transition-transform duration-200", templ.KV("hidden",r.Loading) }></span>
 			</button>
 		} else {
-			<button onclick={ getModalAction(r, "upload") } class="my-btn btn-neutral hover:btn-primary transition-colors duration-200" title="Hochladen" aria-label="Menü hochladen">
+			<button onclick={ getModalAction(r, "upload") } class="my-btn btn-neutral hover:btn-primary transition-colors duration-200" aria-label="Menü hochladen">
 				<span class="icon-[heroicons--arrow-up-tray] btn-icon"></span>
 			</button>
 		}
@@ -103,7 +102,6 @@ templ Controls(r *config.Restaurant) {
 			target="_blank"
 			rel="noopener noreferrer"
 			class="my-btn btn-neutral hover:btn-primary transition-colors duration-200"
-			title="Navigieren"
 			aria-label={ "Navigation zu " + r.Name }
 		>
 			<span class="icon-[heroicons--map] btn-icon"></span>
@@ -111,7 +109,6 @@ templ Controls(r *config.Restaurant) {
 		<a
 			href={ templ.URL("tel:" + r.Phone) }
 			class="my-btn btn-neutral hover:btn-success transition-colors duration-200"
-			title="Anrufen"
 			aria-label={ "Anrufen: " + r.Phone }
 		>
 			<span class="icon-[heroicons--phone] btn-icon"></span>
@@ -121,7 +118,6 @@ templ Controls(r *config.Restaurant) {
 			target="_blank"
 			rel="noopener noreferrer"
 			class="my-btn btn-neutral hover:btn-info transition-colors duration-200"
-			title="Webseite"
 			aria-label={ "Webseite von " + r.Name + " öffnen" }
 		>
 			<span class="icon-[heroicons--link] btn-icon"></span>

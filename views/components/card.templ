@@ -49,15 +49,16 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 				<div class="truncate font-semibold">{ r.Name }</div>
 				<div class="truncate text-xs text-base-content/70">{ humanize.Since(r.Menu.Modified) }</div>
 			</div>
-			if (r.New && g.Group != config.Favorites) {
-				<div title="Neu hinzugefügt!">
-					<span class="icon-[heroicons--bell] size-5 text-warning animate-pulse"></span>
+			if (r.IsNew() && g.Group != config.Favorites) {
+				<div class="tooltip" data-tip="Neu!">
+					<div class="flex flex-center" tabindex="0" aria-label={ "Neu hinzugefügt: " + r.Name }>
+						<span class="icon-[heroicons--bell] size-5 text-warning animate-pulse"></span>
+					</div>
 				</div>
 			}
 			if (g != nil) {
-				<a 
-					class={ "btn btn-ghost hover:text-warning btn-link shrink-0 p-0 transition-colors duration-200", templ.KV("link-warning", g.Group == config.Favorites) } 
-					title={ favTooltip(g.Group == config.Favorites) } 
+				<a
+					class={ "btn btn-ghost hover:text-warning btn-link shrink-0 p-0 transition-colors duration-200", templ.KV("link-warning", g.Group == config.Favorites) }
 					href={ templ.URL("/?fav=" + r.ID + "&group=" + r.Group) }
 					aria-label={ favTooltip(g.Group == config.Favorites) }
 				>
@@ -75,7 +76,6 @@ templ Card(g *config.GroupedRestaurants, r *config.Restaurant) {
 						hx-target="#restaurants-container"
 						hx-swap="innerHTML"
 						hx-on:click="document.querySelector('input[name=q]').value = this.textContent"
-						title={ "Nach '" + tag + "' filtern" }
 						aria-label={ "Filter nach " + tag }
 					>
 						{ tag }
