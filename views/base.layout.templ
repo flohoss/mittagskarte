@@ -102,13 +102,15 @@ templ Base(title string, searchBar bool) {
 						}
 						- <a class="link" title="Source Code auf GitHub" target="_blank" data-lg-blank href={ templ.URL(os.Getenv("REPO")) }>Source Code</a>
 					</div>
-					<div class="flex gap-2 items-center">
-						for _, social := range meta.Social {
-							<a target="_blank" data-lg-blank class="btn btn-circle btn-ghost" title={ social.Description } href={ templ.URL(social.URL) }>
-								@templ.Raw(social.Icon)
-							</a>
-						}
-					</div>
+					if len(meta.Social) > 0 {
+						<div class="flex gap-2 items-center">
+							for _, social := range meta.Social {
+								<a target="_blank" data-lg-blank class="btn btn-circle btn-ghost" title={ social.Description } href={ templ.URL(social.URL) }>
+									@templ.Raw(social.Icon)
+								</a>
+							}
+						</div>
+					}
 				</div>
 			</footer>
 			<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2"></div>
