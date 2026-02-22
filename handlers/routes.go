@@ -29,6 +29,13 @@ func healthHandler(c echo.Context) error {
 }
 
 func SetupRouter(e *echo.Echo, mh *MittagHandler) {
+	authMiddleware := middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+		KeyLookup: "form:token",
+		Validator: func(key string, c echo.Context) (bool, error) {
+			return key == config.GetApiToken(), nil
+		},
+	})
+
 	e.GET("/health", healthHandler)
 	e.HEAD("/health", healthHandler)
 
@@ -46,12 +53,9 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 	})
 
 	e.GET("/filter", mh.handleFilter)
-	e.POST("/upload/:id", mh.handleUpload, middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-		KeyLookup: "form:token",
-		Validator: func(key string, c echo.Context) (bool, error) {
-			return key == config.GetApiToken(), nil
-		},
-	}))
+	e.POST("/upload/:id", mh.handleUpload, authMiddleware)
+	e.POST("/download/:id", mh.handleDownload, authMiddleware)
+
 	timeout := 12 * time.Hour
 	e.PUT("/update/:id", mh.handleUpdate, middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 		Store: middleware.NewRateLimiterMemoryStoreWithConfig(

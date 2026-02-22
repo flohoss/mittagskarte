@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/flohoss/mittagskarte/config"
@@ -106,6 +107,36 @@ func (m *MittagHandler) handleUpload(ctx echo.Context) error {
 	}
 
 	if err := m.mittag.UploadMenu(ctx, r, file); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return m.handleFilter(ctx)
+}
+
+func (m *MittagHandler) handleDownload(ctx echo.Context) error {
+	r, err := config.GetRestaurant(ctx.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if ctx.QueryParam("url") == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "URL parameter is required")
+	}
+
+	parsedURL, err := url.Parse(ctx.QueryParam("url"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL: "+err.Error())
+	}
+
+	ext := filepath.Ext(parsedURL.Path)
+	if !contains(config.GetAllowedExtensions(), ext) {
+		return echo.NewHTTPError(http.StatusBadRequest, config.GetAllowedExtensionsMessage())
+	}
+
+	r.Parse.DownloadURL = parsedURL.String()
+	r.Parse.FileType = config.FileType(ext)
+
+	if err := m.mittag.GetImageUrl(r, true); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
