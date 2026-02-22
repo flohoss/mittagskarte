@@ -20,29 +20,42 @@ func newPlaywrightService() (*PlaywrightService, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not start playwright: %w", err)
 	}
-	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: playwright.Bool(true),
-	})
-	if err != nil {
-		pw.Stop()
-		return nil, fmt.Errorf("could not launch chromium: %w", err)
-	}
-	return &PlaywrightService{browser: browser, pw: pw}, nil
+	return &PlaywrightService{pw: pw}, nil
 }
 
 type PlaywrightService struct {
-	browser playwright.Browser
-	pw      *playwright.Playwright
+	browser            playwright.Browser
+	pw                 *playwright.Playwright
+	browserInitialized bool
 }
 
 func (s *PlaywrightService) close() {
-	if s.browser != nil {
+	if s.browserInitialized {
 		s.browser.Close()
 	}
 	s.pw.Stop()
 }
 
+func (s *PlaywrightService) initBrowser() error {
+	if s.browserInitialized {
+		return nil
+	}
+	browser, err := s.pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
+		Headless: playwright.Bool(true),
+	})
+	if err != nil {
+		return fmt.Errorf("could not launch chromium: %w", err)
+	}
+	s.browser = browser
+	s.browserInitialized = true
+	return nil
+}
+
 func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, error) {
+	if err := s.initBrowser(); err != nil {
+		return "", err
+	}
+
 	slog.Debug("scraping url", "url", url)
 	page, err := s.browser.NewPage(playwright.BrowserNewPageOptions{
 		BypassCSP:         playwright.Bool(true),
@@ -53,24 +66,6 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 	}
 	defer page.Close()
 
-	// Add anti-detection measures
-	page.SetExtraHTTPHeaders(map[string]string{
-		"User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-		"Accept-Language": "de-DE,de;q=0.9",
-		"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-		"Accept-Encoding": "gzip, deflate, br",
-		"DNT":             "1",
-	})
-
-	if err := page.AddInitScript(playwright.Script{
-		Content: playwright.String("Object.defineProperty(navigator, 'webdriver', { get: () => false });"),
-	}); err != nil {
-		slog.Warn("could not add init script", "err", err)
-	}
-
-	// Add human-like delay
-	time.Sleep(time.Duration(rand.Intn(3)+2) * time.Second)
-
 	response, err := page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateLoad,
 	})
@@ -78,7 +73,7 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 		return "", fmt.Errorf("could not navigate to first page: %v", err)
 	}
 	if response.Status() >= 400 {
-		return "", fmt.Errorf("received non-success status code: %d", response.Status())
+		return "", fmt.Errorf(response.StatusText())
 	}
 
 	downloadPath := fmt.Sprintf("%s%d", TempDownloadFolder, time.Now().Unix())
@@ -123,6 +118,13 @@ func (s *PlaywrightService) doScrape(url string, parse *config.Parse) (string, e
 			if n.Locator != "" {
 				slog.Debug("with locator", "locator", n.Locator)
 				locator := page.Locator(n.Locator).First()
+				locatorCount, err := locator.Count()
+				if err != nil {
+					return "", fmt.Errorf("could not count locators %s: %w", n.Locator, err)
+				}
+				if locatorCount == 0 {
+					slog.Warn("locator not found on page", "locator", n.Locator)
+				}
 				err = locator.ScrollIntoViewIfNeeded()
 				if err != nil {
 					return "", fmt.Errorf("could not scroll: %w", err)

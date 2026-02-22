@@ -32,6 +32,7 @@ type Mittag struct {
 	restaurants map[string]*config.Restaurant
 	im          *ImageMagic
 	scheduler   *scheduler.Scheduler
+	ps          *PlaywrightService
 }
 
 func NewMittag(restaurants map[string]*config.Restaurant) *Mittag {
@@ -58,48 +59,52 @@ func NewMittag(restaurants map[string]*config.Restaurant) *Mittag {
 	return r
 }
 
+func (r *Mittag) getPlaywrightService() (*PlaywrightService, error) {
+	if r.ps != nil {
+		return r.ps, nil
+	}
+
+	ps, err := newPlaywrightService()
+	if err != nil {
+		slog.Error("could not initialize PlaywrightService", "error", err)
+	} else {
+		r.ps = ps
+	}
+	return r.ps, err
+}
+
 func (r *Mittag) Close() {
 	if r.im != nil {
 		r.im.Close()
 	}
+	if r.ps != nil {
+		r.ps.close()
+	}
 }
 
 func (r *Mittag) getImageUrls(restaurants map[string]*config.Restaurant, overwrite bool) {
-	ps, err := newPlaywrightService()
-	if err != nil {
-		sentry.CaptureException(err)
-		return
-	}
-	defer ps.close()
-
 	if restaurants == nil {
 		restaurants = r.restaurants
 	}
 
 	for id := range restaurants {
-		if err := r.doGetImageUrl(ps, restaurants[id], overwrite); err != nil {
-			sentry.CaptureException(err)
+		if err := r.doGetImageUrl(restaurants[id], overwrite); err != nil {
 			slog.Error(err.Error())
+			sentry.CaptureException(err)
 			continue
 		}
 	}
 }
 
 func (r *Mittag) GetImageUrl(restaurant *config.Restaurant, overwrite bool) error {
-	restaurant.SetLoading(true)
-	defer restaurant.SetLoading(false)
-	ps, err := newPlaywrightService()
-	if err != nil {
-		return err
-	}
-	defer ps.close()
-	if err := r.doGetImageUrl(ps, restaurant, overwrite); err != nil {
+	if err := r.doGetImageUrl(restaurant, overwrite); err != nil {
+		sentry.CaptureException(err)
 		return err
 	}
 	return nil
 }
 
-func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaurant, overwrite bool) error {
+func (r *Mittag) doGetImageUrl(restaurant *config.Restaurant, overwrite bool) error {
 	filePath := FinalDownloadFolder + restaurant.ID + ".webp"
 	i, err := os.Stat(filePath)
 	if !overwrite && !os.IsNotExist(err) {
@@ -107,6 +112,9 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 		config.SetMenu(filePath, i.ModTime(), restaurant.ID, overwrite)
 		return nil
 	}
+
+	restaurant.SetLoading(true)
+	defer restaurant.SetLoading(false)
 
 	if r.restaurants[restaurant.ID].PageUrl == "" {
 		slog.Debug("no page url, nothing to do...", "id", restaurant.ID)
@@ -120,13 +128,24 @@ func (r *Mittag) doGetImageUrl(ps *PlaywrightService, restaurant *config.Restaur
 
 	slog.Debug("getting image url", "id", restaurant.ID)
 	tmpPath := ""
-	if r.restaurants[restaurant.ID].Parse.DirectDownload != "" {
-		tmpPath, err = download.Curl(TempDownloadFolder+restaurant.ID+".pdf", r.restaurants[restaurant.ID].Parse.DirectDownload)
+	if r.restaurants[restaurant.ID].Parse.DownloadURL != "" {
+		tmpPath, err = download.Curl(TempDownloadFolder+restaurant.ID, r.restaurants[restaurant.ID].Parse.DownloadURL)
+		if err != nil {
+			return err
+		}
 	} else {
+		ps, err := r.getPlaywrightService()
+		if err != nil {
+			return fmt.Errorf("could not get PlaywrightService: %w", err)
+		}
 		tmpPath, err = ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
+		if err != nil {
+			return err
+		}
 	}
-	if err != nil {
-		return err
+	if tmpPath == "" {
+		slog.Error("doScrape/Curl returned empty path", "id", restaurant.ID)
+		return fmt.Errorf("scraping returned empty file path")
 	}
 
 	err = r.convertToWebp(restaurant.ID, tmpPath, filePath, false)
@@ -168,9 +187,8 @@ func (r *Mittag) UploadMenu(ctx echo.Context, restaurant *config.Restaurant, fil
 	restaurant.SetLoading(true)
 	defer restaurant.SetLoading(false)
 	ext := filepath.Ext(file.Filename)
-	allowedExtensions := []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
-	if !contains(allowedExtensions, ext) {
-		return fmt.Errorf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(allowedExtensions, ", "))
+	if !contains(config.GetAllowedExtensions(), ext) {
+		return fmt.Errorf(config.GetAllowedExtensionsMessage())
 	}
 
 	src, err := file.Open()
