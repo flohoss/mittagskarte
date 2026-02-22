@@ -17,6 +17,7 @@ import (
 )
 
 type FileType string
+type ParseType string
 
 const (
 	ConfigFolder = "./config/"
@@ -24,8 +25,20 @@ const (
 	PDF   FileType = "pdf"
 	Image FileType = "image"
 
+	Download ParseType = "download"
+	Scrape   ParseType = "scrape"
+	Upload   ParseType = "upload"
+
 	Favorites string = "Favoriten"
 )
+
+func GetAllowedExtensions() []string {
+	return []string{".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+}
+
+func GetAllowedExtensionsMessage() string {
+	return fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(GetAllowedExtensions(), ", "))
+}
 
 var cfg GlobalConfig
 
@@ -41,7 +54,7 @@ type GlobalConfig struct {
 	UMAMIAnalytics     UMAMIAnalytics         `mapstructure:"umami_analytics"`
 	SentryDSN          string                 `mapstructure:"sentry_dsn"`
 	Server             ServerSettings         `mapstructure:"server"`
-	Restaurants        map[string]*Restaurant `mapstructure:"restaurants"`
+	Restaurants        map[string]*Restaurant `mapstructure:"restaurants" validate:"required,dive"`
 	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
 }
 
@@ -70,16 +83,16 @@ type ServerSettings struct {
 
 type Restaurant struct {
 	ID            string              `mapstructure:"-"`
-	Name          string              `mapstructure:"name"`
+	Name          string              `mapstructure:"name" validate:"required"`
 	Tags          []string            `mapstructure:"tags"`
 	PageUrl       string              `mapstructure:"url"`
 	Address       string              `mapstructure:"address"`
 	RestDaysSlice []string            `mapstructure:"rest_days"`
 	RestDays      map[string]struct{} `mapstructure:"-"`
 	Phone         string              `mapstructure:"phone"`
-	Group         string              `mapstructure:"group"`
+	Group         string              `mapstructure:"group" validate:"required"`
 	CreatedAt     time.Time           `mapstructure:"created_at"`
-	Parse         Parse               `mapstructure:"parse"`
+	Parse         Parse               `mapstructure:"parse" validate:"required"`
 	Menu          Menu                `mapstructure:"-"`
 	Loading       bool                `mapstructure:"-"`
 }
@@ -98,10 +111,11 @@ type GroupedRestaurants struct {
 }
 
 type Parse struct {
-	UpdateCron     string     `mapstructure:"update_cron"`
-	Navigate       []Selector `mapstructure:"navigate"`
-	DirectDownload string     `mapstructure:"direct_download"`
-	FileType       FileType   `mapstructure:"file_type"`
+	Type        ParseType  `mapstructure:"type" validate:"required,oneof=download scrape upload"`
+	UpdateCron  string     `mapstructure:"update_cron"`
+	Navigate    []Selector `mapstructure:"navigate" validate:"omitempty,dive"`
+	DownloadURL string     `mapstructure:"download_url"`
+	FileType    FileType   `mapstructure:"file_type"`
 }
 
 type Selector struct {
@@ -221,6 +235,25 @@ func New() {
 	}
 }
 
+func validateParseConfig(restaurants map[string]*Restaurant) error {
+	for id, r := range restaurants {
+		switch r.Parse.Type {
+		case Download:
+			// If download_url is provided, update_cron must also be provided
+			if r.Parse.DownloadURL != "" && r.Parse.UpdateCron == "" {
+				return fmt.Errorf("restaurant '%s': parse type is 'download' with download_url but no update_cron provided", id)
+			}
+		case Scrape:
+			if len(r.Parse.Navigate) == 0 {
+				return fmt.Errorf("restaurant '%s': parse type is 'scrape' but no navigate selectors provided", id)
+			}
+		case Upload:
+			// upload type doesn't require additional fields
+		}
+	}
+	return nil
+}
+
 func ValidateAndLoadConfig(v *viper.Viper) error {
 	var tempCfg GlobalConfig
 	if err := v.Unmarshal(&tempCfg, viper.DecodeHook(mapstructure.StringToTimeHookFunc("2006-01-02"))); err != nil {
@@ -229,6 +262,10 @@ func ValidateAndLoadConfig(v *viper.Viper) error {
 
 	if err := validate.Struct(tempCfg); err != nil {
 		return fmt.Errorf("configuration validation failed: %w", err)
+	}
+
+	if err := validateParseConfig(tempCfg.Restaurants); err != nil {
+		return err
 	}
 
 	normalizeRestaurant(tempCfg.Restaurants)
