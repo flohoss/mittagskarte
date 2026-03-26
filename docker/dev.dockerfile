@@ -1,5 +1,6 @@
 ARG V_NODE=25
 ARG V_GOLANG=1.25
+ARG V_AIR=1.64.5
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
@@ -17,13 +18,10 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
 COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
-RUN go install github.com/a-h/templ/cmd/templ@v0.3.960
+ARG V_AIR
+RUN go install github.com/air-verse/air@v${V_AIR}
 
-COPY ./go.mod .
-COPY ./go.sum .
+ENV APP_VERSION=v0.0.0.0-dev
+
+COPY ./go.mod ./go.sum ./
 RUN go mod download
-
-# https://patorjk.com/software/taag/#p=display&f=Coder+Mini&t=Mittagskarte&x=none&v=4&h=4&w=80&we=false
-COPY ./docker/coder-mini.txt /coder-mini.txt
-
-ENTRYPOINT [ "/app/docker/dev.entrypoint.sh" ]

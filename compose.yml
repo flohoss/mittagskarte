@@ -1,36 +1,66 @@
 services:
-  mittagstisch:
+  backend:
     build:
       context: .
       dockerfile: docker/dev.dockerfile
     platform: linux/amd64
+    command: >
+      air
+      --build.cmd "go build -o tmp/bin/main ."
+      --build.include_ext "go"
+      --build.exclude_dir "web,docs,node_modules,dist,screenshots,tmp"
+      --build.bin "tmp/bin/main"
+      --build.delay "100"
+      --build.stop_on_error "false"
+      --misc.clean_on_exit true
+    hostname: gocron
     volumes:
-      - .:/app/
+      - ./:/app/
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8156/health']
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    environment:
+      - TZ=Europe/Berlin
     ports:
-      - 7331:7331
-
-  tailwind:
-    image: node:25-alpine
-    working_dir: /app
-    command: yarn dev
-    tty: true
-    volumes:
-      - .:/app/
+      - 8156:8156
 
   yarn:
-    profiles:
-      - dev
     image: node:25-alpine
     working_dir: /app
     entrypoint: yarn
+    command: install
     volumes:
-      - .:/app/
+      - ./web:/app/
 
-  go:
-    profiles:
-      - dev
-    image: golang:1.25-alpine
+  types:
+    depends_on:
+      backend:
+        condition: service_healthy
+      yarn:
+        condition: service_completed_successfully
+    image: node:25-alpine
     working_dir: /app
-    entrypoint: go
+    command: sh -c "wget -qO- http://backend:8156/api/openapi.json -O openapi.json && yarn types"
     volumes:
-      - .:/app/
+      - ./web:/app/
+
+  frontend:
+    depends_on:
+      types:
+        condition: service_completed_successfully
+    image: node:25-alpine
+    working_dir: /app
+    command: yarn dev
+    volumes:
+      - ./web:/app/
+    healthcheck:
+      test: ['CMD', 'sh', '-c', 'wget -qO- http://127.0.0.1:5173/ >/dev/null']
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    ports:
+      - 5173:5173

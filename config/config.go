@@ -1,19 +1,17 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"log/slog"
 	"os"
-	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/flohoss/mittagskarte/internal/checksum"
-	"github.com/go-playground/validator/v10"
-	"github.com/go-viper/mapstructure/v2"
-	"github.com/spf13/viper"
+	"github.com/flohoss/mittagskarte/pkg/file"
 )
 
 type FileType string
@@ -28,8 +26,6 @@ const (
 	Download ParseType = "download"
 	Scrape   ParseType = "scrape"
 	Upload   ParseType = "upload"
-
-	Favorites string = "Favoriten"
 )
 
 func GetAllowedExtensions() []string {
@@ -37,72 +33,49 @@ func GetAllowedExtensions() []string {
 }
 
 func GetAllowedExtensionsMessage() string {
-	return fmt.Sprintf("ungültige Dateierweiterung, erlaubt sind %s", strings.Join(GetAllowedExtensions(), ", "))
+	return fmt.Sprintf("invalid file extension, allowed are %s", strings.Join(GetAllowedExtensions(), ", "))
 }
 
-var cfg GlobalConfig
-
-var validate *validator.Validate
-var mu sync.RWMutex
+var (
+	cfg  GlobalConfig
+	once sync.Once
+	mu   sync.RWMutex
+)
 
 type GlobalConfig struct {
-	LogLevel           string                 `mapstructure:"log_level" validate:"omitempty,oneof=debug info warn error"`
-	TimeZone           string                 `mapstructure:"time_zone" validate:"required"`
-	APIToken           string                 `mapstructure:"api_token" validate:"required"`
-	Meta               Meta                   `mapstructure:"meta"`
-	Impressum          Impressum              `mapstructure:"impressum"`
-	UMAMIAnalytics     UMAMIAnalytics         `mapstructure:"umami_analytics"`
-	SentryDSN          string                 `mapstructure:"sentry_dsn"`
-	Server             ServerSettings         `mapstructure:"server"`
-	Restaurants        map[string]*Restaurant `mapstructure:"restaurants" validate:"required,dive"`
-	GroupedRestaurants []GroupedRestaurants   `mapstructure:"-"`
-}
-
-type Meta struct {
-	Title       string   `mapstructure:"title" validate:"required"`
-	Description string   `mapstructure:"description" validate:"required"`
-	Social      []Social `mapstructure:"social"`
-}
-
-type Impressum struct {
-	Enabled     bool   `mapstructure:"enabled"`
-	Responsible string `mapstructure:"responsible"`
-	Email       string `mapstructure:"email"`
-}
-
-type UMAMIAnalytics struct {
-	Enabled   bool   `mapstructure:"enabled"`
-	Domain    string `mapstructure:"domain"`
-	WebsiteID string `mapstructure:"website_id"`
+	LogLevel    slog.Level             `json:"log_level"`
+	TimeZone    string                 `json:"time_zone"`
+	APIToken    string                 `json:"api_token"`
+	Server      ServerSettings         `json:"server"`
+	Restaurants map[string]*Restaurant `json:"restaurants"`
 }
 
 type ServerSettings struct {
-	Address string `mapstructure:"address" validate:"required,ipv4"`
-	Port    int    `mapstructure:"port" validate:"required,gte=1024,lte=65535"`
+	Address string `json:"address"`
+	Port    int    `json:"port"`
 }
 
 type Restaurant struct {
-	ID            string              `mapstructure:"-"`
-	Name          string              `mapstructure:"name" validate:"required"`
-	Tags          []string            `mapstructure:"tags"`
-	PageUrl       string              `mapstructure:"url"`
-	Address       string              `mapstructure:"address"`
-	RestDaysSlice []string            `mapstructure:"rest_days"`
-	RestDays      map[string]struct{} `mapstructure:"-"`
-	Phone         string              `mapstructure:"phone"`
-	Group         string              `mapstructure:"group" validate:"required"`
-	CreatedAt     time.Time           `mapstructure:"created_at"`
-	Parse         Parse               `mapstructure:"parse" validate:"required"`
-	Menu          Menu                `mapstructure:"-"`
-	Loading       bool                `mapstructure:"-"`
+	ID        string   `json:"-"`
+	Name      string   `json:"name"`
+	Tags      []string `json:"tags"`
+	PageUrl   string   `json:"url"`
+	Address   string   `json:"address"`
+	RestDays  []string `json:"rest_days"`
+	Phone     string   `json:"phone"`
+	Group     string   `json:"group"`
+	CreatedAt Date     `json:"created_at"`
+	Parse     Parse    `json:"parse"`
+	Menu      Menu     `json:"-"`
+	Loading   bool     `json:"-"`
 }
 
 type Menu struct {
-	URL       string     `mapstructure:"-"`
-	Modified  *time.Time `mapstructure:"-"`
-	Landscape bool       `mapstructure:"-"`
-	Width     string     `mapstructure:"-"`
-	Height    string     `mapstructure:"-"`
+	URL       string
+	Modified  *time.Time
+	Landscape bool
+	Width     string
+	Height    string
 }
 
 type GroupedRestaurants struct {
@@ -111,253 +84,133 @@ type GroupedRestaurants struct {
 }
 
 type Parse struct {
-	Type        ParseType  `mapstructure:"type" validate:"required,oneof=download scrape upload"`
-	UpdateCron  string     `mapstructure:"update_cron"`
-	Navigate    []Selector `mapstructure:"navigate" validate:"omitempty,dive"`
-	DownloadURL string     `mapstructure:"download_url"`
-	FileType    FileType   `mapstructure:"file_type"`
+	Type        ParseType  `json:"type"`
+	UpdateCron  string     `json:"update_cron"`
+	Navigate    []Selector `json:"navigate"`
+	DownloadURL string     `json:"download_url"`
+	FileType    FileType   `json:"file_type"`
 }
 
 type Selector struct {
-	Locator   string `mapstructure:"locator"`
-	Attribute string `mapstructure:"attribute"`
-	Style     string `mapstructure:"style"`
-}
-
-type Social struct {
-	Icon        string `mapstructure:"icon"`
-	URL         string `mapstructure:"url"`
-	Description string `mapstructure:"description"`
-}
-
-func matchesLower(lowerFilter, s string) bool {
-	return strings.Contains(strings.ToLower(s), lowerFilter)
-}
-
-func matchesRestaurant(filter string, restaurant *Restaurant) bool {
-	if filter == "" {
-		return true
-	}
-
-	// Convert filter to lowercase once for efficiency
-	lowerFilter := strings.ToLower(filter)
-
-	// Check restaurant name
-	if matchesLower(lowerFilter, restaurant.Name) {
-		return true
-	}
-
-	// Check tags
-	for _, tag := range restaurant.Tags {
-		if matchesLower(lowerFilter, tag) {
-			return true
-		}
-	}
-
-	// Check group/city
-	if matchesLower(lowerFilter, restaurant.Group) {
-		return true
-	}
-
-	// Check address
-	if matchesLower(lowerFilter, restaurant.Address) {
-		return true
-	}
-
-	// Check URL (domain part)
-	if matchesLower(lowerFilter, restaurant.PageUrl) {
-		return true
-	}
-
-	// Check phone number
-	if matchesLower(lowerFilter, restaurant.Phone) {
-		return true
-	}
-
-	return false
+	Locator   string `json:"locator"`
+	Attribute string `json:"attribute"`
+	Style     string `json:"style"`
 }
 
 func init() {
-	os.Mkdir(ConfigFolder, os.ModePerm)
-	validate = validator.New()
-}
-
-func New() {
-	viper.SetDefault("log_level", "info")
-	viper.SetDefault("time_zone", "Europe/Berlin")
-	viper.SetDefault("api_token", "replace-me")
-	viper.SetDefault("server", ServerSettings{
-		Address: "0.0.0.0",
-		Port:    8156,
-	})
-	viper.SetDefault("impressum", Impressum{})
-	viper.SetDefault("umami_analytics", UMAMIAnalytics{})
-	viper.SetDefault("meta", Meta{
-		Title:       "Schniddzl.de",
-		Description: "deine Mittagskarte für die Region Stuttgart",
-		Social:      []Social{},
-	})
-	viper.SetDefault("restaurants", map[string]*Restaurant{
-		"sw34": {
-			Name:    "SW34",
-			Tags:    []string{"Eventlocation", "Modern", "Gehobene Küche", "Crossover", "Stylisch"},
-			PageUrl: "https://sw34.restaurant/essen-trinken",
-			Address: "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
-			Phone:   "+49 711 62042252",
-			Group:   "Fasanenhof",
-			RestDays: map[string]struct{}{
-				"Saturday": {},
-				"Sunday":   {},
-			},
-		},
-	})
-
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(ConfigFolder)
-
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			err = viper.WriteConfigAs(ConfigFolder + "config.yaml")
-			if err != nil {
-				slog.Error(err.Error())
-				os.Exit(1)
-			}
-		} else {
-			slog.Error("Failed to read configuration file", "error", err)
-			os.Exit(1)
-		}
-	}
-
-	if err := ValidateAndLoadConfig(viper.GetViper()); err != nil {
-		slog.Error("Initial configuration validation failed", "error", err)
+	if err := os.MkdirAll(ConfigFolder, os.ModePerm); err != nil {
+		slog.Error("Failed to create config directory", "error", err)
 		os.Exit(1)
 	}
 }
 
-func validateParseConfig(restaurants map[string]*Restaurant) error {
-	for id, r := range restaurants {
-		switch r.Parse.Type {
-		case Download:
-			// If download_url is provided, update_cron must also be provided
-			if r.Parse.DownloadURL != "" && r.Parse.UpdateCron == "" {
-				return fmt.Errorf("restaurant '%s': parse type is 'download' with download_url but no update_cron provided", id)
-			}
-		case Scrape:
-			if len(r.Parse.Navigate) == 0 {
-				return fmt.Errorf("restaurant '%s': parse type is 'scrape' but no navigate selectors provided", id)
-			}
-		case Upload:
-			// upload type doesn't require additional fields
+func load() {
+	once.Do(func() {
+		var tempCfg GlobalConfig
+		if err := file.Read(ConfigFolder, "config", &tempCfg); err != nil {
+			slog.Error("Failed to read configuration file", "error", err)
+			os.Exit(1)
 		}
-	}
-	return nil
-}
 
-func ValidateAndLoadConfig(v *viper.Viper) error {
-	var tempCfg GlobalConfig
-	if err := v.Unmarshal(&tempCfg, viper.DecodeHook(mapstructure.StringToTimeHookFunc("2006-01-02"))); err != nil {
-		return fmt.Errorf("failed to unmarshal configuration: %w", err)
-	}
+		normalizeRestaurant(tempCfg.Restaurants)
+		os.Setenv("TZ", tempCfg.TimeZone)
 
-	if err := validate.Struct(tempCfg); err != nil {
-		return fmt.Errorf("configuration validation failed: %w", err)
-	}
-
-	if err := validateParseConfig(tempCfg.Restaurants); err != nil {
-		return err
-	}
-
-	normalizeRestaurant(tempCfg.Restaurants)
-	tempCfg.GroupedRestaurants = computeGroupedRestaurantsForMap(tempCfg.Restaurants)
-
-	mu.Lock()
-	cfg = tempCfg
-	mu.Unlock()
-
-	os.Setenv("TZ", cfg.TimeZone)
-	return nil
+		mu.Lock()
+		cfg = tempCfg
+		mu.Unlock()
+	})
 }
 
 func normalizeRestaurant(restaurants map[string]*Restaurant) {
-	for _, r := range restaurants {
-		r.RestDays = make(map[string]struct{})
-		for _, day := range r.RestDaysSlice {
-			r.RestDays[day] = struct{}{}
-		}
-	}
-}
-
-func computeGroupedRestaurantsForMap(restaurants map[string]*Restaurant) []GroupedRestaurants {
-	groupMap := make(map[string][]*Restaurant)
 	for id, r := range restaurants {
 		r.ID = id
-		groupMap[r.Group] = append(groupMap[r.Group], r)
 	}
-
-	for _, list := range groupMap {
-		sort.Slice(list, func(i, j int) bool {
-			return list[i].Name < list[j].Name
-		})
-	}
-
-	var groups []GroupedRestaurants
-	for g, list := range groupMap {
-		groups = append(groups, GroupedRestaurants{
-			Group:       g,
-			Restaurants: list,
-		})
-	}
-
-	sort.Slice(groups, func(i, j int) bool {
-		return groups[i].Group < groups[j].Group
-	})
-
-	return groups
 }
 
-func ConfigLoaded() bool {
-	return viper.ConfigFileUsed() != ""
+func get(getter func() any) any {
+	load()
+	mu.RLock()
+	defer mu.RUnlock()
+	return snapshot(getter())
+}
+
+func set(setter func()) {
+	load()
+	mu.Lock()
+	defer mu.Unlock()
+	setter()
+}
+
+func snapshot(v any) any {
+	switch x := v.(type) {
+	case map[string]*Restaurant:
+		return snapshotRestaurants(x)
+	case *Restaurant:
+		if x == nil {
+			return (*Restaurant)(nil)
+		}
+		r := snapshotRestaurant(*x)
+		return &r
+	default:
+		return v
+	}
+}
+
+func snapshotRestaurants(in map[string]*Restaurant) map[string]*Restaurant {
+	out := make(map[string]*Restaurant, len(in))
+	for id, r := range in {
+		if r == nil {
+			out[id] = nil
+			continue
+		}
+		copyR := snapshotRestaurant(*r)
+		out[id] = &copyR
+	}
+	return out
+}
+
+func snapshotRestaurant(r Restaurant) Restaurant {
+	r.Tags = append([]string(nil), r.Tags...)
+	r.RestDays = append([]string(nil), r.RestDays...)
+	r.Parse.Navigate = append([]Selector(nil), r.Parse.Navigate...)
+	if r.Menu.Modified != nil {
+		modified := *r.Menu.Modified
+		r.Menu.Modified = &modified
+	}
+	return r
 }
 
 func GetLogLevel() slog.Level {
-	mu.RLock()
-	defer mu.RUnlock()
-	switch strings.ToLower(cfg.LogLevel) {
-	case "debug":
-		return slog.LevelDebug
-	case "warn", "warning":
-		return slog.LevelWarn
-	case "error":
-		return slog.LevelError
-	default:
-		return slog.LevelInfo
-	}
-}
-
-func GetSentryDSN() string {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.SentryDSN
+	return get(func() any { return cfg.LogLevel }).(slog.Level)
 }
 
 func GetServer() string {
-	mu.RLock()
-	defer mu.RUnlock()
-	return fmt.Sprintf("%s:%d", cfg.Server.Address, cfg.Server.Port)
+	return get(func() any { return fmt.Sprintf("%s:%d", cfg.Server.Address, cfg.Server.Port) }).(string)
+}
+
+func GetServerURL() string {
+	return get(func() any { return fmt.Sprintf("http://%s", GetServer()) }).(string)
 }
 
 func GetRestaurants() map[string]*Restaurant {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.Restaurants
+	return get(func() any { return cfg.Restaurants }).(map[string]*Restaurant)
+}
+
+func GetRestaurant(id string) (*Restaurant, error) {
+	res := get(func() any { return cfg.Restaurants[id] }).(*Restaurant)
+	if res == nil {
+		return nil, errors.New("restaurant not found")
+	}
+	return res, nil
+}
+
+func GetApiToken() string {
+	return get(func() any { return cfg.APIToken }).(string)
 }
 
 func GetAllCrons() map[string]map[string]*Restaurant {
-	mu.RLock()
-	defer mu.RUnlock()
-	cronJobs := make(map[string]map[string]*Restaurant)
 	restaurants := GetRestaurants()
+	cronJobs := make(map[string]map[string]*Restaurant)
 
 	for id, restaurant := range restaurants {
 		if restaurant.Parse.UpdateCron == "" {
@@ -372,126 +225,41 @@ func GetAllCrons() map[string]map[string]*Restaurant {
 	return cronJobs
 }
 
-func GetGroupedRestaurants(favSet map[string]string, filter string) []GroupedRestaurants {
-	mu.RLock()
-	defer mu.RUnlock()
-	r := cfg.GroupedRestaurants
-
-	if len(favSet) == 0 && filter == "" {
-		return r
-	}
-
-	var filtered []GroupedRestaurants
-	var favourites []*Restaurant
-
-	for _, group := range r {
-		var filteredRestaurants []*Restaurant
-		for _, restaurant := range group.Restaurants {
-			if matchesRestaurant(filter, restaurant) {
-				if _, ok := favSet[strings.ToLower(restaurant.ID)]; ok {
-					favourites = append(favourites, restaurant)
-					continue
-				}
-
-				filteredRestaurants = append(filteredRestaurants, restaurant)
-			}
+func (r *Restaurant) SetLoading(loading bool) {
+	set(func() {
+		if current := cfg.Restaurants[r.ID]; current != nil {
+			current.Loading = loading
+			return
 		}
-
-		if len(filteredRestaurants) > 0 {
-			filtered = append(filtered, GroupedRestaurants{
-				Group:       group.Group,
-				Restaurants: filteredRestaurants,
-			})
-		}
-	}
-
-	if len(favourites) > 0 {
-		filtered = append([]GroupedRestaurants{{
-			Group:       Favorites,
-			Restaurants: favourites,
-		}}, filtered...)
-	}
-
-	return filtered
+		r.Loading = loading
+	})
 }
 
-func GetRestaurant(id string) (*Restaurant, error) {
-	mu.RLock()
-	defer mu.RUnlock()
-	restaurant, exists := cfg.Restaurants[id]
-	if !exists {
-		return nil, fmt.Errorf("restaurant %s not found", id)
-	}
-	return restaurant, nil
-}
-
-func SetMenu(filePath string, modTime time.Time, restaurantID string, new bool) {
-	mu.Lock()
-	defer mu.Unlock()
-
+func (r *Restaurant) SetMenu(filePath string, modTime time.Time) {
 	url := checksum.SuffixQuery(filePath)
-
-	cfg.Restaurants[restaurantID].Menu = Menu{
+	menu := Menu{
 		URL:      url,
 		Modified: &modTime,
 	}
 
 	f, err := os.Open(filePath)
 	if err != nil {
-		return
+		slog.Warn("Failed to open menu file for image decoding", "error", err, "filePath", filePath)
+	} else {
+		defer f.Close()
+		img, _, decodeErr := image.Decode(f)
+		if decodeErr == nil {
+			menu.Landscape = img.Bounds().Dx() > img.Bounds().Dy()
+			menu.Width = fmt.Sprintf("%dpx", img.Bounds().Dx())
+			menu.Height = fmt.Sprintf("%dpx", img.Bounds().Dy())
+		}
 	}
-	defer f.Close()
-	image, _, err := image.Decode(f)
-	if err != nil {
-		return
-	}
-	cfg.Restaurants[restaurantID].Menu.Landscape = image.Bounds().Dx() > image.Bounds().Dy()
-	cfg.Restaurants[restaurantID].Menu.Width = fmt.Sprintf("%dpx", image.Bounds().Dx())
-	cfg.Restaurants[restaurantID].Menu.Height = fmt.Sprintf("%dpx", image.Bounds().Dy())
 
-	if new {
-		slog.Debug("Menu updated", "restaurantID", restaurantID, "url", url, "modified", modTime.String())
-	}
-}
-
-func GetApiToken() string {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.APIToken
-}
-
-func (r *Restaurant) SetLoading(loading bool) {
-	mu.Lock()
-	defer mu.Unlock()
-	r.Loading = loading
-}
-
-func (r *Restaurant) IsClosed() bool {
-	mu.RLock()
-	defer mu.RUnlock()
-	today := time.Now().Weekday().String()
-	_, exists := r.RestDays[today]
-	return exists
-}
-
-func (r *Restaurant) IsNew() bool {
-	return r.CreatedAt.After(time.Now().Add(-168 * time.Hour)) // 1 week
-}
-
-func GetMeta() Meta {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.Meta
-}
-
-func GetImpressum() Impressum {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.Impressum
-}
-
-func GetAnalytics() UMAMIAnalytics {
-	mu.RLock()
-	defer mu.RUnlock()
-	return cfg.UMAMIAnalytics
+	set(func() {
+		if current := cfg.Restaurants[r.ID]; current != nil {
+			current.Menu = menu
+			return
+		}
+		r.Menu = menu
+	})
 }

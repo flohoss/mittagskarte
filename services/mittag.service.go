@@ -8,12 +8,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/internal/download"
+	"github.com/flohoss/mittagskarte/internal/events"
 	"github.com/flohoss/mittagskarte/internal/scheduler"
-	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,20 +30,20 @@ func init() {
 }
 
 type Mittag struct {
-	restaurants map[string]*config.Restaurant
-	im          *ImageMagic
-	scheduler   *scheduler.Scheduler
-	ps          *PlaywrightService
+	mu        sync.RWMutex
+	im        *ImageMagic
+	scheduler *scheduler.Scheduler
+	ps        *PlaywrightService
+	Events    *events.Event
 }
 
-func NewMittag(restaurants map[string]*config.Restaurant) *Mittag {
+func NewMittag() *Mittag {
 	r := &Mittag{
-		restaurants: restaurants,
-		im:          NewimageMagic(),
-		scheduler:   scheduler.New(),
+		im:        NewimageMagic(),
+		scheduler: scheduler.New(),
 	}
 
-	var cronJobs = config.GetAllCrons()
+	cronJobs := config.GetAllCrons()
 	for sTime, restaurants := range cronJobs {
 		r.scheduler.Add(sTime, func() {
 			r.getImageUrls(restaurants, true)
@@ -82,15 +83,18 @@ func (r *Mittag) Close() {
 	}
 }
 
+func (r *Mittag) SetEvents(e *events.Event) {
+	r.Events = e
+}
+
 func (r *Mittag) getImageUrls(restaurants map[string]*config.Restaurant, overwrite bool) {
 	if restaurants == nil {
-		restaurants = r.restaurants
+		restaurants = config.GetRestaurants()
 	}
 
 	for id := range restaurants {
 		if err := r.doGetImageUrl(restaurants[id], overwrite); err != nil {
 			slog.Error(err.Error())
-			sentry.CaptureException(err)
 			continue
 		}
 	}
@@ -98,7 +102,6 @@ func (r *Mittag) getImageUrls(restaurants map[string]*config.Restaurant, overwri
 
 func (r *Mittag) GetImageUrl(restaurant *config.Restaurant, overwrite bool) error {
 	if err := r.doGetImageUrl(restaurant, overwrite); err != nil {
-		sentry.CaptureException(err)
 		return err
 	}
 	return nil
@@ -109,27 +112,27 @@ func (r *Mittag) doGetImageUrl(restaurant *config.Restaurant, overwrite bool) er
 	i, err := os.Stat(filePath)
 	if !overwrite && !os.IsNotExist(err) {
 		slog.Debug("file already exists, skipping...", "filePath", filePath)
-		config.SetMenu(filePath, i.ModTime(), restaurant.ID, overwrite)
+		restaurant.SetMenu(filePath, i.ModTime())
 		return nil
 	}
 
 	restaurant.SetLoading(true)
 	defer restaurant.SetLoading(false)
 
-	if r.restaurants[restaurant.ID].PageUrl == "" {
+	if restaurant.PageUrl == "" {
 		slog.Debug("no page url, nothing to do...", "id", restaurant.ID)
 		return nil
 	}
 
-	if r.restaurants[restaurant.ID].Parse.UpdateCron == "" {
+	if restaurant.Parse.UpdateCron == "" {
 		slog.Debug("no parse config, nothing to do...", "id", restaurant.ID)
 		return nil
 	}
 
 	slog.Debug("getting image url", "id", restaurant.ID)
 	tmpPath := ""
-	if r.restaurants[restaurant.ID].Parse.DownloadURL != "" {
-		tmpPath, err = download.Curl(TempDownloadFolder+restaurant.ID, r.restaurants[restaurant.ID].Parse.DownloadURL)
+	if restaurant.Parse.DownloadURL != "" {
+		tmpPath, err = download.Curl(TempDownloadFolder+restaurant.ID, restaurant.Parse.DownloadURL)
 		if err != nil {
 			return err
 		}
@@ -138,7 +141,7 @@ func (r *Mittag) doGetImageUrl(restaurant *config.Restaurant, overwrite bool) er
 		if err != nil {
 			return fmt.Errorf("could not get PlaywrightService: %w", err)
 		}
-		tmpPath, err = ps.doScrape(r.restaurants[restaurant.ID].PageUrl, &r.restaurants[restaurant.ID].Parse)
+		tmpPath, err = ps.doScrape(restaurant.PageUrl, &restaurant.Parse)
 		if err != nil {
 			return err
 		}
@@ -148,7 +151,7 @@ func (r *Mittag) doGetImageUrl(restaurant *config.Restaurant, overwrite bool) er
 		return fmt.Errorf("scraping returned empty file path")
 	}
 
-	err = r.convertToWebp(restaurant.ID, tmpPath, filePath, false)
+	err = r.convertToWebp(restaurant, tmpPath, filePath, false)
 	if err != nil {
 		return err
 	}
@@ -162,20 +165,20 @@ func (r *Mittag) doGetImageUrl(restaurant *config.Restaurant, overwrite bool) er
 
 	i, err = os.Stat(filePath)
 	if !os.IsNotExist(err) {
-		config.SetMenu(filePath, i.ModTime(), restaurant.ID, overwrite)
+		restaurant.SetMenu(filePath, i.ModTime())
 	}
 	return nil
 }
 
-func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) error {
-	var err error
-	if r.restaurants[id].Parse.FileType == config.PDF || pdfOverwrite {
-		err = convertPdfToWebp(tmpPath, filePath)
+func (r *Mittag) convertToWebp(restaurant *config.Restaurant, tmpPath, filePath string, pdfOverwrite bool) error {
+	var convertErr error
+	if restaurant.Parse.FileType == config.PDF || pdfOverwrite {
+		convertErr = convertPdfToWebp(tmpPath, filePath)
 	} else {
-		err = r.im.ConvertToWebp(tmpPath, filePath)
+		convertErr = r.im.ConvertToWebp(tmpPath, filePath)
 	}
-	if err != nil {
-		return err
+	if convertErr != nil {
+		return convertErr
 	}
 	if err := r.im.ResizeWebp(filePath, filePath); err != nil {
 		return err
@@ -186,6 +189,7 @@ func (r *Mittag) convertToWebp(id, tmpPath, filePath string, pdfOverwrite bool) 
 func (r *Mittag) UploadMenu(ctx echo.Context, restaurant *config.Restaurant, file *multipart.FileHeader) error {
 	restaurant.SetLoading(true)
 	defer restaurant.SetLoading(false)
+
 	ext := filepath.Ext(file.Filename)
 	if !contains(config.GetAllowedExtensions(), ext) {
 		return fmt.Errorf(config.GetAllowedExtensionsMessage())
@@ -209,11 +213,11 @@ func (r *Mittag) UploadMenu(ctx echo.Context, restaurant *config.Restaurant, fil
 	}
 
 	filePath := filepath.Join(FinalDownloadFolder, restaurant.ID+".webp")
-	if err := r.convertToWebp(restaurant.ID, rawPath, filePath, ext == ".pdf"); err != nil {
+	if err := r.convertToWebp(restaurant, rawPath, filePath, ext == ".pdf"); err != nil {
 		return fmt.Errorf("die Datei kann nicht in das Format .webp konvertiert werden")
 	}
 
-	config.SetMenu(filePath, time.Now(), restaurant.ID, true)
+	restaurant.SetMenu(filePath, time.Now())
 	return nil
 }
 
