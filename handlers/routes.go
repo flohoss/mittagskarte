@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"net/http"
-	"time"
+	"os"
+	"strings"
 
-	"github.com/a-h/templ"
-	"github.com/flohoss/mittagskarte/config"
-	"github.com/flohoss/mittagskarte/views"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humaecho"
+	"github.com/flohoss/mittagskarte/internal/events"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"golang.org/x/time/rate"
+	"github.com/r3labs/sse/v2"
 )
 
 func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
@@ -19,28 +20,56 @@ func longCacheLifetime(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func render(c echo.Context, cmp templ.Component) error {
-	c.Response().Header().Set(echo.HeaderContentType, "text/html; charset=utf-8")
-	return cmp.Render(c.Request().Context(), c.Response().Writer)
-}
-
 func healthHandler(c echo.Context) error {
 	return c.String(http.StatusOK, ".")
 }
 
-func SetupRouter(e *echo.Echo, mh *MittagHandler) {
-	authMiddleware := middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-		KeyLookup: "form:token",
-		Validator: func(key string, c echo.Context) (bool, error) {
-			return key == config.GetApiToken(), nil
-		},
-	})
+func InitRouter() *echo.Echo {
+	e := echo.New()
 
+	e.HideBanner = true
+	e.HidePort = true
+
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Skipper: func(c echo.Context) bool {
+			return strings.Contains(c.Path(), "events")
+		},
+	}))
+
+	e.Renderer = initTemplates()
+
+	return e
+}
+
+func SetupRouter(e *echo.Echo, mh *RestaurantHandler) {
 	e.GET("/health", healthHandler)
 	e.HEAD("/health", healthHandler)
 
+	h := huma.DefaultConfig("Mittagskarte API", os.Getenv("APP_VERSION"))
+	h.OpenAPIPath = "/api/openapi"
+	h.DocsPath = "/api/docs"
+	h.SchemasPath = "/api/schemas"
+	humaAPI := humaecho.New(e, h)
+
+	huma.Register(humaAPI, mh.listRestaurantsOperation(), mh.listRestaurantsHandler)
+	huma.Register(humaAPI, mh.getRestaurantOperation(), mh.getRestaurantHandler)
+
+	mh.mittag.SetEvents(events.New(func(streamID string, sub *sse.Subscriber) {
+		mh.mittag.Events.SendUpdate(mh.listRestaurants())
+	}))
+	e.GET("/api/events", mh.mittag.Events.GetHandler())
+
+	e.GET("/robots.txt", func(ctx echo.Context) error {
+		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
+	})
+
 	assets := e.Group("/assets", longCacheLifetime)
-	assets.Static("/", "assets")
+	assets.Static("/", "web/assets")
+
+	favicon := e.Group("/static", longCacheLifetime)
+	favicon.Static("/", "web/static")
 
 	thumbnails := e.Group("/thumbnails", longCacheLifetime)
 	thumbnails.Static("/", "config/thumbnails")
@@ -48,44 +77,7 @@ func SetupRouter(e *echo.Echo, mh *MittagHandler) {
 	downloads := e.Group("/config/downloads", longCacheLifetime)
 	downloads.Static("/", "config/downloads")
 
-	e.GET("/robots.txt", func(ctx echo.Context) error {
-		return ctx.String(http.StatusOK, "User-agent: *\nDisallow: /")
-	})
-
-	e.GET("/filter", mh.handleFilter)
-	e.POST("/upload/:id", mh.handleUpload, authMiddleware)
-	e.POST("/download/:id", mh.handleDownload, authMiddleware)
-
-	timeout := 12 * time.Hour
-	e.PUT("/update/:id", mh.handleUpdate, middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
-		Store: middleware.NewRateLimiterMemoryStoreWithConfig(
-			middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(1 / timeout.Seconds()), Burst: 1, ExpiresIn: timeout},
-		),
-		IdentifierExtractor: func(ctx echo.Context) (string, error) {
-			restaurant := ctx.Param("id")
-			if restaurant == "" {
-				restaurant = "none"
-			}
-			return restaurant, nil
-		},
-		ErrorHandler: func(context echo.Context, err error) error {
-			return echo.NewHTTPError(http.StatusForbidden, nil)
-		},
-		DenyHandler: func(context echo.Context, identifier string, err error) error {
-			return echo.NewHTTPError(http.StatusTooManyRequests, "Zu viele Anfragen für dieses Restaurant. Bitte versuchen Sie es später erneut.")
-		},
-	}))
-
-	e.GET("/impressum", func(c echo.Context) error {
-		if config.GetImpressum().Enabled {
-			return render(c, views.ImpressumIndex(views.Impressum()))
-		}
-		return c.Redirect(http.StatusFound, "/")
-	})
-
-	e.GET("/", mh.handleIndex)
-
-	e.Any("/*", func(c echo.Context) error {
-		return c.Redirect(http.StatusFound, "/")
+	e.Any("/*", func(ctx echo.Context) error {
+		return ctx.Render(http.StatusOK, "index.html", nil)
 	})
 }
