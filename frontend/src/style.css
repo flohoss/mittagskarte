@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@plugin 'daisyui/theme' {
+  name: corporate;
+  default: true;
+  prefersdark: false;
+  --color-neutral: #efefef;
+  --color-neutral-content: #333333;
+  --color-base-200: #f9f9f9;
+}
+
+@plugin 'daisyui/theme' {
+  name: business;
+  default: false;
+  prefersdark: true;
+  --color-neutral: #181818;
+  --color-neutral-content: #eeeeee;
+}
+
+@utility container {
+  margin-inline: auto;
+}
+
+@utility btn {
+  @apply rounded-r-lg rounded-l-lg shadow-none hover:shadow-none;
+
+  &:active:not(.btn-active) {
+    translate: none !important;
+  }
+}
+
+@utility btn-icon {
+  @apply size-5 shrink-0;
+}
+
+@utility my-btn {
+  @apply btn btn-sm w-full;
+}
+
+@utility my-card {
+  @apply relative grid gap-2 shrink-0;
+}
+
+@utility card-grid {
+  @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
+}
+
+@utility my-link {
+  @apply link link-hover flex items-center gap-2;
+}
