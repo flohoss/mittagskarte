@@ -3,7 +3,7 @@
 
 @plugin 'daisyui/theme' {
   name: corporate;
-  default: true;
+  default: false;
   prefersdark: false;
   --color-neutral: #efefef;
   --color-neutral-content: #333333;
@@ -12,7 +12,7 @@
 
 @plugin 'daisyui/theme' {
   name: business;
-  default: false;
+  default: true;
   prefersdark: true;
   --color-neutral: #181818;
   --color-neutral-content: #eeeeee;
@@ -43,9 +43,13 @@
 }
 
 @utility card-grid {
-  @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
+  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
 }
 
 @utility my-link {
   @apply link link-hover flex items-center gap-2;
+}
+
+@utility card-action-btn {
+  @apply btn btn-sm btn-ghost h-10 min-h-10 rounded-xl border border-base-300 bg-base-300/40 px-3 text-base-content/80 hover:bg-base-200;
 }
