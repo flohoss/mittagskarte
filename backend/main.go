@@ -13,7 +13,7 @@ import (
 func main() {
 	app := pocketbase.NewWithConfig(
 		pocketbase.Config{
-			DefaultDataDir: "/app/pb_data",
+			DefaultDataDir: "/app/data/pb",
 		},
 	)
 
