@@ -4,18 +4,23 @@ import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
 import Fa7SolidPhone from '~icons/fa7-solid/phone';
 import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidStar from '~icons/fa7-solid/star';
+import Fa7RegularStar from '~icons/fa7-regular/star';
 
 import { computed } from 'vue';
 import { BackendURL } from '../main';
+import { useFavorites } from '../stores/useFavorites';
 import type { Restaurant } from '../types/restaurant';
 
 const props = defineProps<{
   restaurant: Restaurant;
 }>();
 
+const { isFavorite, toggleFavorite } = useFavorites();
+
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const isClosed = computed(() => props.restaurant.rest_days.includes(WEEKDAYS[new Date().getDay()]));
+const isFavorited = computed(() => isFavorite(props.restaurant.id));
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   numeric: 'auto',
@@ -93,8 +98,18 @@ function getInitials(name: string) {
         <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : 'badge-ghost border-base-300/80 bg-base-100/85 text-base-content/70']">
           {{ isClosed ? 'Heute geschlossen' : formatRelativeDate(props.restaurant.updated) }}
         </span>
-        <button type="button" class="btn btn-circle btn-ghost btn-xs text-warning backdrop-blur" aria-label="Favorit" @click="">
-          <Fa7SolidStar class="size-4" aria-hidden="true" />
+        <button
+          type="button"
+          :class="[
+            'cursor-pointer border-0 bg-transparent p-0 text-lg leading-none drop-shadow-sm transition-colors opacity-80 hover:opacity-100 focus:outline-none',
+            isFavorited ? 'text-warning' : 'hover:text-warning',
+          ]"
+          :aria-label="isFavorited ? 'Favorit entfernen' : 'Als Favorit markieren'"
+          :aria-pressed="isFavorited"
+          @click="toggleFavorite(props.restaurant.id)"
+        >
+          <span v-if="isFavorited" aria-hidden="true"> <Fa7SolidStar aria-hidden="true" /></span>
+          <span v-else aria-hidden="true"><Fa7RegularStar aria-hidden="true" /></span>
         </button>
       </div>
       <!-- bottom row: tags -->
