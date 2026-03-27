@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	DownloadsFolder = "downloads/"
+	DownloadsFolder = "/app/data/downloads/"
 )
 
 func init() {
