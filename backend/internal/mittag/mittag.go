@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	DownloadsFolder = "/app/data/downloads/"
+	DownloadsFolder = "data/downloads/"
 )
 
 func init() {
@@ -46,7 +46,7 @@ func New(app core.App) (*Mittag, error) {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/scrape", func(re *core.RequestEvent) error {
-			go m.scrape(nil)
+			go m.scrapeMultiple(nil)
 			return re.String(http.StatusOK, "Scraping started")
 		})
 
@@ -76,7 +76,7 @@ func (m *Mittag) initCron() error {
 		}
 		m.app.Logger().Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(restaurantIDs, ","))
 		m.app.Cron().MustAdd(cron, cron, func() {
-			m.scrape(restaurants)
+			m.scrapeMultiple(restaurants)
 		})
 	}
 
@@ -109,63 +109,83 @@ func (m *Mittag) getCronGroups() (map[string][]*Restaurant, error) {
 	return grouped, nil
 }
 
-func (m *Mittag) scrape(restaurants []*Restaurant) {
-	if restaurants == nil {
-		restaurants = m.restaurants
-	}
-
+func (m *Mittag) scrapeMultiple(restaurants []*Restaurant) {
 	var err error
 
-	for _, r := range restaurants {
-		downloadPath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d", time.Now().Unix()))
-		defer os.Remove(downloadPath)
-
-		switch r.Method {
-		case "scrape":
-			downloadPath, err = r.Scrape(downloadPath, m.web, m.app.Logger())
-			if err != nil {
-				m.app.Logger().Error("Error scraping restaurant", "id", r.ID, "error", err)
-				continue
-			}
-		case "download":
-			downloadPath, err = r.Download(downloadPath, m.app.Logger())
-			if err != nil {
-				m.app.Logger().Error("Error downloading menu", "id", r.ID, "error", err)
-				continue
-			}
-		case "upload":
-			m.app.Logger().Info("Restaurant is manually updated, skipping automated process", "id", r.ID, "website", r.Website)
-		default:
-			m.app.Logger().Warn("Unknown scraping method for restaurant", "id", r.ID, "method", r.Method)
-		}
-
-		filePath := filepath.Join(DownloadsFolder, r.ID+".webp")
-
-		if r.ContentType == "pdf" {
-			err = pdf.ConvertToWebp(downloadPath, filePath)
-		} else {
-			err = m.im.ConvertToWebp(downloadPath, filePath)
-		}
+	if restaurants == nil {
+		restaurants, err = m.getRestaurants()
 		if err != nil {
-			m.app.Logger().Error("Error converting menu to webp", "id", r.ID, "error", err)
-			continue
+			m.app.Logger().Error("Error fetching restaurants", "error", err)
+			return
 		}
-
-		if err = m.im.Trim(filePath); err != nil {
-			m.app.Logger().Error("Error trimming menu image", "id", r.ID, "error", err)
-			continue
-		}
-
-		if err = m.im.ResizeWebp(filePath); err != nil {
-			m.app.Logger().Error("Error resizing menu image", "id", r.ID, "error", err)
-			continue
-		}
-
-		if err = r.updateMenu(filePath, m.app); err != nil {
-			m.app.Logger().Error("Error updating restaurant menu", "id", r.ID, "error", err)
-			continue
-		}
-
-		m.app.Logger().Info("Successfully updated menu for restaurant", "id", r.ID, "filePath", filePath)
 	}
+
+	for _, r := range restaurants {
+		if err = m.scrapeSingle(r); err != nil {
+			m.app.Logger().Error("Error scraping restaurant", "id", r.ID, "error", err)
+		}
+	}
+}
+
+func (m *Mittag) scrapeSingle(restaurant *Restaurant) error {
+	var err error
+
+	initialDownloadPath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s", time.Now().Unix(), restaurant.ID))
+	downloadPath := initialDownloadPath
+	defer func() {
+		if initialDownloadPath != downloadPath {
+			_ = os.Remove(initialDownloadPath)
+		}
+		_ = os.Remove(downloadPath)
+	}()
+
+	switch restaurant.Method {
+	case "scrape":
+		downloadPath, err = restaurant.Scrape(downloadPath, m.web, m.app.Logger())
+		if err != nil {
+			return err
+		}
+	case "download":
+		downloadPath, err = restaurant.Download(downloadPath, m.app.Logger())
+		if err != nil {
+			return err
+		}
+	case "upload":
+		m.app.Logger().Info("Restaurant is manually updated, skipping automated process", "id", restaurant.ID, "website", restaurant.Website)
+		return nil
+	default:
+		m.app.Logger().Warn("Unknown scraping method for restaurant", "id", restaurant.ID, "method", restaurant.Method)
+		return nil
+	}
+
+	tmpFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().Unix(), restaurant.ID))
+	defer os.Remove(tmpFilePath)
+
+	if restaurant.ContentType == "pdf" {
+		err = pdf.ConvertToWebp(downloadPath, tmpFilePath)
+	} else {
+		err = m.im.ConvertToWebp(downloadPath, tmpFilePath)
+	}
+	if err != nil {
+		return err
+	}
+
+	if err = m.im.Trim(tmpFilePath); err != nil {
+		return err
+	}
+
+	if err = m.im.ResizeWebp(tmpFilePath); err != nil {
+		return err
+	}
+
+	if err = restaurant.updateMenu(tmpFilePath, m.app); err != nil {
+		return err
+	}
+
+	finalFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%s.webp", restaurant.ID))
+	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
+		return err
+	}
+
+	return nil
 }
