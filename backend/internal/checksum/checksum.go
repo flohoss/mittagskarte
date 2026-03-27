@@ -25,10 +25,14 @@ func ChecksumFile(filePath string) (uint32, error) {
 	return h.Sum32(), nil
 }
 
+func Identical(existingChecksum string, newChecksum uint32) bool {
+	return existingChecksum == fmt.Sprintf("%x", newChecksum)
+}
+
 func SuffixQuery(filePath string) (string, error) {
 	checksum, err := ChecksumFile(filePath)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("/%s?checksum=%x", filePath, checksum), nil
+	return fmt.Sprintf("/%s?v=%x", filePath, checksum), nil
 }

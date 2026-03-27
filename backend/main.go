@@ -13,7 +13,7 @@ import (
 func main() {
 	app := pocketbase.NewWithConfig(
 		pocketbase.Config{
-			DefaultDataDir: "/app/data/pb",
+			DefaultDataDir: "data/pb",
 		},
 	)
 
@@ -29,7 +29,7 @@ func main() {
 	var err error
 
 	app.OnBootstrap().BindFunc(func(e *core.BootstrapEvent) error {
-		if err := e.Next(); err != nil {
+		if err = e.Next(); err != nil {
 			return err
 		}
 
@@ -49,7 +49,7 @@ func main() {
 		return e.Next()
 	})
 
-	if err := app.Start(); err != nil {
+	if err = app.Start(); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -73,21 +73,35 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 		return err
 	}
 
+	existingChecksum := restaurant.GetString("menu_hash")
+	newChecksum, err := checksum.ChecksumFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	if checksum.Identical(existingChecksum, newChecksum) {
+		app.Logger().Info("Menu has not changed, skipping update", "id", r.ID)
+		return nil
+	}
+
 	filePathWithChecksum, err := checksum.SuffixQuery(filePath)
 	if err != nil {
 		return err
 	}
 
 	restaurant.Set("menu", filePathWithChecksum)
+	restaurant.Set("menu_hash", fmt.Sprintf("%x", newChecksum))
 	if err := app.Save(restaurant); err != nil {
 		return err
 	}
+
+	app.Logger().Info("Successfully updated menu for restaurant", "id", r.ID, "filePath", filePathWithChecksum)
 
 	return nil
 }
 
 func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string, error) {
-	logger.Debug("Downloading menu from direct URL", "id", r.ID, "website", r.Website)
+	logger.Info("Downloading menu from direct URL", "id", r.ID, "website", r.Website)
 
 	if len(r.Navigate) == 0 || r.Navigate[0].Locator == "" {
 		return "", fmt.Errorf("no URL defined in first locator for restaurant %s", r.ID)
@@ -103,12 +117,12 @@ func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string,
 		return "", fmt.Errorf("could not download file %s: %w", url, err)
 	}
 
-	logger.Debug("Successfully downloaded menu", "id", r.ID, "path", downloadPath)
+	logger.Info("Successfully downloaded menu", "id", r.ID, "path", downloadPath)
 	return downloadPath, nil
 }
 
 func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logger) (string, error) {
-	logger.Debug("Scraping restaurant", "id", r.ID, "website", r.Website)
+	logger.Info("Scraping restaurant", "id", r.ID, "website", r.Website)
 
 	err := web.Run(r.Website, func(page playwright.Page) error {
 		for i, nav := range r.Navigate {
@@ -189,6 +203,6 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 		return "", fmt.Errorf("error scraping restaurant %s: %w", r.ID, err)
 	}
 
-	logger.Debug("Successfully scraped restaurant", "id", r.ID, "path", downloadPath)
+	logger.Info("Successfully scraped restaurant", "id", r.ID, "path", downloadPath)
 	return downloadPath, nil
 }
