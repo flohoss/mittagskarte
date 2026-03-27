@@ -1,6 +1,7 @@
 package mittag
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/flohoss/mittagskarte/internal/web"
 
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/subscriptions"
 )
 
 type restaurantsProvider func() ([]*Restaurant, error)
@@ -21,6 +23,8 @@ const (
 	ScrapeStatusQueued   = "queued"
 	ScrapeStatusCooldown = "cooldown"
 	ScrapeStatusIdle     = "idle"
+
+	RestaurantsStatusTopic = "restaurants/status"
 )
 
 type Scraper struct {
@@ -82,14 +86,15 @@ func (s *Scraper) Enqueue(restaurants []*Restaurant) {
 	}
 
 	s.queueMu.Lock()
-	defer s.queueMu.Unlock()
 
 	if s.queueClosed {
+		s.queueMu.Unlock()
 		s.app.Logger().Warn("Scrape queue is closed, skipping enqueue")
 		return
 	}
 
 	now := time.Now()
+	queuedRestaurantIDs := make([]string, 0)
 	for _, r := range restaurants {
 		if _, ok := s.queued[r.ID]; ok {
 			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", r.ID)
@@ -106,9 +111,15 @@ func (s *Scraper) Enqueue(restaurants []*Restaurant) {
 
 		s.scrapeQueue = append(s.scrapeQueue, r.ID)
 		s.queued[r.ID] = struct{}{}
+		queuedRestaurantIDs = append(queuedRestaurantIDs, r.ID)
 	}
 
 	s.queueCond.Broadcast()
+	s.queueMu.Unlock()
+
+	for _, restaurantID := range queuedRestaurantIDs {
+		s.notifyRestaurantStatus(restaurantID)
+	}
 }
 
 func (s *Scraper) runScrapeWorker() {
@@ -119,6 +130,8 @@ func (s *Scraper) runScrapeWorker() {
 		if !ok {
 			return
 		}
+
+		s.notifyRestaurantStatus(restaurantID)
 
 		restaurant, err := s.getRestaurantByID(restaurantID)
 		if err != nil {
@@ -131,6 +144,7 @@ func (s *Scraper) runScrapeWorker() {
 		}
 
 		s.markScrapeDone(restaurantID)
+		s.notifyRestaurantStatus(restaurantID)
 	}
 }
 
@@ -176,6 +190,35 @@ func (s *Scraper) StatusForRestaurant(restaurantID string) string {
 	}
 
 	return ScrapeStatusIdle
+}
+
+func (s *Scraper) notifyRestaurantStatus(restaurantID string) {
+	status := s.StatusForRestaurant(restaurantID)
+
+	payload := map[string]string{
+		"id":     restaurantID,
+		"status": status,
+	}
+
+	rawData, err := json.Marshal(payload)
+	if err != nil {
+		s.app.Logger().Error("Error marshaling restaurant status payload", "id", restaurantID, "error", err)
+		return
+	}
+
+	message := subscriptions.Message{
+		Name: RestaurantsStatusTopic,
+		Data: rawData,
+	}
+
+	for _, chunk := range s.app.SubscriptionsBroker().ChunkedClients(300) {
+		for _, client := range chunk {
+			if !client.HasSubscription(RestaurantsStatusTopic) {
+				continue
+			}
+			client.Send(message)
+		}
+	}
 }
 
 func (s *Scraper) getRestaurantByID(restaurantID string) (*Restaurant, error) {
