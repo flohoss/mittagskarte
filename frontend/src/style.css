@@ -3,19 +3,19 @@
 
 @plugin 'daisyui/theme' {
   name: corporate;
-  default: false;
+  default: true;
   prefersdark: false;
+  --color-primary: #3199d6;
   --color-neutral: #efefef;
   --color-neutral-content: #333333;
   --color-base-200: #f9f9f9;
 }
 
 @plugin 'daisyui/theme' {
-  name: business;
-  default: true;
+  name: dark;
+  default: false;
   prefersdark: true;
-  --color-neutral: #181818;
-  --color-neutral-content: #eeeeee;
+  --color-primary: #1c446c;
 }
 
 @utility container {
@@ -31,25 +31,13 @@
 }
 
 @utility btn-icon {
-  @apply size-5 shrink-0;
-}
-
-@utility my-btn {
-  @apply btn btn-sm w-full;
-}
-
-@utility my-card {
-  @apply relative grid gap-2 shrink-0;
+  @apply size-6 shrink-0;
 }
 
 @utility card-grid {
-  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
 }
 
-@utility my-link {
-  @apply link link-hover flex items-center gap-2;
-}
-
-@utility card-action-btn {
-  @apply btn btn-sm btn-ghost h-10 min-h-10 rounded-xl border border-base-300 bg-base-300/40 px-3 text-base-content/80 hover:bg-base-200;
+body {
+  @apply bg-base-200;
 }

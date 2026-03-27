@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.2.74",
+    "@iconify-json/fa7-solid": "^1.2.4",
     "@types/humanize-duration": "^3.27.4",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vue/tsconfig": "^0.9.0",
