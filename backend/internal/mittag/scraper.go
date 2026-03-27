@@ -1,0 +1,257 @@
+package mittag
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+	"time"
+
+	"github.com/flohoss/mittagskarte/internal/image"
+	"github.com/flohoss/mittagskarte/internal/pdf"
+	"github.com/flohoss/mittagskarte/internal/web"
+
+	"github.com/pocketbase/pocketbase/core"
+)
+
+type restaurantsProvider func() ([]*Restaurant, error)
+
+const (
+	ScrapeStatusUpdating = "updating"
+	ScrapeStatusQueued   = "queued"
+	ScrapeStatusCooldown = "cooldown"
+	ScrapeStatusIdle     = "idle"
+)
+
+type Scraper struct {
+	app            core.App
+	web            *web.Web
+	im             *image.ImageMagic
+	getRestaurants restaurantsProvider
+
+	queueMu     sync.Mutex
+	queueCond   *sync.Cond
+	scrapeQueue []string
+	queued      map[string]struct{}
+	inFlight    map[string]struct{}
+	lastRunAt   map[string]time.Time
+	cooldown    time.Duration
+	queueClosed bool
+	workerWg    sync.WaitGroup
+}
+
+func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic, provider restaurantsProvider) *Scraper {
+	s := &Scraper{
+		app:            app,
+		web:            webService,
+		im:             imageMagic,
+		getRestaurants: provider,
+		queued:         make(map[string]struct{}),
+		inFlight:       make(map[string]struct{}),
+		lastRunAt:      make(map[string]time.Time),
+		cooldown:       time.Hour,
+	}
+
+	s.queueCond = sync.NewCond(&s.queueMu)
+	s.workerWg.Add(1)
+	go s.runScrapeWorker()
+
+	return s
+}
+
+func (s *Scraper) Close() {
+	s.queueMu.Lock()
+	s.queueClosed = true
+	s.queueMu.Unlock()
+	s.queueCond.Broadcast()
+	s.workerWg.Wait()
+
+	s.web.Close()
+	s.im.Close()
+}
+
+func (s *Scraper) Enqueue(restaurants []*Restaurant) {
+	var err error
+
+	if restaurants == nil {
+		restaurants, err = s.getRestaurants()
+		if err != nil {
+			s.app.Logger().Error("Error fetching restaurants", "error", err)
+			return
+		}
+	}
+
+	s.queueMu.Lock()
+	defer s.queueMu.Unlock()
+
+	if s.queueClosed {
+		s.app.Logger().Warn("Scrape queue is closed, skipping enqueue")
+		return
+	}
+
+	now := time.Now()
+	for _, r := range restaurants {
+		if _, ok := s.queued[r.ID]; ok {
+			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", r.ID)
+			continue
+		}
+		if _, ok := s.inFlight[r.ID]; ok {
+			s.app.Logger().Debug("Skipping enqueue: restaurant scrape in progress", "id", r.ID)
+			continue
+		}
+		if lastRunAt, ok := s.lastRunAt[r.ID]; ok && now.Sub(lastRunAt) < s.cooldown {
+			s.app.Logger().Debug("Skipping enqueue: restaurant in cooldown", "id", r.ID, "nextAllowedAt", lastRunAt.Add(s.cooldown))
+			continue
+		}
+
+		s.scrapeQueue = append(s.scrapeQueue, r.ID)
+		s.queued[r.ID] = struct{}{}
+	}
+
+	s.queueCond.Broadcast()
+}
+
+func (s *Scraper) runScrapeWorker() {
+	defer s.workerWg.Done()
+
+	for {
+		restaurantID, ok := s.dequeueScrapeID()
+		if !ok {
+			return
+		}
+
+		restaurant, err := s.getRestaurantByID(restaurantID)
+		if err != nil {
+			s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
+			continue
+		}
+
+		if err = s.scrapeSingle(restaurant); err != nil {
+			s.app.Logger().Error("Error scraping restaurant", "id", restaurant.ID, "error", err)
+		}
+
+		s.markScrapeDone(restaurantID)
+	}
+}
+
+func (s *Scraper) dequeueScrapeID() (string, bool) {
+	s.queueMu.Lock()
+	defer s.queueMu.Unlock()
+
+	for len(s.scrapeQueue) == 0 && !s.queueClosed {
+		s.queueCond.Wait()
+	}
+
+	if len(s.scrapeQueue) == 0 && s.queueClosed {
+		return "", false
+	}
+
+	restaurantID := s.scrapeQueue[0]
+	s.scrapeQueue = s.scrapeQueue[1:]
+	delete(s.queued, restaurantID)
+	s.inFlight[restaurantID] = struct{}{}
+	s.lastRunAt[restaurantID] = time.Now()
+	return restaurantID, true
+}
+
+func (s *Scraper) markScrapeDone(restaurantID string) {
+	s.queueMu.Lock()
+	defer s.queueMu.Unlock()
+
+	delete(s.inFlight, restaurantID)
+}
+
+func (s *Scraper) StatusForRestaurant(restaurantID string) string {
+	s.queueMu.Lock()
+	defer s.queueMu.Unlock()
+
+	if _, ok := s.inFlight[restaurantID]; ok {
+		return ScrapeStatusUpdating
+	}
+	if _, ok := s.queued[restaurantID]; ok {
+		return ScrapeStatusQueued
+	}
+	if lastRunAt, ok := s.lastRunAt[restaurantID]; ok && time.Since(lastRunAt) < s.cooldown {
+		return ScrapeStatusCooldown
+	}
+
+	return ScrapeStatusIdle
+}
+
+func (s *Scraper) getRestaurantByID(restaurantID string) (*Restaurant, error) {
+	restaurants, err := s.getRestaurants()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, restaurant := range restaurants {
+		if restaurant.ID == restaurantID {
+			return restaurant, nil
+		}
+	}
+
+	return nil, fmt.Errorf("restaurant %s not found", restaurantID)
+}
+
+func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
+	var err error
+
+	initialDownloadPath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s", time.Now().Unix(), restaurant.ID))
+	downloadPath := initialDownloadPath
+	defer func() {
+		if initialDownloadPath != downloadPath {
+			_ = os.Remove(initialDownloadPath)
+		}
+		_ = os.Remove(downloadPath)
+	}()
+
+	switch restaurant.Method {
+	case "scrape":
+		downloadPath, err = restaurant.Scrape(downloadPath, s.web, s.app.Logger())
+		if err != nil {
+			return err
+		}
+	case "download":
+		downloadPath, err = restaurant.Download(downloadPath, s.app.Logger())
+		if err != nil {
+			return err
+		}
+	case "upload":
+		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "id", restaurant.ID, "website", restaurant.Website)
+		return nil
+	default:
+		s.app.Logger().Warn("Unknown scraping method for restaurant", "id", restaurant.ID, "method", restaurant.Method)
+		return nil
+	}
+
+	tmpFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().Unix(), restaurant.ID))
+	defer os.Remove(tmpFilePath)
+
+	if restaurant.ContentType == "pdf" {
+		err = pdf.ConvertToWebp(downloadPath, tmpFilePath)
+	} else {
+		err = s.im.ConvertToWebp(downloadPath, tmpFilePath)
+	}
+	if err != nil {
+		return err
+	}
+
+	if err = s.im.Trim(tmpFilePath); err != nil {
+		return err
+	}
+
+	if err = s.im.ResizeWebp(tmpFilePath); err != nil {
+		return err
+	}
+
+	if err = restaurant.updateMenu(tmpFilePath, s.app); err != nil {
+		return err
+	}
+
+	finalFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%s.webp", restaurant.ID))
+	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
+		return err
+	}
+
+	return nil
+}
