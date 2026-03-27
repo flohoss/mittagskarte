@@ -90,6 +90,9 @@ func (m *Mittag) getCronGroups() (map[string][]*Restaurant, error) {
 
 	grouped := make(map[string][]*Restaurant)
 	for i, r := range restaurants {
+		if r.Cron == "" {
+			continue
+		}
 		grouped[r.Cron] = append(grouped[r.Cron], restaurants[i])
 	}
 
@@ -107,6 +110,12 @@ func (m *Mittag) bindHooks() {
 		se.Router.GET("/scrape", func(re *core.RequestEvent) error {
 			go m.scraper.Enqueue(nil)
 			return re.String(http.StatusOK, "Scraping started")
+		})
+
+		fileServer := http.FileServer(http.Dir(DownloadsFolder))
+		se.Router.GET("/data/downloads/{path...}", func(re *core.RequestEvent) error {
+			http.StripPrefix("/data/downloads/", fileServer).ServeHTTP(re.Response, re.Request)
+			return nil
 		})
 
 		return se.Next()

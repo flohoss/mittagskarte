@@ -287,12 +287,12 @@ func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 		return err
 	}
 
-	if err = restaurant.updateMenu(tmpFilePath, s.app); err != nil {
+	finalFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%s.webp", restaurant.ID))
+	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
 		return err
 	}
 
-	finalFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%s.webp", restaurant.ID))
-	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
+	if err = restaurant.updateMenu(finalFilePath, s.app); err != nil {
 		return err
 	}
 

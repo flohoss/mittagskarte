@@ -57,6 +57,13 @@
   dependencies:
     tslib "^2.4.0"
 
+"@iconify-json/fa7-solid@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@iconify-json/fa7-solid/-/fa7-solid-1.2.4.tgz#4f631ac8cc573b6282e4a2dc8555ef24ac050cc8"
+  integrity sha512-Ns+ABU21PQpTjMZZ8idaQ9CDNYxjCJ/HY4+gkDsnAiJLkISMB2WIjoR2sjEj+Yok72sFwhXdYKBxwfRaGlwVpA==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/simple-icons@^1.2.74":
   version "1.2.75"
   resolved "https://registry.yarnpkg.com/@iconify-json/simple-icons/-/simple-icons-1.2.75.tgz#357d17780162e29e887a7acfc678eb0c57d3c513"
