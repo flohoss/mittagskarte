@@ -21,7 +21,7 @@ export const useRestaurants = createGlobalState(() => {
     isLoading.value = true;
     try {
       const records = await pb.collection('restaurants').getFullList({
-        sort: 'name',
+        sort: 'group,name',
       });
       restaurants.value = records as unknown as Restaurant[];
       isLoaded.value = true;
