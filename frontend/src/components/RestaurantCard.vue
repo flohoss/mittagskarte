@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Fa7SolidGlobe from '~icons/fa7-solid/globe';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
+import MenuPopover from './MenuPopover.vue';
 import Fa7SolidPhone from '~icons/fa7-solid/phone';
 import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidStar from '~icons/fa7-solid/star';
@@ -77,7 +78,7 @@ function getInitials(name: string) {
 
 <template>
   <article
-    class="group my-card card card-border overflow-hidden rounded-2xl border border-base-300 bg-base-100 opacity-80 shadow-md transition-[shadow,opacity] duration-200 hover:opacity-100 hover:shadow-xl"
+    class="group card card-border overflow-hidden rounded-2xl bg-base-100 opacity-80 shadow-md transition-[shadow,opacity] duration-200 hover:opacity-100 hover:shadow-xl"
   >
     <figure class="relative h-30 overflow-hidden bg-base-300">
       <img
@@ -93,23 +94,22 @@ function getInitials(name: string) {
       >
         {{ getInitials(props.restaurant.name) }}
       </div>
-      <!-- top row: status badge + favourite -->
+
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
-        <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : 'badge-ghost border-base-300/80 bg-base-100/85 text-base-content/70']">
+        <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : 'badge-ghost']">
           {{ isClosed ? 'Heute geschlossen' : formatRelativeDate(props.restaurant.updated) }}
         </span>
         <button
           type="button"
           :class="[
             'cursor-pointer border-0 bg-transparent p-0 text-lg leading-none drop-shadow-sm transition-colors opacity-80 hover:opacity-100 focus:outline-none',
-            isFavorited ? 'text-warning' : 'hover:text-warning',
+            isFavorited ? 'text-warning' : 'text-white hover:text-warning',
           ]"
           :aria-label="isFavorited ? 'Favorit entfernen' : 'Als Favorit markieren'"
           :aria-pressed="isFavorited"
           @click="toggleFavorite(props.restaurant.id)"
         >
-          <span v-if="isFavorited" aria-hidden="true"> <Fa7SolidStar aria-hidden="true" /></span>
-          <span v-else aria-hidden="true"><Fa7RegularStar aria-hidden="true" /></span>
+          <Fa7SolidStar aria-hidden="true" />
         </button>
       </div>
       <!-- bottom row: tags -->
@@ -126,21 +126,11 @@ function getInitials(name: string) {
       </div>
     </figure>
 
-    <div class="card-body gap-3 p-4">
+    <div class="card-body gap-3 p-3">
       <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
 
       <div class="grid grid-cols-4 gap-1.5">
-        <a
-          v-if="props.restaurant.menu"
-          :href="BackendURL + props.restaurant.menu"
-          target="_blank"
-          rel="noreferrer"
-          class="btn btn-primary"
-          title="Speisekarte"
-          aria-label="Speisekarte öffnen"
-        >
-          <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
-        </a>
+        <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" />
         <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
           <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
         </button>

@@ -6,14 +6,26 @@ import (
 
 	"github.com/flohoss/mittagskarte/internal/mittag"
 
+	"github.com/caarlos0/env/v10"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 )
 
+type config struct {
+	Dev    bool   `env:"DEV" envDefault:"true"`
+	Domain string `env:"DOMAIN,required" envDefault:"localhost:5173"`
+}
+
 func main() {
+	var cfg config
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatal(err)
+	}
+
 	app := pocketbase.NewWithConfig(
 		pocketbase.Config{
 			DefaultDataDir: "data/pb",
+			DefaultDev:     cfg.Dev,
 		},
 	)
 
@@ -33,7 +45,7 @@ func main() {
 			return err
 		}
 
-		mittagService, err = mittag.New(e.App)
+		mittagService, err = mittag.New(e.App, cfg.Domain)
 		if err != nil {
 			return err
 		}

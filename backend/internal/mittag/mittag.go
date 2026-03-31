@@ -1,6 +1,7 @@
 package mittag
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -21,11 +22,12 @@ func init() {
 
 type Mittag struct {
 	app         core.App
+	domain      string
 	restaurants []*Restaurant
 	scraper     *Scraper
 }
 
-func New(app core.App) (*Mittag, error) {
+func New(app core.App, domain string) (*Mittag, error) {
 	webService, err := web.New()
 	if err != nil {
 		return nil, err
@@ -33,7 +35,7 @@ func New(app core.App) (*Mittag, error) {
 
 	imageMagic := image.New()
 
-	m := &Mittag{app: app}
+	m := &Mittag{app: app, domain: domain}
 	m.scraper = NewScraper(app, webService, imageMagic, m.getRestaurants)
 	m.bindHooks()
 
@@ -114,6 +116,7 @@ func (m *Mittag) bindHooks() {
 
 		fileServer := http.FileServer(http.Dir(DownloadsFolder))
 		se.Router.GET("/data/downloads/{path...}", func(re *core.RequestEvent) error {
+			re.Response.Header().Set("Content-Security-Policy", fmt.Sprintf("frame-ancestors 'self' %s", m.domain))
 			http.StripPrefix("/data/downloads/", fileServer).ServeHTTP(re.Response, re.Request)
 			return nil
 		})
