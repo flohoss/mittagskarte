@@ -31,33 +31,10 @@ const { floatingStyles } = useFloating(reference, floating, {
 
 function openPopover() {
   isOpen.value = true;
-  setTimeout(() => {
-    floating.value?.focus();
-  }, 0);
 }
 function closePopover() {
   isOpen.value = false;
 }
-
-function onClickOutside(event: MouseEvent) {
-  if (
-    isOpen.value &&
-    floating.value &&
-    !floating.value.contains(event.target as Node) &&
-    reference.value &&
-    !reference.value.contains(event.target as Node)
-  ) {
-    closePopover();
-  }
-}
-
-import { onMounted, onBeforeUnmount } from 'vue';
-onMounted(() => {
-  document.addEventListener('mousedown', onClickOutside);
-});
-onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', onClickOutside);
-});
 </script>
 
 <template>
@@ -70,10 +47,11 @@ onBeforeUnmount(() => {
       :href="BackendURL + menuUrl"
       target="_blank"
       rel="noopener noreferrer"
-      @click.prevent="openPopover"
-      @keydown.enter.prevent="openPopover"
-      @keydown.space.prevent="openPopover"
+      @mouseenter="openPopover"
+      @mouseleave="closePopover"
+      @focus="openPopover"
       @blur="closePopover"
+      @click="openPopover"
     >
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
     </a>
@@ -83,9 +61,9 @@ onBeforeUnmount(() => {
         ref="floating"
         :style="floatingStyles"
         class="z-50 rounded-xl border border-base-300 bg-base-100 p-4 shadow-xl min-w-[320px] min-h-[400px] max-w-[90vw] max-h-[80vh] overflow-auto"
-        tabindex="0"
-        @keydown.esc="closePopover"
-        @blur="closePopover"
+        @mouseenter="openPopover"
+        @mouseleave="closePopover"
+        tabindex="-1"
       >
         <img :src="BackendURL + menuUrl" alt="Speisekarte" class="w-full h-auto object-contain" />
       </div>
