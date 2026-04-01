@@ -1,16 +1,15 @@
 import { createGlobalState } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
-import PocketBase from 'pocketbase';
+import PocketBase, { type RecordModel } from 'pocketbase';
 import { BackendURL } from '../main';
 import { useFavorites } from './useFavorites';
-import type { Restaurant } from '../types/restaurant';
 
 export const useRestaurants = createGlobalState(() => {
   const pb = new PocketBase(BackendURL);
   const { favorites } = useFavorites();
 
-  const restaurants = ref<Restaurant[]>([]);
+  const restaurants = ref<RecordModel[]>([]);
   const isLoaded = ref(false);
   const isLoading = ref(false);
   const searchQuery = ref('');
@@ -23,7 +22,7 @@ export const useRestaurants = createGlobalState(() => {
       const records = await pb.collection('restaurants').getFullList({
         sort: 'group,name',
       });
-      restaurants.value = records as unknown as Restaurant[];
+      restaurants.value = records as RecordModel[];
       isLoaded.value = true;
     } finally {
       isLoading.value = false;
@@ -32,6 +31,19 @@ export const useRestaurants = createGlobalState(() => {
 
   if (!isLoaded.value && !isLoading.value) {
     void fetchRestaurants();
+  }
+
+  function getFileUrl(restaurant: RecordModel) {
+    const url = pb.files.getURL(restaurant, restaurant.thumbnail);
+    return url;
+  }
+
+  function getMapUrl(restaurant: RecordModel) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`;
+  }
+
+  function getPhoneUrl(restaurant: RecordModel) {
+    return `tel:${restaurant.phone.replace(/[^+\d]/g, '')}`;
   }
 
   const filteredRestaurants = computed(() => {
@@ -51,8 +63,8 @@ export const useRestaurants = createGlobalState(() => {
     });
   });
 
-  const groupedRestaurants = computed<Record<string, Restaurant[]>>(() => {
-    const groups: Record<string, Restaurant[]> = {};
+  const groupedRestaurants = computed<Record<string, RecordModel[]>>(() => {
+    const groups: Record<string, RecordModel[]> = {};
     const favoriteRestaurants = filteredRestaurants.value.filter((restaurant) => favorites.value[restaurant.id]);
 
     if (favoriteRestaurants.length) {
@@ -82,5 +94,8 @@ export const useRestaurants = createGlobalState(() => {
     isLoaded,
     isLoading,
     fetchRestaurants,
+    getFileUrl,
+    getMapUrl,
+    getPhoneUrl,
   };
 });

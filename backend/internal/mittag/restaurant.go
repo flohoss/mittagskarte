@@ -2,9 +2,11 @@ package mittag
 
 import (
 	"fmt"
+	"image"
 	"log/slog"
 	"math/rand"
 	"net/url"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -15,7 +17,14 @@ import (
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/pocketbase/pocketbase/core"
+	_ "golang.org/x/image/webp"
 )
+
+type menuDimensions struct {
+	Width     int  `json:"width"`
+	Height    int  `json:"height"`
+	Landscape bool `json:"landscape"`
+}
 
 type Restaurant struct {
 	ID          string     `db:"id" json:"id"`
@@ -89,8 +98,16 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 		return err
 	}
 
+	dimensions, err := readMenuDimensions(filePath)
+	if err != nil {
+		app.Logger().Warn("Could not read menu image dimensions", "id", r.ID, "path", filePath, "error", err)
+	}
+
 	restaurant.Set("menu", filePathWithChecksum)
 	restaurant.Set("menu_hash", fmt.Sprintf("%x", newChecksum))
+	if dimensions != nil {
+		restaurant.Set("menu_dimensions", dimensions)
+	}
 	if err := app.Save(restaurant); err != nil {
 		return err
 	}
@@ -98,6 +115,29 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 	app.Logger().Info("Successfully updated menu for restaurant", "id", r.ID, "filePath", filePathWithChecksum)
 
 	return nil
+}
+
+func readMenuDimensions(filePath string) (*menuDimensions, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	config, _, err := image.DecodeConfig(file)
+	if err != nil {
+		return nil, err
+	}
+
+	if config.Width <= 0 || config.Height <= 0 {
+		return nil, fmt.Errorf("invalid image dimensions: %dx%d", config.Width, config.Height)
+	}
+
+	return &menuDimensions{
+		Width:     config.Width,
+		Height:    config.Height,
+		Landscape: config.Width >= config.Height,
+	}, nil
 }
 
 func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string, error) {
@@ -127,7 +167,7 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 	err := web.Run(r.Website, func(page playwright.Page) error {
 		for i, nav := range r.Navigate {
 			if nav.Style != "" {
-				page.AddStyleTag(playwright.PageAddStyleTagOptions{Content: new(nav.Style)})
+				page.AddStyleTag(playwright.PageAddStyleTagOptions{Content: playwright.String(nav.Style)})
 			}
 			nav.Locator = placeholder.Replace(nav.Locator)
 			selector := page.Locator(nav.Locator).First()
@@ -141,7 +181,7 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 				if nav.Attribute == "" {
 					logger.Debug("Trying to download file by clicking on locator", "locator", nav.Locator)
 					download, err := page.ExpectDownload(func() error {
-						return selector.Click(playwright.LocatorClickOptions{Force: new(true)})
+						return selector.Click(playwright.LocatorClickOptions{Force: playwright.Bool(true)})
 					})
 					if err != nil {
 						return fmt.Errorf("could not click on %s: %w", nav.Locator, err)
@@ -180,15 +220,15 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 					}
 					_, err = locator.Screenshot(playwright.LocatorScreenshotOptions{
 						Animations: playwright.ScreenshotAnimationsDisabled,
-						Path:       new(downloadPath),
+						Path:       playwright.String(downloadPath),
 						Type:       playwright.ScreenshotTypePng,
 					})
 				} else {
 					logger.Debug("Making a screenshot of the full page")
 					_, err = page.Screenshot(playwright.PageScreenshotOptions{
 						Animations: playwright.ScreenshotAnimationsDisabled,
-						Path:       new(downloadPath),
-						FullPage:   new(true),
+						Path:       playwright.String(downloadPath),
+						FullPage:   playwright.Bool(true),
 						Type:       playwright.ScreenshotTypePng,
 					})
 				}
