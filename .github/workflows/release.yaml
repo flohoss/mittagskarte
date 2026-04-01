@@ -28,6 +28,27 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Set build variables
+        id: build-vars
+        run: |
+          # Validate tag format
+          if [[ ! "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: ${{ github.ref_name }}"
+            exit 1
+          fi
+
+          APP_VERSION="${{ github.ref_name }}"
+          BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          REPO_URL="https://github.com/${{ github.repository }}"
+
+          echo "APP_VERSION=${APP_VERSION}"
+          echo "BUILD_TIME=${BUILD_TIME}"
+          echo "REPO_URL=${REPO_URL}"
+
+          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_OUTPUT
+          echo "REPO_URL=${REPO_URL}" >> $GITHUB_OUTPUT
+
       - name: Generate Docker metadata
         id: meta
         uses: docker/metadata-action@v6
@@ -57,27 +78,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set build variables
-        id: build-vars
-        run: |
-          # Validate tag format
-          if [[ ! "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format: ${{ github.ref_name }}"
-            exit 1
-          fi
-
-          APP_VERSION="${{ github.ref_name }}"
-          BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          REPO_URL="https://github.com/${{ github.repository }}"
-
-          echo "APP_VERSION=${APP_VERSION}"
-          echo "BUILD_TIME=${BUILD_TIME}"
-          echo "REPO_URL=${REPO_URL}"
-
-          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_OUTPUT
-          echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_OUTPUT
-          echo "REPO_URL=${REPO_URL}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         id: docker
