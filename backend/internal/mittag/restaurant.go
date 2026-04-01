@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/flohoss/mittagskarte/internal/checksum"
@@ -38,6 +39,7 @@ type Restaurant struct {
 
 type Selector struct {
 	Id        string `db:"id" json:"id"`
+	Order     int    `db:"order" json:"order"`
 	Locator   string `db:"locator" json:"locator"`
 	Attribute string `db:"attribute" json:"attribute"`
 	Style     string `db:"style" json:"style"`
@@ -57,11 +59,21 @@ func fetchRestaurants(app core.App) ([]*Restaurant, error) {
 		for _, nav := range expandedNavigate {
 			navigate = append(navigate, Selector{
 				Id:        nav.Id,
+				Order:     nav.GetInt("order"),
 				Locator:   nav.GetString("locator"),
 				Attribute: nav.GetString("attribute"),
 				Style:     nav.GetString("style"),
 			})
 		}
+
+		sort.SliceStable(navigate, func(i, j int) bool {
+			if navigate[i].Order == navigate[j].Order {
+				return navigate[i].Id < navigate[j].Id
+			}
+
+			return navigate[i].Order < navigate[j].Order
+		})
+
 		restaurants[i] = &Restaurant{
 			ID:          restaurant.Id,
 			Website:     restaurant.GetString("website"),
