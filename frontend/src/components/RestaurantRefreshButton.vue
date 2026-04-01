@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { RecordModel } from 'pocketbase';
 import Fa7SolidArrowsRotate from '~icons/fa7-solid/arrows-rotate';
 import Fa7SolidDownload from '~icons/fa7-solid/download';
@@ -12,6 +12,12 @@ import { BackendURL } from '../main';
 const props = defineProps<{
   restaurant: RecordModel;
 }>();
+
+const uploadDialog = ref<HTMLDialogElement | null>(null);
+const uploadFileInput = ref<HTMLInputElement | null>(null);
+const uploadFile = ref<File | null>(null);
+const isUploading = ref(false);
+const uploadError = ref('');
 
 const statusMeta = computed(() => {
   switch (props.restaurant.status) {
@@ -28,16 +34,88 @@ const statusMeta = computed(() => {
         case RestaurantMethod.DOWNLOAD:
           return { icon: Fa7SolidDownload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
         default:
-          return { icon: Fa7SolidUpload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+          return { icon: Fa7SolidUpload, label: 'Datei hochladen', className: 'hover:btn-primary', iconClass: '' };
       }
   }
 });
 
 const canTriggerRefresh = computed(() => props.restaurant.status === RestaurantStatus.IDLE);
+const isUploadMethod = computed(() => props.restaurant.method === RestaurantMethod.UPLOAD);
+
+function openUploadDialog() {
+  uploadError.value = '';
+  uploadFile.value = null;
+  uploadDialog.value?.showModal();
+}
+
+function resetUploadDialogState() {
+  uploadError.value = '';
+  uploadFile.value = null;
+  if (uploadFileInput.value) {
+    uploadFileInput.value.value = '';
+  }
+}
+
+function closeUploadDialog() {
+  if (isUploading.value) return;
+
+  resetUploadDialogState();
+  uploadDialog.value?.close();
+}
+
+function forceCloseUploadDialog() {
+  resetUploadDialogState();
+  uploadDialog.value?.close();
+}
+
+function onFileChange(event: Event) {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+
+  uploadFile.value = input.files?.[0] ?? null;
+  uploadError.value = '';
+}
+
+async function submitUpload() {
+  if (!uploadFile.value) {
+    uploadError.value = 'Bitte eine Datei auswählen.';
+    return;
+  }
+
+  isUploading.value = true;
+  uploadError.value = '';
+
+  try {
+    const formData = new FormData();
+    formData.append('id', props.restaurant.id);
+    formData.append('file', uploadFile.value);
+
+    const response = await fetch(`${BackendURL}/api/restaurants/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const message = (await response.text()) || 'Upload fehlgeschlagen.';
+      throw new Error(message);
+    }
+
+    forceCloseUploadDialog();
+  } catch (error) {
+    uploadError.value = error instanceof Error ? error.message : 'Upload fehlgeschlagen.';
+  } finally {
+    isUploading.value = false;
+  }
+}
 
 async function triggerRefresh() {
+  if (isUploadMethod.value) {
+    openUploadDialog();
+    return;
+  }
+
   try {
-    await fetch(`${BackendURL}/scrape`, {
+    await fetch(`${BackendURL}/api/restaurants/scrape`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,4 +141,30 @@ async function triggerRefresh() {
   >
     <component :is="statusMeta.icon" :class="['btn-icon', statusMeta.iconClass]" aria-hidden="true" />
   </button>
+
+  <dialog ref="uploadDialog" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-semibold">Datei hochladen</h3>
+      <p class="mt-1 text-sm text-base-content/70">Für {{ props.restaurant.name }} eine Datei hochladen und als neue Speisekarte verarbeiten.</p>
+
+      <div class="mt-4 grid gap-2">
+        <label class="label px-0 pb-1">
+          <span class="label-text">Datei (PDF oder Bild)</span>
+        </label>
+        <input ref="uploadFileInput" type="file" class="file-input file-input-bordered w-full" accept=".pdf,image/*" :disabled="isUploading" @change="onFileChange" />
+        <p v-if="uploadError" class="text-sm text-error">{{ uploadError }}</p>
+      </div>
+
+      <div class="modal-action">
+        <button type="button" class="btn" :disabled="isUploading" @click="closeUploadDialog">Abbrechen</button>
+        <button type="button" class="btn btn-primary" :class="{ 'btn-disabled': isUploading }" :disabled="isUploading" @click="submitUpload">
+          <span v-if="isUploading" class="loading loading-spinner loading-xs" aria-hidden="true" />
+          <span>{{ isUploading ? 'Lädt hoch...' : 'Hochladen' }}</span>
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop" @submit.prevent="closeUploadDialog">
+      <button type="submit">close</button>
+    </form>
+  </dialog>
 </template>

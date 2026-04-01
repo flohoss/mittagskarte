@@ -3,9 +3,12 @@ package mittag
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/flohoss/mittagskarte/internal/image"
 	"github.com/flohoss/mittagskarte/internal/web"
@@ -123,7 +126,7 @@ func (m *Mittag) bindHooks() {
 	})
 
 	m.app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		se.Router.POST("/scrape", func(re *core.RequestEvent) error {
+		se.Router.POST("/api/restaurants/scrape", func(re *core.RequestEvent) error {
 			var payload struct {
 				ID string `json:"id"`
 			}
@@ -148,6 +151,55 @@ func (m *Mittag) bindHooks() {
 			m.scraper.Enqueue([]*Restaurant{restaurant})
 
 			return re.String(http.StatusOK, fmt.Sprintf("Scrape triggered for restaurant %s", restaurantID))
+		})
+
+		se.Router.POST("/api/restaurants/upload", func(re *core.RequestEvent) error {
+			re.Request.Body = http.MaxBytesReader(re.Response, re.Request.Body, 25<<20)
+			if err := re.Request.ParseMultipartForm(25 << 20); err != nil {
+				return re.String(http.StatusBadRequest, "Invalid multipart form data")
+			}
+
+			restaurantID := strings.TrimSpace(re.Request.FormValue("id"))
+			if restaurantID == "" {
+				return re.String(http.StatusBadRequest, "id is required")
+			}
+
+			restaurant, err := m.getRestaurant(restaurantID)
+			if err != nil {
+				return re.String(http.StatusInternalServerError, "Could not load restaurant")
+			}
+			if restaurant == nil {
+				return re.String(http.StatusNotFound, "Restaurant not found")
+			}
+			if restaurant.Method != "upload" {
+				return re.String(http.StatusBadRequest, "Restaurant does not support uploads")
+			}
+
+			file, header, err := re.Request.FormFile("file")
+			if err != nil {
+				return re.String(http.StatusBadRequest, "file is required")
+			}
+			defer file.Close()
+
+			uploadPath := filepath.Join(DownloadsFolder, fmt.Sprintf("upload_%d_%s_%s", time.Now().UnixNano(), restaurantID, filepath.Base(header.Filename)))
+			out, err := os.Create(uploadPath)
+			if err != nil {
+				return re.String(http.StatusInternalServerError, "Could not create upload file")
+			}
+			_, copyErr := io.Copy(out, file)
+			closeErr := out.Close()
+			if copyErr != nil || closeErr != nil {
+				_ = os.Remove(uploadPath)
+				return re.String(http.StatusInternalServerError, "Could not persist uploaded file")
+			}
+			defer os.Remove(uploadPath)
+
+			if err := m.scraper.uploadSingle(restaurant, uploadPath); err != nil {
+				m.app.Logger().Error("Error uploading restaurant menu", "id", restaurantID, "error", err)
+				return re.String(http.StatusInternalServerError, "Could not process uploaded file")
+			}
+
+			return re.String(http.StatusOK, fmt.Sprintf("Upload processed for restaurant %s", restaurantID))
 		})
 
 		fileServer := http.FileServer(http.Dir(DownloadsFolder))
