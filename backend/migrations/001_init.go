@@ -12,9 +12,16 @@ func publicRule() *string {
 
 func init() {
 	m.Register(func(app core.App) error {
+		minOrder := float64(1)
+
 		selector := core.NewBaseCollection("selector")
-		selector.ListRule = publicRule()
-		selector.ViewRule = publicRule()
+
+		selector.Fields.Add(&core.NumberField{
+			Name:     "order",
+			Min:      &minOrder,
+			OnlyInt:  true,
+			Required: true,
+		})
 		selector.Fields.Add(&core.TextField{
 			Name:     "locator",
 			Required: true,
@@ -25,23 +32,18 @@ func init() {
 		selector.Fields.Add(&core.TextField{
 			Name: "style",
 		})
-		selector.Fields.Add(&core.AutodateField{
-			Name:     "created",
-			OnCreate: true,
-		})
-		selector.Fields.Add(&core.AutodateField{
-			Name:     "updated",
-			OnCreate: true,
-			OnUpdate: true,
-		})
+
+		selector.ListRule = publicRule()
+		selector.ViewRule = publicRule()
+
+		selector.AddIndex("idx_selector_order", false, "order", "")
 
 		if err := app.Save(selector); err != nil {
 			return err
 		}
 
 		restaurants := core.NewBaseCollection("restaurants")
-		restaurants.ListRule = publicRule()
-		restaurants.ViewRule = publicRule()
+
 		restaurants.Fields.Add(&core.TextField{
 			Name:     "name",
 			Required: true,
@@ -102,6 +104,12 @@ func init() {
 			OnCreate: true,
 			OnUpdate: true,
 		})
+
+		restaurants.ListRule = publicRule()
+		restaurants.ViewRule = publicRule()
+
+		restaurants.AddIndex("idx_restaurants_group_name", false, "\"group\", name", "")
+		restaurants.AddIndex("idx_restaurants_method", false, "method", "")
 
 		if err := app.Save(restaurants); err != nil {
 			return err
