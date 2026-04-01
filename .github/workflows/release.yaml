@@ -94,7 +94,7 @@ jobs:
           build-args: |
             APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
             BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
-            REPO=${{ steps.build-vars.outputs.REPO_URL }}
+            REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
