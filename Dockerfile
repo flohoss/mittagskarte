@@ -1,5 +1,6 @@
 ARG V_GOLANG=1.26
 ARG V_NODE=25
+ARG REPO_URL
 
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS backend-builder
@@ -25,6 +26,11 @@ RUN go build -ldflags="-s -w" -o /out/mittag .
 FROM node:${V_NODE}-slim AS frontend-builder
 WORKDIR /app/frontend
 
+ARG APP_VERSION
+ENV VITE_APP_VERSION=${APP_VERSION}
+ARG REPO_URL
+ENV VITE_REPO_URL=${REPO_URL}
+
 COPY ./frontend/package.json ./frontend/yarn.lock ./
 RUN yarn install --frozen-lockfile --network-timeout 30000 --silent
 
@@ -47,8 +53,8 @@ ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}
 ARG BUILD_TIME
 ENV BUILD_TIME=${BUILD_TIME}
-ARG REPO
-ENV REPO=${REPO}
+ARG REPO_URL
+ENV REPO_URL=${REPO_URL}
 
 COPY --from=backend-builder /out/mittag /app/mittag
 COPY --from=frontend-builder /app/frontend/dist /app/dist

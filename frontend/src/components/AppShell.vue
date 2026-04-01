@@ -5,6 +5,7 @@ import { useMagicKeys, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import LoginModal from './LoginModal.vue';
 
+import { RepoURL } from '../config';
 import { useRestaurants } from '../stores/useRestaurants';
 
 defineProps<{
@@ -95,11 +96,8 @@ whenever(
     </main>
     <footer class="navbar bg-base-200">
       <div class="container flex flex-col items-center gap-3 py-2 text-center md:flex-row md:items-center md:justify-between md:text-left">
-        <div class="text-sm leading-relaxed">
-          {{ title }} - {{ description }} -
-          <a class="link" title="Source Code auf GitHub" target="_blank" data-lg-blank="" href="https://github.com/flohoss/mittagskarte">Source Code</a>
-        </div>
-        <a target="_blank" data-lg-blank="" class="btn btn-circle btn-ghost" title="GitHub" href="https://github.com/flohoss/">
+        <div class="text-sm leading-relaxed">{{ title }} - {{ description }}</div>
+        <a target="_blank" class="btn btn-circle btn-ghost" title="GitHub" :href="RepoURL">
           <Github class="size-5" />
         </a>
       </div>
