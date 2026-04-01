@@ -31,7 +31,13 @@ function formatRelativeDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Unbekannt';
 
-  const diffSeconds = Math.round((date.getTime() - nowMs.value) / 1000);
+  const rawDiffSeconds = Math.round((date.getTime() - nowMs.value) / 1000);
+  // Backend and client clocks can drift slightly; avoid showing future times in the UI.
+  const diffSeconds = Math.min(0, rawDiffSeconds);
+
+  if (Math.abs(diffSeconds) < 60) {
+    return 'gerade eben';
+  }
 
   if (diffSeconds <= 0 && Math.abs(diffSeconds) < 60 * 60) {
     const minutes = Math.max(1, Math.round(Math.abs(diffSeconds) / 60));

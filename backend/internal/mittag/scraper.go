@@ -3,8 +3,10 @@ package mittag
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -236,6 +238,14 @@ func (s *Scraper) getRestaurantByID(restaurantID string) (*Restaurant, error) {
 	return nil, fmt.Errorf("restaurant %s not found", restaurantID)
 }
 
+func (s *Scraper) uploadSingle(restaurant *Restaurant, uploadPath string) error {
+	if restaurant == nil {
+		return fmt.Errorf("restaurant is nil")
+	}
+
+	return s.processAndUpdateMenu(restaurant, uploadPath)
+}
+
 func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 	var err error
 
@@ -267,13 +277,18 @@ func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 		return nil
 	}
 
-	tmpFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().Unix(), restaurant.ID))
+	return s.processAndUpdateMenu(restaurant, downloadPath)
+}
+
+func (s *Scraper) processAndUpdateMenu(restaurant *Restaurant, sourcePath string) error {
+	tmpFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().UnixNano(), restaurant.ID))
 	defer os.Remove(tmpFilePath)
 
-	if restaurant.ContentType == "pdf" {
-		err = pdf.ConvertToWebp(downloadPath, tmpFilePath)
+	var err error
+	if shouldUsePDFConverter(restaurant, sourcePath) {
+		err = pdf.ConvertToWebp(sourcePath, tmpFilePath)
 	} else {
-		err = s.im.ConvertToWebp(downloadPath, tmpFilePath)
+		err = s.im.ConvertToWebp(sourcePath, tmpFilePath)
 	}
 	if err != nil {
 		return err
@@ -297,4 +312,28 @@ func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 	}
 
 	return nil
+}
+
+func shouldUsePDFConverter(restaurant *Restaurant, sourcePath string) bool {
+	if restaurant.ContentType == "pdf" {
+		return true
+	}
+
+	if strings.EqualFold(filepath.Ext(sourcePath), ".pdf") {
+		return true
+	}
+
+	file, err := os.Open(sourcePath)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	header := make([]byte, 512)
+	readBytes, err := file.Read(header)
+	if err != nil || readBytes == 0 {
+		return false
+	}
+
+	return http.DetectContentType(header[:readBytes]) == "application/pdf"
 }
