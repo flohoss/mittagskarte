@@ -31,7 +31,7 @@ const searchShortcut = computed(() => {
     return { primary: 'Ctrl', key: 'K' };
   }
 
-  const platform = navigator.platform || navigator.userAgent || '';
+  const platform = navigator.userAgent || '';
   const isMac = /mac/i.test(platform);
 
   return isMac ? { primary: '⌘', key: 'K' } : { primary: 'Ctrl', key: 'K' };
@@ -54,7 +54,7 @@ whenever(
   <div class="flex flex-col min-h-screen">
     <header class="navbar bg-base-200 shadow-sm">
       <div class="container flex flex-col items-stretch gap-3 py-2 md:flex-row md:items-center md:justify-between md:gap-4">
-        <a href="/" class="flex items-center gap-2 flex-shrink-0">
+        <a href="/" class="flex items-center gap-2 shrink-0">
           <img src="/static/schniddzl.webp" :alt="title" class="size-10" />
           <div class="font-light font-stretch-semi-expanded min-w-0">
             <div class="text-xl font-semibold truncate">{{ title }}</div>
@@ -65,7 +65,7 @@ whenever(
         <label
           class="input w-full rounded-lg relative flex items-center gap-3 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 md:max-w-md"
         >
-          <Fa7SolidMagnifyingGlass class="size-4 text-base-content/60 flex-shrink-0" aria-hidden="true" />
+          <Fa7SolidMagnifyingGlass class="size-4 text-base-content/60 shrink-0" aria-hidden="true" />
           <input
             id="search-input"
             ref="searchInput"
@@ -85,7 +85,7 @@ whenever(
         </label>
       </div>
     </header>
-    <main class="my-5 lg:my-10 flex-grow">
+    <main class="my-5 lg:my-10 grow">
       <div class="container">
         <slot />
       </div>
