@@ -64,13 +64,7 @@ const menuDimensions = computed(() => {
       <Fa7SolidMap class="btn-icon" aria-hidden="true" />
     </button>
 
-    <a
-      v-if="props.restaurant.phone"
-      :href="phoneUrl"
-      class="btn btn-soft hover:btn-success"
-      title="Anrufen"
-      aria-label="Restaurant anrufen"
-    >
+    <a v-if="props.restaurant.phone" :href="phoneUrl" class="btn btn-soft hover:btn-success" title="Anrufen" aria-label="Restaurant anrufen">
       <Fa7SolidPhone class="btn-icon" aria-hidden="true" />
     </a>
     <button

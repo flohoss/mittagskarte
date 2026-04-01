@@ -27,13 +27,12 @@ func init() {
 
 type Mittag struct {
 	app         core.App
-	domain      string
 	restaurants []*Restaurant
 	scraper     *Scraper
 	started     bool
 }
 
-func New(app core.App, domain string) (*Mittag, error) {
+func New(app core.App) (*Mittag, error) {
 	webService, err := web.New()
 	if err != nil {
 		return nil, err
@@ -41,7 +40,7 @@ func New(app core.App, domain string) (*Mittag, error) {
 
 	imageMagic := image.New()
 
-	m := &Mittag{app: app, domain: domain}
+	m := &Mittag{app: app}
 	m.scraper = NewScraper(app, webService, imageMagic, m.getRestaurants)
 	m.bindHooks()
 

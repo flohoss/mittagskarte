@@ -24,19 +24,49 @@ const { getAuthToken } = useLogin();
 const statusMeta = computed(() => {
   switch (props.restaurant.status) {
     case RestaurantStatus.UPDATING:
-      return { icon: Fa7SolidArrowsRotate, label: 'Wird Aktualisiert', className: 'btn-neutral', iconClass: 'animate-spin' };
+      return {
+        icon: Fa7SolidArrowsRotate,
+        label: 'Wird Aktualisiert',
+        className: 'btn-neutral',
+        iconClass: 'animate-spin',
+      };
     case RestaurantStatus.QUEUED:
-      return { icon: Fa7SolidHourglassHalf, label: 'In Warteschlange', className: 'btn-neutral', iconClass: '' };
+      return {
+        icon: Fa7SolidHourglassHalf,
+        label: 'In Warteschlange',
+        className: 'btn-neutral',
+        iconClass: '',
+      };
     case RestaurantStatus.COOLDOWN:
-      return { icon: Fa7SolidClock, label: 'Cooldown', className: 'btn-neutral', iconClass: '' };
+      return {
+        icon: Fa7SolidClock,
+        label: 'Cooldown',
+        className: 'btn-neutral',
+        iconClass: '',
+      };
     default:
       switch (props.restaurant.method) {
         case RestaurantMethod.SCRAPE:
-          return { icon: Fa7SolidArrowsRotate, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+          return {
+            icon: Fa7SolidArrowsRotate,
+            label: 'Leerlauf',
+            className: 'hover:btn-primary',
+            iconClass: '',
+          };
         case RestaurantMethod.DOWNLOAD:
-          return { icon: Fa7SolidDownload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+          return {
+            icon: Fa7SolidDownload,
+            label: 'Leerlauf',
+            className: 'hover:btn-primary',
+            iconClass: '',
+          };
         default:
-          return { icon: Fa7SolidUpload, label: 'Datei hochladen', className: 'hover:btn-primary', iconClass: '' };
+          return {
+            icon: Fa7SolidUpload,
+            label: 'Datei hochladen',
+            className: 'hover:btn-primary',
+            iconClass: '',
+          };
       }
   }
 });

@@ -142,7 +142,9 @@ function getInitials(name: string) {
     </figure>
 
     <div class="card-body gap-3 p-3">
-      <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
+      <h3 class="text-base font-semibold leading-tight">
+        {{ props.restaurant.name }}
+      </h3>
 
       <RestaurantActions :restaurant="props.restaurant" />
     </div>
