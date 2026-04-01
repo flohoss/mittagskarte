@@ -1,6 +1,8 @@
 package mittag
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -83,6 +85,19 @@ func (m *Mittag) getRestaurants() ([]*Restaurant, error) {
 	return restaurants, nil
 }
 
+func (m *Mittag) getRestaurant(id string) (*Restaurant, error) {
+	restaurants, err := m.getRestaurants()
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range restaurants {
+		if r.ID == id {
+			return r, nil
+		}
+	}
+	return nil, nil
+}
+
 func (m *Mittag) getCronGroups() (map[string][]*Restaurant, error) {
 	restaurants, err := m.getRestaurants()
 	if err != nil {
@@ -108,9 +123,31 @@ func (m *Mittag) bindHooks() {
 	})
 
 	m.app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		se.Router.GET("/scrape", func(re *core.RequestEvent) error {
-			go m.scraper.Enqueue(nil)
-			return re.String(http.StatusOK, "Scraping started")
+		se.Router.POST("/scrape", func(re *core.RequestEvent) error {
+			var payload struct {
+				ID string `json:"id"`
+			}
+
+			if err := json.NewDecoder(re.Request.Body).Decode(&payload); err != nil {
+				return re.String(http.StatusBadRequest, "Invalid JSON body")
+			}
+
+			restaurantID := strings.TrimSpace(payload.ID)
+			if restaurantID == "" {
+				return re.String(http.StatusBadRequest, "id is required")
+			}
+
+			restaurant, err := m.getRestaurant(restaurantID)
+			if err != nil {
+				return re.String(http.StatusInternalServerError, "Could not load restaurant")
+			}
+			if restaurant == nil {
+				return re.String(http.StatusNotFound, "Restaurant not found")
+			}
+
+			m.scraper.Enqueue([]*Restaurant{restaurant})
+
+			return re.String(http.StatusOK, fmt.Sprintf("Scrape triggered for restaurant %s", restaurantID))
 		})
 
 		fileServer := http.FileServer(http.Dir(DownloadsFolder))
