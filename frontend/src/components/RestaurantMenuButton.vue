@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
-import { BackendURL } from '../main';
+import { BackendURL } from '../config';
 
 const props = defineProps<{
   menuUrl: string;

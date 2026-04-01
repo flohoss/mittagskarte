@@ -3,12 +3,12 @@ import Fa7SolidStar from '~icons/fa7-solid/star';
 import { computed } from 'vue';
 import RestaurantActions from './RestaurantActions.vue';
 import { useFavorites } from '../stores/useFavorites';
-import type { RecordModel } from 'pocketbase';
+import type { RestaurantRecord } from '../models/restaurant';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useNow } from '../composables/useNow';
 
 const props = defineProps<{
-  restaurant: RecordModel;
+  restaurant: RestaurantRecord;
 }>();
 
 const { getFileUrl, applySearch } = useRestaurants();

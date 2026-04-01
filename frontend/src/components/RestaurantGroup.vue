@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { RecordModel } from 'pocketbase';
+import type { RestaurantRecord } from '../models/restaurant';
 import RestaurantCard from './RestaurantCard.vue';
 
 defineProps<{
-  restaurants: RecordModel[];
+  restaurants: RestaurantRecord[];
   group: string;
 }>();
 </script>

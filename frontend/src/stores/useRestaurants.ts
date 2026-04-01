@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
-import PocketBase, { type RecordModel } from 'pocketbase';
-import { BackendURL } from '../main';
+import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
+import { backendClient } from '../services/backendClient';
 import { useFavorites } from './useFavorites';
 
 export enum RestaurantStatus {
@@ -17,21 +17,15 @@ export enum RestaurantMethod {
   DOWNLOAD = 'download',
   UPLOAD = 'upload',
 }
-interface StatusChangeEvent {
-  id: string;
-  status: RestaurantStatus;
-}
-
 export const useRestaurants = createGlobalState(() => {
-  const pb = new PocketBase(BackendURL);
   const { favorites } = useFavorites();
 
-  const restaurants = ref<RecordModel[]>([]);
+  const restaurants = ref<RestaurantRecord[]>([]);
   const isLoaded = ref(false);
   const isLoading = ref(false);
   const searchQuery = ref('');
 
-  function upsertRestaurant(record: RecordModel) {
+  function upsertRestaurant(record: RestaurantRecord) {
     const index = restaurants.value.findIndex((r) => r.id === record.id);
     if (index !== -1) {
       const current = restaurants.value[index];
@@ -45,15 +39,15 @@ export const useRestaurants = createGlobalState(() => {
   }
 
   async function subscribeRealtime() {
-    await pb.realtime.subscribe('restaurants/status', (e: StatusChangeEvent) => {
+    await backendClient.subscribeRestaurantStatus((e: RestaurantStatusEvent) => {
       const index = restaurants.value.findIndex((r) => r.id === e.id);
       if (index !== -1) {
-        restaurants.value[index].status = e.status;
+        restaurants.value[index].status = e.status as RestaurantStatus;
       }
     });
-    await pb.collection('restaurants').subscribe('*', (e) => {
-      if (e.action === 'update') {
-        upsertRestaurant(e.record);
+    await backendClient.subscribeRestaurants((action, record) => {
+      if (action === 'update') {
+        upsertRestaurant(record);
       }
     });
   }
@@ -63,10 +57,7 @@ export const useRestaurants = createGlobalState(() => {
 
     isLoading.value = true;
     try {
-      const records = await pb.collection('restaurants').getFullList({
-        sort: 'group,name',
-      });
-      restaurants.value = records as RecordModel[];
+      restaurants.value = await backendClient.fetchRestaurants();
       isLoaded.value = true;
     } finally {
       isLoading.value = false;
@@ -78,16 +69,15 @@ export const useRestaurants = createGlobalState(() => {
     void subscribeRealtime();
   }
 
-  function getFileUrl(restaurant: RecordModel) {
-    const url = pb.files.getURL(restaurant, restaurant.thumbnail);
-    return url;
+  function getFileUrl(restaurant: RestaurantRecord) {
+    return backendClient.getFileUrl(restaurant);
   }
 
-  function getMapUrl(restaurant: RecordModel) {
+  function getMapUrl(restaurant: RestaurantRecord) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`;
   }
 
-  function getPhoneUrl(restaurant: RecordModel) {
+  function getPhoneUrl(restaurant: RestaurantRecord) {
     return `tel:${restaurant.phone.replace(/[^+\d]/g, '')}`;
   }
 
@@ -108,8 +98,8 @@ export const useRestaurants = createGlobalState(() => {
     });
   });
 
-  const groupedRestaurants = computed<Record<string, RecordModel[]>>(() => {
-    const groups: Record<string, RecordModel[]> = {};
+  const groupedRestaurants = computed<Record<string, RestaurantRecord[]>>(() => {
+    const groups: Record<string, RestaurantRecord[]> = {};
     const favoriteRestaurants = filteredRestaurants.value.filter((restaurant) => favorites.value[restaurant.id]);
 
     if (favoriteRestaurants.length) {

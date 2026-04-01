@@ -13,6 +13,7 @@ import (
 	"github.com/flohoss/mittagskarte/internal/image"
 	"github.com/flohoss/mittagskarte/internal/web"
 
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
 
@@ -200,7 +201,7 @@ func (m *Mittag) bindHooks() {
 			}
 
 			return re.String(http.StatusOK, fmt.Sprintf("Upload processed for restaurant %s", restaurantID))
-		})
+		}).Bind(apis.RequireAuth())
 
 		fileServer := http.FileServer(http.Dir(DownloadsFolder))
 		se.Router.GET("/data/downloads/{path...}", func(re *core.RequestEvent) error {

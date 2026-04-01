@@ -9,6 +9,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/playwright-community/playwright-go v0.5700.1
 	github.com/pocketbase/pocketbase v0.36.7
+	golang.org/x/image v0.37.0
 	gopkg.in/gographics/imagick.v2 v2.7.1
 )
 
@@ -38,7 +39,6 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/image v0.37.0 // indirect
 	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { RecordModel } from 'pocketbase';
+import type { RestaurantRecord } from '../models/restaurant';
 import MenuPopover from './RestaurantMenuButton.vue';
 import RestaurantRefreshButton from './RestaurantRefreshButton.vue';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
@@ -10,7 +10,7 @@ import Fa7SolidGlobe from '~icons/fa7-solid/globe';
 import { useRestaurants } from '../stores/useRestaurants';
 
 const props = defineProps<{
-  restaurant: RecordModel;
+  restaurant: RestaurantRecord;
 }>();
 
 const { getMapUrl, getPhoneUrl } = useRestaurants();
