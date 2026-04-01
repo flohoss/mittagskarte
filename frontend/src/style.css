@@ -39,6 +39,10 @@
   @apply size-6 shrink-0;
 }
 
+@utility badge {
+  @apply rounded-lg;
+}
+
 @utility card-grid {
   @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
 }

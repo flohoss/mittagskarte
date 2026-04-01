@@ -14,7 +14,7 @@ const props = defineProps<{
   restaurant: RecordModel;
 }>();
 
-const { getFileUrl, getMapUrl, getPhoneUrl } = useRestaurants();
+const { getFileUrl, getMapUrl, getPhoneUrl, searchQuery } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -50,6 +50,22 @@ function formatRelativeDate(value: string) {
   return relativeTimeFormatter.format(diffSeconds, 'second');
 }
 
+function getRelativeDateBadgeClass(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'badge-neutral';
+
+  const ageMs = Date.now() - date.getTime();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const weekMs = 7 * dayMs;
+  const monthMs = 30 * dayMs;
+
+  if (ageMs <= dayMs) return 'badge-success';
+  if (ageMs <= 2 * dayMs) return 'badge-info';
+  if (ageMs <= weekMs) return 'badge-warning';
+  if (ageMs <= monthMs) return 'badge-error';
+  return 'badge-neutral';
+}
+
 function getInitials(name: string) {
   return name
     .split(/\s+/)
@@ -78,11 +94,15 @@ const menuDimensions = computed(() => {
     height,
   };
 });
+
+function applyTagSearch(tag: string) {
+  searchQuery.value = tag;
+}
 </script>
 
 <template>
   <article
-    class="group card card-border overflow-hidden rounded-2xl bg-base-100 opacity-80 shadow-md transition-[shadow,opacity] duration-200 hover:opacity-100 hover:shadow-xl"
+    class="group card card-border overflow-hidden rounded-xl bg-base-100 opacity-80 shadow-md transition-[shadow,opacity] duration-200 hover:opacity-100 hover:shadow-xl"
   >
     <figure class="relative h-30 overflow-hidden bg-base-300">
       <img
@@ -100,7 +120,7 @@ const menuDimensions = computed(() => {
       </div>
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
-        <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : 'badge-ghost']">
+        <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : getRelativeDateBadgeClass(props.restaurant.updated)]">
           {{ isClosed ? 'Heute geschlossen' : formatRelativeDate(props.restaurant.updated) }}
         </span>
         <button
@@ -119,13 +139,16 @@ const menuDimensions = computed(() => {
       <!-- bottom row: tags -->
       <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-100/90 to-transparent px-3 pb-3 pt-8">
         <div class="flex flex-wrap gap-1.5">
-          <span
+          <button
             v-for="tag in props.restaurant.tags"
             :key="tag"
-            class="badge badge-outline badge-xs border-base-300/60 bg-base-100/70 px-2 py-2.5 text-xs font-medium backdrop-blur"
+            type="button"
+            class="badge badge-outline badge-xs cursor-pointer border-base-300/60 bg-base-100/70 px-2 py-2.5 text-xs font-medium backdrop-blur transition-colors hover:bg-base-100"
+            :title="`Nach Tag ${tag} filtern`"
+            @click="applyTagSearch(tag)"
           >
             {{ tag }}
-          </span>
+          </button>
         </div>
       </div>
     </figure>
@@ -134,12 +157,7 @@ const menuDimensions = computed(() => {
       <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
 
       <div class="grid grid-cols-4 gap-1.5">
-        <MenuPopover
-          v-if="props.restaurant.menu"
-          :menu-url="props.restaurant.menu"
-          :menu-width="menuDimensions.width"
-          :menu-height="menuDimensions.height"
-        />
+        <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
         <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
           <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
         </button>
