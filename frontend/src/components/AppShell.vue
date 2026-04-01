@@ -5,7 +5,7 @@ import { useMagicKeys, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import LoginModal from './LoginModal.vue';
 
-import { RepoURL } from '../config';
+import { AppVersion, RepoURL } from '../config';
 import { useRestaurants } from '../stores/useRestaurants';
 
 defineProps<{
@@ -97,7 +97,7 @@ whenever(
     <footer class="navbar bg-base-200">
       <div class="container flex flex-col items-center gap-3 py-2 text-center md:flex-row md:items-center md:justify-between md:text-left">
         <div class="text-sm leading-relaxed">{{ title }} - {{ description }}</div>
-        <a target="_blank" class="btn btn-circle btn-ghost" title="GitHub" :href="RepoURL">
+        <a target="_blank" class="btn btn-circle btn-ghost" :href="RepoURL" :title="AppVersion">
           <Github class="size-5" />
         </a>
       </div>
