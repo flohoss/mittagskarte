@@ -1,21 +1,55 @@
 services:
-  mittagstisch:
+  backend:
     build:
-      context: .
-      dockerfile: docker/dev.dockerfile
+      context: backend
     platform: linux/amd64
+    command: >
+      air
+      --build.cmd "go build -o tmp/main ."
+      --build.args_bin "serve --http=0.0.0.0:8090"
+      --build.include_ext "go"
+      --build.exclude_dir "tmp,docker,data"
+      --build.entrypoint "tmp/main"
+      --build.delay "100"
+      --build.stop_on_error "false"
+      --misc.clean_on_exit true
     volumes:
-      - .:/app/
+      - ./backend:/app
+    environment:
+      - DEV=true
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8090/health']
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 60
     ports:
-      - 7331:7331
+      - '8090:8090'
+    networks:
+      - net
 
-  tailwind:
+  go:
+    profiles:
+      - dev
+    image: golang:1.26-alpine
+    working_dir: /app
+    entrypoint: go
+    volumes:
+      - ./backend:/app/
+
+  frontend:
+    depends_on:
+      backend:
+        condition: service_healthy
     image: node:25-alpine
     working_dir: /app
-    command: yarn dev
-    tty: true
+    command: sh -c "yarn install --frozen-lockfile && yarn dev"
     volumes:
-      - .:/app/
+      - ./frontend:/app/
+    ports:
+      - '5173:5173'
+    networks:
+      - net
 
   yarn:
     profiles:
@@ -24,13 +58,8 @@ services:
     working_dir: /app
     entrypoint: yarn
     volumes:
-      - .:/app/
+      - ./frontend:/app/
 
-  go:
-    profiles:
-      - dev
-    image: golang:1.25-alpine
-    working_dir: /app
-    entrypoint: go
-    volumes:
-      - .:/app/
+networks:
+  net:
+    external: false

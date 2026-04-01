@@ -1,234 +1,234 @@
 # Mittagskarte
 
-Open-source project for [Schniddzl.de](https://schniddzl.de), fetching and displaying restaurant menus automatically.
+Mittagskarte fetches, uploads, converts, and serves lunch menus for restaurants.
 
----
+The current stack is:
 
-## Table of Contents
+- Go backend with PocketBase
+- Vue 3 frontend built with Vite
+- PocketBase collections and migrations for restaurant data
+- Playwright, MuPDF, and ImageMagick for scraping and file conversion
 
-1. [Deployment](#deployment)
-2. [Health Check](#health-check)
-3. [How It Works](#how-it-works)
-4. [Configuration](#configuration)
-5. [Examples](#examples)
-6. [Dynamic Dates in Selectors](#dynamic-dates-in-selectors)
-7. [Thumbnails](#thumbnails)
-8. [Development](#development)
-   - [Run Locally with Docker Compose](#run-locally-with-docker-compose)
-   - [Update Dependencies](#update-dependencies)
+## Architecture
 
----
+The app is split into two parts during development:
 
-## Deployment
+- `backend/`: PocketBase app, custom API routes, migrations, scraping pipeline
+- `frontend/`: Vue application
 
-Deploy using Docker Compose. It pulls the latest image and exposes the app on the specified port.
+In production, the Vue app is built to `dist` and served directly by the Go/PocketBase server.
 
-Open the app locally: [http://localhost:8156](http://localhost:8156)
+Routes:
 
-```yaml
-services:
-  mittagskarte:
-    image: ghcr.io/flohoss/mittagskarte:latest
-    container_name: mittagskarte
-    restart: always
-    volumes:
-      - ./config:/app/config
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1.0'
-        reservations:
-          memory: 512M
-          cpus: '0.5'
-    ports:
-      - '8156:8156'
-```
+- `/`: Vue app entrypoint (`index.html`)
+- `/assets/*`: built frontend assets from Vite
+- `/static/*`: static frontend assets
+- `/_`: PocketBase dashboard and internal UI
+- `/api/*`: PocketBase API plus custom backend endpoints
+- `/health`: simple health endpoint returning `.`
 
----
+## PocketBase Data Model
 
-## Health Check
+The application schema is managed through PocketBase migrations in `backend/migrations`.
 
-**`GET /health`** or **`HEAD /health`**
+Current app collections:
 
-Returns `200 OK` with a simple response body (`.`) to indicate the application is running.
+- `restaurants`
+- `selector`
 
----
+Both collections are publicly listable and viewable.
+
+The backend also uses PocketBase auth for protected operations.
+
+Protected custom endpoints:
+
+- `POST /api/restaurants/scrape`
+- `POST /api/restaurants/upload`
 
 ## How It Works
 
-Mittagskarte fetches restaurant menus and converts them into fast-loading **webp** images.
+Restaurant menus can be obtained in three ways:
 
-Key features:
+- scrape content from websites
+- download files directly
+- upload files manually
 
-- Downloads menus in PDF or image formats
-- Scrapes menus from HTML pages
-- Converts menus to webp, **reducing images wider than 1920px**
-- Updates menus automatically based on a cron schedule
+Files are normalized by the backend and stored in PocketBase-managed records. The app supports PDF and image sources and generates browser-friendly menu images for the frontend.
 
----
+## Selectors and Examples
 
-## Configuration
+In the PocketBase model, each restaurant can reference multiple selector records through the relation field `navigate`.
 
-See `config/config.yaml` for a full example.
+Each selector record contains:
 
-### Key Fields
+- `locator`: CSS selector or XPath
+- `attribute`: optional attribute to read (for example `src` or `href`)
+- `style`: optional CSS injected before interaction, useful to hide overlays or cookie banners
 
-| Key                | Description                                                                                           |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `api_token`        | Required if a restaurant has **no parse section**. Used to upload a menu image manually.              |
-| `impressum`        | Show legal info on the page (`enabled: true`) with `responsible` name and `email`.                    |
-| `log_level`        | Logging verbosity (`debug`, `info`, `warn`, `error`)                                                  |
-| `meta.title`       | Website title                                                                                         |
-| `meta.description` | Suffix for the HTML description. Full HTML `<meta>` description = `{meta.title} - {meta.description}` |
-| `meta.social`      | Array of social media links (optional)                                                                |
-| `restaurants`      | Dictionary of restaurants                                                                             |
-| `server.address`   | Host to bind (`0.0.0.0` for all interfaces)                                                           |
-| `server.port`      | Port to serve the app                                                                                 |
-| `time_zone`        | Used for scheduling updates                                                                           |
-| `umami_analytics`  | Optional analytics integration (`enabled`, `domain`, `websiteid`)                                     |
+Typical usage pattern:
 
-**Notes:**
+- First selector steps are used for navigation (clicks)
+- Last selector step is used for extraction or screenshot logic
 
-- Only `name` and `url` are strictly required for each restaurant.
-- If `parse` is empty, `api_token` **must** be set.
-- Menus are automatically resized to a maximum width of 1920px.
-
----
-
-## Examples
-
-**Direct PDF download**
+Example selector list:
 
 ```yaml
-parse:
-  update_cron: '30 9,10 * * 1,3'
-  direct_download: 'https://davvero-stuttgart.de/download/mittagskarte.pdf'
-  file_type: 'pdf'
+navigate:
+	- locator: ".cookie-accept-btn"
+		attribute: ""
+		style: ""
+	- locator: "a.mittag-link"
+		attribute: "href"
+		style: ""
 ```
 
-**Image download via CSS selector**
+### Example 1: Direct Download (method = download)
+
+Use `method = download` and set the first selector locator to the direct file URL.
 
 ```yaml
-parse:
-  update_cron: '30 9,10 * * 1,2'
-  navigate:
-    - locator: '.et_pb_image_1 > span:nth-child(1) > img:nth-child(1)'
-      attribute: 'src'
-  file_type: 'image'
+restaurant:
+	method: "download"
+	content_type: "pdf"
+	navigate:
+		- locator: "https://example.com/mittagskarte.pdf"
+			attribute: ""
+			style: ""
 ```
 
-**HTML scraping**
+### Example 2: Image Download via Attribute (method = scrape)
+
+Set `attribute` on the last selector to read an image or link source.
 
 ```yaml
-parse:
-  update_cron: '30 9,10 * * 1,4'
-  navigate:
-    - locator: 'p.paragraph-mittagstisch-right-corona'
-      style: '.w-nav { display: none !important; }'
+restaurant:
+	method: "scrape"
+	content_type: "image"
+	navigate:
+		- locator: ".menu-image img"
+			attribute: "src"
+			style: ""
 ```
 
-**PDF link via XPath**
+### Example 3: PDF Link via XPath (method = scrape)
+
+XPath works as locator input as well.
 
 ```yaml
-parse:
-  update_cron: '30 9,10 1-3 * *'
-  navigate:
-    - locator: "//a[contains(text(), 'Mittagstisch')]"
-  file_type: 'pdf'
+restaurant:
+	method: "scrape"
+	content_type: "pdf"
+	navigate:
+		- locator: "//a[contains(text(), 'Mittagstisch')]"
+			attribute: "href"
+			style: ""
 ```
 
-All `navigate` steps use:
+### Example 4: HTML Screenshot with Injected Style (method = scrape)
+
+For HTML content, the scraper can screenshot the selected element. Optional style can hide fixed headers or navigation.
 
 ```yaml
-- locator: '<CSS or XPath selector>'
-  attribute: '<optional HTML attribute to fetch>'
-  style: '<optional CSS to hide unwanted elements>'
+restaurant:
+	method: "scrape"
+	content_type: "html"
+	navigate:
+		- locator: "p.paragraph-mittagstisch-right-corona"
+			attribute: ""
+			style: ".w-nav { display: none !important; }"
 ```
 
----
+### Dynamic Date Placeholders in Locators
 
-## Dynamic Dates in Selectors
-
-Use `{{date(...)}}` to match menus dynamically.
-
-| Argument | Description                                                             |
-| -------- | ----------------------------------------------------------------------- |
-| `format` | Go time format (e.g., `02.01.2006`, `Jan`)                              |
-| `lang`   | Language (`en`, `de`). Defaults to `en`                                 |
-| `day`    | Weekday to adjust to (`monday`, `tuesday`, etc.)                        |
-| `offset` | Number of weeks to shift (`-1` last week, `0` this week, `1` next week) |
-| `upper`  | Convert output to uppercase                                             |
-
-**Example:**
+You can use date placeholders in selector locators:
 
 ```yaml
-'locator': "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
+locator: "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
 ```
 
-## Thumbnails
+Supported arguments:
 
-You can add custom thumbnails for restaurants to be displayed in the app.
+- `format`: Go date format, for example `02.01.2006`
+- `lang`: language, for example `en` or `de`
+- `day`: target weekday, for example `monday` or `fr`
+- `offset`: week offset, for example `-1`, `0`, `1`
+- `upper`: uppercase output toggle
 
-### How to Add Thumbnails
+## Deployment
 
-1. **Folder**: Place your thumbnails inside the `config/thumbnails` directory.
-2. **File Name**: Name the thumbnail file exactly like the restaurant key in your `restaurants` section, with a `.webp` extension.
-   - Example: For the restaurant key `sw34`, the thumbnail must be:
+The production image is built from the repository root and includes:
 
-     ```
-     config/thumbnails/sw34.webp
-     ```
+- the compiled Go/PocketBase binary
+- the built Vue `dist` output
+- runtime dependencies required for Playwright, MuPDF, and ImageMagick
 
-3. **Format**: Only **WebP** format is supported.
+Build the release image with the same target architecture used in CI:
 
-### Usage
-
-The app automatically uses the thumbnail for a restaurant:
-
-```css
-background-image: url(/thumbnails/<restaurant_key>.webp);
+```sh
+docker build --platform=linux/amd64 -t mittagskarte .
 ```
 
-Example with `sw34`:
+Run it:
 
-```css
-background-image: url(/thumbnails/sw34.webp);
+```sh
+docker run --rm -p 8090:8090 mittagskarte
 ```
 
-> Note: WebP is required. You can convert images online using [https://mazanoke.y8o.de/](https://mazanoke.y8o.de/).
+Then open http://localhost:8090.
 
----
+Important runtime paths:
+
+- PocketBase data directory: `data/pb`
+- frontend bundle served by backend: `dist`
+- downloaded/generated files: `data/downloads`
 
 ## Development
 
-### Run Locally with Docker Compose
+Local development uses Docker Compose with separate backend and frontend containers.
 
-```bash
-docker compose run --rm yarn install --frozen-lockfile
+Start the stack:
+
+```sh
 docker compose up --build --force-recreate
 ```
 
-- Auto-creates `config.yaml` if missing
+Development URLs:
 
-Go to http://localhost:7331 to view the app.
+- frontend: http://localhost:5173
+- backend: http://localhost:8090
+- PocketBase dashboard: http://localhost:8090/\_
 
-### Update Dependencies
+Compose services:
 
-#### Node packages
+- `backend`: PocketBase backend with hot reload via `air`
+- `frontend`: Vite dev server
+- `go`: helper container for Go commands
+- `yarn`: helper container for frontend package commands
+
+## Common Commands
+
+Install or update frontend dependencies:
 
 ```sh
+docker compose run --rm yarn install --frozen-lockfile
 docker compose run --rm yarn upgrade --latest
 ```
 
-#### Go modules
+Update Go modules:
 
 ```sh
-docker compose run --rm go get -u && go mod tidy
+docker compose run --rm go get -u ./...
+docker compose run --rm go mod tidy
 ```
 
-### Build release
+Build the frontend manually:
 
 ```sh
-docker build --platform=linux/amd64 -f docker/dockerfile -t mittagskarte .
+cd frontend
+yarn build
 ```
+
+## Notes
+
+- The backend expects a built frontend bundle in `dist` when serving the production app.
+- The repository currently targets `linux/amd64` for Docker builds because of native library dependencies used by `go-fitz` and ImageMagick.
