@@ -30,6 +30,7 @@ type Mittag struct {
 	domain      string
 	restaurants []*Restaurant
 	scraper     *Scraper
+	started     bool
 }
 
 func New(app core.App, domain string) (*Mittag, error) {
@@ -44,11 +45,20 @@ func New(app core.App, domain string) (*Mittag, error) {
 	m.scraper = NewScraper(app, webService, imageMagic, m.getRestaurants)
 	m.bindHooks()
 
-	if err := m.initCron(); err != nil {
-		return nil, err
+	return m, nil
+}
+
+func (m *Mittag) Start() error {
+	if m.started {
+		return nil
 	}
 
-	return m, nil
+	if err := m.initCron(); err != nil {
+		return err
+	}
+
+	m.started = true
+	return nil
 }
 
 func (m *Mittag) Close() {
