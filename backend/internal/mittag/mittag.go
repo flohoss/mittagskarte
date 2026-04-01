@@ -152,7 +152,7 @@ func (m *Mittag) bindHooks() {
 			m.scraper.Enqueue([]*Restaurant{restaurant})
 
 			return re.String(http.StatusOK, fmt.Sprintf("Scrape triggered for restaurant %s", restaurantID))
-		})
+		}).Bind(apis.RequireAuth())
 
 		se.Router.POST("/api/restaurants/upload", func(re *core.RequestEvent) error {
 			re.Request.Body = http.MaxBytesReader(re.Response, re.Request.Body, 25<<20)

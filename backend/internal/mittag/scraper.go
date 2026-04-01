@@ -55,7 +55,7 @@ func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic,
 		queued:         make(map[string]struct{}),
 		inFlight:       make(map[string]struct{}),
 		lastRunAt:      make(map[string]time.Time),
-		cooldown:       10 * time.Minute,
+		cooldown:       5 * time.Minute,
 	}
 
 	s.queueCond = sync.NewCond(&s.queueMu)
