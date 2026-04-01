@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
@@ -151,6 +151,18 @@ watch(isSmallerThanLg, (isSmall) => {
   if (isSmall) {
     hidePopoverImmediate();
   }
+});
+
+watch(
+  () => [props.menuWidth, props.menuHeight],
+  ([width, height]) => {
+    imageWidth.value = typeof width === 'number' && width > 0 ? width : null;
+    imageHeight.value = typeof height === 'number' && height > 0 ? height : null;
+  }
+);
+
+onBeforeUnmount(() => {
+  clearHideTimeout();
 });
 </script>
 

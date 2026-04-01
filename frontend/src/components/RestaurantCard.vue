@@ -1,33 +1,20 @@
 <script setup lang="ts">
-import Fa7SolidGlobe from '~icons/fa7-solid/globe';
-import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
-import MenuPopover from './MenuPopover.vue';
-import Fa7SolidPhone from '~icons/fa7-solid/phone';
-import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidStar from '~icons/fa7-solid/star';
-import Fa7SolidArrowsRotate from '~icons/fa7-solid/arrows-rotate';
-import Fa7SolidDownload from '~icons/fa7-solid/download';
-import Fa7SolidUpload from '~icons/fa7-solid/upload';
-import Fa7SolidHourglassHalf from '~icons/fa7-solid/hourglass-half';
-import Fa7SolidClock from '~icons/fa7-solid/clock';
 import { computed } from 'vue';
+import RestaurantActions from './RestaurantActions.vue';
 import { useFavorites } from '../stores/useFavorites';
 import type { RecordModel } from 'pocketbase';
-import { RestaurantMethod, RestaurantStatus, useRestaurants } from '../stores/useRestaurants';
-import { BackendURL } from '../main';
+import { useRestaurants } from '../stores/useRestaurants';
 import { useNow } from '../composables/useNow';
 
 const props = defineProps<{
   restaurant: RecordModel;
 }>();
 
-const { getFileUrl, getMapUrl, getPhoneUrl, applySearch } = useRestaurants();
+const { getFileUrl, applySearch } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-const isClosed = computed(() => props.restaurant.rest_days.includes(WEEKDAYS[new Date().getDay()]));
-const isFavorited = computed(() => isFavorite(props.restaurant.id));
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   numeric: 'auto',
@@ -35,6 +22,10 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
 });
 
 const nowMs = useNow(30_000);
+const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
+const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
+const isFavorited = computed(() => isFavorite(props.restaurant.id));
+const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
 
 function formatRelativeDate(value: string) {
   const date = new Date(value);
@@ -89,64 +80,6 @@ function getInitials(name: string) {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 }
-
-const menuDimensions = computed(() => {
-  const raw = props.restaurant.menu_dimensions;
-
-  if (!raw || typeof raw !== 'object') {
-    return {
-      width: null,
-      height: null,
-    };
-  }
-
-  const parsed = raw as Record<string, unknown>;
-  const width = typeof parsed.width === 'number' && Number.isFinite(parsed.width) && parsed.width > 0 ? parsed.width : null;
-  const height = typeof parsed.height === 'number' && Number.isFinite(parsed.height) && parsed.height > 0 ? parsed.height : null;
-
-  return {
-    width,
-    height,
-  };
-});
-
-const statusMeta = computed(() => {
-  switch (props.restaurant.status) {
-    case RestaurantStatus.UPDATING:
-      return { icon: Fa7SolidArrowsRotate, label: 'Wird Aktualisiert', className: 'btn-neutral', iconClass: 'animate-spin' };
-    case RestaurantStatus.QUEUED:
-      return { icon: Fa7SolidHourglassHalf, label: 'In Warteschlange', className: 'btn-neutral', iconClass: '' };
-    case RestaurantStatus.COOLDOWN:
-      return { icon: Fa7SolidClock, label: 'Cooldown', className: 'btn-neutral', iconClass: '' };
-    default:
-      switch (props.restaurant.method) {
-        case RestaurantMethod.SCRAPE:
-          return { icon: Fa7SolidArrowsRotate, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
-        case RestaurantMethod.DOWNLOAD:
-          return { icon: Fa7SolidDownload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
-        default:
-          return { icon: Fa7SolidUpload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
-      }
-  }
-});
-
-const canTriggerRefresh = computed(() => props.restaurant.status === RestaurantStatus.IDLE);
-
-async function triggerRefresh() {
-  try {
-    await fetch(`${BackendURL}/scrape`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: props.restaurant.id,
-      }),
-    });
-  } catch (error) {
-    console.error('Failed to trigger scrape', error);
-  }
-}
 </script>
 
 <template>
@@ -155,8 +88,8 @@ async function triggerRefresh() {
   >
     <figure class="relative h-30 overflow-hidden bg-base-300">
       <img
-        v-if="getFileUrl(props.restaurant)"
-        :src="getFileUrl(props.restaurant)"
+        v-if="thumbnailUrl"
+        :src="thumbnailUrl"
         :alt="props.restaurant.name"
         :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isClosed ? 'opacity-40 grayscale' : '']"
         loading="lazy"
@@ -205,73 +138,7 @@ async function triggerRefresh() {
     <div class="card-body gap-3 p-3">
       <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
 
-      <div class="grid grid-cols-5 gap-1.5">
-        <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
-        <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
-          <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
-        </button>
-
-        <button
-          type="button"
-          :class="['btn btn-soft w-full', statusMeta.className]"
-          :title="canTriggerRefresh ? 'Jetzt aktualisieren' : `Status: ${statusMeta.label}`"
-          :aria-label="canTriggerRefresh ? 'Jetzt aktualisieren' : `Status: ${statusMeta.label}`"
-          :disabled="!canTriggerRefresh"
-          @click="triggerRefresh"
-        >
-          <component :is="statusMeta.icon" :class="['btn-icon', statusMeta.iconClass]" aria-hidden="true" />
-        </button>
-
-        <a
-          v-if="getMapUrl(props.restaurant)"
-          :href="getMapUrl(props.restaurant)"
-          target="_blank"
-          rel="noreferrer"
-          class="btn btn-soft hover:btn-warning"
-          title="In Google Maps öffnen"
-          aria-label="Karte öffnen"
-        >
-          <Fa7SolidMap class="btn-icon" aria-hidden="true" />
-        </a>
-        <button v-else type="button" class="btn btn-soft hover:btn-warning" title="Keine Karte verfügbar" aria-label="Keine Karte verfügbar" disabled>
-          <Fa7SolidMap class="btn-icon" aria-hidden="true" />
-        </button>
-
-        <a
-          v-if="props.restaurant.phone"
-          :href="getPhoneUrl(props.restaurant)"
-          class="btn btn-soft hover:btn-success"
-          title="Anrufen"
-          aria-label="Restaurant anrufen"
-        >
-          <Fa7SolidPhone class="btn-icon" aria-hidden="true" />
-        </a>
-        <button
-          v-else
-          type="button"
-          class="btn btn-soft hover:btn-success"
-          title="Keine Telefonnummer verfügbar"
-          aria-label="Keine Telefonnummer verfügbar"
-          disabled
-        >
-          <Fa7SolidPhone class="btn-icon" aria-hidden="true" />
-        </button>
-
-        <a
-          v-if="props.restaurant.website"
-          :href="props.restaurant.website"
-          target="_blank"
-          rel="noreferrer"
-          class="btn btn-soft hover:btn-info"
-          title="Website öffnen"
-          aria-label="Website öffnen"
-        >
-          <Fa7SolidGlobe class="btn-icon" aria-hidden="true" />
-        </a>
-        <button v-else type="button" class="btn btn-soft hover:btn-info" title="Keine Website verfügbar" aria-label="Keine Website verfügbar" disabled>
-          <Fa7SolidGlobe class="btn-icon" aria-hidden="true" />
-        </button>
-      </div>
+      <RestaurantActions :restaurant="props.restaurant" />
     </div>
   </article>
 </template>
