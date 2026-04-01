@@ -15,6 +15,7 @@ import { useFavorites } from '../stores/useFavorites';
 import type { RecordModel } from 'pocketbase';
 import { RestaurantMethod, RestaurantStatus, useRestaurants } from '../stores/useRestaurants';
 import { BackendURL } from '../main';
+import { useNow } from '../composables/useNow';
 
 const props = defineProps<{
   restaurant: RecordModel;
@@ -33,11 +34,19 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   style: 'long',
 });
 
+const nowMs = useNow(30_000);
+
 function formatRelativeDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Unbekannt';
 
-  const diffSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+  const diffSeconds = Math.round((date.getTime() - nowMs.value) / 1000);
+
+  if (diffSeconds <= 0 && Math.abs(diffSeconds) < 60 * 60) {
+    const minutes = Math.max(1, Math.round(Math.abs(diffSeconds) / 60));
+    return `vor ${minutes} min`;
+  }
+
   const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
     ['year', 60 * 60 * 24 * 365],
     ['month', 60 * 60 * 24 * 30],
@@ -60,7 +69,7 @@ function getRelativeDateBadgeClass(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'badge-neutral';
 
-  const ageMs = Date.now() - date.getTime();
+  const ageMs = nowMs.value - date.getTime();
   const dayMs = 24 * 60 * 60 * 1000;
   const weekMs = 7 * dayMs;
   const monthMs = 30 * dayMs;

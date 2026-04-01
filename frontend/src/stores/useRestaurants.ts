@@ -34,7 +34,13 @@ export const useRestaurants = createGlobalState(() => {
   function upsertRestaurant(record: RecordModel) {
     const index = restaurants.value.findIndex((r) => r.id === record.id);
     if (index !== -1) {
-      restaurants.value[index] = record;
+      const current = restaurants.value[index];
+      const { status: _incomingStatus, ...nextFields } = record;
+
+      restaurants.value[index] = {
+        ...current,
+        ...nextFields,
+      };
     }
   }
 
