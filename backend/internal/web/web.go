@@ -36,7 +36,7 @@ func (s *Web) init() error {
 		return nil
 	}
 	browser, err := s.pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: new(true),
+		Headless: playwright.Bool(true),
 	})
 	if err != nil {
 		return fmt.Errorf("could not launch chromium: %w", err)
@@ -53,8 +53,8 @@ func (s *Web) Run(url string, fn func(page playwright.Page) error) error {
 
 	slog.Debug("scraping url", "url", url)
 	page, err := s.browser.NewPage(playwright.BrowserNewPageOptions{
-		BypassCSP:         new(true),
-		IgnoreHttpsErrors: new(true),
+		BypassCSP:         playwright.Bool(true),
+		IgnoreHttpsErrors: playwright.Bool(true),
 	})
 	if err != nil {
 		return fmt.Errorf("could not create page: %v", err)

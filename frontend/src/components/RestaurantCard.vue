@@ -5,17 +5,16 @@ import MenuPopover from './MenuPopover.vue';
 import Fa7SolidPhone from '~icons/fa7-solid/phone';
 import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidStar from '~icons/fa7-solid/star';
-import Fa7RegularStar from '~icons/fa7-regular/star';
-
 import { computed } from 'vue';
-import { BackendURL } from '../main';
 import { useFavorites } from '../stores/useFavorites';
-import type { Restaurant } from '../types/restaurant';
+import type { RecordModel } from 'pocketbase';
+import { useRestaurants } from '../stores/useRestaurants';
 
 const props = defineProps<{
-  restaurant: Restaurant;
+  restaurant: RecordModel;
 }>();
 
+const { getFileUrl, getMapUrl, getPhoneUrl } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -51,21 +50,6 @@ function formatRelativeDate(value: string) {
   return relativeTimeFormatter.format(diffSeconds, 'second');
 }
 
-function getThumbnailUrl(restaurant: Restaurant) {
-  if (!restaurant.thumbnail) return '';
-  return `${BackendURL}/api/files/${restaurant.collectionId}/${restaurant.id}/${restaurant.thumbnail}`;
-}
-
-function getMapUrl(restaurant: Restaurant) {
-  const query = [restaurant.name, restaurant.address].filter(Boolean).join(' ');
-  return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : '';
-}
-
-function getPhoneUrl(phone: string) {
-  if (!phone) return '';
-  return `tel:${phone.replace(/[^+\d]/g, '')}`;
-}
-
 function getInitials(name: string) {
   return name
     .split(/\s+/)
@@ -74,6 +58,26 @@ function getInitials(name: string) {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 }
+
+const menuDimensions = computed(() => {
+  const raw = props.restaurant.menu_dimensions;
+
+  if (!raw || typeof raw !== 'object') {
+    return {
+      width: null,
+      height: null,
+    };
+  }
+
+  const parsed = raw as Record<string, unknown>;
+  const width = typeof parsed.width === 'number' && Number.isFinite(parsed.width) && parsed.width > 0 ? parsed.width : null;
+  const height = typeof parsed.height === 'number' && Number.isFinite(parsed.height) && parsed.height > 0 ? parsed.height : null;
+
+  return {
+    width,
+    height,
+  };
+});
 </script>
 
 <template>
@@ -82,8 +86,8 @@ function getInitials(name: string) {
   >
     <figure class="relative h-30 overflow-hidden bg-base-300">
       <img
-        v-if="getThumbnailUrl(props.restaurant)"
-        :src="getThumbnailUrl(props.restaurant)"
+        v-if="getFileUrl(props.restaurant)"
+        :src="getFileUrl(props.restaurant)"
         :alt="props.restaurant.name"
         :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isClosed ? 'opacity-40 grayscale' : '']"
         loading="lazy"
@@ -130,7 +134,12 @@ function getInitials(name: string) {
       <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
 
       <div class="grid grid-cols-4 gap-1.5">
-        <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" />
+        <MenuPopover
+          v-if="props.restaurant.menu"
+          :menu-url="props.restaurant.menu"
+          :menu-width="menuDimensions.width"
+          :menu-height="menuDimensions.height"
+        />
         <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
           <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
         </button>
@@ -152,7 +161,7 @@ function getInitials(name: string) {
 
         <a
           v-if="props.restaurant.phone"
-          :href="getPhoneUrl(props.restaurant.phone)"
+          :href="getPhoneUrl(props.restaurant)"
           class="btn btn-soft hover:btn-success"
           title="Anrufen"
           aria-label="Restaurant anrufen"

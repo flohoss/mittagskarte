@@ -1,7 +1,6 @@
 package mittag
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -116,7 +115,6 @@ func (m *Mittag) bindHooks() {
 
 		fileServer := http.FileServer(http.Dir(DownloadsFolder))
 		se.Router.GET("/data/downloads/{path...}", func(re *core.RequestEvent) error {
-			re.Response.Header().Set("Content-Security-Policy", fmt.Sprintf("frame-ancestors 'self' %s", m.domain))
 			http.StripPrefix("/data/downloads/", fileServer).ServeHTTP(re.Response, re.Request)
 			return nil
 		})
