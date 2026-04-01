@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/flohoss/mittagskarte/internal/mittag"
+	_ "github.com/flohoss/mittagskarte/migrations"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/pocketbase/pocketbase"
@@ -51,6 +52,18 @@ func main() {
 		}
 
 		return nil
+	})
+
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		if mittagService == nil {
+			return nil
+		}
+
+		if err = mittagService.Start(); err != nil {
+			return err
+		}
+
+		return se.Next()
 	})
 
 	app.OnTerminate().BindFunc(func(e *core.TerminateEvent) error {
