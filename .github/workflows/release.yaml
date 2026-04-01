@@ -3,11 +3,11 @@ name: Build, Push Docker Image, and Create Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v*.*.*'
   workflow_dispatch:
 
 env:
-  DOCKERFILE_PATH: docker/dockerfile
+  DOCKERFILE_PATH: Dockerfile
   IMAGE_NAME: ghcr.io/${{ github.repository }}
   PLATFORM: linux/amd64
 
@@ -94,7 +94,7 @@ jobs:
           build-args: |
             APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
             BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
-            REPO=${{ steps.build-vars.outputs.REPO_URL }}
+            REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
@@ -109,7 +109,8 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           echo "Last tag: ${LAST_TAG:-'None (first release)'}"
 
-          ENDPOINT="/repos/${{ github.repository }}/compare/${LAST_TAG:-$(git rev-list --max-parents=0 HEAD)}...HEAD"
+          BASE_REF="${LAST_TAG:-$(git rev-list --max-parents=0 HEAD)}"
+          ENDPOINT="/repos/${{ github.repository }}/compare/${BASE_REF}...HEAD"
 
           gh api "$ENDPOINT" --jq '.commits[]? | "- \(.commit.message | split("\n")[0]) ([\(.sha[0:7])](https://github.com/${{ github.repository }}/commit/\(.sha))) by @\(.author.login // .commit.author.name)"' > /tmp/commits.txt || exit 1
 
@@ -118,6 +119,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
           echo "PREVIOUS_TAG=${LAST_TAG}" >> $GITHUB_ENV
+          echo "BASE_REF=${BASE_REF}" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -125,6 +127,14 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: 'Release ${{ github.ref_name }}'
           body: |
+            ##  Changes in This Release
+
+            ${{ env.COMMITS }}
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ env.BASE_REF }}...${{ github.ref_name }}
+
+            ---
+
             ## Docker Image
 
             ```bash
@@ -143,16 +153,5 @@ jobs:
             - **Repository**: [${{ steps.build-vars.outputs.REPO_URL }}](${{ steps.build-vars.outputs.REPO_URL }})
             - **Platform**: `${{ env.PLATFORM }}`
             - **Attestations**: SLSA Provenance, SBOM
-
-            ##  Changes in This Release
-
-            ${{ env.COMMITS }}
-
-            ---
-
-            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ env.PREVIOUS_TAG != '' && env.PREVIOUS_TAG || steps.build-vars.outputs.INITIAL_COMMIT }}...${{ github.ref_name }}
-          files: |
-            ${{ steps.docker.outputs.sbom }}
-            ${{ steps.docker.outputs.provenance }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
