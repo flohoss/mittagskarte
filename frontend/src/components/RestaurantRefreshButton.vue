@@ -18,13 +18,8 @@ const uploadDialog = ref<HTMLDialogElement | null>(null);
 const uploadFileInput = ref<HTMLInputElement | null>(null);
 const uploadFile = ref<File | null>(null);
 const isUploading = ref(false);
-const isAuthenticating = ref(false);
 const uploadError = ref('');
-const authError = ref('');
-const loginIdentity = ref('');
-const loginPassword = ref('');
-const { getAuthToken, isAuthenticated, authIdentity, authenticate, clearAuthentication } = useLogin();
-const hasAuthToken = computed(() => isAuthenticated.value);
+const { getAuthToken } = useLogin();
 
 const statusMeta = computed(() => {
   switch (props.restaurant.status) {
@@ -57,35 +52,10 @@ function openUploadDialog() {
 
 function resetUploadDialogState() {
   uploadError.value = '';
-  authError.value = '';
   uploadFile.value = null;
   if (uploadFileInput.value) {
     uploadFileInput.value.value = '';
   }
-}
-
-async function loginForUpload() {
-  if (!loginIdentity.value.trim() || !loginPassword.value) {
-    authError.value = 'Bitte E-Mail und Passwort eingeben.';
-    return;
-  }
-
-  isAuthenticating.value = true;
-  authError.value = '';
-
-  try {
-    await authenticate(loginIdentity.value.trim(), loginPassword.value);
-    loginPassword.value = '';
-  } catch (error) {
-    authError.value = error instanceof Error ? error.message : 'Anmeldung fehlgeschlagen.';
-  } finally {
-    isAuthenticating.value = false;
-  }
-}
-
-function logoutUploadAuth() {
-  clearAuthentication();
-  authError.value = '';
 }
 
 function closeUploadDialog() {
@@ -155,11 +125,17 @@ async function triggerRefresh() {
     return;
   }
 
+  const authToken = getAuthToken();
+  if (!authToken) {
+    return;
+  }
+
   try {
     await fetch(`${BackendURL}/api/restaurants/scrape`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
         id: props.restaurant.id,
@@ -189,54 +165,17 @@ async function triggerRefresh() {
       <p class="mt-1 text-sm text-base-content/70">Für {{ props.restaurant.name }} eine Datei hochladen und als neue Speisekarte verarbeiten.</p>
 
       <div class="mt-4 grid gap-2">
-        <div class="grid gap-2 rounded-lg border border-base-300 p-3">
-          <p class="text-sm font-medium">Anmeldung</p>
-
-          <template v-if="!hasAuthToken">
-            <input
-              v-model="loginIdentity"
-              type="email"
-              class="input input-bordered w-full"
-              placeholder="E-Mail"
-              autocomplete="username"
-              :disabled="isUploading || isAuthenticating"
-            />
-            <input
-              v-model="loginPassword"
-              type="password"
-              class="input input-bordered w-full"
-              placeholder="Passwort"
-              autocomplete="current-password"
-              :disabled="isUploading || isAuthenticating"
-              @keydown.enter.prevent="loginForUpload"
-            />
-            <button
-              type="button"
-              class="btn btn-outline"
-              :disabled="isUploading || isAuthenticating"
-              @click="loginForUpload"
-            >
-              <span v-if="isAuthenticating" class="loading loading-spinner loading-xs" aria-hidden="true" />
-              <span>{{ isAuthenticating ? 'Anmeldung läuft...' : 'Anmelden' }}</span>
-            </button>
-          </template>
-
-          <div v-else class="flex items-center justify-between gap-2">
-            <div class="alert alert-success py-2">
-              <span class="text-xs">
-                Angemeldet als <span class="font-semibold">{{ authIdentity || 'Benutzer' }}</span>
-              </span>
-            </div>
-            <button type="button" class="btn btn-xs btn-ghost" :disabled="isUploading || isAuthenticating" @click="logoutUploadAuth">Abmelden</button>
-          </div>
-
-          <p v-if="authError" class="text-sm text-error">{{ authError }}</p>
-        </div>
-
         <label class="label px-0 pb-1">
           <span class="label-text">Datei (PDF oder Bild)</span>
         </label>
-        <input ref="uploadFileInput" type="file" class="file-input file-input-bordered w-full" accept=".pdf,image/*" :disabled="isUploading" @change="onFileChange" />
+        <input
+          ref="uploadFileInput"
+          type="file"
+          class="file-input file-input-bordered w-full"
+          accept=".pdf,image/*"
+          :disabled="isUploading"
+          @change="onFileChange"
+        />
         <p v-if="uploadError" class="text-sm text-error">{{ uploadError }}</p>
       </div>
 

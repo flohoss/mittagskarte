@@ -3,6 +3,7 @@ import Fa7SolidMagnifyingGlass from '~icons/fa7-solid/magnifying-glass';
 import Github from '~icons/simple-icons/github';
 import { useMagicKeys, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
+import LoginModal from './LoginModal.vue';
 
 import { useRestaurants } from '../stores/useRestaurants';
 
@@ -62,27 +63,29 @@ whenever(
           </div>
         </a>
 
-        <label
-          class="input w-full rounded-lg relative flex items-center gap-3 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 md:max-w-md"
-        >
-          <Fa7SolidMagnifyingGlass class="size-4 text-base-content/60 shrink-0" aria-hidden="true" />
-          <input
-            id="search-input"
-            ref="searchInput"
-            v-model="searchQuery"
-            type="search"
-            name="q"
-            class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
-            placeholder="Restaurant suchen..."
-            autocomplete="off"
-            spellcheck="false"
-            aria-label="Restaurants suchen"
-          />
-          <kbd class="hidden lg:inline-flex kbd kbd-sm font-mono opacity-50">
-            <span class="me-1 text-sm">{{ searchShortcut.primary }}</span
-            >{{ searchShortcut.key }}
-          </kbd>
-        </label>
+        <div class="flex w-full items-center gap-2 md:max-w-xl">
+          <LoginModal />
+
+          <label class="input w-full rounded-lg relative flex items-center gap-3 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20">
+            <Fa7SolidMagnifyingGlass class="size-4 text-base-content/60 shrink-0" aria-hidden="true" />
+            <input
+              id="search-input"
+              ref="searchInput"
+              v-model="searchQuery"
+              type="search"
+              name="q"
+              class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
+              placeholder="Restaurant suchen..."
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Restaurants suchen"
+            />
+            <kbd class="hidden lg:inline-flex kbd kbd-sm font-mono opacity-50">
+              <span class="me-1 text-sm">{{ searchShortcut.primary }}</span
+              >{{ searchShortcut.key }}
+            </kbd>
+          </label>
+        </div>
       </div>
     </header>
     <main class="my-5 lg:my-10 grow">

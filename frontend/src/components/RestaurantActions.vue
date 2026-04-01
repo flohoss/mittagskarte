@@ -8,12 +8,14 @@ import Fa7SolidPhone from '~icons/fa7-solid/phone';
 import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidGlobe from '~icons/fa7-solid/globe';
 import { useRestaurants } from '../stores/useRestaurants';
+import { useLogin } from '../stores/useLogin';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
 }>();
 
 const { getMapUrl, getPhoneUrl } = useRestaurants();
+const { isAuthenticated } = useLogin();
 const mapUrl = computed(() => (props.restaurant.address ? getMapUrl(props.restaurant) : ''));
 const phoneUrl = computed(() => (props.restaurant.phone ? getPhoneUrl(props.restaurant) : ''));
 
@@ -39,13 +41,13 @@ const menuDimensions = computed(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-5 gap-1.5">
+  <div :class="['grid gap-1.5', isAuthenticated ? 'grid-cols-5' : 'grid-cols-4']">
     <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
     <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
     </button>
 
-    <RestaurantRefreshButton :restaurant="props.restaurant" />
+    <RestaurantRefreshButton v-if="isAuthenticated" :restaurant="props.restaurant" />
 
     <a
       v-if="mapUrl"
