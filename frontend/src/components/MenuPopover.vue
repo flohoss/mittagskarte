@@ -155,10 +155,10 @@ watch(isSmallerThanLg, (isSmall) => {
 </script>
 
 <template>
-  <div class="relative inline-block">
+  <div class="relative block w-full">
     <a
       ref="reference"
-      class="btn btn-primary"
+      class="btn btn-primary w-full"
       title="Speisekarte"
       aria-label="Speisekarte öffnen"
       :href="BackendURL + menuUrl"

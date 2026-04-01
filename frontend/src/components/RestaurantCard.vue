@@ -5,16 +5,22 @@ import MenuPopover from './MenuPopover.vue';
 import Fa7SolidPhone from '~icons/fa7-solid/phone';
 import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidStar from '~icons/fa7-solid/star';
+import Fa7SolidArrowsRotate from '~icons/fa7-solid/arrows-rotate';
+import Fa7SolidDownload from '~icons/fa7-solid/download';
+import Fa7SolidUpload from '~icons/fa7-solid/upload';
+import Fa7SolidHourglassHalf from '~icons/fa7-solid/hourglass-half';
+import Fa7SolidClock from '~icons/fa7-solid/clock';
 import { computed } from 'vue';
 import { useFavorites } from '../stores/useFavorites';
 import type { RecordModel } from 'pocketbase';
-import { useRestaurants } from '../stores/useRestaurants';
+import { RestaurantMethod, RestaurantStatus, useRestaurants } from '../stores/useRestaurants';
+import { BackendURL } from '../main';
 
 const props = defineProps<{
   restaurant: RecordModel;
 }>();
 
-const { getFileUrl, getMapUrl, getPhoneUrl, searchQuery } = useRestaurants();
+const { getFileUrl, getMapUrl, getPhoneUrl, applySearch } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -95,8 +101,42 @@ const menuDimensions = computed(() => {
   };
 });
 
-function applyTagSearch(tag: string) {
-  searchQuery.value = tag;
+const statusMeta = computed(() => {
+  switch (props.restaurant.status) {
+    case RestaurantStatus.UPDATING:
+      return { icon: Fa7SolidArrowsRotate, label: 'Wird Aktualisiert', className: 'btn-neutral', iconClass: 'animate-spin' };
+    case RestaurantStatus.QUEUED:
+      return { icon: Fa7SolidHourglassHalf, label: 'In Warteschlange', className: 'btn-neutral', iconClass: '' };
+    case RestaurantStatus.COOLDOWN:
+      return { icon: Fa7SolidClock, label: 'Cooldown', className: 'btn-neutral', iconClass: '' };
+    default:
+      switch (props.restaurant.method) {
+        case RestaurantMethod.SCRAPE:
+          return { icon: Fa7SolidArrowsRotate, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+        case RestaurantMethod.DOWNLOAD:
+          return { icon: Fa7SolidDownload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+        default:
+          return { icon: Fa7SolidUpload, label: 'Leerlauf', className: 'hover:btn-primary', iconClass: '' };
+      }
+  }
+});
+
+const canTriggerRefresh = computed(() => props.restaurant.status === RestaurantStatus.IDLE);
+
+async function triggerRefresh() {
+  try {
+    await fetch(`${BackendURL}/scrape`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: props.restaurant.id,
+      }),
+    });
+  } catch (error) {
+    console.error('Failed to trigger scrape', error);
+  }
 }
 </script>
 
@@ -145,7 +185,7 @@ function applyTagSearch(tag: string) {
             type="button"
             class="badge badge-outline badge-xs cursor-pointer border-base-300/60 bg-base-100/70 px-2 py-2.5 text-xs font-medium backdrop-blur transition-colors hover:bg-base-100"
             :title="`Nach Tag ${tag} filtern`"
-            @click="applyTagSearch(tag)"
+            @click="applySearch(tag)"
           >
             {{ tag }}
           </button>
@@ -156,10 +196,21 @@ function applyTagSearch(tag: string) {
     <div class="card-body gap-3 p-3">
       <h3 class="text-base font-semibold leading-tight">{{ props.restaurant.name }}</h3>
 
-      <div class="grid grid-cols-4 gap-1.5">
+      <div class="grid grid-cols-5 gap-1.5">
         <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
         <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
           <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
+        </button>
+
+        <button
+          type="button"
+          :class="['btn btn-soft w-full', statusMeta.className]"
+          :title="canTriggerRefresh ? 'Jetzt aktualisieren' : `Status: ${statusMeta.label}`"
+          :aria-label="canTriggerRefresh ? 'Jetzt aktualisieren' : `Status: ${statusMeta.label}`"
+          :disabled="!canTriggerRefresh"
+          @click="triggerRefresh"
+        >
+          <component :is="statusMeta.icon" :class="['btn-icon', statusMeta.iconClass]" aria-hidden="true" />
         </button>
 
         <a

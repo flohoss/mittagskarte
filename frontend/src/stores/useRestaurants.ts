@@ -5,6 +5,23 @@ import PocketBase, { type RecordModel } from 'pocketbase';
 import { BackendURL } from '../main';
 import { useFavorites } from './useFavorites';
 
+export enum RestaurantStatus {
+  QUEUED = 'queued',
+  UPDATING = 'updating',
+  COOLDOWN = 'cooldown',
+  IDLE = 'idle',
+}
+
+export enum RestaurantMethod {
+  SCRAPE = 'scrape',
+  DOWNLOAD = 'download',
+  UPLOAD = 'upload',
+}
+interface StatusChangeEvent {
+  id: string;
+  status: RestaurantStatus;
+}
+
 export const useRestaurants = createGlobalState(() => {
   const pb = new PocketBase(BackendURL);
   const { favorites } = useFavorites();
@@ -13,6 +30,27 @@ export const useRestaurants = createGlobalState(() => {
   const isLoaded = ref(false);
   const isLoading = ref(false);
   const searchQuery = ref('');
+
+  function upsertRestaurant(record: RecordModel) {
+    const index = restaurants.value.findIndex((r) => r.id === record.id);
+    if (index !== -1) {
+      restaurants.value[index] = record;
+    }
+  }
+
+  async function subscribeRealtime() {
+    await pb.realtime.subscribe('restaurants/status', (e: StatusChangeEvent) => {
+      const index = restaurants.value.findIndex((r) => r.id === e.id);
+      if (index !== -1) {
+        restaurants.value[index].status = e.status;
+      }
+    });
+    await pb.collection('restaurants').subscribe('*', (e) => {
+      if (e.action === 'update') {
+        upsertRestaurant(e.record);
+      }
+    });
+  }
 
   async function fetchRestaurants() {
     if (isLoading.value) return;
@@ -31,6 +69,7 @@ export const useRestaurants = createGlobalState(() => {
 
   if (!isLoaded.value && !isLoading.value) {
     void fetchRestaurants();
+    void subscribeRealtime();
   }
 
   function getFileUrl(restaurant: RecordModel) {
@@ -86,6 +125,10 @@ export const useRestaurants = createGlobalState(() => {
     return groups;
   });
 
+  function applySearch(query: string) {
+    searchQuery.value = query;
+  }
+
   return {
     restaurants,
     searchQuery,
@@ -97,5 +140,6 @@ export const useRestaurants = createGlobalState(() => {
     getFileUrl,
     getMapUrl,
     getPhoneUrl,
+    applySearch,
   };
 });

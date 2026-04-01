@@ -118,7 +118,7 @@ func (m *Mittag) getCronGroups() (map[string][]*Restaurant, error) {
 func (m *Mittag) bindHooks() {
 	m.app.OnRecordEnrich("restaurants").BindFunc(func(e *core.RecordEnrichEvent) error {
 		e.Record.WithCustomData(true)
-		e.Record.Set("scrape_status", m.scraper.StatusForRestaurant(e.Record.Id))
+		e.Record.Set("status", m.scraper.StatusForRestaurant(e.Record.Id))
 		return e.Next()
 	})
 
