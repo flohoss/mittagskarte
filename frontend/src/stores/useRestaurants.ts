@@ -52,12 +52,30 @@ export const useRestaurants = createGlobalState(() => {
     });
   }
 
+  function preloadThumbnails(records: ReturnType<typeof restaurants.value.slice>) {
+    return Promise.allSettled(
+      records
+        .filter((r) => r.thumbnail)
+        .map(
+          (r) =>
+            new Promise<void>((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+              img.src = backendClient.getFileUrl(r);
+            })
+        )
+    );
+  }
+
   async function fetchRestaurants() {
     if (isLoading.value) return;
 
     isLoading.value = true;
     try {
-      restaurants.value = await backendClient.fetchRestaurants();
+      const records = await backendClient.fetchRestaurants();
+      await preloadThumbnails(records);
+      restaurants.value = records;
       isLoaded.value = true;
     } finally {
       isLoading.value = false;
