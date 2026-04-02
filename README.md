@@ -9,6 +9,13 @@ The current stack is:
 - PocketBase collections and migrations for restaurant data
 - Playwright, MuPDF, and ImageMagick for scraping and file conversion
 
+## Screenshots
+
+<p align="center">
+  <img src="images/dark.webp" width="800" />
+  <img src="images/light.webp" width="800" />
+</p>
+
 ## Architecture
 
 The app is split into two parts during development:
