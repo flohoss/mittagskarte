@@ -201,9 +201,9 @@ docker compose up --build --force-recreate
 
 Development URLs:
 
-- frontend: http://localhost:5173
-- backend: http://localhost:8090
-- PocketBase dashboard: http://localhost:8090/\_
+- frontend: `http://localhost:5173`
+- backend: `http://localhost:8090`
+- PocketBase dashboard: `http://localhost:8090/_/`
 
 Compose services:
 
