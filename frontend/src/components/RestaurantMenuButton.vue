@@ -74,7 +74,7 @@ const popoverSizingStyle = computed(() => {
 
 const imageClass = computed(() => {
   if (imageSize.value.isLandscape) {
-    return 'block h-auto w-auto max-h-[calc(95vh-28px)] max-w-[80vw] object-contain';
+    return 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain';
   }
 
   if (isScrollablePortrait.value) {
