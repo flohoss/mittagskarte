@@ -67,10 +67,6 @@ func fetchRestaurants(app core.App) ([]*Restaurant, error) {
 		}
 
 		sort.SliceStable(navigate, func(i, j int) bool {
-			if navigate[i].Order == navigate[j].Order {
-				return navigate[i].Id < navigate[j].Id
-			}
-
 			return navigate[i].Order < navigate[j].Order
 		})
 
