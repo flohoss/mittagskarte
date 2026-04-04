@@ -142,7 +142,7 @@ func (s *Scraper) runScrapeWorker() {
 		}
 
 		if err = s.scrapeSingle(restaurant); err != nil {
-			s.app.Logger().Error("Error scraping restaurant", "id", restaurant.ID, "error", err)
+			s.app.Logger().Error("Error scraping restaurant", "name", restaurant.Name, "error", err)
 		}
 
 		s.markScrapeDone(restaurantID)
@@ -270,10 +270,10 @@ func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 			return err
 		}
 	case "upload":
-		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "id", restaurant.ID, "website", restaurant.Website)
+		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "name", restaurant.Name, "website", restaurant.Website)
 		return nil
 	default:
-		s.app.Logger().Warn("Unknown scraping method for restaurant", "id", restaurant.ID, "method", restaurant.Method)
+		s.app.Logger().Warn("Unknown scraping method for restaurant", "name", restaurant.Name, "method", restaurant.Method)
 		return nil
 	}
 

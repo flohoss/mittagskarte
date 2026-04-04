@@ -29,6 +29,7 @@ type menuDimensions struct {
 
 type Restaurant struct {
 	ID          string     `db:"id" json:"id"`
+	Name        string     `db:"name" json:"name"`
 	Website     string     `db:"website" json:"website"`
 	RestDays    []string   `db:"rest_days" json:"rest_days"`
 	Method      string     `db:"method" json:"method"`
@@ -43,6 +44,13 @@ type Selector struct {
 	Locator   string `db:"locator" json:"locator"`
 	Attribute string `db:"attribute" json:"attribute"`
 	Style     string `db:"style" json:"style"`
+}
+
+func (r *Restaurant) withLogger(logger *slog.Logger, extra ...any) *slog.Logger {
+	args := make([]any, 0, len(extra)+2)
+	args = append(args, "name", r.Name)
+	args = append(args, extra...)
+	return logger.With(args...)
 }
 
 func fetchRestaurants(app core.App) ([]*Restaurant, error) {
@@ -72,6 +80,7 @@ func fetchRestaurants(app core.App) ([]*Restaurant, error) {
 
 		restaurants[i] = &Restaurant{
 			ID:          restaurant.Id,
+			Name:        restaurant.GetString("name"),
 			Website:     restaurant.GetString("website"),
 			RestDays:    restaurant.GetStringSlice("rest_days"),
 			Method:      restaurant.GetString("method"),
@@ -85,6 +94,8 @@ func fetchRestaurants(app core.App) ([]*Restaurant, error) {
 }
 
 func (r *Restaurant) updateMenu(filePath string, app core.App) error {
+	logger := r.withLogger(app.Logger())
+
 	restaurant, err := app.FindRecordById("restaurants", r.ID)
 	if err != nil {
 		return err
@@ -97,7 +108,7 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 	}
 
 	if checksum.Identical(existingChecksum, newChecksum) {
-		app.Logger().Info("Menu has not changed, skipping update", "id", r.ID)
+		logger.Info("Menu has not changed, skipping update")
 		return nil
 	}
 
@@ -108,7 +119,7 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 
 	dimensions, err := readMenuDimensions(filePath)
 	if err != nil {
-		app.Logger().Warn("Could not read menu image dimensions", "id", r.ID, "path", filePath, "error", err)
+		logger.Warn("Could not read menu image dimensions", "path", filePath, "error", err)
 	}
 
 	restaurant.Set("menu", filePathWithChecksum)
@@ -120,7 +131,7 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 		return err
 	}
 
-	app.Logger().Info("Successfully updated menu for restaurant", "id", r.ID, "filePath", filePathWithChecksum)
+	logger.Info("Successfully updated menu for restaurant", "filePath", filePathWithChecksum)
 
 	return nil
 }
@@ -149,28 +160,30 @@ func readMenuDimensions(filePath string) (*menuDimensions, error) {
 }
 
 func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string, error) {
-	logger.Info("Downloading menu from direct URL", "id", r.ID, "website", r.Website)
+	logger = r.withLogger(logger, "website", r.Website)
+	logger.Info("Downloading menu from direct URL")
 
 	if len(r.Navigate) == 0 || r.Navigate[0].Locator == "" {
-		return "", fmt.Errorf("no URL defined in first locator for restaurant %s", r.ID)
+		return "", fmt.Errorf("no URL defined in first locator for restaurant %s", r.Name)
 	}
 
 	url, err := url.Parse(r.Navigate[0].Locator)
 	if err != nil {
-		return "", fmt.Errorf("invalid URL in first locator for restaurant %s: %w", r.ID, err)
+		return "", fmt.Errorf("invalid URL in first locator for restaurant %s: %w", r.Name, err)
 	}
 
 	downloadPath, err = download.Curl(downloadPath, url.String())
 	if err != nil {
-		return "", fmt.Errorf("could not download file %s: %w", url, err)
+		return "", fmt.Errorf("could not download file %s for restaurant %s: %w", url, r.Name, err)
 	}
 
-	logger.Info("Successfully downloaded menu", "id", r.ID, "path", downloadPath)
+	logger.Info("Successfully downloaded menu", "path", downloadPath)
 	return downloadPath, nil
 }
 
 func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logger) (string, error) {
-	logger.Info("Scraping restaurant", "id", r.ID, "website", r.Website)
+	logger = r.withLogger(logger, "website", r.Website)
+	logger.Info("Scraping restaurant")
 
 	err := web.Run(r.Website, func(page playwright.Page) error {
 		for i, nav := range r.Navigate {
@@ -202,11 +215,11 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 					logger.Debug("Trying to download file by getting attribute", "locator", nav.Locator, "attribute", nav.Attribute)
 					imgSrc, err := selector.GetAttribute(nav.Attribute)
 					if err != nil {
-						return fmt.Errorf("could not get attribute %s: %w", nav.Attribute, err)
+						return fmt.Errorf("could not get attribute %s for restaurant %s: %w", nav.Attribute, r.Name, err)
 					}
 					downloadPath, err = download.Curl(downloadPath, imgSrc)
 					if err != nil {
-						return fmt.Errorf("could not download file %s: %w", imgSrc, err)
+						return fmt.Errorf("could not download file %s for restaurant %s: %w", imgSrc, r.Name, err)
 					}
 				}
 			} else {
@@ -248,9 +261,9 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 		return nil
 	})
 	if err != nil {
-		return "", fmt.Errorf("error scraping restaurant %s: %w", r.ID, err)
+		return "", fmt.Errorf("error scraping restaurant %s: %w", r.Name, err)
 	}
 
-	logger.Info("Successfully scraped restaurant", "id", r.ID, "path", downloadPath)
+	logger.Info("Successfully scraped restaurant", "path", downloadPath)
 	return downloadPath, nil
 }
