@@ -1,11 +1,11 @@
-package download
+package curl
 
 import (
 	"fmt"
 	"os/exec"
 )
 
-func Curl(downloadPath, fullURL string) (string, error) {
+func Download(downloadPath, fullURL string) (string, error) {
 	cmd := exec.Command("curl", "-L", "-o", downloadPath, fullURL)
 	output, err := cmd.CombinedOutput()
 	if err != nil {

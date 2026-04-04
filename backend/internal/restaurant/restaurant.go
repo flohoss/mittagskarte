@@ -11,10 +11,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/flohoss/mittagskarte/internal/checksum"
-	"github.com/flohoss/mittagskarte/internal/download"
 	"github.com/flohoss/mittagskarte/internal/placeholder"
 	"github.com/flohoss/mittagskarte/internal/web"
+	"github.com/flohoss/mittagskarte/pkg/checksum"
+	"github.com/flohoss/mittagskarte/pkg/curl"
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/pocketbase/pocketbase/core"
@@ -209,7 +209,7 @@ func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string,
 		return "", fmt.Errorf("invalid URL in first locator for restaurant %s: %w", r.Name, err)
 	}
 
-	downloadPath, err = download.Curl(downloadPath, u.String())
+	downloadPath, err = curl.Download(downloadPath, u.String())
 	if err != nil {
 		return "", fmt.Errorf("could not download file %s for restaurant %s: %w", u, r.Name, err)
 	}
@@ -254,7 +254,7 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 					if err != nil {
 						return fmt.Errorf("could not get attribute %s for restaurant %s: %w", nav.Attribute, r.Name, err)
 					}
-					downloadPath, err = download.Curl(downloadPath, imgSrc)
+					downloadPath, err = curl.Download(downloadPath, imgSrc)
 					if err != nil {
 						return fmt.Errorf("could not download file %s for restaurant %s: %w", imgSrc, r.Name, err)
 					}
