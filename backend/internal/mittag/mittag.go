@@ -65,11 +65,11 @@ func (m *Mittag) initCron() error {
 	m.app.Logger().Debug("Initializing cron jobs for restaurant groups", "groups", len(crons))
 
 	for cron, restaurants := range crons {
-		restaurantIDs := make([]string, len(restaurants))
+		names := make([]string, len(restaurants))
 		for i, r := range restaurants {
-			restaurantIDs[i] = r.ID
+			names[i] = r.Name
 		}
-		m.app.Logger().Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(restaurantIDs, ","))
+		m.app.Logger().Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","))
 		m.app.Cron().MustAdd(cron, cron, func() {
 			m.scraper.Enqueue(restaurants)
 		})
