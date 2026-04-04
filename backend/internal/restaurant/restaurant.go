@@ -1,4 +1,4 @@
-package mittag
+package restaurant
 
 import (
 	"fmt"
@@ -20,6 +20,14 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	_ "golang.org/x/image/webp"
 )
+
+const (
+	DownloadsFolder = "data/downloads/"
+)
+
+func init() {
+	os.MkdirAll(DownloadsFolder, os.ModePerm)
+}
 
 type menuDimensions struct {
 	Width     int  `json:"width"`
@@ -46,14 +54,34 @@ type Selector struct {
 	Style     string `db:"style" json:"style"`
 }
 
-func (r *Restaurant) withLogger(logger *slog.Logger, extra ...any) *slog.Logger {
-	args := make([]any, 0, len(extra)+2)
-	args = append(args, "name", r.Name)
-	args = append(args, extra...)
-	return logger.With(args...)
+func New(r *core.Record) *Restaurant {
+	expandedNavigate := r.ExpandedAll("navigate")
+	navigate := make([]Selector, 0, len(expandedNavigate))
+	for _, nav := range expandedNavigate {
+		navigate = append(navigate, Selector{
+			Id:        nav.Id,
+			Order:     nav.GetInt("order"),
+			Locator:   nav.GetString("locator"),
+			Attribute: nav.GetString("attribute"),
+			Style:     nav.GetString("style"),
+		})
+	}
+	sort.SliceStable(navigate, func(i, j int) bool {
+		return navigate[i].Order < navigate[j].Order
+	})
+	return &Restaurant{
+		ID:          r.Id,
+		Name:        r.GetString("name"),
+		Website:     r.GetString("website"),
+		RestDays:    r.GetStringSlice("rest_days"),
+		Method:      r.GetString("method"),
+		ContentType: r.GetString("content_type"),
+		Cron:        r.GetString("cron"),
+		Navigate:    navigate,
+	}
 }
 
-func fetchRestaurants(app core.App) ([]*Restaurant, error) {
+func FetchRestaurants(app core.App) ([]*Restaurant, error) {
 	r, err := app.FindAllRecords("restaurants")
 	if err != nil {
 		return nil, err
@@ -61,47 +89,56 @@ func fetchRestaurants(app core.App) ([]*Restaurant, error) {
 	app.ExpandRecords(r, []string{"navigate"}, nil)
 
 	restaurants := make([]*Restaurant, len(r))
-	for i, restaurant := range r {
-		expandedNavigate := restaurant.ExpandedAll("navigate")
-		navigate := make([]Selector, 0, len(expandedNavigate))
-		for _, nav := range expandedNavigate {
-			navigate = append(navigate, Selector{
-				Id:        nav.Id,
-				Order:     nav.GetInt("order"),
-				Locator:   nav.GetString("locator"),
-				Attribute: nav.GetString("attribute"),
-				Style:     nav.GetString("style"),
-			})
-		}
-
-		sort.SliceStable(navigate, func(i, j int) bool {
-			return navigate[i].Order < navigate[j].Order
-		})
-
-		restaurants[i] = &Restaurant{
-			ID:          restaurant.Id,
-			Name:        restaurant.GetString("name"),
-			Website:     restaurant.GetString("website"),
-			RestDays:    restaurant.GetStringSlice("rest_days"),
-			Method:      restaurant.GetString("method"),
-			ContentType: restaurant.GetString("content_type"),
-			Cron:        restaurant.GetString("cron"),
-			Navigate:    navigate,
-		}
+	for i, record := range r {
+		restaurants[i] = New(record)
 	}
 
 	return restaurants, nil
 }
 
-func (r *Restaurant) updateMenu(filePath string, app core.App) error {
+func FetchRestaurant(app core.App, id string) (*Restaurant, error) {
+	r, err := app.FindRecordById("restaurants", id)
+	if err != nil {
+		return nil, err
+	}
+	app.ExpandRecord(r, []string{"navigate"}, nil)
+
+	return New(r), nil
+}
+
+func FetchCronGroups(app core.App) (map[string][]*Restaurant, error) {
+	restaurants, err := FetchRestaurants(app)
+	if err != nil {
+		return nil, err
+	}
+
+	grouped := make(map[string][]*Restaurant)
+	for i, r := range restaurants {
+		if r.Cron == "" {
+			continue
+		}
+		grouped[r.Cron] = append(grouped[r.Cron], restaurants[i])
+	}
+
+	return grouped, nil
+}
+
+func (r *Restaurant) withLogger(logger *slog.Logger, extra ...any) *slog.Logger {
+	args := make([]any, 0, len(extra)+2)
+	args = append(args, "name", r.Name)
+	args = append(args, extra...)
+	return logger.With(args...)
+}
+
+func (r *Restaurant) UpdateMenu(filePath string, app core.App) error {
 	logger := r.withLogger(app.Logger())
 
-	restaurant, err := app.FindRecordById("restaurants", r.ID)
+	record, err := app.FindRecordById("restaurants", r.ID)
 	if err != nil {
 		return err
 	}
 
-	existingChecksum := restaurant.GetString("menu_hash")
+	existingChecksum := record.GetString("menu_hash")
 	newChecksum, err := checksum.ChecksumFile(filePath)
 	if err != nil {
 		return err
@@ -122,12 +159,12 @@ func (r *Restaurant) updateMenu(filePath string, app core.App) error {
 		logger.Warn("Could not read menu image dimensions", "path", filePath, "error", err)
 	}
 
-	restaurant.Set("menu", filePathWithChecksum)
-	restaurant.Set("menu_hash", fmt.Sprintf("%x", newChecksum))
+	record.Set("menu", filePathWithChecksum)
+	record.Set("menu_hash", fmt.Sprintf("%x", newChecksum))
 	if dimensions != nil {
-		restaurant.Set("menu_dimensions", dimensions)
+		record.Set("menu_dimensions", dimensions)
 	}
-	if err := app.Save(restaurant); err != nil {
+	if err := app.Save(record); err != nil {
 		return err
 	}
 
@@ -167,25 +204,25 @@ func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string,
 		return "", fmt.Errorf("no URL defined in first locator for restaurant %s", r.Name)
 	}
 
-	url, err := url.Parse(r.Navigate[0].Locator)
+	u, err := url.Parse(r.Navigate[0].Locator)
 	if err != nil {
 		return "", fmt.Errorf("invalid URL in first locator for restaurant %s: %w", r.Name, err)
 	}
 
-	downloadPath, err = download.Curl(downloadPath, url.String())
+	downloadPath, err = download.Curl(downloadPath, u.String())
 	if err != nil {
-		return "", fmt.Errorf("could not download file %s for restaurant %s: %w", url, r.Name, err)
+		return "", fmt.Errorf("could not download file %s for restaurant %s: %w", u, r.Name, err)
 	}
 
 	logger.Info("Successfully downloaded menu", "path", downloadPath)
 	return downloadPath, nil
 }
 
-func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logger) (string, error) {
+func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *slog.Logger) (string, error) {
 	logger = r.withLogger(logger, "website", r.Website)
 	logger.Info("Scraping restaurant")
 
-	err := web.Run(r.Website, func(page playwright.Page) error {
+	err := webService.Run(r.Website, func(page playwright.Page) error {
 		for i, nav := range r.Navigate {
 			if nav.Style != "" {
 				page.AddStyleTag(playwright.PageAddStyleTagOptions{Content: playwright.String(nav.Style)})
@@ -201,14 +238,14 @@ func (r *Restaurant) Scrape(downloadPath string, web *web.Web, logger *slog.Logg
 			} else if r.ContentType != "html" {
 				if nav.Attribute == "" {
 					logger.Debug("Trying to download file by clicking on locator", "locator", nav.Locator)
-					download, err := page.ExpectDownload(func() error {
+					dl, err := page.ExpectDownload(func() error {
 						return selector.Click(playwright.LocatorClickOptions{Force: playwright.Bool(true)})
 					})
 					if err != nil {
 						return fmt.Errorf("could not click on %s: %w", nav.Locator, err)
 					}
-					downloadPath = filepath.Join(DownloadsFolder, download.SuggestedFilename())
-					if err := download.SaveAs(downloadPath); err != nil {
+					downloadPath = filepath.Join(DownloadsFolder, dl.SuggestedFilename())
+					if err := dl.SaveAs(downloadPath); err != nil {
 						return fmt.Errorf("could not save download to %s: %w", downloadPath, err)
 					}
 				} else {

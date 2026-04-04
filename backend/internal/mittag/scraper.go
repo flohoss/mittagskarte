@@ -12,13 +12,14 @@ import (
 
 	"github.com/flohoss/mittagskarte/internal/image"
 	"github.com/flohoss/mittagskarte/internal/pdf"
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 	"github.com/flohoss/mittagskarte/internal/web"
 
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 )
 
-type restaurantsProvider func() ([]*Restaurant, error)
+type restaurantsProvider func(app core.App) ([]*restaurant.Restaurant, error)
 
 const (
 	ScrapeStatusUpdating = "updating"
@@ -76,11 +77,11 @@ func (s *Scraper) Close() {
 	s.im.Close()
 }
 
-func (s *Scraper) Enqueue(restaurants []*Restaurant) {
+func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
 	var err error
 
 	if restaurants == nil {
-		restaurants, err = s.getRestaurants()
+		restaurants, err = s.getRestaurants(s.app)
 		if err != nil {
 			s.app.Logger().Error("Error fetching restaurants", "error", err)
 			return
@@ -135,14 +136,14 @@ func (s *Scraper) runScrapeWorker() {
 
 		s.notifyRestaurantStatus(restaurantID)
 
-		restaurant, err := s.getRestaurantByID(restaurantID)
+		r, err := s.getRestaurantByID(restaurantID)
 		if err != nil {
 			s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
 			continue
 		}
 
-		if err = s.scrapeSingle(restaurant); err != nil {
-			s.app.Logger().Error("Error scraping restaurant", "name", restaurant.Name, "error", err)
+		if err = s.scrapeSingle(r); err != nil {
+			s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", err)
 		}
 
 		s.markScrapeDone(restaurantID)
@@ -223,33 +224,22 @@ func (s *Scraper) notifyRestaurantStatus(restaurantID string) {
 	}
 }
 
-func (s *Scraper) getRestaurantByID(restaurantID string) (*Restaurant, error) {
-	restaurants, err := s.getRestaurants()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, restaurant := range restaurants {
-		if restaurant.ID == restaurantID {
-			return restaurant, nil
-		}
-	}
-
-	return nil, fmt.Errorf("restaurant %s not found", restaurantID)
+func (s *Scraper) getRestaurantByID(restaurantID string) (*restaurant.Restaurant, error) {
+	return restaurant.FetchRestaurant(s.app, restaurantID)
 }
 
-func (s *Scraper) uploadSingle(restaurant *Restaurant, uploadPath string) error {
-	if restaurant == nil {
+func (s *Scraper) uploadSingle(r *restaurant.Restaurant, uploadPath string) error {
+	if r == nil {
 		return fmt.Errorf("restaurant is nil")
 	}
 
-	return s.processAndUpdateMenu(restaurant, uploadPath)
+	return s.processAndUpdateMenu(r, uploadPath)
 }
 
-func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
+func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 	var err error
 
-	initialDownloadPath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s", time.Now().Unix(), restaurant.ID))
+	initialDownloadPath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d_%s", time.Now().Unix(), r.ID))
 	downloadPath := initialDownloadPath
 	defer func() {
 		if initialDownloadPath != downloadPath {
@@ -258,34 +248,34 @@ func (s *Scraper) scrapeSingle(restaurant *Restaurant) error {
 		_ = os.Remove(downloadPath)
 	}()
 
-	switch restaurant.Method {
+	switch r.Method {
 	case "scrape":
-		downloadPath, err = restaurant.Scrape(downloadPath, s.web, s.app.Logger())
+		downloadPath, err = r.Scrape(downloadPath, s.web, s.app.Logger())
 		if err != nil {
 			return err
 		}
 	case "download":
-		downloadPath, err = restaurant.Download(downloadPath, s.app.Logger())
+		downloadPath, err = r.Download(downloadPath, s.app.Logger())
 		if err != nil {
 			return err
 		}
 	case "upload":
-		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "name", restaurant.Name, "website", restaurant.Website)
+		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "name", r.Name, "website", r.Website)
 		return nil
 	default:
-		s.app.Logger().Warn("Unknown scraping method for restaurant", "name", restaurant.Name, "method", restaurant.Method)
+		s.app.Logger().Warn("Unknown scraping method for restaurant", "name", r.Name, "method", r.Method)
 		return nil
 	}
 
-	return s.processAndUpdateMenu(restaurant, downloadPath)
+	return s.processAndUpdateMenu(r, downloadPath)
 }
 
-func (s *Scraper) processAndUpdateMenu(restaurant *Restaurant, sourcePath string) error {
-	tmpFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().UnixNano(), restaurant.ID))
+func (s *Scraper) processAndUpdateMenu(r *restaurant.Restaurant, sourcePath string) error {
+	tmpFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().UnixNano(), r.ID))
 	defer os.Remove(tmpFilePath)
 
 	var err error
-	if shouldUsePDFConverter(restaurant, sourcePath) {
+	if shouldUsePDFConverter(r, sourcePath) {
 		err = pdf.ConvertToWebp(sourcePath, tmpFilePath)
 	} else {
 		err = s.im.ConvertToWebp(sourcePath, tmpFilePath)
@@ -302,20 +292,20 @@ func (s *Scraper) processAndUpdateMenu(restaurant *Restaurant, sourcePath string
 		return err
 	}
 
-	finalFilePath := filepath.Join(DownloadsFolder, fmt.Sprintf("%s.webp", restaurant.ID))
+	finalFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%s.webp", r.ID))
 	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
 		return err
 	}
 
-	if err = restaurant.updateMenu(finalFilePath, s.app); err != nil {
+	if err = r.UpdateMenu(finalFilePath, s.app); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func shouldUsePDFConverter(restaurant *Restaurant, sourcePath string) bool {
-	if restaurant.ContentType == "pdf" {
+func shouldUsePDFConverter(r *restaurant.Restaurant, sourcePath string) bool {
+	if r.ContentType == "pdf" {
 		return true
 	}
 
