@@ -9,6 +9,11 @@ import (
 	"github.com/goodsign/monday"
 )
 
+var (
+	placeholderRe = regexp.MustCompile(`\{\{(.*?)\}\}`)
+	dateArgsRe    = regexp.MustCompile(`date\((.*)\)`)
+)
+
 var weekDays = map[string]time.Weekday{
 	"monday":    time.Monday,
 	"tuesday":   time.Tuesday,
@@ -31,8 +36,7 @@ func parseDatePlaceholder(placeholder string) string {
 	}
 
 	// Extract content inside parentheses
-	re := regexp.MustCompile(`date\((.*)\)`)
-	match := re.FindStringSubmatch(key)
+	match := dateArgsRe.FindStringSubmatch(key)
 	if match == nil || len(match) != 2 {
 		return key
 	}
@@ -41,7 +45,7 @@ func parseDatePlaceholder(placeholder string) string {
 	args := map[string]string{}
 
 	// Split by comma and parse key=value
-	for _, part := range strings.Split(argsStr, ",") {
+	for part := range strings.SplitSeq(argsStr, ",") {
 		if strings.Contains(part, "=") {
 			kv := strings.SplitN(part, "=", 2)
 			key := strings.TrimSpace(kv[0])
@@ -98,10 +102,5 @@ func parseDatePlaceholder(placeholder string) string {
 }
 
 func Replace(input string) string {
-	re := regexp.MustCompile(`\{\{(.*?)\}\}`)
-	result := re.ReplaceAllStringFunc(input, func(placeholder string) string {
-		return parseDatePlaceholder(placeholder)
-	})
-
-	return result
+	return placeholderRe.ReplaceAllStringFunc(input, parseDatePlaceholder)
 }
