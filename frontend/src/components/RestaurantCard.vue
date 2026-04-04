@@ -26,7 +26,7 @@ const RELATIVE_TIME_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   numeric: 'auto',
-  style: 'short',
+  style: 'long',
 });
 
 const nowMs = useNow(30_000);
@@ -43,13 +43,15 @@ function formatRelativeDate(value: string) {
   // Backend and client clocks can drift slightly; avoid showing future times in the UI.
   const diffSeconds = Math.min(0, rawDiffSeconds);
 
+  if (diffSeconds > -60) return 'gerade eben';
+
   for (const [unit, seconds] of RELATIVE_TIME_UNITS) {
     if (Math.abs(diffSeconds) >= seconds) {
       return relativeTimeFormatter.format(Math.round(diffSeconds / seconds), unit);
     }
   }
 
-  return relativeTimeFormatter.format(diffSeconds, 'second');
+  return 'gerade eben';
 }
 
 function getRelativeDateBadgeClass(value: string) {
