@@ -5,7 +5,7 @@ FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@v1.58.0 install-deps chromium > /dev/null 2>&1
+RUN npx -y playwright@v1.59.1 install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     git gnupg libc6-dev libnss3-dev libnet-dev build-essential \
