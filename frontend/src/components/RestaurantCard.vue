@@ -15,10 +15,18 @@ const { getFileUrl, applySearch } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const RELATIVE_TIME_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+  ['year', 60 * 60 * 24 * 365],
+  ['month', 60 * 60 * 24 * 30],
+  ['week', 60 * 60 * 24 * 7],
+  ['day', 60 * 60 * 24],
+  ['hour', 60 * 60],
+  ['minute', 60],
+];
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   numeric: 'auto',
-  style: 'long',
+  style: 'short',
 });
 
 const nowMs = useNow(30_000);
@@ -35,25 +43,7 @@ function formatRelativeDate(value: string) {
   // Backend and client clocks can drift slightly; avoid showing future times in the UI.
   const diffSeconds = Math.min(0, rawDiffSeconds);
 
-  if (Math.abs(diffSeconds) < 60) {
-    return 'gerade eben';
-  }
-
-  if (diffSeconds <= 0 && Math.abs(diffSeconds) < 60 * 60) {
-    const minutes = Math.max(1, Math.round(Math.abs(diffSeconds) / 60));
-    return `vor ${minutes} min`;
-  }
-
-  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
-    ['year', 60 * 60 * 24 * 365],
-    ['month', 60 * 60 * 24 * 30],
-    ['week', 60 * 60 * 24 * 7],
-    ['day', 60 * 60 * 24],
-    ['hour', 60 * 60],
-    ['minute', 60],
-  ];
-
-  for (const [unit, seconds] of units) {
+  for (const [unit, seconds] of RELATIVE_TIME_UNITS) {
     if (Math.abs(diffSeconds) >= seconds) {
       return relativeTimeFormatter.format(Math.round(diffSeconds / seconds), unit);
     }
