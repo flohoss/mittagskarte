@@ -22,12 +22,13 @@ import (
 )
 
 type Mittag struct {
-	app     core.App
-	scraper *Scraper
-	started bool
+	app              core.App
+	scraper          *Scraper
+	started          bool
+	MaxAmountOfMenus int
 }
 
-func New(app core.App) (*Mittag, error) {
+func New(app core.App, maxAmountOfMenus int) (*Mittag, error) {
 	webService, err := web.New()
 	if err != nil {
 		return nil, err
@@ -35,7 +36,7 @@ func New(app core.App) (*Mittag, error) {
 
 	imageMagic := image.New()
 
-	m := &Mittag{app: app}
+	m := &Mittag{app: app, MaxAmountOfMenus: maxAmountOfMenus}
 	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurants)
 	m.bindHooks()
 
@@ -78,35 +79,7 @@ func (m *Mittag) initCron() error {
 		})
 	}
 
-	m.app.Cron().MustAdd("menu_cleanup", "0 3 * * *", m.cleanupMenus)
-
 	return nil
-}
-
-func (m *Mittag) cleanupMenus() {
-	restaurants, err := m.app.FindAllRecords("restaurants")
-	if err != nil {
-		m.app.Logger().Error("Menu cleanup: failed to fetch restaurants", "error", err)
-		return
-	}
-
-	for _, r := range restaurants {
-		menuIDs := r.GetStringSlice("menus")
-		if len(menuIDs) <= 5 {
-			continue
-		}
-		for _, oldID := range menuIDs[5:] {
-			if old, err := m.app.FindRecordById("menus", oldID); err == nil {
-				_ = m.app.Delete(old)
-			}
-		}
-		r.Set("menus", menuIDs[:5])
-		if err := m.app.Save(r); err != nil {
-			m.app.Logger().Error("Menu cleanup: failed to trim restaurant menus", "id", r.Id, "error", err)
-		}
-	}
-
-	m.app.Logger().Info("Menu cleanup completed")
 }
 
 func (m *Mittag) bindHooks() {
@@ -148,7 +121,12 @@ func (m *Mittag) bindHooks() {
 				rc.Close()
 				return router.NewBadRequestError("Temporäre Datei konnte nicht erstellt werden", err)
 			}
-			io.Copy(out, rc)
+			if _, err = io.Copy(out, rc); err != nil {
+				out.Close()
+				rc.Close()
+				os.Remove(tmp)
+				return router.NewBadRequestError("Hochgeladene Datei konnte nicht gelesen werden", err)
+			}
 			out.Close()
 			rc.Close()
 			sourcePath = tmp
@@ -182,10 +160,9 @@ func (m *Mittag) bindHooks() {
 			Size:   int64(len(data)),
 		}
 		e.Record.Set("file", processedFile)
-		f = processedFile
 
 		// Compute hash and deduplicate.
-		rc, err := f.Reader.Open()
+		rc, err := processedFile.Reader.Open()
 		if err != nil {
 			return e.Next()
 		}
@@ -218,8 +195,16 @@ func (m *Mittag) bindHooks() {
 			return e.Next()
 		}
 
-		currentIDs := restaurantRecord.GetStringSlice("menus")
-		restaurantRecord.Set("menus", append([]string{e.Record.Id}, currentIDs...))
+		updatedIDs := append([]string{e.Record.Id}, restaurantRecord.GetStringSlice("menus")...)
+		if len(updatedIDs) > m.MaxAmountOfMenus {
+			for _, oldID := range updatedIDs[m.MaxAmountOfMenus:] {
+				if old, err := m.app.FindRecordById("menus", oldID); err == nil {
+					_ = m.app.Delete(old)
+				}
+			}
+			updatedIDs = updatedIDs[:m.MaxAmountOfMenus]
+		}
+		restaurantRecord.Set("menus", updatedIDs)
 		if err := m.app.Save(restaurantRecord); err != nil {
 			m.app.Logger().Error("Failed to update restaurant menus", "restaurantId", restaurantID, "error", err)
 		}

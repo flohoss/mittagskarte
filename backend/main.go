@@ -16,7 +16,8 @@ import (
 )
 
 type config struct {
-	Dev bool `env:"DEV" envDefault:"false"`
+	Dev              bool `env:"DEV" envDefault:"false"`
+	MaxAmountOfMenus int  `env:"MAX_AMOUNT_OF_MENUS" envDefault:"10"`
 }
 
 func serveFrontend(se *core.ServeEvent) error {
@@ -71,7 +72,7 @@ func main() {
 			return err
 		}
 
-		mittagService, err = mittag.New(e.App)
+		mittagService, err = mittag.New(e.App, cfg.MaxAmountOfMenus)
 		if err != nil {
 			return err
 		}
