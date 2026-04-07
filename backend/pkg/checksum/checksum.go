@@ -8,31 +8,27 @@ import (
 	"os"
 )
 
-func ChecksumFile(filePath string) (uint32, error) {
+func Reader(r io.Reader) (string, error) {
+	h := crc32.NewIEEE()
+	if _, err := io.Copy(h, r); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", h.Sum32()), nil
+}
+
+func File(filePath string) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		slog.Error(err.Error())
-		return 0, err
+		return "", err
 	}
 	defer f.Close()
 
 	h := crc32.NewIEEE()
 	if _, err := io.Copy(h, f); err != nil {
 		slog.Error(err.Error())
-		return 0, err
-	}
-
-	return h.Sum32(), nil
-}
-
-func Identical(existingChecksum string, newChecksum uint32) bool {
-	return existingChecksum == fmt.Sprintf("%x", newChecksum)
-}
-
-func SuffixQuery(filePath string) (string, error) {
-	checksum, err := ChecksumFile(filePath)
-	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("/%s?v=%x", filePath, checksum), nil
+
+	return fmt.Sprintf("%x", h.Sum32()), nil
 }

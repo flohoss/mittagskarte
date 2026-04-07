@@ -13,9 +13,12 @@ import (
 	"github.com/flohoss/mittagskarte/internal/image"
 	"github.com/flohoss/mittagskarte/internal/restaurant"
 	"github.com/flohoss/mittagskarte/internal/web"
+	"github.com/flohoss/mittagskarte/pkg/checksum"
 
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/filesystem"
+	"github.com/pocketbase/pocketbase/tools/router"
 )
 
 type Mittag struct {
@@ -33,7 +36,7 @@ func New(app core.App) (*Mittag, error) {
 	imageMagic := image.New()
 
 	m := &Mittag{app: app}
-	m.scraper = NewScraper(app, webService, imageMagic, restaurant.FetchRestaurants)
+	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurants)
 	m.bindHooks()
 
 	return m, nil
@@ -57,7 +60,7 @@ func (m *Mittag) Close() {
 }
 
 func (m *Mittag) initCron() error {
-	crons, err := restaurant.FetchCronGroups(m.app)
+	crons, err := restaurant.GetCronGroups(m.app)
 	if err != nil {
 		return err
 	}
@@ -75,7 +78,35 @@ func (m *Mittag) initCron() error {
 		})
 	}
 
+	m.app.Cron().MustAdd("menu_cleanup", "0 3 * * *", m.cleanupMenus)
+
 	return nil
+}
+
+func (m *Mittag) cleanupMenus() {
+	restaurants, err := m.app.FindAllRecords("restaurants")
+	if err != nil {
+		m.app.Logger().Error("Menu cleanup: failed to fetch restaurants", "error", err)
+		return
+	}
+
+	for _, r := range restaurants {
+		menuIDs := r.GetStringSlice("menus")
+		if len(menuIDs) <= 5 {
+			continue
+		}
+		for _, oldID := range menuIDs[5:] {
+			if old, err := m.app.FindRecordById("menus", oldID); err == nil {
+				_ = m.app.Delete(old)
+			}
+		}
+		r.Set("menus", menuIDs[:5])
+		if err := m.app.Save(r); err != nil {
+			m.app.Logger().Error("Menu cleanup: failed to trim restaurant menus", "id", r.Id, "error", err)
+		}
+	}
+
+	m.app.Logger().Info("Menu cleanup completed")
 }
 
 func (m *Mittag) bindHooks() {
@@ -85,16 +116,119 @@ func (m *Mittag) bindHooks() {
 		return e.Next()
 	})
 
+	m.app.OnRecordCreate("menus").BindFunc(func(e *core.RecordEvent) error {
+		restaurantID := e.Record.GetString("restaurant")
+		if restaurantID == "" {
+			return e.Next()
+		}
+
+		f, ok := e.Record.Get("file").(*filesystem.File)
+		if !ok || f == nil {
+			return e.Next()
+		}
+
+		// Materialise the file to a local path for processing.
+		// PathReader (scraper): already on disk — use directly.
+		// MultipartReader (API upload): stream to a temp file first.
+		var sourcePath string
+		var cleanupSource func()
+
+		switch reader := f.Reader.(type) {
+		case *filesystem.PathReader:
+			sourcePath = reader.Path
+			cleanupSource = func() {}
+		case *filesystem.MultipartReader:
+			rc, err := reader.Open()
+			if err != nil {
+				return router.NewBadRequestError("Hochgeladene Datei konnte nicht geöffnet werden", err)
+			}
+			tmp := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("upload_%d", time.Now().UnixNano()))
+			out, err := os.Create(tmp)
+			if err != nil {
+				rc.Close()
+				return router.NewBadRequestError("Temporäre Datei konnte nicht erstellt werden", err)
+			}
+			io.Copy(out, rc)
+			out.Close()
+			rc.Close()
+			sourcePath = tmp
+			cleanupSource = func() { os.Remove(tmp) }
+		default:
+			return e.Next()
+		}
+		defer cleanupSource()
+
+		// Convert → trim → resize to webp.
+		tmpWebp, err := m.scraper.processFileToWebp(sourcePath)
+		if err != nil {
+			return router.NewBadRequestError("Menü konnte nicht verarbeitet werden", err)
+		}
+
+		// Set dimensions while tmpWebp still exists on disk.
+		restaurant.SetMenuDimensions(e.Record, tmpWebp)
+
+		// Read into memory before removing the temp file.
+		// PocketBase stores the file after the hook returns, so a PathReader
+		// pointing to a deleted temp file would fail — BytesReader is safe.
+		data, readErr := os.ReadFile(tmpWebp)
+		os.Remove(tmpWebp)
+		if readErr != nil {
+			return router.NewBadRequestError("Verarbeitetes Menü konnte nicht gelesen werden", readErr)
+		}
+
+		processedFile := &filesystem.File{
+			Reader: &filesystem.BytesReader{Bytes: data},
+			Name:   "menu.webp",
+			Size:   int64(len(data)),
+		}
+		e.Record.Set("file", processedFile)
+		f = processedFile
+
+		// Compute hash and deduplicate.
+		rc, err := f.Reader.Open()
+		if err != nil {
+			return e.Next()
+		}
+		hash, err := checksum.Reader(rc)
+		rc.Close()
+		if err != nil {
+			return e.Next()
+		}
+
+		if latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID); latest != nil {
+			if latest.GetString("hash") == hash {
+				m.app.Logger().Debug("Menu has not changed, skipping update", "restaurantId", restaurantID)
+				return router.NewBadRequestError("Das Menü hat sich nicht geändert", nil)
+			}
+		}
+
+		e.Record.Set("hash", hash)
+		return e.Next()
+	})
+
+	m.app.OnRecordAfterCreateSuccess("menus").BindFunc(func(e *core.RecordEvent) error {
+		restaurantID := e.Record.GetString("restaurant")
+		if restaurantID == "" {
+			return e.Next()
+		}
+
+		restaurantRecord, err := m.app.FindRecordById("restaurants", restaurantID)
+		if err != nil {
+			m.app.Logger().Error("Failed to find restaurant for menu", "restaurantId", restaurantID, "error", err)
+			return e.Next()
+		}
+
+		currentIDs := restaurantRecord.GetStringSlice("menus")
+		restaurantRecord.Set("menus", append([]string{e.Record.Id}, currentIDs...))
+		if err := m.app.Save(restaurantRecord); err != nil {
+			m.app.Logger().Error("Failed to update restaurant menus", "restaurantId", restaurantID, "error", err)
+		}
+
+		return e.Next()
+	})
+
 	m.app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.POST("/api/restaurants/scrape", m.handleScrape).Bind(apis.RequireAuth())
-		se.Router.POST("/api/restaurants/upload", m.handleUpload).Bind(apis.RequireAuth())
-
-		fileServer := http.FileServer(http.Dir(restaurant.DownloadsFolder))
-		se.Router.GET("/data/downloads/{path...}", func(re *core.RequestEvent) error {
-			http.StripPrefix("/data/downloads/", fileServer).ServeHTTP(re.Response, re.Request)
-			return nil
-		})
-
 		return se.Next()
 	})
 }
@@ -105,7 +239,7 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 	}
 
 	if err := json.NewDecoder(re.Request.Body).Decode(&payload); err != nil {
-		return re.String(http.StatusBadRequest, "Invalid JSON body")
+		return re.String(http.StatusBadRequest, "Ungültiger JSON-Body")
 	}
 
 	r, err := m.loadRestaurant(re, payload.ID)
@@ -115,58 +249,17 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 
 	m.scraper.Enqueue([]*restaurant.Restaurant{r})
 
-	return re.String(http.StatusOK, fmt.Sprintf("Scrape triggered for restaurant %s", r.ID))
-}
-
-func (m *Mittag) handleUpload(re *core.RequestEvent) error {
-	re.Request.Body = http.MaxBytesReader(re.Response, re.Request.Body, 25<<20)
-	if err := re.Request.ParseMultipartForm(25 << 20); err != nil {
-		return re.String(http.StatusBadRequest, "Invalid multipart form data")
-	}
-
-	r, err := m.loadRestaurant(re, re.Request.FormValue("id"))
-	if err != nil {
-		return err
-	}
-	if r.Method != "upload" {
-		return re.String(http.StatusBadRequest, "Restaurant does not support uploads")
-	}
-
-	file, header, err := re.Request.FormFile("file")
-	if err != nil {
-		return re.String(http.StatusBadRequest, "file is required")
-	}
-	defer file.Close()
-
-	uploadPath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("upload_%d_%s_%s", time.Now().UnixNano(), r.ID, filepath.Base(header.Filename)))
-	out, err := os.Create(uploadPath)
-	if err != nil {
-		return re.String(http.StatusInternalServerError, "Could not create upload file")
-	}
-	_, copyErr := io.Copy(out, file)
-	closeErr := out.Close()
-	if copyErr != nil || closeErr != nil {
-		_ = os.Remove(uploadPath)
-		return re.String(http.StatusInternalServerError, "Could not persist uploaded file")
-	}
-	defer os.Remove(uploadPath)
-
-	if err := m.scraper.uploadSingle(r, uploadPath); err != nil {
-		m.app.Logger().Error("Error uploading restaurant menu", "id", r.ID, "error", err)
-		return re.String(http.StatusInternalServerError, "Could not process uploaded file")
-	}
-
-	return re.String(http.StatusOK, fmt.Sprintf("Upload processed for restaurant %s", r.ID))
+	return re.String(http.StatusOK, fmt.Sprintf("Aktualisierung für Restaurant %s gestartet", r.ID))
 }
 
 func (m *Mittag) loadRestaurant(re *core.RequestEvent, id string) (*restaurant.Restaurant, error) {
 	id = strings.TrimSpace(id)
 	if id == "" {
-		return nil, re.String(http.StatusBadRequest, "restaurant id is required")
+		return nil, re.String(http.StatusBadRequest, "Restaurant-ID ist erforderlich")
 	}
-	r, err := restaurant.FetchRestaurant(m.app, id)
+	r, err := restaurant.GetRestaurant(m.app, id)
 	if err != nil {
-		return nil, re.String(http.StatusInternalServerError, "Could not load restaurant")
+		return nil, re.String(http.StatusInternalServerError, "Restaurant konnte nicht geladen werden")
 	}
 	return r, nil
 }

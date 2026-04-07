@@ -10,35 +10,67 @@ func publicRule() *string {
 	return &rule
 }
 
+func authRule() *string {
+	rule := "@request.auth.id != \"\""
+	return &rule
+}
+
 func init() {
 	m.Register(func(app core.App) error {
 		minOrder := float64(1)
 
-		selector := core.NewBaseCollection("selector")
+		selectors := core.NewBaseCollection("selectors")
 
-		selector.Fields.Add(&core.NumberField{
+		selectors.Fields.Add(&core.NumberField{
 			Name:     "order",
 			Min:      &minOrder,
 			OnlyInt:  true,
 			Required: true,
 		})
-		selector.Fields.Add(&core.TextField{
+		selectors.Fields.Add(&core.TextField{
 			Name:     "locator",
 			Required: true,
 		})
-		selector.Fields.Add(&core.TextField{
+		selectors.Fields.Add(&core.TextField{
 			Name: "attribute",
 		})
-		selector.Fields.Add(&core.TextField{
+		selectors.Fields.Add(&core.TextField{
 			Name: "style",
 		})
 
-		selector.ListRule = publicRule()
-		selector.ViewRule = publicRule()
+		selectors.ListRule = publicRule()
+		selectors.ViewRule = publicRule()
 
-		selector.AddIndex("idx_selector_order", false, "order", "")
+		selectors.AddIndex("idx_selector_order", false, "order", "")
 
-		if err := app.Save(selector); err != nil {
+		if err := app.Save(selectors); err != nil {
+			return err
+		}
+
+		menus := core.NewBaseCollection("menus")
+
+		menus.Fields.Add(&core.FileField{
+			Name:     "file",
+			Required: true,
+			MaxSize:  25 << 20,
+		})
+		menus.Fields.Add(&core.TextField{
+			Name:     "hash",
+			Required: true,
+		})
+		menus.Fields.Add(&core.JSONField{
+			Name: "dimensions",
+		})
+		menus.Fields.Add(&core.AutodateField{
+			Name:     "created",
+			OnCreate: true,
+		})
+
+		menus.ListRule = publicRule()
+		menus.ViewRule = publicRule()
+		menus.CreateRule = authRule()
+
+		if err := app.Save(menus); err != nil {
 			return err
 		}
 
@@ -55,16 +87,20 @@ func init() {
 			Name: "address",
 		})
 		restaurants.Fields.Add(&core.TextField{
-			Name: "website",
+			Name:    "website",
+			Pattern: `^https?://[^\s/$.?#].[^\s]*$`,
 		})
 		restaurants.Fields.Add(&core.TextField{
-			Name: "phone",
+			Name:    "phone",
+			Pattern: `^\+?[\d\s\-()/.]+$`,
 		})
 		restaurants.Fields.Add(&core.JSONField{
 			Name: "tags",
 		})
-		restaurants.Fields.Add(&core.JSONField{
-			Name: "rest_days",
+		restaurants.Fields.Add(&core.SelectField{
+			Name:      "rest_days",
+			Values:    []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
+			MaxSelect: 7,
 		})
 		restaurants.Fields.Add(&core.SelectField{
 			Name:     "method",
@@ -76,33 +112,21 @@ func init() {
 			Values: []string{"html", "image", "pdf"},
 		})
 		restaurants.Fields.Add(&core.TextField{
-			Name: "cron",
+			Name:    "cron",
+			Pattern: `^(@(annually|yearly|monthly|weekly|daily|hourly)|((\*|[0-9]+([,\-][0-9]+)*)(/[0-9]+)?)(\s+((\*|[0-9]+([,\-][0-9]+)*)(/[0-9]+)?)){4})$`,
 		})
 		restaurants.Fields.Add(&core.RelationField{
 			Name:         "navigate",
-			CollectionId: selector.Id,
+			CollectionId: selectors.Id,
 			MaxSelect:    20,
 		})
-		restaurants.Fields.Add(&core.TextField{
-			Name: "menu",
-		})
-		restaurants.Fields.Add(&core.TextField{
-			Name: "menu_hash",
+		restaurants.Fields.Add(&core.RelationField{
+			Name:         "menus",
+			CollectionId: menus.Id,
+			MaxSelect:    5,
 		})
 		restaurants.Fields.Add(&core.FileField{
 			Name: "thumbnail",
-		})
-		restaurants.Fields.Add(&core.JSONField{
-			Name: "menu_dimensions",
-		})
-		restaurants.Fields.Add(&core.AutodateField{
-			Name:     "created",
-			OnCreate: true,
-		})
-		restaurants.Fields.Add(&core.AutodateField{
-			Name:     "updated",
-			OnCreate: true,
-			OnUpdate: true,
 		})
 
 		restaurants.ListRule = publicRule()
@@ -115,6 +139,28 @@ func init() {
 			return err
 		}
 
+		menus.Fields.Add(&core.RelationField{
+			Name:         "restaurant",
+			CollectionId: restaurants.Id,
+			MaxSelect:    1,
+			Required:     true,
+		})
+
+		selectors.Fields.Add(&core.RelationField{
+			Name:         "restaurant",
+			CollectionId: restaurants.Id,
+			MaxSelect:    1,
+			Required:     true,
+		})
+
+		if err := app.Save(menus); err != nil {
+			return err
+		}
+
+		if err := app.Save(selectors); err != nil {
+			return err
+		}
+
 		return nil
 	}, func(app core.App) error {
 		restaurants, err := app.FindCollectionByNameOrId("restaurants")
@@ -124,9 +170,16 @@ func init() {
 			}
 		}
 
-		selector, err := app.FindCollectionByNameOrId("selector")
+		menus, err := app.FindCollectionByNameOrId("menus")
 		if err == nil {
-			if deleteErr := app.Delete(selector); deleteErr != nil {
+			if deleteErr := app.Delete(menus); deleteErr != nil {
+				return deleteErr
+			}
+		}
+
+		selectors, err := app.FindCollectionByNameOrId("selectors")
+		if err == nil {
+			if deleteErr := app.Delete(selectors); deleteErr != nil {
 				return deleteErr
 			}
 		}

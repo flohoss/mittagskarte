@@ -11,11 +11,43 @@ import (
 
 	"github.com/caarlos0/env/v10"
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
 
 type config struct {
 	Dev bool `env:"DEV" envDefault:"false"`
+}
+
+func serveFrontend(se *core.ServeEvent) error {
+	frontendDist, err := filepath.Abs("dist")
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(frontendDist); err != nil {
+		// ignore if the dist folder doesn't exist, it will be created by the frontend build process
+		return se.Next()
+	}
+
+	assetsFS := http.FileServer(http.Dir(frontendDist))
+
+	se.Router.GET("/", func(re *core.RequestEvent) error {
+		http.ServeFile(re.Response, re.Request, filepath.Join(frontendDist, "index.html"))
+		return nil
+	}).Bind(apis.SkipSuccessActivityLog())
+
+	se.Router.GET("/assets/{path...}", func(re *core.RequestEvent) error {
+		http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
+		return nil
+	}).Bind(apis.SkipSuccessActivityLog())
+
+	se.Router.GET("/static/{path...}", func(re *core.RequestEvent) error {
+		http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
+		return nil
+	}).Bind(apis.SkipSuccessActivityLog())
+
+	return se.Next()
 }
 
 func main() {
@@ -30,41 +62,6 @@ func main() {
 			DefaultDev:     cfg.Dev,
 		},
 	)
-
-	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		se.Router.GET("/health", func(re *core.RequestEvent) error {
-			return re.String(http.StatusOK, ".")
-		})
-
-		frontendDist, err := filepath.Abs("dist")
-		if err != nil {
-			return err
-		}
-
-		if _, err := os.Stat(frontendDist); err != nil {
-			// ignore if the dist folder doesn't exist, it will be created by the frontend build process
-			return se.Next()
-		}
-
-		assetsFS := http.FileServer(http.Dir(frontendDist))
-
-		se.Router.GET("/", func(re *core.RequestEvent) error {
-			http.ServeFile(re.Response, re.Request, filepath.Join(frontendDist, "index.html"))
-			return nil
-		})
-
-		se.Router.GET("/assets/{path...}", func(re *core.RequestEvent) error {
-			http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
-			return nil
-		})
-
-		se.Router.GET("/static/{path...}", func(re *core.RequestEvent) error {
-			http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
-			return nil
-		})
-
-		return se.Next()
-	})
 
 	var mittagService *mittag.Mittag
 	var err error
@@ -88,6 +85,14 @@ func main() {
 		}
 
 		if err = mittagService.Start(); err != nil {
+			return err
+		}
+
+		se.Router.GET("/health", func(re *core.RequestEvent) error {
+			return re.String(http.StatusOK, ".")
+		}).Bind(apis.SkipSuccessActivityLog())
+
+		if err = serveFrontend(se); err != nil {
 			return err
 		}
 

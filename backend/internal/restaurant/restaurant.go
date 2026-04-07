@@ -13,17 +13,22 @@ import (
 
 	"github.com/flohoss/mittagskarte/internal/placeholder"
 	"github.com/flohoss/mittagskarte/internal/web"
-	"github.com/flohoss/mittagskarte/pkg/checksum"
 	"github.com/flohoss/mittagskarte/pkg/curl"
 
+	"errors"
+
 	"github.com/playwright-community/playwright-go"
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/filesystem"
 	_ "golang.org/x/image/webp"
 )
 
 const (
 	DownloadsFolder = "data/downloads/"
 )
+
+var ErrMenuUnchanged = errors.New("menu has not changed")
 
 func init() {
 	os.MkdirAll(DownloadsFolder, os.ModePerm)
@@ -81,7 +86,7 @@ func New(r *core.Record) *Restaurant {
 	}
 }
 
-func FetchRestaurants(app core.App) ([]*Restaurant, error) {
+func GetRestaurants(app core.App) ([]*Restaurant, error) {
 	r, err := app.FindAllRecords("restaurants")
 	if err != nil {
 		return nil, err
@@ -96,7 +101,7 @@ func FetchRestaurants(app core.App) ([]*Restaurant, error) {
 	return restaurants, nil
 }
 
-func FetchRestaurant(app core.App, id string) (*Restaurant, error) {
+func GetRestaurant(app core.App, id string) (*Restaurant, error) {
 	r, err := app.FindRecordById("restaurants", id)
 	if err != nil {
 		return nil, err
@@ -106,8 +111,8 @@ func FetchRestaurant(app core.App, id string) (*Restaurant, error) {
 	return New(r), nil
 }
 
-func FetchCronGroups(app core.App) (map[string][]*Restaurant, error) {
-	restaurants, err := FetchRestaurants(app)
+func GetCronGroups(app core.App) (map[string][]*Restaurant, error) {
+	restaurants, err := GetRestaurants(app)
 	if err != nil {
 		return nil, err
 	}
@@ -130,45 +135,41 @@ func (r *Restaurant) withLogger(logger *slog.Logger, extra ...any) *slog.Logger 
 	return logger.With(args...)
 }
 
+func GetLatestMenuByRestaurantID(app core.App, restaurantID string) *core.Record {
+	records, err := app.FindRecordsByFilter("menus", "restaurant = {:id}", "-created", 1, 0, dbx.Params{"id": restaurantID})
+	if err != nil || len(records) == 0 {
+		return nil
+	}
+	return records[0]
+}
+
+func SetMenuDimensions(record *core.Record, filePath string) {
+	if dims, err := readMenuDimensions(filePath); err == nil {
+		record.Set("dimensions", dims)
+	}
+}
+
 func (r *Restaurant) UpdateMenu(filePath string, app core.App) error {
 	logger := r.withLogger(app.Logger())
 
-	record, err := app.FindRecordById("restaurants", r.ID)
+	menusCollection, err := app.FindCollectionByNameOrId("menus")
 	if err != nil {
 		return err
 	}
 
-	existingChecksum := record.GetString("menu_hash")
-	newChecksum, err := checksum.ChecksumFile(filePath)
+	menuFile, err := filesystem.NewFileFromPath(filePath)
 	if err != nil {
 		return err
 	}
 
-	if checksum.Identical(existingChecksum, newChecksum) {
-		logger.Info("Menu has not changed, skipping update")
-		return nil
-	}
-
-	filePathWithChecksum, err := checksum.SuffixQuery(filePath)
-	if err != nil {
+	menuRecord := core.NewRecord(menusCollection)
+	menuRecord.Set("file", menuFile)
+	menuRecord.Set("restaurant", r.ID)
+	if err := app.Save(menuRecord); err != nil {
 		return err
 	}
 
-	dimensions, err := readMenuDimensions(filePath)
-	if err != nil {
-		logger.Warn("Could not read menu image dimensions", "path", filePath, "error", err)
-	}
-
-	record.Set("menu", filePathWithChecksum)
-	record.Set("menu_hash", fmt.Sprintf("%x", newChecksum))
-	if dimensions != nil {
-		record.Set("menu_dimensions", dimensions)
-	}
-	if err := app.Save(record); err != nil {
-		return err
-	}
-
-	logger.Info("Successfully updated menu for restaurant", "filePath", filePathWithChecksum)
+	logger.Info("Successfully created menu record for restaurant", "id", menuRecord.Id)
 
 	return nil
 }

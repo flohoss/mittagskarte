@@ -225,15 +225,7 @@ func (s *Scraper) notifyRestaurantStatus(restaurantID string) {
 }
 
 func (s *Scraper) getRestaurantByID(restaurantID string) (*restaurant.Restaurant, error) {
-	return restaurant.FetchRestaurant(s.app, restaurantID)
-}
-
-func (s *Scraper) uploadSingle(r *restaurant.Restaurant, uploadPath string) error {
-	if r == nil {
-		return fmt.Errorf("restaurant is nil")
-	}
-
-	return s.processAndUpdateMenu(r, uploadPath)
+	return restaurant.GetRestaurant(s.app, restaurantID)
 }
 
 func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
@@ -267,48 +259,35 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 		return nil
 	}
 
-	return s.processAndUpdateMenu(r, downloadPath)
+	return r.UpdateMenu(downloadPath, s.app)
 }
 
-func (s *Scraper) processAndUpdateMenu(r *restaurant.Restaurant, sourcePath string) error {
-	tmpFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d_%s.webp", time.Now().UnixNano(), r.ID))
-	defer os.Remove(tmpFilePath)
+func (s *Scraper) processFileToWebp(sourcePath string) (string, error) {
+	tmpFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d.webp", time.Now().UnixNano()))
 
 	var err error
-	if shouldUsePDFConverter(r, sourcePath) {
+	if isPDFFile(sourcePath) {
 		err = pdf.ConvertToWebp(sourcePath, tmpFilePath)
 	} else {
 		err = s.im.ConvertToWebp(sourcePath, tmpFilePath)
 	}
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err = s.im.Trim(tmpFilePath); err != nil {
-		return err
+		os.Remove(tmpFilePath)
+		return "", err
 	}
-
 	if err = s.im.ResizeWebp(tmpFilePath); err != nil {
-		return err
+		os.Remove(tmpFilePath)
+		return "", err
 	}
 
-	finalFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%s.webp", r.ID))
-	if err = os.Rename(tmpFilePath, finalFilePath); err != nil {
-		return err
-	}
-
-	if err = r.UpdateMenu(finalFilePath, s.app); err != nil {
-		return err
-	}
-
-	return nil
+	return tmpFilePath, nil
 }
 
-func shouldUsePDFConverter(r *restaurant.Restaurant, sourcePath string) bool {
-	if r.ContentType == "pdf" {
-		return true
-	}
-
+func isPDFFile(sourcePath string) bool {
 	if strings.EqualFold(filepath.Ext(sourcePath), ".pdf") {
 		return true
 	}
