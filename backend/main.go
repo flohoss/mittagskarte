@@ -33,11 +33,6 @@ func serveFrontend(se *core.ServeEvent) error {
 
 	assetsFS := http.FileServer(http.Dir(frontendDist))
 
-	se.Router.GET("/", func(re *core.RequestEvent) error {
-		http.ServeFile(re.Response, re.Request, filepath.Join(frontendDist, "index.html"))
-		return nil
-	}).Bind(apis.SkipSuccessActivityLog())
-
 	se.Router.GET("/assets/{path...}", func(re *core.RequestEvent) error {
 		http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
 		return nil
@@ -45,6 +40,11 @@ func serveFrontend(se *core.ServeEvent) error {
 
 	se.Router.GET("/static/{path...}", func(re *core.RequestEvent) error {
 		http.StripPrefix("/", assetsFS).ServeHTTP(re.Response, re.Request)
+		return nil
+	}).Bind(apis.SkipSuccessActivityLog())
+
+	se.Router.GET("/{path...}", func(re *core.RequestEvent) error {
+		http.ServeFile(re.Response, re.Request, filepath.Join(frontendDist, "index.html"))
 		return nil
 	}).Bind(apis.SkipSuccessActivityLog())
 
