@@ -1,5 +1,5 @@
 import PocketBase from 'pocketbase';
-import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
+import type { MenuRecord, RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
 import { BackendURL } from '../config';
 
 const client = new PocketBase(BackendURL);
@@ -31,6 +31,7 @@ function clearAuthentication() {
 async function fetchRestaurants() {
   const records = await client.collection('restaurants').getFullList({
     sort: 'group,name',
+    expand: 'menus',
   });
 
   return records as unknown as RestaurantRecord[];
@@ -45,11 +46,30 @@ async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent)
 async function subscribeRestaurants(handler: (action: string, record: RestaurantRecord) => void) {
   await client.collection('restaurants').subscribe('*', (event: { action: string; record: RestaurantRecord }) => {
     handler(event.action, event.record);
-  });
+  }, { expand: 'menus' });
 }
 
 function getFileUrl(record: RestaurantRecord) {
   return client.files.getURL(record as Record<string, unknown>, String(record.thumbnail ?? ''));
+}
+
+function getMenuFileUrl(menu: MenuRecord) {
+  return client.files.getURL(menu as unknown as Record<string, unknown>, menu.file);
+}
+
+async function uploadMenu(restaurantId: string, file: File) {
+  const formData = new FormData();
+  formData.append('restaurant', restaurantId);
+  formData.append('file', file);
+  await client.collection('menus').create(formData);
+}
+
+async function triggerScrape(restaurantId: string) {
+  await client.send('/api/restaurants/scrape', {
+    method: 'POST',
+    body: JSON.stringify({ id: restaurantId }),
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export const backendClient = {
@@ -62,4 +82,7 @@ export const backendClient = {
   subscribeRestaurantStatus,
   subscribeRestaurants,
   getFileUrl,
+  getMenuFileUrl,
+  uploadMenu,
+  triggerScrape,
 };

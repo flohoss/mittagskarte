@@ -7,8 +7,7 @@ import Fa7SolidUpload from '~icons/fa7-solid/upload';
 import Fa7SolidHourglassHalf from '~icons/fa7-solid/hourglass-half';
 import Fa7SolidClock from '~icons/fa7-solid/clock';
 import { RestaurantMethod, RestaurantStatus } from '../stores/useRestaurants';
-import { useLogin } from '../stores/useLogin';
-import { BackendURL } from '../config';
+import { backendClient } from '../services/backendClient';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
@@ -19,7 +18,6 @@ const uploadFileInput = ref<HTMLInputElement | null>(null);
 const uploadFile = ref<File | null>(null);
 const isUploading = ref(false);
 const uploadError = ref('');
-const { getAuthToken } = useLogin();
 
 const statusMeta = computed(() => {
   switch (props.restaurant.status) {
@@ -114,33 +112,11 @@ async function submitUpload() {
     return;
   }
 
-  const authToken = getAuthToken();
-  if (!authToken) {
-    uploadError.value = 'Bitte zuerst anmelden.';
-    return;
-  }
-
   isUploading.value = true;
   uploadError.value = '';
 
   try {
-    const formData = new FormData();
-    formData.append('id', props.restaurant.id);
-    formData.append('file', uploadFile.value);
-
-    const response = await fetch(`${BackendURL}/api/restaurants/upload`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const message = (await response.text()) || 'Upload fehlgeschlagen.';
-      throw new Error(message);
-    }
-
+    await backendClient.uploadMenu(props.restaurant.id, uploadFile.value);
     forceCloseUploadDialog();
   } catch (error) {
     uploadError.value = error instanceof Error ? error.message : 'Upload fehlgeschlagen.';
@@ -155,22 +131,8 @@ async function triggerRefresh() {
     return;
   }
 
-  const authToken = getAuthToken();
-  if (!authToken) {
-    return;
-  }
-
   try {
-    await fetch(`${BackendURL}/api/restaurants/scrape`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: JSON.stringify({
-        id: props.restaurant.id,
-      }),
-    });
+    await backendClient.triggerScrape(props.restaurant.id);
   } catch (error) {
     console.error('Failed to trigger scrape', error);
   }
@@ -196,13 +158,13 @@ async function triggerRefresh() {
 
       <div class="mt-4 grid gap-2">
         <label class="label px-0 pb-1">
-          <span class="label-text">Datei (PDF oder Bild)</span>
+          <span class="label-text">Datei (Bild oder PDF)</span>
         </label>
         <input
           ref="uploadFileInput"
           type="file"
           class="file-input file-input-bordered w-full"
-          accept=".pdf,image/*"
+          accept="image/*,.pdf"
           :disabled="isUploading"
           @change="onFileChange"
         />

@@ -34,6 +34,7 @@ export const useRestaurants = createGlobalState(() => {
       restaurants.value[index] = {
         ...current,
         ...nextFields,
+        expand: record.expand ?? current.expand,
       };
     }
   }

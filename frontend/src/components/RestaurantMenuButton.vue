@@ -3,7 +3,6 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
-import { BackendURL } from '../config';
 
 const props = defineProps<{
   menuUrl: string;
@@ -173,7 +172,7 @@ onBeforeUnmount(() => {
       class="btn btn-primary w-full"
       title="Speisekarte"
       aria-label="Speisekarte öffnen"
-      :href="BackendURL + menuUrl"
+      :href="menuUrl"
       :target="linkTarget"
       rel="noopener noreferrer"
       @mouseenter="openPopover"
@@ -194,7 +193,7 @@ onBeforeUnmount(() => {
         tabindex="-1"
       >
         <img
-          :src="BackendURL + menuUrl"
+          :src="menuUrl"
           alt="Speisekarte"
           :width="imageSize.width"
           :height="imageSize.height"

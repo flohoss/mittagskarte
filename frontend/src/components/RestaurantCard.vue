@@ -34,6 +34,11 @@ const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
 const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
 const isFavorited = computed(() => isFavorite(props.restaurant.id));
 const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
+const latestMenuCreated = computed(() => {
+  const menus = props.restaurant.expand?.menus;
+  if (!menus || menus.length === 0) return null;
+  return [...menus].sort((a, b) => (a.created > b.created ? -1 : 1))[0].created;
+});
 
 function formatRelativeDate(value: string) {
   const date = new Date(value);
@@ -100,9 +105,9 @@ function getInitials(name: string) {
       </div>
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
-        <span :class="['badge badge-sm backdrop-blur', isClosed ? 'badge-error' : getRelativeDateBadgeClass(props.restaurant.updated)]">
-          {{ isClosed ? 'Heute geschlossen' : formatRelativeDate(props.restaurant.updated) }}
-        </span>
+        <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
+        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated)]">{{ formatRelativeDate(latestMenuCreated) }}</span>
+        <span v-else />
         <button
           type="button"
           :class="[

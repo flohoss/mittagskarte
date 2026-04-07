@@ -9,6 +9,7 @@ import Fa7SolidMap from '~icons/fa7-solid/map';
 import Fa7SolidGlobe from '~icons/fa7-solid/globe';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useLogin } from '../stores/useLogin';
+import { backendClient } from '../services/backendClient';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
@@ -19,30 +20,32 @@ const { isAuthenticated } = useLogin();
 const mapUrl = computed(() => (props.restaurant.address ? getMapUrl(props.restaurant) : ''));
 const phoneUrl = computed(() => (props.restaurant.phone ? getPhoneUrl(props.restaurant) : ''));
 
+const latestMenu = computed(() => {
+  const menus = props.restaurant.expand?.menus;
+  if (!menus || menus.length === 0) return null;
+  return [...menus].sort((a, b) => (a.created > b.created ? -1 : 1))[0];
+});
+
+const latestMenuUrl = computed(() => (latestMenu.value ? backendClient.getMenuFileUrl(latestMenu.value) : null));
+
 const menuDimensions = computed(() => {
-  const raw = props.restaurant.menu_dimensions;
+  const raw = latestMenu.value?.dimensions;
 
   if (!raw || typeof raw !== 'object') {
-    return {
-      width: null,
-      height: null,
-    };
+    return { width: null, height: null };
   }
 
   const parsed = raw as Record<string, unknown>;
   const width = typeof parsed.width === 'number' && Number.isFinite(parsed.width) && parsed.width > 0 ? parsed.width : null;
   const height = typeof parsed.height === 'number' && Number.isFinite(parsed.height) && parsed.height > 0 ? parsed.height : null;
 
-  return {
-    width,
-    height,
-  };
+  return { width, height };
 });
 </script>
 
 <template>
   <div :class="['grid gap-1.5', isAuthenticated ? 'grid-cols-5' : 'grid-cols-4']">
-    <MenuPopover v-if="props.restaurant.menu" :menu-url="props.restaurant.menu" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
+    <MenuPopover v-if="latestMenuUrl" :menu-url="latestMenuUrl" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
     <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
     </button>

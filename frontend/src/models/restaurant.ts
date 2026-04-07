@@ -1,3 +1,15 @@
+export interface MenuRecord {
+  id: string;
+  file: string;
+  hash: string;
+  created: string;
+  dimensions?: {
+    width?: number;
+    height?: number;
+    landscape?: boolean;
+  } | null;
+}
+
 export interface RestaurantRecord {
   id: string;
   name: string;
@@ -11,12 +23,9 @@ export interface RestaurantRecord {
   status: string;
   updated: string;
   thumbnail: string;
-  menu: string;
-  menu_dimensions?: {
-    width?: number;
-    height?: number;
-    landscape?: boolean;
-  } | null;
+  expand?: {
+    menus?: MenuRecord[];
+  };
   [key: string]: unknown;
 }
 

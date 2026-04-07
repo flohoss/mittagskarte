@@ -16,6 +16,15 @@ const loginPassword = ref('');
 const { isAuthenticated, authIdentity, authenticate, clearAuthentication } = useLogin();
 const hasAuthToken = computed(() => isAuthenticated.value);
 
+const initials = computed(() => {
+  const identity = authIdentity.value || '';
+  const name = identity.includes('@') ? identity.split('@')[0] : identity;
+  const parts = name.split(/[.\-_\s]+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+});
+
 function openLoginDialog() {
   authError.value = '';
   loginDialog.value?.showModal();
@@ -41,7 +50,6 @@ async function login() {
   try {
     await authenticate(loginIdentity.value.trim(), loginPassword.value);
     loginPassword.value = '';
-    loginDialog.value?.close();
   } catch (error) {
     authError.value = error instanceof Error ? error.message : 'Anmeldung fehlgeschlagen.';
   } finally {
@@ -59,63 +67,73 @@ function logout() {
     <Fa7SolidLockOpen class="size-4" aria-hidden="true" />
   </button>
 
-  <div v-else class="dropdown dropdown-end">
-    <div
-      tabindex="0"
-      role="button"
-      class="btn btn-soft btn-success btn-square rounded-lg"
-      :title="`Angemeldet als ${authIdentity || 'Benutzer'}`"
-      :aria-label="`Angemeldet als ${authIdentity || 'Benutzer'}`"
-    >
-      <Fa7SolidLock class="size-4" aria-hidden="true" />
-    </div>
-    <ul tabindex="0" class="menu dropdown-content z-20 mt-2 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
-      <li>
-        <button type="button" @click="logout">
-          <Fa7SolidRightFromBracket class="size-4" aria-hidden="true" />
-          <span>Abmelden</span>
-        </button>
-      </li>
-    </ul>
-  </div>
+  <button
+    v-else
+    type="button"
+    class="btn btn-soft btn-success btn-square rounded-lg"
+    :title="`Angemeldet als ${authIdentity || 'Benutzer'}`"
+    :aria-label="`Angemeldet als ${authIdentity || 'Benutzer'}`"
+    @click="openLoginDialog"
+  >
+    <Fa7SolidLock class="size-4" aria-hidden="true" />
+  </button>
 
   <dialog ref="loginDialog" class="modal">
     <div class="modal-box max-w-md p-5 sm:p-6">
-      <div class="text-center">
-        <h3 class="text-lg font-semibold">Anmeldung</h3>
-        <p class="mt-1 text-sm text-base-content/70">Bitte mit einem Konto einloggen, um Aktionen auszuführen.</p>
-      </div>
+      <template v-if="hasAuthToken">
+        <div class="flex flex-col items-center gap-4 py-4">
+          <div class="avatar avatar-placeholder">
+            <div class="bg-success text-success-content size-16 rounded-full">
+              <span class="text-xl font-semibold">{{ initials }}</span>
+            </div>
+          </div>
+          <p class="text-sm font-medium">{{ authIdentity }}</p>
+        </div>
+        <div class="modal-action mt-2 flex-col gap-2 sm:flex-row sm:justify-end">
+          <button type="button" class="btn w-full sm:w-auto" @click="closeLoginDialog">Schließen</button>
+          <button type="button" class="btn btn-error w-full sm:w-auto" @click="logout">
+            <Fa7SolidRightFromBracket class="size-4" aria-hidden="true" />
+            <span>Abmelden</span>
+          </button>
+        </div>
+      </template>
+      <template v-else>
+        <div class="text-center">
+          <h3 class="text-lg font-semibold">Anmeldung</h3>
+          <p class="mt-1 text-sm text-base-content/70">Bitte mit einem Konto einloggen, um Aktionen auszuführen.</p>
+        </div>
 
-      <div class="mt-5 grid gap-3">
-        <label class="input input-bordered flex w-full items-center gap-2">
-          <Fa7SolidEnvelope class="size-4 opacity-70" aria-hidden="true" />
-          <input v-model="loginIdentity" type="email" class="grow" placeholder="E-Mail" autocomplete="username" :disabled="isAuthenticating" />
-        </label>
+        <div class="mt-5 grid gap-3">
+          <label class="input input-bordered flex w-full items-center gap-2">
+            <Fa7SolidEnvelope class="size-4 opacity-70" aria-hidden="true" />
+            <input v-model="loginIdentity" type="email" class="grow" placeholder="E-Mail" autocomplete="username" :disabled="isAuthenticating" />
+          </label>
 
-        <label class="input input-bordered flex w-full items-center gap-2">
-          <Fa7SolidLock class="size-4 opacity-70" aria-hidden="true" />
-          <input
-            v-model="loginPassword"
-            type="password"
-            class="grow"
-            placeholder="Passwort"
-            autocomplete="current-password"
-            :disabled="isAuthenticating"
-            @keydown.enter.prevent="login"
-          />
-        </label>
+          <label class="input input-bordered flex w-full items-center gap-2">
+            <Fa7SolidLock class="size-4 opacity-70" aria-hidden="true" />
+            <input
+              v-model="loginPassword"
+              type="password"
+              class="grow"
+              placeholder="Passwort"
+              autocomplete="current-password"
+              :disabled="isAuthenticating"
+              @keydown.enter.prevent="login"
+            />
+          </label>
 
-        <p v-if="authError" class="text-sm text-error">{{ authError }}</p>
-      </div>
+          <p v-if="authError" class="text-sm text-error">{{ authError }}</p>
+        </div>
 
-      <div class="modal-action mt-6 flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
-        <button type="button" class="btn w-full sm:w-auto" :disabled="isAuthenticating" @click="closeLoginDialog">Schließen</button>
-        <button type="button" class="btn btn-primary w-full sm:w-auto" :disabled="isAuthenticating" @click="login">
-          <span v-if="isAuthenticating" class="loading loading-spinner loading-xs" aria-hidden="true" />
-          <Fa7SolidRightToBracket v-else class="size-4" aria-hidden="true" />
-          <span>{{ isAuthenticating ? 'Anmeldung läuft...' : 'Einloggen' }}</span>
-        </button>
-      </div>
+        <div class="modal-action mt-6 flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <button type="button" class="btn w-full sm:w-auto" :disabled="isAuthenticating" @click="closeLoginDialog">Schließen</button>
+          <button type="button" class="btn btn-primary w-full sm:w-auto" :disabled="isAuthenticating" @click="login">
+            <span v-if="isAuthenticating" class="loading loading-spinner loading-xs" aria-hidden="true" />
+            <Fa7SolidRightToBracket v-else class="size-4" aria-hidden="true" />
+            <span>{{ isAuthenticating ? 'Anmeldung läuft...' : 'Einloggen' }}</span>
+          </button>
+        </div>
+      </template>
     </div>
     <form method="dialog" class="modal-backdrop" @submit.prevent="closeLoginDialog">
       <button type="submit">close</button>
