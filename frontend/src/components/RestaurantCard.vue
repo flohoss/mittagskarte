@@ -6,6 +6,7 @@ import { useFavorites } from '../stores/useFavorites';
 import type { RestaurantRecord } from '../models/restaurant';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useNow } from '../composables/useNow';
+import { getLatestMenu } from '../utils/menu';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
@@ -35,9 +36,7 @@ const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekd
 const isFavorited = computed(() => isFavorite(props.restaurant.id));
 const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
 const latestMenuCreated = computed(() => {
-  const menus = props.restaurant.expand?.menus;
-  if (!menus || menus.length === 0) return null;
-  return [...menus].sort((a, b) => (a.created > b.created ? -1 : 1))[0].created;
+  return getLatestMenu(props.restaurant.expand?.menus)?.created ?? null;
 });
 
 function formatRelativeDate(value: string) {

@@ -4,7 +4,7 @@ import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
 import { useRouter } from 'vue-router';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
-import type { RestaurantRecord } from '../models/restaurant';
+import type { RestaurantRecord } from '../../models/restaurant';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;

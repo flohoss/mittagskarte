@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { RestaurantRecord } from '../models/restaurant';
+import type { RestaurantRecord } from '../../models/restaurant';
 import Fa7SolidArrowsRotate from '~icons/fa7-solid/arrows-rotate';
 import Fa7SolidDownload from '~icons/fa7-solid/download';
 import Fa7SolidUpload from '~icons/fa7-solid/upload';
 import Fa7SolidHourglassHalf from '~icons/fa7-solid/hourglass-half';
 import Fa7SolidClock from '~icons/fa7-solid/clock';
-import { RestaurantMethod, RestaurantStatus } from '../stores/useRestaurants';
-import { backendClient } from '../services/backendClient';
+import { RestaurantMethod, RestaurantStatus } from '../../stores/useRestaurants';
+import { backendClient } from '../../services/backendClient';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;

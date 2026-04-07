@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from './views/HomeView.vue';
-import RestaurantMenuHistoryPage from './views/RestaurantMenuHistoryPage.vue';
+import RestaurantView from './views/RestaurantView.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -13,7 +13,7 @@ export const router = createRouter({
     {
       path: '/restaurants/:restaurantId/menus',
       name: 'restaurant-menu-history',
-      component: RestaurantMenuHistoryPage,
+      component: RestaurantView,
     },
   ],
   scrollBehavior() {

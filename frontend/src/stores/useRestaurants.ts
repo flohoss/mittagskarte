@@ -23,10 +23,21 @@ export const useRestaurants = createGlobalState(() => {
   const restaurants = ref<RestaurantRecord[]>([]);
   const isLoaded = ref(false);
   const isLoading = ref(false);
+  const isInitialized = ref(false);
   const searchQuery = ref('');
 
+  function findRestaurantIndexById(id: string) {
+    return restaurants.value.findIndex((restaurant) => restaurant.id === id);
+  }
+
+  function setRestaurantStatus(id: string, status: RestaurantStatus) {
+    const index = findRestaurantIndexById(id);
+    if (index === -1) return;
+    restaurants.value[index].status = status;
+  }
+
   function upsertRestaurant(record: RestaurantRecord) {
-    const index = restaurants.value.findIndex((r) => r.id === record.id);
+    const index = findRestaurantIndexById(record.id);
     if (index !== -1) {
       const current = restaurants.value[index];
       const { status: _incomingStatus, ...nextFields } = record;
@@ -41,10 +52,7 @@ export const useRestaurants = createGlobalState(() => {
 
   async function subscribeRealtime() {
     await backendClient.subscribeRestaurantStatus((e: RestaurantStatusEvent) => {
-      const index = restaurants.value.findIndex((r) => r.id === e.id);
-      if (index !== -1) {
-        restaurants.value[index].status = e.status as RestaurantStatus;
-      }
+      setRestaurantStatus(e.id, e.status as RestaurantStatus);
     });
     await backendClient.subscribeRestaurants((action, record) => {
       if (action === 'update') {
@@ -83,7 +91,10 @@ export const useRestaurants = createGlobalState(() => {
     }
   }
 
-  if (!isLoaded.value && !isLoading.value) {
+  function initialize() {
+    if (isInitialized.value) return;
+    isInitialized.value = true;
+
     void fetchRestaurants();
     void subscribeRealtime();
   }
@@ -149,6 +160,7 @@ export const useRestaurants = createGlobalState(() => {
     searchQuery,
     groupedRestaurants,
     filteredRestaurants,
+    initialize,
     isLoaded,
     isLoading,
     fetchRestaurants,

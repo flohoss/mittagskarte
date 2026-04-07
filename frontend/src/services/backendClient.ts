@@ -20,6 +20,11 @@ function getAuthRecord() {
   return client.authStore.record as Record<string, unknown> | null;
 }
 
+function clearAuthAndReturnFalse() {
+  client.authStore.clear();
+  return false;
+}
+
 async function authenticate(identity: string, password: string) {
   await client.collection('users').authWithPassword(identity, password);
 }
@@ -33,32 +38,33 @@ async function validateAuthentication() {
   try {
     const parts = token.split('.');
     if (parts.length < 2) {
-      client.authStore.clear();
-      return false;
+      return clearAuthAndReturnFalse();
     }
 
     // Decode JWT payload (base64url) and check exp locally to avoid refresh loops.
     const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
     if (typeof payload.exp !== 'number') {
-      client.authStore.clear();
-      return false;
+      return clearAuthAndReturnFalse();
     }
 
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp <= now) {
-      client.authStore.clear();
-      return false;
+      return clearAuthAndReturnFalse();
     }
 
     return true;
   } catch {
-    client.authStore.clear();
-    return false;
+    return clearAuthAndReturnFalse();
   }
 }
 
 function clearAuthentication() {
   client.authStore.clear();
+}
+
+function buildFileUrl(record: Record<string, unknown>, fileName: string) {
+  const url = client.files.getURL(record, fileName);
+  return normalizeFileUrl(url);
 }
 
 async function fetchRestaurants() {
@@ -77,17 +83,43 @@ async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent)
 }
 
 async function subscribeRestaurants(handler: (action: string, record: RestaurantRecord) => void) {
-  await client.collection('restaurants').subscribe('*', (event: { action: string; record: RestaurantRecord }) => {
-    handler(event.action, event.record);
-  }, { expand: 'menus' });
+  await client.collection('restaurants').subscribe(
+    '*',
+    (event: { action: string; record: RestaurantRecord }) => {
+      handler(event.action, event.record);
+    },
+    { expand: 'menus' }
+  );
 }
 
 function getFileUrl(record: RestaurantRecord) {
-  return client.files.getURL(record as Record<string, unknown>, String(record.thumbnail ?? ''));
+  return buildFileUrl(record as Record<string, unknown>, String(record.thumbnail ?? ''));
 }
 
 function getMenuFileUrl(menu: MenuRecord) {
-  return client.files.getURL(menu as unknown as Record<string, unknown>, menu.file);
+  return buildFileUrl(menu as unknown as Record<string, unknown>, menu.file);
+}
+
+function normalizeFileUrl(url: string) {
+  if (!url) return url;
+  if (url.startsWith('/')) return url;
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      if (typeof window !== 'undefined' && parsed.origin === window.location.origin) {
+        const apiPathIndex = parsed.pathname.indexOf('/api/');
+        if (apiPathIndex >= 0) {
+          return `${parsed.pathname.slice(apiPathIndex)}${parsed.search}${parsed.hash}`;
+        }
+      }
+    } catch {
+      return url;
+    }
+
+    return url;
+  }
+
+  return `/${url}`;
 }
 
 async function uploadMenu(restaurantId: string, file: File) {

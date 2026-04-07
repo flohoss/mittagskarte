@@ -2,7 +2,7 @@
 import Fa7SolidMagnifyingGlass from '~icons/fa7-solid/magnifying-glass';
 import { computed } from 'vue';
 
-import { useRestaurants } from '../stores/useRestaurants';
+import { useRestaurants } from '../../stores/useRestaurants';
 
 const { searchQuery } = useRestaurants();
 
