@@ -49,7 +49,7 @@ const menuDimensions = computed(() => {
       :menu-width="menuDimensions.width"
       :menu-height="menuDimensions.height"
     />
-    <ActionIconButton v-else class-name="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" :disabled="true">
+    <ActionIconButton v-else class-name="btn btn-primary" title="Keine Speisekarte verfügbar" ariaLabel="Keine Speisekarte verfügbar" :disabled="true">
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
     </ActionIconButton>
 
@@ -59,16 +59,16 @@ const menuDimensions = computed(() => {
       :href="mapUrl"
       class-name="btn btn-soft hover:btn-warning"
       :title="mapActionTitle"
-      :aria-label="mapActionLabel"
+      :ariaLabel="mapActionLabel"
     >
       <Fa7SolidMap class="btn-icon" aria-hidden="true" />
     </ActionIconButton>
 
-    <ActionIconButton :href="phoneUrl" class-name="btn btn-soft hover:btn-success" :title="phoneActionTitle" :aria-label="phoneActionLabel" target="_self">
+    <ActionIconButton :href="phoneUrl" class-name="btn btn-soft hover:btn-success" :title="phoneActionTitle" :ariaLabel="phoneActionLabel" target="_self">
       <Fa7SolidPhone class="btn-icon" aria-hidden="true" />
     </ActionIconButton>
 
-    <ActionIconButton :href="websiteUrl" class-name="btn btn-soft hover:btn-info" :title="websiteActionTitle" :aria-label="websiteActionLabel">
+    <ActionIconButton :href="websiteUrl" class-name="btn btn-soft hover:btn-info" :title="websiteActionTitle" :ariaLabel="websiteActionLabel">
       <Fa7SolidGlobe class="btn-icon" aria-hidden="true" />
     </ActionIconButton>
   </div>
