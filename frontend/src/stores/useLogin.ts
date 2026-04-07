@@ -26,19 +26,30 @@ export const useLogin = createGlobalState(() => {
     resolveAuthIdentity();
   });
 
+  async function ensureValidAuthToken() {
+    if (!authToken.value) {
+      return;
+    }
+
+    const isValid = await backendClient.validateAuthentication();
+    if (!isValid) {
+      authToken.value = '';
+      authIdentity.value = '';
+    }
+  }
+
   async function authenticate(identity: string, password: string) {
     await backendClient.authenticate(identity, password);
+    await ensureValidAuthToken();
   }
 
   function clearAuthentication() {
     backendClient.clearAuthentication();
   }
 
-  function getAuthToken() {
-    return backendClient.getAuthToken();
-  }
-
   const isAuthenticated = computed(() => Boolean(authToken.value));
+
+  void ensureValidAuthToken();
 
   return {
     authToken,
@@ -46,6 +57,5 @@ export const useLogin = createGlobalState(() => {
     isAuthenticated,
     authenticate,
     clearAuthentication,
-    getAuthToken,
   };
 });

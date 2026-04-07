@@ -2,10 +2,13 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
+import { useRouter } from 'vue-router';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
+import type { RestaurantRecord } from '../models/restaurant';
 
 const props = defineProps<{
-  menuUrl: string;
+  restaurant: RestaurantRecord;
+  menuUrl: string | null;
   menuWidth?: number | null;
   menuHeight?: number | null;
 }>();
@@ -19,8 +22,7 @@ const isLargeScreen = breakpoints.greaterOrEqual('lg');
 const isSmallerThanLg = breakpoints.smaller('lg');
 const imageWidth = ref<number | null>(props.menuWidth ?? null);
 const imageHeight = ref<number | null>(props.menuHeight ?? null);
-
-const linkTarget = computed(() => (isLargeScreen.value ? '_blank' : undefined));
+const router = useRouter();
 const imageSize = computed(() => {
   const width = imageWidth.value && imageWidth.value > 0 ? imageWidth.value : undefined;
   const height = imageHeight.value && imageHeight.value > 0 ? imageHeight.value : undefined;
@@ -105,10 +107,20 @@ const { floatingStyles } = useFloating(reference, floating, {
 });
 
 function openPopover() {
-  if (!isLargeScreen.value) return;
+  if (!isLargeScreen.value || !props.menuUrl) return;
 
   clearHideTimeout();
   isOpen.value = true;
+}
+
+function openMenuHistory() {
+  if (!props.menuUrl) return;
+  router.push({
+    name: 'restaurant-menu-history',
+    params: {
+      restaurantId: props.restaurant.id,
+    },
+  });
 }
 
 function hidePopoverImmediate() {
@@ -167,24 +179,23 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="relative block w-full">
-    <a
+    <button
       ref="reference"
       class="btn btn-primary w-full"
-      title="Speisekarte"
-      aria-label="Speisekarte öffnen"
-      :href="menuUrl"
-      :target="linkTarget"
-      rel="noopener noreferrer"
+      type="button"
+      title="Menüverlauf öffnen"
+      aria-label="Menüverlauf öffnen"
       @mouseenter="openPopover"
       @mouseleave="scheduleClosePopover"
       @focus="openPopover"
       @blur="hidePopoverImmediate"
+      @click="openMenuHistory"
     >
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
-    </a>
+    </button>
     <teleport to="body">
       <div
-        v-if="isOpen"
+        v-if="isOpen && menuUrl"
         ref="floating"
         :style="[floatingStyles, popoverSizingStyle]"
         :class="['z-50 max-h-[95vh] max-w-[90vw] rounded-xl border border-base-300 bg-base-100 p-3 shadow-xl', popoverOverflowClass]"
@@ -192,15 +203,7 @@ onBeforeUnmount(() => {
         @mouseleave="scheduleClosePopover"
         tabindex="-1"
       >
-        <img
-          :src="menuUrl"
-          alt="Speisekarte"
-          :width="imageSize.width"
-          :height="imageSize.height"
-          :class="imageClass"
-          loading="lazy"
-          @load="onImageLoad"
-        />
+        <img :src="menuUrl" alt="Speisekarte" :width="imageSize.width" :height="imageSize.height" :class="imageClass" loading="lazy" @load="onImageLoad" />
       </div>
     </teleport>
   </div>

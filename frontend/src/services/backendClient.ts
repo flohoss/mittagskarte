@@ -24,6 +24,39 @@ async function authenticate(identity: string, password: string) {
   await client.collection('users').authWithPassword(identity, password);
 }
 
+async function validateAuthentication() {
+  const token = client.authStore.token;
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) {
+      client.authStore.clear();
+      return false;
+    }
+
+    // Decode JWT payload (base64url) and check exp locally to avoid refresh loops.
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    if (typeof payload.exp !== 'number') {
+      client.authStore.clear();
+      return false;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp <= now) {
+      client.authStore.clear();
+      return false;
+    }
+
+    return true;
+  } catch {
+    client.authStore.clear();
+    return false;
+  }
+}
+
 function clearAuthentication() {
   client.authStore.clear();
 }
@@ -77,6 +110,7 @@ export const backendClient = {
   getAuthToken,
   getAuthRecord,
   authenticate,
+  validateAuthentication,
   clearAuthentication,
   fetchRestaurants,
   subscribeRestaurantStatus,

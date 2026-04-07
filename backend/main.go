@@ -59,7 +59,7 @@ func main() {
 
 	app := pocketbase.NewWithConfig(
 		pocketbase.Config{
-			DefaultDataDir: "data/pb",
+			DefaultDataDir: "./data",
 			DefaultDev:     cfg.Dev,
 		},
 	)

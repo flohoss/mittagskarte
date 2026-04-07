@@ -45,7 +45,13 @@ const menuDimensions = computed(() => {
 
 <template>
   <div :class="['grid gap-1.5', isAuthenticated ? 'grid-cols-5' : 'grid-cols-4']">
-    <MenuPopover v-if="latestMenuUrl" :menu-url="latestMenuUrl" :menu-width="menuDimensions.width" :menu-height="menuDimensions.height" />
+    <MenuPopover
+      v-if="latestMenuUrl"
+      :restaurant="props.restaurant"
+      :menu-url="latestMenuUrl"
+      :menu-width="menuDimensions.width"
+      :menu-height="menuDimensions.height"
+    />
     <button v-else type="button" class="btn btn-primary" title="Keine Speisekarte verfügbar" aria-label="Keine Speisekarte verfügbar" disabled>
       <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
     </button>
