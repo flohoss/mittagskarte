@@ -1,0 +1,576 @@
+{
+  "restaurants": [
+    {
+      "name": "Avada",
+      "group": "Nürtingen",
+      "address": "Neckarstraße 1, 72622 Nürtingen",
+      "website": "https://avada-nt.de/mittagsmenu/",
+      "phone": "+49 7022 9796098",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Friday", "Saturday"],
+      "tags": ["Vietnamesisch", "Sushi"],
+      "thumbnail": "avada.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": ".vamtam-grid:has(img)",
+          "attribute": "",
+          "style": "#qlwapp { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Benz Metzgerei",
+      "group": "Köngen",
+      "address": "Hirschstraße 18, 73257 Köngen",
+      "website": "https://benz-metzgerei-feinkost.de/schwanen-metzgerei/tagesessen/",
+      "phone": "+49 7024 81488",
+      "method": "scrape",
+      "content_type": "image",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday"],
+      "tags": ["Metzgerei"],
+      "thumbnail": "benz.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "#CookieBoxSaveButton",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "//p[strong[contains(text(), '{{date(format=02.01.2006,day=friday,offset=-1)}}')]]/following-sibling::p[1]/a",
+          "attribute": "href",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Blessing-Kurz",
+      "group": "Köngen",
+      "address": "Unterdorfstraße 1, 73257 Köngen",
+      "website": "https://blessing-kurz.de/de/tagesessen/",
+      "phone": "+49 7024 989895",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday"],
+      "tags": ["Metzgerei"],
+      "thumbnail": "blessing.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "#cookieInfoBtnPrimary",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "#tagesessen",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Da Mama",
+      "group": "Wendlingen am Neckar",
+      "address": "Bahnhofstraße 17, 73240 Wendlingen am Neckar",
+      "website": "https://da-mamma.de/",
+      "phone": "+49 7024 8685216",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 2,3",
+      "rest_days": ["Monday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "damama.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//div[contains(concat(' ', normalize-space(@class), ' '), ' sp-text-wrapper ') and contains(., 'Mittagstisch')]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Davvero",
+      "group": "Möhringen",
+      "address": "Lohäckerstraße 11, 70567 Stuttgart-Möhringen",
+      "website": "https://www.davvero-stuttgart.de/index.html",
+      "phone": "+49 711 78784911",
+      "method": "download",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 1,3",
+      "rest_days": ["Tuesday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "davvero.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "https://davvero-stuttgart.de/download/mittagskarte.pdf",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Et.Can.",
+      "group": "Wendlingen am Neckar",
+      "address": "Schäferhauser Straße 18, 73240 Wendlingen am Neckar",
+      "website": "https://et-can.de/mittagskarte/",
+      "phone": "+49 177 6474213",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 3,4",
+      "rest_days": ["Monday", "Tuesday"],
+      "tags": ["Steakhouse"],
+      "thumbnail": "etcan.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": ".et_pb_section.et_pb_section_1.et_pb_with_background.et_section_regular",
+          "attribute": "",
+          "style": "#BorlabsCookieBox, #BorlabsCookieBoxWidget, #main-header { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Da Peppone",
+      "group": "Degerloch",
+      "address": "Ristorante u. Pizzeria Da Peppone, Bopseräcker 1, 70597 Stuttgart-Degerloch",
+      "website": "https://dapeppone-restaurant.de/",
+      "phone": "+49 711 78784911",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 2,3",
+      "rest_days": ["Monday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "peppone.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'MITTAGSKARTE')]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Delta",
+      "group": "Köngen",
+      "address": "Plochinger Straße 22, 73257 Köngen",
+      "website": "https://www.delta-koengen.de/menü/",
+      "phone": "+49 7024 466833",
+      "method": "download",
+      "content_type": "pdf",
+      "cron": "",
+      "rest_days": ["Monday"],
+      "tags": ["Thailändisch"],
+      "thumbnail": "delta.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "https://www.delta-koengen.de/app/download/12495249960/Delta_Karte_mittag.pdf?t=1766676380",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "EnBW",
+      "group": "Fasanenhof",
+      "address": "EnBW Kantine, Schelmenwasenstraße 15, 70567 Stuttgart-Fasanenhof",
+      "website": "https://www.enbw.com/unternehmen/standorte/stuttgart-fasanenhof/",
+      "phone": "+49 721 72586001",
+      "method": "upload",
+      "content_type": "",
+      "cron": "",
+      "rest_days": ["Sunday", "Saturday"],
+      "tags": ["Kantine"],
+      "thumbnail": "enbw.webp",
+      "navigate": []
+    },
+    {
+      "name": "Fass",
+      "group": "Nürtingen",
+      "address": "Bahnhofstraße 10, 72644 Oberboihingen",
+      "website": "http://www.gasthaus-fass.de/mittagstisch",
+      "phone": "+49 7022 61185",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,3",
+      "rest_days": ["Tuesday"],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "fass.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "#maincontainer",
+          "attribute": "",
+          "style": ".sqrnav { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Goldäcker",
+      "group": "Leinfelden-Echterdingen",
+      "address": "Leinfelder Straße 103, 70771 Leinfelden-Echterdingen",
+      "website": "https://www.goldaecker.com",
+      "phone": "+49 711 84957399",
+      "method": "upload",
+      "content_type": "",
+      "cron": "",
+      "rest_days": ["Monday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "goldaecker.webp",
+      "navigate": []
+    },
+    {
+      "name": "Gasthaus Linde",
+      "group": "Nürtingen",
+      "address": "Wasserburgstraße 3, 72622 Nürtingen-Zizishausen",
+      "website": "https://www.gasthauslinde.de/Mittagstisch",
+      "phone": "+49 7022 62306",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 1-3 * *",
+      "rest_days": ["Monday"],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "linde.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'Mittagstisch') and contains(text(), '{{date(format=Jan,lang=de,upper=true)}}')]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Hoflieferant Munz",
+      "group": "Feuerbach",
+      "address": "Stuttgarter Straße 23, 70469 Stuttgart-Feuerbach",
+      "website": "https://www.hoflieferant-munz.de/aktuelles",
+      "phone": "+49 711 36591400",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday"],
+      "tags": ["Metzgerei"],
+      "thumbnail": "munz.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'Download pdf')]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Khoi",
+      "group": "Fasanenhof",
+      "address": "Europaplatz 12, 70565 Stuttgart-Fasanenhof",
+      "website": "https://www.khoi-restaurant.de/speisekarte/",
+      "phone": "+49 711 56619918",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 2,3",
+      "rest_days": ["Monday"],
+      "tags": ["Vietnamesisch"],
+      "thumbnail": "khoi.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'Mittagskarte PDF')]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "KÖ5",
+      "group": "Fasanenhof",
+      "address": "Schelmenwasenstraße 5, 70567 Stuttgart-Fasanenhof",
+      "website": "https://koe5.de/",
+      "phone": "+49 711 99772624",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Saturday"],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "koe5.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'Alles ablehnen')]",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "//div[@class='elementor-widget-container']",
+          "attribute": "",
+          "style": "#masthead { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "KÖbap Lounge 187",
+      "group": "Köngen",
+      "address": "Imanuel-Maier-Straße 2, 73257 Köngen",
+      "website": "https://www.instagram.com/kobap_lounge",
+      "phone": "+497024 9620386",
+      "method": "upload",
+      "content_type": "",
+      "cron": "",
+      "rest_days": ["Sunday"],
+      "tags": ["Döner", "Pizza"],
+      "thumbnail": "koebaplounge.webp",
+      "navigate": []
+    },
+    {
+      "name": "L'unica",
+      "group": "Leinfelden-Echterdingen",
+      "address": "Hauptstraße 33, 70771 Leinfelden-Echterdingen",
+      "website": "https://www.lunica-restaurant.de/mittagstisch-lunica-restaurant-echterdingen.html",
+      "phone": "+49 711 78784708",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "lunica.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "[data-testid='uc-deny-all-button']",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "div.row.mittagstisch_tafel",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Ochsen",
+      "group": "Köngen",
+      "address": "Oberdorfstraße 20, 73257 Köngen",
+      "website": "http://www.ochsen-koengen.de",
+      "phone": "+49 7024 81979",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,4",
+      "rest_days": ["Tuesday", "Wednesday"],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "ochsen.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "p.paragraph-mittagstisch-right-corona",
+          "attribute": "",
+          "style": ".w-nav { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Paulaner",
+      "group": "Leinfelden-Echterdingen",
+      "address": "Burgstraße 4, 70771 Leinfelden-Echterdingen",
+      "website": "https://paulaner-le.de/speisen-getraenke/mittagstisch.html",
+      "phone": "+49 711 7944180",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 2,3",
+      "rest_days": ["Monday"],
+      "tags": ["Brauhaus"],
+      "thumbnail": "paulaner.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[span[contains(text(), 'Zum Mittagsangebot')]]",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Picchiorosso",
+      "group": "Fasanenhof",
+      "address": "Ristorante Picchio Rosso, Zettachring 12, 70567 Stuttgart-Fasanenhof",
+      "website": "https://picchiorosso.de/mittagskarte-speisekarte/",
+      "phone": "+49 711 7156767",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1-5",
+      "rest_days": ["Sunday", "Saturday"],
+      "tags": ["Italienisch"],
+      "thumbnail": "picchio.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": ".avia-cookie-consent-button",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "//h2[contains(text(), 'Mittagskarte')]/ancestor::div[contains(@class, 'post-entry')]",
+          "attribute": "",
+          "style": "#header { display: none !important; } .av_textblock_section { display: none !important; } .hr { display: none !important; } .avia-button-wrap { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Ratsstuben",
+      "group": "Leinfelden-Echterdingen",
+      "address": "Bernhäuser Straße 16, 70771 Leinfelden-Echterdingen",
+      "website": "https://ratsstuben.de/wochenkarte/",
+      "phone": "+49 711 791725",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": [],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "stuben.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "div > p > a",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "Schaible",
+      "group": "Feuerbach",
+      "address": "Staufeneckstraße 1, 70469 Stuttgart-Feuerbach",
+      "website": "https://www.feuerbach.de/aktuelles/mittagstisch/",
+      "phone": "+49 711 8104528",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 2,3",
+      "rest_days": ["Sunday", "Monday"],
+      "tags": ["Metzgerei"],
+      "thumbnail": "schaible.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//a[contains(text(), 'Schaible')]",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": ".cm-btn-success",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 3,
+          "locator": "div.artikel.firmenportrait",
+          "attribute": "",
+          "style": ".fb-header { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Schwedenscheuer",
+      "group": "Leinfelden-Echterdingen",
+      "address": "Hauptstraße 71/1, 70771 Leinfelden-Echterdingen",
+      "website": "https://www.schwedenscheuer.de/restaurant-leinfelden-echterdingen/tageskarte.html",
+      "phone": "+49 711 7978527",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday"],
+      "tags": ["Schwäbisch"],
+      "thumbnail": "scheuer.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "[data-testid='uc-deny-all-button']",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "#content",
+          "attribute": "",
+          "style": ""
+        }
+      ]
+    },
+    {
+      "name": "SW34",
+      "group": "Fasanenhof",
+      "address": "Schelmenwasenstraße 34, 70567 Stuttgart-Fasanenhof",
+      "website": "https://sw34.restaurant/essen-trinken",
+      "phone": "+49 711 62042252",
+      "method": "scrape",
+      "content_type": "html",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": ["Sunday", "Saturday"],
+      "tags": ["Eventlocation"],
+      "thumbnail": "sw34.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": ".brlbs-btn-accept-only-essential",
+          "attribute": "",
+          "style": ""
+        },
+        {
+          "order": 2,
+          "locator": "#speisekarte",
+          "attribute": "",
+          "style": ".elementor-top-section.elementor-sticky.elementor-sticky--active, .brlbs-cmpnt-widget { display: none !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Troelsch",
+      "group": "Feuerbach",
+      "address": "Stuttgarter Straße 104, 70469 Stuttgart-Feuerbach",
+      "website": "https://www.troelsch.de/ueber-uns/standorte/",
+      "phone": "+49 711 85680030",
+      "method": "scrape",
+      "content_type": "pdf",
+      "cron": "30 10,11 * * 1,2",
+      "rest_days": [],
+      "tags": ["Bäckerei"],
+      "thumbnail": "troelsch.webp",
+      "navigate": [
+        {
+          "order": 1,
+          "locator": "//h2[contains(text(), 'Feuerbach')]/parent::div/following-sibling::div//a[@title='Mittagskarte herunterladen']",
+          "attribute": "href",
+          "style": ".collapse:not(.show) { display: block !important; }"
+        }
+      ]
+    },
+    {
+      "name": "Zen",
+      "group": "Köngen",
+      "address": "Imanuel-Maier-Straße 2, 73257 Köngen",
+      "website": "https://www.zenasia.de/",
+      "phone": "+497024 4095564",
+      "method": "upload",
+      "content_type": "",
+      "cron": "",
+      "rest_days": ["Sunday"],
+      "tags": ["Asiatisch"],
+      "thumbnail": "zen.webp",
+      "navigate": []
+    }
+  ]
+}
