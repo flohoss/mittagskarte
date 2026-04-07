@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	DownloadsFolder = "data/downloads/"
+	DownloadsFolder = "/tmp/downloads/"
 )
 
 var ErrMenuUnchanged = errors.New("menu has not changed")

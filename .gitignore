@@ -209,12 +209,4 @@ dist
 # Built Visual Studio Code Extensions
 *.vsix
 
-views/**/*_templ.go
 tmp/
-assets/**/style.css
-__debug*
-config/downloads/
-
-assets/js/htmx.min.js
-assets/js/floating-ui.core.umd.min.js
-assets/js/floating-ui.dom.umd.min.js

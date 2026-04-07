@@ -41,16 +41,24 @@ The application schema is managed through PocketBase migrations in `backend/migr
 Current app collections:
 
 - `restaurants`
-- `selector`
+- `selectors`
+- `menus`
 
-Both collections are publicly listable and viewable.
+All three collections are publicly listable and viewable.
+
+Collection relationships:
+
+- each restaurant can reference multiple `selectors` via `navigate`
+- each menu belongs to exactly one restaurant (`menus.restaurant`)
+- each restaurant stores a rolling list of latest menu ids in `restaurants.menus`
+
+Menu retention is limited by the backend setting `MAX_AMOUNT_OF_MENUS` (default: `10`).
 
 The backend also uses PocketBase auth for protected operations.
 
 Protected custom endpoints:
 
 - `POST /api/restaurants/scrape`
-- `POST /api/restaurants/upload`
 
 ## How It Works
 
@@ -61,6 +69,14 @@ Restaurant menus can be obtained in three ways:
 - upload files manually
 
 Files are normalized by the backend and stored in PocketBase-managed records. The app supports PDF and image sources and generates browser-friendly menu images for the frontend.
+
+For each menu create event, the backend:
+
+- converts input files to optimized `webp`
+- stores calculated dimensions (`width`, `height`, `landscape`)
+- computes a content hash and rejects unchanged uploads/scrapes
+- prepends the new menu id to the restaurant `menus` relation
+- removes older menu records beyond `MAX_AMOUNT_OF_MENUS`
 
 ## Selectors and Examples
 
@@ -187,7 +203,7 @@ Important runtime paths:
 
 - PocketBase data directory: `data/pb`
 - frontend bundle served by backend: `dist`
-- downloaded/generated files: `data/downloads`
+- temporary download/processing files: `/tmp/downloads` (ephemeral in container lifecycle)
 
 ## Development
 
