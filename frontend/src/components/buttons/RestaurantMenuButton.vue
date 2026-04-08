@@ -116,7 +116,7 @@ function openPopover() {
 function openMenuHistory() {
   if (!props.menuUrl) return;
   router.push({
-    name: 'restaurant-menu-history',
+    name: 'restaurant-view',
     params: {
       restaurantId: props.restaurant.id,
     },

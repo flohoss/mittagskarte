@@ -47,7 +47,7 @@ const searchShortcut = computed(() => {
   return isMac ? { primary: '⌘', key: 'K' } : { primary: 'Ctrl', key: 'K' };
 });
 
-const isMenuHistoryRoute = computed(() => route.name === 'restaurant-menu-history');
+const isMenuHistoryRoute = computed(() => route.name === 'restaurant-view');
 const adminPanelUrl = computed(() => `${BackendURL}_/`);
 
 function focusSearch() {

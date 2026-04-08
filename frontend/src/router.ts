@@ -11,12 +11,9 @@ export const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/restaurants/:restaurantId/menus',
-      name: 'restaurant-menu-history',
+      path: '/restaurants/:restaurantId',
+      name: 'restaurant-view',
       component: RestaurantView,
     },
   ],
-  scrollBehavior() {
-    return { top: 0 };
-  },
 });
