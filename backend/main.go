@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/flohoss/mittagskarte/internal/mittag"
 	_ "github.com/flohoss/mittagskarte/migrations"
@@ -84,6 +85,16 @@ func main() {
 		if mittagService == nil {
 			return nil
 		}
+
+		// Use gzip for most routes while skipping the PocketBase Admin UI.
+		se.Router.BindFunc(func(e *core.RequestEvent) error {
+			path := e.Request.URL.Path
+			if strings.HasPrefix(path, "/_/") {
+				return e.Next()
+			}
+
+			return apis.Gzip().Func(e)
+		})
 
 		if err = mittagService.Start(); err != nil {
 			return err
