@@ -1,4 +1,5 @@
 import PocketBase from 'pocketbase';
+import type { RecordModel } from 'pocketbase';
 import type { MenuRecord, RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
 import { BackendURL } from '../config';
 
@@ -17,7 +18,7 @@ function getAuthToken() {
 }
 
 function getAuthRecord() {
-  return client.authStore.record as Record<string, unknown> | null;
+  return client.authStore.record as RecordModel | null;
 }
 
 function clearAuthAndReturnFalse() {
@@ -55,18 +56,18 @@ function clearAuthentication() {
   client.authStore.clear();
 }
 
-function buildFileUrl(record: Record<string, unknown>, fileName: string) {
+function buildFileUrl(record: RecordModel, fileName: string) {
   const url = client.files.getURL(record, fileName);
   return normalizeFileUrl(url);
 }
 
 async function fetchRestaurants() {
-  const records = await client.collection('restaurants').getFullList({
+  const records = await client.collection('restaurants').getFullList<RestaurantRecord>({
     sort: 'group,name',
     expand: 'menus',
   });
 
-  return records as unknown as RestaurantRecord[];
+  return records;
 }
 
 async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent) => void) {
@@ -86,11 +87,11 @@ async function subscribeRestaurants(handler: (action: string, record: Restaurant
 }
 
 function getFileUrl(record: RestaurantRecord) {
-  return buildFileUrl(record as Record<string, unknown>, String(record.thumbnail ?? ''));
+  return buildFileUrl(record, String(record.thumbnail ?? ''));
 }
 
 function getMenuFileUrl(menu: MenuRecord) {
-  return buildFileUrl(menu as unknown as Record<string, unknown>, menu.file);
+  return buildFileUrl(menu, menu.file);
 }
 
 function normalizeFileUrl(url: string) {

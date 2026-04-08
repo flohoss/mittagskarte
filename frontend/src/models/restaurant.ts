@@ -1,4 +1,6 @@
-export interface MenuRecord {
+import type { RecordModel } from 'pocketbase';
+
+export interface MenuRecord extends RecordModel {
   id: string;
   file: string;
   hash: string;
@@ -10,7 +12,7 @@ export interface MenuRecord {
   } | null;
 }
 
-export interface RestaurantRecord {
+export interface RestaurantRecord extends RecordModel {
   id: string;
   name: string;
   group: string;
@@ -26,7 +28,6 @@ export interface RestaurantRecord {
   expand?: {
     menus?: MenuRecord[];
   };
-  [key: string]: unknown;
 }
 
 export interface RestaurantStatusEvent {
