@@ -55,12 +55,7 @@ const menuDimensions = computed(() => {
 
     <RestaurantRefreshButton v-if="isAuthenticated" :restaurant="props.restaurant" />
 
-    <ActionIconButton
-      :href="mapUrl"
-      class-name="btn btn-soft hover:btn-warning"
-      :title="mapActionTitle"
-      :ariaLabel="mapActionLabel"
-    >
+    <ActionIconButton :href="mapUrl" class-name="btn btn-soft hover:btn-warning" :title="mapActionTitle" :ariaLabel="mapActionLabel">
       <Fa7SolidMap class="btn-icon" aria-hidden="true" />
     </ActionIconButton>
 

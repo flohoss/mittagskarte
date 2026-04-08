@@ -105,7 +105,9 @@ function getInitials(name: string) {
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
-        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated)]">{{ formatRelativeDate(latestMenuCreated) }}</span>
+        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated)]">{{
+          formatRelativeDate(latestMenuCreated)
+        }}</span>
         <span v-else />
         <button
           type="button"

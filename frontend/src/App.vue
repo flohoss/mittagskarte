@@ -29,7 +29,11 @@ watch(
     <Transition name="app-crossfade" mode="out-in">
       <RestaurantsLoading v-if="!isLoaded" key="loading" :is-loading="isLoading" />
       <RestaurantsEmpty v-else-if="!hasRestaurants" key="empty" />
-      <RouterView v-else key="content" />
+      <div v-else key="content">
+        <RouterView v-slot="{ Component }">
+          <component :is="Component" />
+        </RouterView>
+      </div>
     </Transition>
   </AppShell>
 </template>

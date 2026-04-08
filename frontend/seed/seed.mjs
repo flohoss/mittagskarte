@@ -22,8 +22,8 @@ const PB_EMAIL = process.env.PB_EMAIL;
 const PB_PASSWORD = process.env.PB_PASSWORD;
 
 if (!PB_EMAIL || !PB_PASSWORD) {
-    console.error('PB_EMAIL and PB_PASSWORD environment variables are required.');
-    process.exit(1);
+  console.error('PB_EMAIL and PB_PASSWORD environment variables are required.');
+  process.exit(1);
 }
 
 // ---------------------------------------------------------------------------
@@ -32,8 +32,8 @@ if (!PB_EMAIL || !PB_PASSWORD) {
 
 /** Read a local file as a Blob for PocketBase SDK uploads */
 function fileBlob(filePath, mimeType = 'image/webp') {
-    const buffer = readFileSync(filePath);
-    return new File([buffer], filePath.split('/').pop(), { type: mimeType });
+  const buffer = readFileSync(filePath);
+  return new File([buffer], filePath.split('/').pop(), { type: mimeType });
 }
 
 /**
@@ -42,8 +42,8 @@ function fileBlob(filePath, mimeType = 'image/webp') {
  * random suffix and match against images/thumbnails/<stem>.webp.
  */
 function resolveThumbnail(thumbnailField) {
-    const candidate = join(root, thumbnailField);
-    return existsSync(candidate) ? candidate : null;
+  const candidate = join(root, thumbnailField);
+  return existsSync(candidate) ? candidate : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -59,57 +59,57 @@ const data = JSON.parse(readFileSync(join(__dirname, 'restaurants.json'), 'utf-8
 const restaurants = data.restaurants;
 
 for (const r of restaurants) {
-    console.log(`→ ${r.name}`);
+  console.log(`→ ${r.name}`);
 
-    // 1. Create restaurant without navigate first
-    const formData = new FormData();
-    formData.append('name', r.name);
-    formData.append('group', r.group ?? '');
-    formData.append('address', r.address ?? '');
-    formData.append('website', r.website ?? '');
-    formData.append('phone', r.phone ?? '');
-    formData.append('method', r.method);
-    formData.append('content_type', r.content_type ?? '');
-    formData.append('cron', r.cron ?? '');
+  // 1. Create restaurant without navigate first
+  const formData = new FormData();
+  formData.append('name', r.name);
+  formData.append('group', r.group ?? '');
+  formData.append('address', r.address ?? '');
+  formData.append('website', r.website ?? '');
+  formData.append('phone', r.phone ?? '');
+  formData.append('method', r.method);
+  formData.append('content_type', r.content_type ?? '');
+  formData.append('cron', r.cron ?? '');
 
-    for (const day of r.rest_days ?? []) {
-        formData.append('rest_days', day);
+  for (const day of r.rest_days ?? []) {
+    formData.append('rest_days', day);
+  }
+
+  formData.append('tags', JSON.stringify(r.tags ?? []));
+
+  if (r.thumbnail) {
+    const thumbPath = resolveThumbnail(r.thumbnail);
+    if (thumbPath) {
+      formData.append('thumbnail', fileBlob(thumbPath));
+      console.log(`   thumbnail: ${thumbPath.split('/').pop()}`);
+    } else {
+      console.warn(`   ⚠ thumbnail not found for "${r.thumbnail}"`);
     }
+  }
 
-    formData.append('tags', JSON.stringify(r.tags ?? []));
+  const created = await client.collection('restaurants').create(formData);
+  console.log(`   created: ${created.id}`);
 
-    if (r.thumbnail) {
-        const thumbPath = resolveThumbnail(r.thumbnail);
-        if (thumbPath) {
-            formData.append('thumbnail', fileBlob(thumbPath));
-            console.log(`   thumbnail: ${thumbPath.split('/').pop()}`);
-        } else {
-            console.warn(`   ⚠ thumbnail not found for "${r.thumbnail}"`);
-        }
-    }
+  // 2. Create selectors with restaurant reference already set
+  const navigateIds = [];
+  for (const nav of r.navigate ?? []) {
+    const selector = await client.collection('selectors').create({
+      order: nav.order,
+      locator: nav.locator,
+      attribute: nav.attribute ?? '',
+      style: nav.style ?? '',
+      restaurant: created.id,
+    });
+    navigateIds.push(selector.id);
+    console.log(`   selector #${nav.order}: ${selector.id}`);
+  }
 
-    const created = await client.collection('restaurants').create(formData);
-    console.log(`   created: ${created.id}`);
-
-    // 2. Create selectors with restaurant reference already set
-    const navigateIds = [];
-    for (const nav of r.navigate ?? []) {
-        const selector = await client.collection('selectors').create({
-            order: nav.order,
-            locator: nav.locator,
-            attribute: nav.attribute ?? '',
-            style: nav.style ?? '',
-            restaurant: created.id,
-        });
-        navigateIds.push(selector.id);
-        console.log(`   selector #${nav.order}: ${selector.id}`);
-    }
-
-    // 3. Patch restaurant with selector IDs
-    if (navigateIds.length > 0) {
-        await client.collection('restaurants').update(created.id, { navigate: navigateIds });
-    }
-    console.log();
+  // 3. Patch restaurant with selector IDs
+  if (navigateIds.length > 0) {
+    await client.collection('restaurants').update(created.id, { navigate: navigateIds });
+  }
+  console.log();
 }
 
 console.log(`Done — seeded ${restaurants.length} restaurants.`);
