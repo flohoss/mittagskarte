@@ -35,20 +35,13 @@ async function validateAuthentication() {
     return false;
   }
 
+  if (!client.authStore.isValid) {
+    return clearAuthAndReturnFalse();
+  }
+
   try {
-    const parts = token.split('.');
-    if (parts.length < 2) {
-      return clearAuthAndReturnFalse();
-    }
-
-    // Decode JWT payload (base64url) and check exp locally to avoid refresh loops.
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
-    if (typeof payload.exp !== 'number') {
-      return clearAuthAndReturnFalse();
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp <= now) {
+    await client.collection('users').authRefresh();
+    if (!client.authStore.isValid) {
       return clearAuthAndReturnFalse();
     }
 

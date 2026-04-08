@@ -31,16 +31,11 @@ export const useLogin = createGlobalState(() => {
       return;
     }
 
-    const isValid = await backendClient.validateAuthentication();
-    if (!isValid) {
-      authToken.value = '';
-      authIdentity.value = '';
-    }
+    await backendClient.validateAuthentication();
   }
 
   async function authenticate(identity: string, password: string) {
     await backendClient.authenticate(identity, password);
-    await ensureValidAuthToken();
   }
 
   function clearAuthentication() {
