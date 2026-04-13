@@ -277,7 +277,7 @@ func (s *Scraper) processFileToWebp(sourcePath string) (string, error) {
 
 	var err error
 	if isPDFFile(sourcePath) {
-		err = pdf.ConvertToWebp(sourcePath, tmpFilePath)
+		err = pdf.MergeAllPDFPagesToWebp(sourcePath, tmpFilePath)
 	} else {
 		err = s.im.ConvertToWebp(sourcePath, tmpFilePath)
 	}
