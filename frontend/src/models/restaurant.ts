@@ -25,6 +25,11 @@ export interface RestaurantRecord extends RecordModel {
   status: string;
   updated: string;
   thumbnail: string;
+  last_check?: {
+    at: string;
+    status: 'success' | 'not_changed' | 'error';
+    detail?: string;
+  } | null;
   expand?: {
     menus?: MenuRecord[];
   };

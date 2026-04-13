@@ -1,6 +1,7 @@
 package restaurant
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"log/slog"
@@ -15,8 +16,6 @@ import (
 	"github.com/flohoss/mittagskarte/internal/web"
 	"github.com/flohoss/mittagskarte/pkg/curl"
 
-	"errors"
-
 	"github.com/playwright-community/playwright-go"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
@@ -29,6 +28,15 @@ const (
 )
 
 var ErrMenuUnchanged = errors.New("menu has not changed")
+var ErrManualUploadOnly = errors.New("restaurant requires manual upload")
+
+type LastCheckStatus string
+
+const (
+	LastCheckStatusSuccess    LastCheckStatus = "success"
+	LastCheckStatusNotChanged LastCheckStatus = "not_changed"
+	LastCheckStatusError      LastCheckStatus = "error"
+)
 
 func init() {
 	os.MkdirAll(DownloadsFolder, os.ModePerm)
@@ -147,6 +155,38 @@ func SetMenuDimensions(record *core.Record, filePath string) {
 	if dims, err := readMenuDimensions(filePath); err == nil {
 		record.Set("dimensions", dims)
 	}
+}
+
+func LastCheckFromError(err error) (LastCheckStatus, string) {
+	if errors.Is(err, ErrManualUploadOnly) || errors.Is(err, ErrMenuUnchanged) {
+		return LastCheckStatusNotChanged, ""
+	}
+	if err != nil {
+		return LastCheckStatusError, err.Error()
+	}
+
+	return LastCheckStatusSuccess, ""
+}
+
+func SetLastCheck(record *core.Record, status LastCheckStatus, detail string) {
+	lastCheck := map[string]string{
+		"at":     time.Now().UTC().Format(time.RFC3339),
+		"status": string(status),
+	}
+	if status == LastCheckStatusError && detail != "" {
+		lastCheck["detail"] = detail
+	}
+	record.Set("last_check", lastCheck)
+}
+
+func UpdateLastCheck(app core.App, restaurantID string, status LastCheckStatus, detail string) error {
+	record, err := app.FindRecordById("restaurants", restaurantID)
+	if err != nil {
+		return err
+	}
+
+	SetLastCheck(record, status, detail)
+	return app.Save(record)
 }
 
 func (r *Restaurant) UpdateMenu(filePath string, app core.App) error {

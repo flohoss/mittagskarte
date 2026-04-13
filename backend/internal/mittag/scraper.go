@@ -2,6 +2,7 @@ package mittag
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -139,14 +140,25 @@ func (s *Scraper) runScrapeWorker() {
 		r, err := s.getRestaurantByID(restaurantID)
 		if err != nil {
 			s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
+			s.markScrapeDone(restaurantID)
+			s.notifyRestaurantStatus(restaurantID)
 			continue
 		}
 
-		if err = s.scrapeSingle(r); err != nil {
-			s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", err)
+		scrapeErr := s.scrapeSingle(r)
+		if errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) {
+			s.app.Logger().Warn("Skipped automated update: manual upload only", "name", r.Name)
+		} else if errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
+			s.app.Logger().Warn("No menu change detected", "name", r.Name)
+		} else if scrapeErr != nil {
+			s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", scrapeErr)
 		}
 
 		s.markScrapeDone(restaurantID)
+		status, detail := restaurant.LastCheckFromError(scrapeErr)
+		if err := restaurant.UpdateLastCheck(s.app, restaurantID, status, detail); err != nil {
+			s.app.Logger().Error("Failed to save last_check for restaurant", "id", restaurantID, "error", err)
+		}
 		s.notifyRestaurantStatus(restaurantID)
 	}
 }
@@ -252,11 +264,9 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 			return err
 		}
 	case "upload":
-		s.app.Logger().Info("Restaurant is manually updated, skipping automated process", "name", r.Name, "website", r.Website)
-		return nil
+		return fmt.Errorf("%w: %s", restaurant.ErrManualUploadOnly, r.Name)
 	default:
-		s.app.Logger().Warn("Unknown scraping method for restaurant", "name", r.Name, "method", r.Method)
-		return nil
+		return fmt.Errorf("unknown scraping method %q for restaurant %s", r.Method, r.Name)
 	}
 
 	return r.UpdateMenu(downloadPath, s.app)

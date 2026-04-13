@@ -175,7 +175,11 @@ func (m *Mittag) bindHooks() {
 		if latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID); latest != nil {
 			if latest.GetString("hash") == hash {
 				m.app.Logger().Debug("Menu has not changed, skipping update", "restaurantId", restaurantID)
-				return router.NewBadRequestError("Das Menü hat sich nicht geändert", nil)
+				status, detail := restaurant.LastCheckFromError(restaurant.ErrMenuUnchanged)
+				if err := restaurant.UpdateLastCheck(m.app, restaurantID, status, detail); err != nil {
+					m.app.Logger().Error("Failed to update last_check for unchanged menu", "restaurantId", restaurantID, "error", err)
+				}
+				return router.NewBadRequestError("Das Menü hat sich nicht geändert", fmt.Errorf("%w", restaurant.ErrMenuUnchanged))
 			}
 		}
 
@@ -205,6 +209,8 @@ func (m *Mittag) bindHooks() {
 			updatedIDs = updatedIDs[:m.MaxAmountOfMenus]
 		}
 		restaurantRecord.Set("menus", updatedIDs)
+		status, detail := restaurant.LastCheckFromError(nil)
+		restaurant.SetLastCheck(restaurantRecord, status, detail)
 		if err := m.app.Save(restaurantRecord); err != nil {
 			m.app.Logger().Error("Failed to update restaurant menus", "restaurantId", restaurantID, "error", err)
 		}

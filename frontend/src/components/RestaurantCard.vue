@@ -38,6 +38,27 @@ const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
 const latestMenuCreated = computed(() => {
   return getLatestMenu(props.restaurant.expand?.menus)?.created ?? null;
 });
+const lastCheck = computed(() => {
+  const lc = props.restaurant.last_check;
+  return lc ?? null;
+});
+const lastCheckText = computed(() => {
+  if (!lastCheck.value) return '';
+  return `${formatRelativeDate(lastCheck.value.at)} zuletzt versucht`;
+});
+const lastCheckTitle = computed(() => {
+  if (!lastCheck.value) return '';
+  if (lastCheck.value.status === 'success') {
+    return 'Erfolgreich aktualisiert';
+  }
+  if (lastCheck.value.status === 'not_changed') {
+    return 'Keine Änderung gefunden';
+  }
+  if (lastCheck.value.status === 'error') {
+    return `Fehler${lastCheck.value.detail ? `: ${lastCheck.value.detail}` : ''}`;
+  }
+  return '';
+});
 
 function formatRelativeDate(value: string) {
   const date = new Date(value);
@@ -140,9 +161,18 @@ function getInitials(name: string) {
     </figure>
 
     <div class="card-body gap-3 p-3">
-      <h3 class="text-base font-semibold leading-tight">
-        {{ props.restaurant.name }}
-      </h3>
+      <div>
+        <h3 class="text-base font-semibold leading-tight">
+          {{ props.restaurant.name }}
+        </h3>
+
+        <p v-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
+          {{ lastCheckText }}
+        </p>
+        <p v-else>
+          <span class="text-xs text-base-content/65">Noch nicht geprüft</span>
+        </p>
+      </div>
 
       <RestaurantActions :restaurant="props.restaurant" />
     </div>
