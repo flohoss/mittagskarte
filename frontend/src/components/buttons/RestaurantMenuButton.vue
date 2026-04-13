@@ -26,66 +26,24 @@ const router = useRouter();
 const imageSize = computed(() => {
   const width = imageWidth.value && imageWidth.value > 0 ? imageWidth.value : undefined;
   const height = imageHeight.value && imageHeight.value > 0 ? imageHeight.value : undefined;
-  const aspectRatio = width && height ? width / height : null;
 
   return {
     width,
     height,
-    aspectRatio,
     isLandscape: !!width && !!height ? width >= height : false,
   };
 });
 
-const isScrollablePortrait = computed(() => {
-  if (!imageSize.value.aspectRatio || imageSize.value.isLandscape) return false;
-
-  const ratio = imageSize.value.aspectRatio;
-  const height = imageSize.value.height ?? 0;
-
-  // Keep standard portrait pages (e.g. 9:16) fitting in view.
-  // Switch to scroll mode for narrower/taller menu captures to keep text readable.
-  return ratio < 0.55 || (height >= 3200 && ratio < 0.72);
+const floatingClass = computed(() => {
+  const base = 'z-50 max-h-[95vh] rounded-xl border border-base-300 bg-base-100 p-3 shadow-xl';
+  return imageSize.value.isLandscape ? `${base} overflow-hidden` : `${base} overflow-auto`;
 });
 
-const popoverSizingStyle = computed(() => {
-  if (imageSize.value.isLandscape) {
-    return {
-      width: 'min(78vw, 1100px)',
-      minWidth: '420px',
-      minHeight: '320px',
-    };
-  }
-
-  if (imageSize.value.aspectRatio && isScrollablePortrait.value) {
-    // Convert portrait ratio to a viewport width target based on max tooltip height.
-    const portraitWidthVw = Math.max(22, Math.min(32, imageSize.value.aspectRatio * 85));
-    return {
-      width: `${portraitWidthVw}vw`,
-      minWidth: '0',
-      minHeight: '0',
-    };
-  }
-
-  return {
-    width: 'auto',
-    minWidth: '0',
-    minHeight: '0',
-  };
-});
-
-const imageClass = computed(() => {
-  if (imageSize.value.isLandscape) {
-    return 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain';
-  }
-
-  if (isScrollablePortrait.value) {
-    return 'block h-auto w-full object-contain';
-  }
-
-  return 'block h-auto w-auto max-h-[calc(95vh-28px)] max-w-[62vw] object-contain';
-});
-
-const popoverOverflowClass = computed(() => (isScrollablePortrait.value ? 'overflow-auto' : 'overflow-hidden'));
+const imageClass = computed(() =>
+  imageSize.value.isLandscape
+    ? 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain'
+    : 'block h-auto w-full object-contain'
+);
 
 const { floatingStyles } = useFloating(reference, floating, {
   placement: 'right',
@@ -99,7 +57,9 @@ const { floatingStyles } = useFloating(reference, floating, {
       padding: 8,
       apply({ availableWidth, elements }) {
         Object.assign(elements.floating.style, {
-          maxWidth: `${Math.max(0, availableWidth)}px`,
+          maxWidth: imageSize.value.isLandscape
+            ? `${Math.max(0, availableWidth)}px`
+            : `${Math.min(Math.max(0, availableWidth), 576)}px`,
         });
       },
     }),
@@ -197,8 +157,8 @@ onBeforeUnmount(() => {
       <div
         v-if="isOpen && menuUrl"
         ref="floating"
-        :style="[floatingStyles, popoverSizingStyle]"
-        :class="['z-50 max-h-[95vh] max-w-[90vw] rounded-xl border border-base-300 bg-base-100 p-3 shadow-xl', popoverOverflowClass]"
+        :style="floatingStyles"
+        :class="floatingClass"
         @mouseenter="openPopover"
         @mouseleave="scheduleClosePopover"
         tabindex="-1"
