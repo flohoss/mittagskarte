@@ -40,9 +40,7 @@ const floatingClass = computed(() => {
 });
 
 const imageClass = computed(() =>
-  imageSize.value.isLandscape
-    ? 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain'
-    : 'block h-auto w-full object-contain'
+  imageSize.value.isLandscape ? 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain' : 'block h-auto w-full object-contain'
 );
 
 const { floatingStyles } = useFloating(reference, floating, {
@@ -57,9 +55,7 @@ const { floatingStyles } = useFloating(reference, floating, {
       padding: 8,
       apply({ availableWidth, elements }) {
         Object.assign(elements.floating.style, {
-          maxWidth: imageSize.value.isLandscape
-            ? `${Math.max(0, availableWidth)}px`
-            : `${Math.min(Math.max(0, availableWidth), 576)}px`,
+          maxWidth: imageSize.value.isLandscape ? `${Math.max(0, availableWidth)}px` : `${Math.min(Math.max(0, availableWidth), 768)}px`,
         });
       },
     }),

@@ -169,9 +169,7 @@ function getInitials(name: string) {
         <p v-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
           {{ lastCheckText }}
         </p>
-        <p v-else>
-          <span class="text-xs text-base-content/65">Noch nicht geprüft</span>
-        </p>
+        <p class="text-xs text-base-content/65" v-else>Noch nicht geprüft</p>
       </div>
 
       <RestaurantActions :restaurant="props.restaurant" />
