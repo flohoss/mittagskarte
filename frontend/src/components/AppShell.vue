@@ -5,7 +5,7 @@ import SimpleIconsPocketbase from '~icons/simple-icons/pocketbase';
 import Github from '~icons/simple-icons/github';
 import { useMagicKeys, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import LoginModal from './LoginModal.vue';
 
 import { AppVersion, BackendURL, RepoURL } from '../config';
@@ -17,6 +17,7 @@ defineProps<{
 }>();
 
 const route = useRoute();
+const router = useRouter();
 const { searchQuery } = useRestaurants();
 const searchInput = ref<HTMLInputElement | null>(null);
 const keys = useMagicKeys({
@@ -72,10 +73,10 @@ whenever(
       <div class="container py-2">
         <template v-if="isMenuHistoryRoute">
           <div class="flex w-full items-center justify-between gap-4">
-            <RouterLink to="/" class="btn btn-soft shrink-0" aria-label="Zur Startseite zurück">
+            <button class="btn btn-soft shrink-0" aria-label="Zur Startseite zurück" @click="router.back()">
               <Fa7SolidArrowLeft class="size-4" aria-hidden="true" />
               Zurück
-            </RouterLink>
+            </button>
 
             <div class="shrink-0">
               <LoginModal />
