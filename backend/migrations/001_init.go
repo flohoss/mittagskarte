@@ -97,6 +97,9 @@ func init() {
 		restaurants.Fields.Add(&core.JSONField{
 			Name: "tags",
 		})
+		restaurants.Fields.Add(&core.JSONField{
+			Name: "last_check",
+		})
 		restaurants.Fields.Add(&core.SelectField{
 			Name:      "rest_days",
 			Values:    []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
@@ -140,17 +143,19 @@ func init() {
 		}
 
 		menus.Fields.Add(&core.RelationField{
-			Name:         "restaurant",
-			CollectionId: restaurants.Id,
-			MaxSelect:    1,
-			Required:     true,
+			Name:          "restaurant",
+			CollectionId:  restaurants.Id,
+			MaxSelect:     1,
+			CascadeDelete: true,
+			Required:      true,
 		})
 
 		selectors.Fields.Add(&core.RelationField{
-			Name:         "restaurant",
-			CollectionId: restaurants.Id,
-			MaxSelect:    1,
-			Required:     true,
+			Name:          "restaurant",
+			CollectionId:  restaurants.Id,
+			MaxSelect:     1,
+			CascadeDelete: true,
+			Required:      true,
 		})
 
 		if err := app.Save(menus); err != nil {
