@@ -6,19 +6,21 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/flohoss/mittagskarte/internal/mittag"
 	_ "github.com/flohoss/mittagskarte/migrations"
 
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
 
 type config struct {
-	Dev              bool `env:"DEV" envDefault:"false"`
-	MaxAmountOfMenus int  `env:"MAX_AMOUNT_OF_MENUS" envDefault:"10"`
+	Dev              bool          `env:"DEV" envDefault:"false"`
+	MaxAmountOfMenus int           `env:"MAX_AMOUNT_OF_MENUS" envDefault:"10"`
+	TZ               time.Location `env:"TZ" envDefault:"UTC"`
 }
 
 func serveFrontend(se *core.ServeEvent) error {
@@ -64,6 +66,7 @@ func main() {
 			DefaultDev:     cfg.Dev,
 		},
 	)
+	app.Cron().SetTimezone(&cfg.TZ)
 
 	var mittagService *mittag.Mittag
 	var err error
