@@ -1,11 +1,61 @@
 import PocketBase from 'pocketbase';
 import type { RecordModel } from 'pocketbase';
 import type { MenuRecord, RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
+import { sortMenusByCreatedDesc } from '../utils/menu';
 import { BackendURL } from '../config';
 
 const client = new PocketBase(BackendURL);
 
+const RESTAURANT_LIST_OPTIONS = {
+  sort: 'group,name',
+  expand: 'menus',
+} as const;
+
 type AuthChangeHandler = (token: string) => void;
+type RestaurantInput = Partial<RestaurantRecord>;
+type RestaurantSubscriptionEvent = { action: string; record: RestaurantRecord };
+
+function normalizeMenu(menu: Partial<MenuRecord> | null | undefined): MenuRecord {
+  return {
+    ...(menu as MenuRecord),
+    id: String(menu?.id ?? ''),
+    file: String(menu?.file ?? ''),
+    hash: String(menu?.hash ?? ''),
+    created: String(menu?.created ?? ''),
+  };
+}
+
+function normalizeRestaurant(record: RestaurantInput): RestaurantRecord {
+  const menus = sortMenusByCreatedDesc((record.expand?.menus ?? []).map((menu) => normalizeMenu(menu)));
+
+  return {
+    ...(record as RestaurantRecord),
+    id: String(record.id ?? ''),
+    name: String(record.name ?? ''),
+    group: String(record.group ?? ''),
+    address: String(record.address ?? ''),
+    website: String(record.website ?? ''),
+    phone: String(record.phone ?? ''),
+    tags: Array.isArray(record.tags) ? record.tags.map(String) : [],
+    rest_days: Array.isArray(record.rest_days) ? record.rest_days.map(String) : [],
+    method: String(record.method ?? ''),
+    status: String(record.status ?? 'idle'),
+    updated: String(record.updated ?? ''),
+    thumbnail: String(record.thumbnail ?? ''),
+    last_check: record.last_check ?? null,
+    expand: { menus },
+  };
+}
+
+function prepareRestaurants(records: RestaurantInput[]) {
+  return [...records]
+    .map((record) => normalizeRestaurant(record))
+    .sort((left, right) => {
+      const leftKey = `${left.group} ${left.name}`.trim().toLocaleLowerCase('de-DE');
+      const rightKey = `${right.group} ${right.name}`.trim().toLocaleLowerCase('de-DE');
+      return leftKey.localeCompare(rightKey, 'de-DE');
+    });
+}
 
 function onAuthChange(handler: AuthChangeHandler) {
   return client.authStore.onChange((token) => {
@@ -57,17 +107,16 @@ function clearAuthentication() {
 }
 
 function buildFileUrl(record: RecordModel, fileName: string) {
+  if (!fileName) {
+    return '';
+  }
+
   const url = client.files.getURL(record, fileName);
   return normalizeFileUrl(url);
 }
 
 async function fetchRestaurants() {
-  const records = await client.collection('restaurants').getFullList<RestaurantRecord>({
-    sort: 'group,name',
-    expand: 'menus',
-  });
-
-  return records;
+  return client.collection('restaurants').getFullList<RestaurantRecord>(RESTAURANT_LIST_OPTIONS);
 }
 
 async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent) => void) {
@@ -79,10 +128,10 @@ async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent)
 async function subscribeRestaurants(handler: (action: string, record: RestaurantRecord) => void) {
   await client.collection('restaurants').subscribe(
     '*',
-    (event: { action: string; record: RestaurantRecord }) => {
-      handler(event.action, event.record);
+    (event: RestaurantSubscriptionEvent) => {
+      handler(event.action, normalizeRestaurant(event.record));
     },
-    { expand: 'menus' }
+    { expand: RESTAURANT_LIST_OPTIONS.expand }
   );
 }
 
@@ -141,6 +190,8 @@ export const backendClient = {
   fetchRestaurants,
   subscribeRestaurantStatus,
   subscribeRestaurants,
+  normalizeRestaurant,
+  prepareRestaurants,
   getFileUrl,
   getMenuFileUrl,
   uploadMenu,
