@@ -6,8 +6,7 @@ import RestaurantView from './views/RestaurantView.vue';
 export const router = createRouter({
   history: createWebHistory(),
   scrollBehavior(_to, _from, savedPosition) {
-    if (savedPosition) return nextTick().then(() => savedPosition);
-    return { top: 0 };
+    return nextTick().then(() => savedPosition ?? { left: 0, top: 0 });
   },
   routes: [
     {
