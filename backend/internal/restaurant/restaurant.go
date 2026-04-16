@@ -94,19 +94,30 @@ func New(r *core.Record) *Restaurant {
 	}
 }
 
-func GetRestaurants(app core.App) ([]*Restaurant, error) {
-	r, err := app.FindAllRecords("restaurants")
+func getRestaurants(app core.App, expands []string) ([]*Restaurant, error) {
+	records, err := app.FindRecordsByFilter("restaurants", "", "group,name", 0, 0)
 	if err != nil {
 		return nil, err
 	}
-	app.ExpandRecords(r, []string{"navigate"}, nil)
 
-	restaurants := make([]*Restaurant, len(r))
-	for i, record := range r {
+	if len(expands) > 0 {
+		app.ExpandRecords(records, expands, nil)
+	}
+
+	restaurants := make([]*Restaurant, len(records))
+	for i, record := range records {
 		restaurants[i] = New(record)
 	}
 
 	return restaurants, nil
+}
+
+func GetRestaurantsWithNavigate(app core.App) ([]*Restaurant, error) {
+	return getRestaurants(app, []string{"navigate"})
+}
+
+func GetRestaurantsWithMenus(app core.App) ([]*Restaurant, error) {
+	return getRestaurants(app, []string{"menus"})
 }
 
 func GetRestaurant(app core.App, id string) (*Restaurant, error) {
@@ -120,7 +131,7 @@ func GetRestaurant(app core.App, id string) (*Restaurant, error) {
 }
 
 func GetCronGroups(app core.App) (map[string][]*Restaurant, error) {
-	restaurants, err := GetRestaurants(app)
+	restaurants, err := GetRestaurantsWithNavigate(app)
 	if err != nil {
 		return nil, err
 	}

@@ -37,7 +37,7 @@ func New(app core.App, maxAmountOfMenus int) (*Mittag, error) {
 	imageMagic := image.New()
 
 	m := &Mittag{app: app, MaxAmountOfMenus: maxAmountOfMenus}
-	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurants)
+	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurantsWithNavigate)
 	m.bindHooks()
 
 	return m, nil

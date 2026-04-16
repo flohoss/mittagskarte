@@ -1,19 +1,55 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Backup and manage your services with ease." />
+    <meta name="description" content="deine kleine Mittagskarte für die Region Stuttgart" />
     <meta name="google" content="notranslate" />
+    <meta property="og:title" content="Schniddzl.de - deine kleine Mittagskarte für die Region Stuttgart" />
+    <meta property="og:description" content="deine kleine Mittagskarte für die Region Stuttgart" />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
     <link rel="shortcut icon" href="/static/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+    <meta name="apple-mobile-web-app-title" content="Schniddzl.de" />
     <link rel="manifest" href="/static/site.webmanifest" />
     <title>Schniddzl.de - deine kleine Mittagskarte für die Region Stuttgart</title>
   </head>
   <body>
+    <noscript>
+      <main>
+        <h1>Mittagskarten in der Region Stuttgart</h1>
+        <p>Schniddzl.de zeigt aktuelle Restaurants und Mittagsangebote aus der Region.</p>
+        <ul>
+          {{ range .Restaurants }}
+          <li>
+            <strong>{{ .Name }}</strong>
+            {{ if .Website }}
+            –
+            <a href="{{ .Website }}">{{ .Website }}</a>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </main>
+    </noscript>
+    <script id="initial-restaurants" type="application/json">
+      {{ toJSON .Restaurants }}
+    </script>
+    <script>
+      window.__RESTAURANTS__ = undefined;
+      const initialRestaurants = document.getElementById('initial-restaurants')?.textContent?.trim();
+      const looksLikeJson = initialRestaurants?.startsWith('[') || initialRestaurants?.startsWith('{');
+
+      if (initialRestaurants && looksLikeJson) {
+        try {
+          window.__RESTAURANTS__ = JSON.parse(initialRestaurants);
+        } catch {
+          window.__RESTAURANTS__ = undefined;
+        }
+      }
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

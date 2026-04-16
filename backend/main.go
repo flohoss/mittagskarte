@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +11,7 @@ import (
 	"time"
 
 	"github.com/flohoss/mittagskarte/internal/mittag"
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 	_ "github.com/flohoss/mittagskarte/migrations"
 
 	"github.com/caarlos0/env/v11"
@@ -23,7 +26,22 @@ type config struct {
 	TZ               time.Location `env:"TZ" envDefault:"UTC"`
 }
 
-func serveFrontend(se *core.ServeEvent) error {
+type frontendPageData struct {
+	Restaurants []*restaurant.Restaurant
+}
+
+func buildFrontendPageData(app core.App) (*frontendPageData, error) {
+	restaurants, err := restaurant.GetRestaurantsWithMenus(app)
+	if err != nil {
+		return nil, err
+	}
+
+	return &frontendPageData{
+		Restaurants: restaurants,
+	}, nil
+}
+
+func serveFrontend(app core.App, se *core.ServeEvent) error {
 	frontendDist, err := filepath.Abs("dist")
 	if err != nil {
 		return err
@@ -46,9 +64,28 @@ func serveFrontend(se *core.ServeEvent) error {
 		return nil
 	}).Bind(apis.SkipSuccessActivityLog())
 
+	indexTemplate, err := template.New("index.html").Funcs(template.FuncMap{
+		"toJSON": func(v any) template.JS {
+			b, err := json.Marshal(v)
+			if err != nil {
+				log.Printf("failed to marshal frontend restaurants payload: %v", err)
+				return template.JS("[]")
+			}
+			return template.JS(b)
+		},
+	}).ParseFiles(filepath.Join(frontendDist, "index.html"))
+	if err != nil {
+		return err
+	}
+
 	se.Router.GET("/{path...}", func(re *core.RequestEvent) error {
-		http.ServeFile(re.Response, re.Request, filepath.Join(frontendDist, "index.html"))
-		return nil
+		pageData, err := buildFrontendPageData(app)
+		if err != nil {
+			return err
+		}
+
+		re.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+		return indexTemplate.Execute(re.Response, pageData)
 	}).Bind(apis.SkipSuccessActivityLog())
 
 	return se.Next()
@@ -107,7 +144,7 @@ func main() {
 			return re.String(http.StatusOK, ".")
 		}).Bind(apis.SkipSuccessActivityLog())
 
-		if err = serveFrontend(se); err != nil {
+		if err = serveFrontend(app, se); err != nil {
 			return err
 		}
 
