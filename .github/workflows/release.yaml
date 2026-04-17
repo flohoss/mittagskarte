@@ -8,6 +8,7 @@ on:
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
+  IMAGE_TAG: ${{ github.ref_name }}
   PLATFORM: linux/amd64
 
 jobs:
@@ -79,13 +80,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        id: bake
         uses: docker/bake-action@v7
         with:
           source: .
           files: |
             ./compose.yml
+            ./docker-bake.hcl
             cwd://${{ steps.meta.outputs.bake-file-tags }}
             cwd://${{ steps.meta.outputs.bake-file-labels }}
+            cwd://${{ steps.meta.outputs.bake-file-annotations }}
           targets: release
           push: true
           provenance: true
@@ -97,10 +101,15 @@ jobs:
             release.args.REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
 
       - name: Capture Docker digest
+        env:
+          BAKE_METADATA: ${{ steps.bake.outputs.metadata }}
         run: |
           set -euo pipefail
-          IMAGE_REF="${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
-          IMAGE_DIGEST="$(docker buildx imagetools inspect "$IMAGE_REF" | awk '/Digest:/ {print $2; exit}')"
+          IMAGE_DIGEST="$(jq -r '.release["containerimage.digest"] // .["containerimage.digest"] // empty' <<< "$BAKE_METADATA")"
+          if [[ -z "$IMAGE_DIGEST" ]]; then
+            echo "No image digest found in bake metadata" >&2
+            exit 1
+          fi
           echo "IMAGE_DIGEST=${IMAGE_DIGEST}" >> "$GITHUB_ENV"
 
       - name: Gather commits since last tag

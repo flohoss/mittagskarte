@@ -179,22 +179,25 @@ Supported arguments:
 
 ## Deployment
 
-The production image is built from the repository root and includes:
+The production image is built from the repository root through the `release` service in `compose.yml` and includes:
 
 - the compiled Go/PocketBase binary
 - the built Vue `dist` output
 - runtime dependencies required for Playwright, MuPDF, and ImageMagick
 
-Build the release image with the same target architecture used in CI:
+Build the release image locally:
 
 ```sh
-docker build --platform=linux/amd64 -t mittagskarte .
+docker compose --profile build build release
 ```
+
+This produces the local image `mittagskarte:local` by default.
+The GitHub release workflow uses Docker Bake against the same `release` target, so local and CI builds stay aligned.
 
 Run it:
 
 ```sh
-docker run --rm -p 8090:8090 mittagskarte
+docker run --rm -p 8090:8090 mittagskarte:local
 ```
 
 Then open http://localhost:8090.
@@ -227,6 +230,7 @@ Compose services:
 - `frontend`: Vite dev server
 - `go`: helper container for Go commands
 - `yarn`: helper container for frontend package commands
+- `release`: build-only production image target used by local release builds and CI
 
 ## Common Commands
 
@@ -254,4 +258,5 @@ yarn build
 ## Notes
 
 - The backend expects a built frontend bundle in `dist` when serving the production app.
+- Release builds are driven from `compose.yml`, and CI reuses the same `release` target.
 - The repository currently targets `linux/amd64` for Docker builds because of native library dependencies used by `go-fitz` and ImageMagick.
