@@ -1,6 +1,6 @@
-ARG V_GOLANG=1.26
-ARG V_NODE=25
-ARG REPO_URL
+ARG V_GOLANG
+ARG V_NODE
+ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS backend-builder
@@ -40,7 +40,8 @@ RUN yarn build
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@v1.59.1 install-deps chromium > /dev/null 2>&1
+ARG V_PLAYWRIGHT
+RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     libnss3 libnet1 dumb-init ca-certificates curl tzdata \

@@ -1,7 +1,19 @@
+# Single source of truth for container tool versions. CI reads this block too.
+x-build-args: &build-args
+  V_GOLANG: ${V_GOLANG:-1.26}
+  V_NODE: ${V_NODE:-25}
+  V_AIR: ${V_AIR:-1.64.5}
+  V_PLAYWRIGHT: ${V_PLAYWRIGHT:-1.59.1}
+
+x-images:
+  go: &go-image golang:${V_GOLANG:-1.26}-alpine
+  node: &node-image node:${V_NODE:-25}-alpine
+
 services:
   backend:
     build:
       context: backend
+      args: *build-args
     platform: linux/amd64
     command: >
       air
@@ -29,10 +41,22 @@ services:
     networks:
       - net
 
+  release:
+    profiles:
+      - build
+    image: ${IMAGE_NAME:-mittagskarte}:${IMAGE_TAG:-local}
+    build:
+      context: .
+      args:
+        <<: *build-args
+        APP_VERSION: ${APP_VERSION:-dev}
+        BUILD_TIME: ${BUILD_TIME:-unknown}
+        REPO_URL: ${REPO_URL:-}
+
   go:
     profiles:
       - dev
-    image: golang:1.26-alpine
+    image: *go-image
     working_dir: /app
     entrypoint: go
     volumes:
@@ -42,7 +66,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    image: node:25-alpine
+    image: *node-image
     working_dir: /app
     command: sh -c "yarn install --frozen-lockfile && yarn dev"
     volumes:
@@ -55,7 +79,7 @@ services:
   yarn:
     profiles:
       - dev
-    image: node:25-alpine
+    image: *node-image
     working_dir: /app
     entrypoint: yarn
     volumes:

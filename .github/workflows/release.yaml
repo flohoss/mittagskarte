@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKERFILE_PATH: Dockerfile
   IMAGE_NAME: ghcr.io/${{ github.repository }}
   PLATFORM: linux/amd64
 
@@ -80,26 +79,29 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        id: docker
-        uses: docker/build-push-action@v7
+        uses: docker/bake-action@v7
         with:
-          context: .
-          file: ${{ env.DOCKERFILE_PATH }}
-          platforms: ${{ env.PLATFORM }}
+          source: .
+          files: |
+            ./compose.yml
+            cwd://${{ steps.meta.outputs.bake-file-tags }}
+            cwd://${{ steps.meta.outputs.bake-file-labels }}
+          targets: release
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           provenance: true
           sbom: true
-          build-args: |
-            APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
-            BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
-            REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          set: |
+            release.platform=${{ env.PLATFORM }}
+            release.args.APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
+            release.args.BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
+            release.args.REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
 
       - name: Capture Docker digest
-        run: echo "IMAGE_DIGEST=${{ steps.docker.outputs.digest }}" >> $GITHUB_ENV
+        run: |
+          set -euo pipefail
+          IMAGE_REF="${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+          IMAGE_DIGEST="$(docker buildx imagetools inspect "$IMAGE_REF" | awk '/Digest:/ {print $2; exit}')"
+          echo "IMAGE_DIGEST=${IMAGE_DIGEST}" >> "$GITHUB_ENV"
 
       - name: Gather commits since last tag
         env:

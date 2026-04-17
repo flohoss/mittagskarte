@@ -1,11 +1,14 @@
-ARG V_NODE=25
-ARG V_GOLANG=1.26
-ARG V_AIR=1.64.5
+ARG V_NODE
+ARG V_GOLANG
+ARG V_AIR
+ARG V_PLAYWRIGHT
+
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-RUN npx -y playwright@v1.59.1 install-deps chromium > /dev/null 2>&1
+ARG V_PLAYWRIGHT
+RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     git gnupg libc6-dev libnss3-dev libnet-dev build-essential \
