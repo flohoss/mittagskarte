@@ -28,7 +28,7 @@ type Mittag struct {
 	MaxAmountOfMenus int
 }
 
-func New(app core.App, maxAmountOfMenus int) (*Mittag, error) {
+func New(app core.App, maxAmountOfMenus int, coolDownDuration time.Duration) (*Mittag, error) {
 	webService, err := web.New()
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func New(app core.App, maxAmountOfMenus int) (*Mittag, error) {
 	imageMagic := image.New()
 
 	m := &Mittag{app: app, MaxAmountOfMenus: maxAmountOfMenus}
-	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurantsWithNavigate)
+	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
 	m.bindHooks()
 
 	return m, nil

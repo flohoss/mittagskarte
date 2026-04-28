@@ -25,7 +25,7 @@ type restaurantsProvider func(app core.App) ([]*restaurant.Restaurant, error)
 const (
 	ScrapeStatusUpdating = "updating"
 	ScrapeStatusQueued   = "queued"
-	ScrapeStatusCooldown = "cooldown"
+	ScrapeStatusCoolDown = "cooldown"
 	ScrapeStatusIdle     = "idle"
 
 	RestaurantsStatusTopic = "restaurants/status"
@@ -43,12 +43,12 @@ type Scraper struct {
 	queued      map[string]struct{}
 	inFlight    map[string]struct{}
 	lastRunAt   map[string]time.Time
-	cooldown    time.Duration
+	coolDown    time.Duration
 	queueClosed bool
 	workerWg    sync.WaitGroup
 }
 
-func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic, provider restaurantsProvider) *Scraper {
+func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
 	s := &Scraper{
 		app:            app,
 		web:            webService,
@@ -57,7 +57,7 @@ func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic,
 		queued:         make(map[string]struct{}),
 		inFlight:       make(map[string]struct{}),
 		lastRunAt:      make(map[string]time.Time),
-		cooldown:       5 * time.Minute,
+		coolDown:       coolDownDuration,
 	}
 
 	s.queueCond = sync.NewCond(&s.queueMu)
@@ -108,8 +108,8 @@ func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
 			s.app.Logger().Debug("Skipping enqueue: restaurant scrape in progress", "id", r.ID)
 			continue
 		}
-		if lastRunAt, ok := s.lastRunAt[r.ID]; ok && now.Sub(lastRunAt) < s.cooldown {
-			s.app.Logger().Debug("Skipping enqueue: restaurant in cooldown", "id", r.ID, "nextAllowedAt", lastRunAt.Add(s.cooldown))
+		if lastRunAt, ok := s.lastRunAt[r.ID]; ok && now.Sub(lastRunAt) < s.coolDown {
+			s.app.Logger().Debug("Skipping enqueue: restaurant in coolDown", "id", r.ID, "nextAllowedAt", lastRunAt.Add(s.coolDown))
 			continue
 		}
 
@@ -200,8 +200,8 @@ func (s *Scraper) StatusForRestaurant(restaurantID string) string {
 	if _, ok := s.queued[restaurantID]; ok {
 		return ScrapeStatusQueued
 	}
-	if lastRunAt, ok := s.lastRunAt[restaurantID]; ok && time.Since(lastRunAt) < s.cooldown {
-		return ScrapeStatusCooldown
+	if lastRunAt, ok := s.lastRunAt[restaurantID]; ok && time.Since(lastRunAt) < s.coolDown {
+		return ScrapeStatusCoolDown
 	}
 
 	return ScrapeStatusIdle
