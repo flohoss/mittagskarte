@@ -36,10 +36,36 @@ export const useRestaurants = createGlobalState(() => {
     return restaurants.value.findIndex((restaurant) => restaurant.id === id);
   }
 
-  function setRestaurantStatus(id: string, status: RestaurantStatus) {
+  const coolDownTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  function clearCoolDownTimer(id: string) {
+    if (coolDownTimers.has(id)) {
+      clearTimeout(coolDownTimers.get(id));
+      coolDownTimers.delete(id);
+    }
+  }
+
+  function startCoolDownTimer(id: string, seconds: number) {
+    coolDownTimers.set(
+      id,
+      setTimeout(() => {
+        const idx = findRestaurantIndexById(id);
+        if (idx !== -1 && restaurants.value[idx].status === RestaurantStatus.COOLDOWN) {
+          restaurants.value[idx].status = RestaurantStatus.IDLE;
+        }
+        coolDownTimers.delete(id);
+      }, seconds * 1000)
+    );
+  }
+
+  function setRestaurantStatus(id: string, status: RestaurantStatus, coolDownSeconds?: number) {
     const index = findRestaurantIndexById(id);
     if (index === -1) return;
+    clearCoolDownTimer(id);
     restaurants.value[index].status = status;
+    if (status === RestaurantStatus.COOLDOWN && typeof coolDownSeconds === 'number' && coolDownSeconds > 0) {
+      startCoolDownTimer(id, coolDownSeconds);
+    }
   }
 
   function mergeRestaurant(record: RestaurantRecord) {
@@ -61,14 +87,19 @@ export const useRestaurants = createGlobalState(() => {
   }
 
   function removeRestaurant(id: string) {
+    clearCoolDownTimer(id);
     const index = findRestaurantIndexById(id);
     if (index === -1) return;
     restaurants.value.splice(index, 1);
   }
 
   async function subscribeRealtime() {
-    await backendClient.subscribeRestaurantStatus(({ id, status }: RestaurantStatusEvent) => {
-      setRestaurantStatus(id, status as RestaurantStatus);
+    await backendClient.subscribeRestaurantStatus((event: RestaurantStatusEvent & { cooldownSeconds?: number; coolDownSeconds?: number }) => {
+      setRestaurantStatus(
+        event.id,
+        event.status as RestaurantStatus,
+        typeof event.coolDownSeconds === 'number' ? event.coolDownSeconds : event.cooldownSeconds
+      );
     });
 
     await backendClient.subscribeRestaurants((action, record) => {
@@ -155,6 +186,13 @@ export const useRestaurants = createGlobalState(() => {
 
   function applyRestaurants(records: RestaurantRecord[]) {
     const nextRestaurants = backendClient.prepareRestaurants(records);
+    // Clear timers for restaurants that are no longer present
+    const nextIds = new Set(nextRestaurants.map(r => r.id));
+    for (const id of Array.from(coolDownTimers.keys())) {
+      if (!nextIds.has(id)) {
+        clearCoolDownTimer(id);
+      }
+    }
     restaurants.value = nextRestaurants;
     return nextRestaurants;
   }
