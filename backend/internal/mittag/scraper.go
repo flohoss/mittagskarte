@@ -210,9 +210,20 @@ func (s *Scraper) StatusForRestaurant(restaurantID string) string {
 func (s *Scraper) notifyRestaurantStatus(restaurantID string) {
 	status := s.StatusForRestaurant(restaurantID)
 
-	payload := map[string]string{
-		"id":     restaurantID,
-		"status": status,
+	coolDownSeconds := 0
+	s.queueMu.Lock()
+	if lastRunAt, ok := s.lastRunAt[restaurantID]; ok && time.Since(lastRunAt) < s.coolDown {
+		coolDownSeconds = int(s.coolDown.Seconds() - time.Since(lastRunAt).Seconds())
+		if coolDownSeconds < 0 {
+			coolDownSeconds = 0
+		}
+	}
+	s.queueMu.Unlock()
+
+	payload := map[string]interface{}{
+		"id":              restaurantID,
+		"status":          status,
+		"coolDownSeconds": coolDownSeconds,
 	}
 
 	rawData, err := json.Marshal(payload)
