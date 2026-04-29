@@ -9,6 +9,7 @@ export const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      props: route => ({ q: route.query.q || '' }),
     },
     {
       path: '/restaurants/:restaurantId',
