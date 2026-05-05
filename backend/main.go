@@ -22,7 +22,6 @@ import (
 
 type config struct {
 	Dev              bool          `env:"DEV" envDefault:"false"`
-	MaxAmountOfMenus int           `env:"MAX_AMOUNT_OF_MENUS" envDefault:"10"`
 	CoolDownDuration time.Duration `env:"COOL_DOWN_DURATION" envDefault:"5m"`
 	TZ               time.Location `env:"TZ" envDefault:"UTC"`
 }
@@ -114,7 +113,7 @@ func main() {
 			return err
 		}
 
-		mittagService, err = mittag.New(e.App, cfg.MaxAmountOfMenus, cfg.CoolDownDuration)
+		mittagService, err = mittag.New(e.App, cfg.CoolDownDuration)
 		if err != nil {
 			return err
 		}

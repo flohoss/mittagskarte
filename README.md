@@ -52,7 +52,8 @@ Collection relationships:
 - each menu belongs to exactly one restaurant (`menus.restaurant`)
 - each restaurant stores a rolling list of latest menu ids in `restaurants.menus`
 
-Menu retention is limited by the backend setting `MAX_AMOUNT_OF_MENUS` (default: `10`).
+Menu retention is controlled by the PocketBase relation field `restaurants.menus.maxSelect`.
+You can change this value in the PocketBase GUI and the backend will enforce it during cleanup.
 
 The backend also uses PocketBase auth for protected operations.
 
@@ -76,7 +77,7 @@ For each menu create event, the backend:
 - stores calculated dimensions (`width`, `height`, `landscape`)
 - computes a content hash and rejects unchanged uploads/scrapes
 - prepends the new menu id to the restaurant `menus` relation
-- removes older menu records beyond `MAX_AMOUNT_OF_MENUS`
+- removes older menu records beyond `restaurants.menus.maxSelect`
 
 ## Selectors and Examples
 
