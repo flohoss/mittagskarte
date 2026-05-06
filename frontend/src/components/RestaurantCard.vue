@@ -12,7 +12,7 @@ const props = defineProps<{
   restaurant: RestaurantRecord;
 }>();
 
-const { getFileUrl, applySearch } = useRestaurants();
+const { getFileUrl, applySearch, getRestaurantDistanceKm, sortBy, coords } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -45,6 +45,21 @@ const lastCheck = computed(() => {
 const lastCheckText = computed(() => {
   if (!lastCheck.value) return '';
   return `${formatRelativeDate(lastCheck.value.at)} zuletzt versucht`;
+});
+const distanceKm = computed(() => getRestaurantDistanceKm(props.restaurant));
+const showDistance = computed(() => sortBy.value === 'distance-asc' && coords.value && distanceKm.value !== null);
+const distanceLabel = computed(() => {
+  if (distanceKm.value === null) return '';
+
+  if (distanceKm.value < 1) {
+    return `~${Math.round(distanceKm.value * 1000)} m`;
+  }
+
+  if (distanceKm.value < 10) {
+    return `~${distanceKm.value.toFixed(1)} km`;
+  }
+
+  return `~${Math.round(distanceKm.value)} km`;
 });
 const lastCheckTitle = computed(() => {
   if (!lastCheck.value) return '';
@@ -159,11 +174,15 @@ function getInitials(name: string) {
       </div>
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
-        <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
-        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated, props.restaurant.cron)]">{{
-          formatRelativeDate(latestMenuCreated)
-        }}</span>
-        <span v-else />
+        <div class="flex items-center gap-1.5">
+          <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
+          <span
+            v-else-if="latestMenuCreated"
+            :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated, props.restaurant.cron)]"
+            >{{ formatRelativeDate(latestMenuCreated) }}</span
+          >
+          <span v-if="showDistance" class="badge badge-sm badge-neutral/85 backdrop-blur">{{ distanceLabel }}</span>
+        </div>
         <button
           type="button"
           :class="[

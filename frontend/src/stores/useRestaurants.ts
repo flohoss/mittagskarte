@@ -141,6 +141,15 @@ export const useRestaurants = createGlobalState(() => {
     return getDistanceMeters(userCoordinates, { latitude, longitude });
   }
 
+  function getRestaurantDistanceKm(restaurant: RestaurantRecord) {
+    const distanceMeters = getRestaurantDistanceMeters(restaurant, getUserCoordinates());
+    if (!Number.isFinite(distanceMeters)) {
+      return null;
+    }
+
+    return distanceMeters / 1000;
+  }
+
   function sortRestaurants(records: RestaurantRecord[]) {
     const nextRecords = [...records];
     const userCoordinates = getUserCoordinates();
@@ -468,5 +477,6 @@ export const useRestaurants = createGlobalState(() => {
     requestGeolocation,
     coords,
     geolocationLoading,
+    getRestaurantDistanceKm,
   };
 });
