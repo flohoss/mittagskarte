@@ -5,7 +5,7 @@ import RestaurantGroup from '../components/RestaurantGroup.vue';
 import { useRestaurants } from '../stores/useRestaurants';
 
 const props = defineProps({ q: { type: String, default: '' } });
-const { groupedRestaurants, searchQuery, applySearch } = useRestaurants();
+const { groupedRestaurants, groupBy, searchQuery, applySearch } = useRestaurants();
 const route = useRoute();
 const router = useRouter();
 
@@ -39,6 +39,12 @@ watch(
 
 <template>
   <div class="grid gap-8">
-    <RestaurantGroup v-for="(restaurants, group) in groupedRestaurants" :key="group" :restaurants="restaurants" :group="group" />
+    <RestaurantGroup
+      v-for="(restaurants, group) in groupedRestaurants"
+      :key="group"
+      :restaurants="restaurants"
+      :group="group"
+      :show-heading="groupBy !== 'none'"
+    />
   </div>
 </template>

@@ -1,4 +1,4 @@
-import { createGlobalState } from '@vueuse/core';
+import { createGlobalState, useStorage } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
 import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
@@ -18,6 +18,22 @@ export enum RestaurantMethod {
   UPLOAD = 'upload',
 }
 
+export type RestaurantSort = 'name-asc' | 'name-desc' | 'last-check-desc' | 'last-check-asc';
+export type RestaurantGrouping = 'group' | 'none' | 'method';
+
+export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string }> = [
+  { value: 'name-asc', label: 'Name A-Z' },
+  { value: 'name-desc', label: 'Name Z-A' },
+  { value: 'last-check-desc', label: 'Zuletzt geprueft (neu)' },
+  { value: 'last-check-asc', label: 'Zuletzt geprueft (alt)' },
+];
+
+export const restaurantGroupingOptions: Array<{ value: RestaurantGrouping; label: string }> = [
+  { value: 'group', label: 'Nach Gruppe' },
+  { value: 'method', label: 'Nach Methode' },
+  { value: 'none', label: 'Ohne Gruppen' },
+];
+
 declare global {
   interface Window {
     __RESTAURANTS__?: RestaurantRecord[] | undefined;
@@ -30,7 +46,48 @@ export const useRestaurants = createGlobalState(() => {
   const restaurants = ref<RestaurantRecord[]>([]);
   const isLoading = ref(true);
   const searchQuery = ref('');
+  const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'name-asc');
+  const groupBy = useStorage<RestaurantGrouping>('mittagskarte:restaurants:group', 'group');
   const prefetchedMenuUrls = new Set<string>();
+
+  const collator = new Intl.Collator('de-DE', { sensitivity: 'base' });
+
+  function toTimestamp(value?: string | null) {
+    if (!value) return 0;
+    const timestamp = new Date(value).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  function getLastCheckTimestamp(restaurant: RestaurantRecord) {
+    return toTimestamp(restaurant.last_check?.at ?? null);
+  }
+
+  function sortRestaurants(records: RestaurantRecord[]) {
+    const nextRecords = [...records];
+
+    nextRecords.sort((a, b) => {
+      if (sortBy.value === 'name-asc') {
+        return collator.compare(a.name, b.name);
+      }
+
+      if (sortBy.value === 'name-desc') {
+        return collator.compare(b.name, a.name);
+      }
+
+      const aLastCheck = getLastCheckTimestamp(a);
+      const bLastCheck = getLastCheckTimestamp(b);
+
+      if (sortBy.value === 'last-check-desc') {
+        if (bLastCheck !== aLastCheck) return bLastCheck - aLastCheck;
+        return collator.compare(a.name, b.name);
+      }
+
+      if (aLastCheck !== bLastCheck) return aLastCheck - bLastCheck;
+      return collator.compare(a.name, b.name);
+    });
+
+    return nextRecords;
+  }
 
   function findRestaurantIndexById(id: string) {
     return restaurants.value.findIndex((restaurant) => restaurant.id === id);
@@ -253,37 +310,60 @@ export const useRestaurants = createGlobalState(() => {
     const query = searchQuery.value.trim().toLocaleLowerCase('de-DE');
 
     if (!query) {
-      return restaurants.value;
+      return sortRestaurants(restaurants.value);
     }
 
-    return restaurants.value.filter((restaurant) => {
+    return sortRestaurants(restaurants.value.filter((restaurant) => {
       const haystack = [restaurant.name, restaurant.group, restaurant.address, restaurant.website, ...restaurant.tags]
         .filter(Boolean)
         .join(' ')
         .toLocaleLowerCase('de-DE');
 
       return haystack.includes(query);
-    });
+    }));
   });
 
   const groupedRestaurants = computed<Record<string, RestaurantRecord[]>>(() => {
     const groups: Record<string, RestaurantRecord[]> = {};
-    const favoriteRestaurants = filteredRestaurants.value.filter((restaurant) => favorites.value[restaurant.id]);
+    const nextRestaurants = filteredRestaurants.value;
 
+    if (groupBy.value === 'none') {
+      groups.Alle = nextRestaurants;
+      return groups;
+    }
+
+    if (groupBy.value === 'method') {
+      const methodLabels: Record<RestaurantMethod, string> = {
+        [RestaurantMethod.SCRAPE]: 'Scrape',
+        [RestaurantMethod.DOWNLOAD]: 'Download',
+        [RestaurantMethod.UPLOAD]: 'Upload',
+      };
+
+      for (const restaurant of nextRestaurants) {
+        const label = methodLabels[restaurant.method as RestaurantMethod] ?? 'Unbekannt';
+        if (!groups[label]) {
+          groups[label] = [];
+        }
+        groups[label].push(restaurant);
+      }
+
+      return groups;
+    }
+
+    const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
     if (favoriteRestaurants.length) {
       groups.Favoriten = favoriteRestaurants;
     }
 
-    for (const restaurant of filteredRestaurants.value) {
-      if (favorites.value[restaurant.id]) {
-        continue;
+    for (const restaurant of nextRestaurants) {
+      if (favorites.value[restaurant.id]) continue;
+
+      const key = restaurant.group || 'Ohne Gruppe';
+      if (!groups[key]) {
+        groups[key] = [];
       }
 
-      if (!groups[restaurant.group]) {
-        groups[restaurant.group] = [];
-      }
-
-      groups[restaurant.group].push(restaurant);
+      groups[key].push(restaurant);
     }
 
     return groups;
@@ -296,8 +376,12 @@ export const useRestaurants = createGlobalState(() => {
   return {
     restaurants,
     searchQuery,
+    sortBy,
+    groupBy,
     groupedRestaurants,
     filteredRestaurants,
+    restaurantSortOptions,
+    restaurantGroupingOptions,
     initialize,
     isLoading,
     fetchRestaurants,
