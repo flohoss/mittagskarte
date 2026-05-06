@@ -116,8 +116,15 @@ defineExpose({
         :aria-label="`Sortierung: ${sortLabel}`" 
         tabindex="0"
       >
-        <span v-if="geolocationLoading" class="loading loading-spinner size-5" aria-hidden="true" />
-        <component v-else :is="sortIconComponent" class="size-5" aria-hidden="true" />
+        <Transition name="sort-indicator" mode="out-in">
+          <span
+            v-if="geolocationLoading"
+            key="spinner"
+            class="sort-indicator sort-indicator-spinner loading loading-spinner size-5"
+            aria-hidden="true"
+          />
+          <component v-else :is="sortIconComponent" key="icon" class="sort-indicator size-5" aria-hidden="true" />
+        </Transition>
       </button>
       <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow border border-base-300/50">
         <li v-for="option in restaurantSortOptions" :key="option.value">
@@ -171,3 +178,20 @@ defineExpose({
     </template>
   </div>
 </template>
+
+<style scoped>
+.sort-indicator-enter-active,
+.sort-indicator-leave-active {
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.sort-indicator-enter-from,
+.sort-indicator-leave-to {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.sort-indicator-spinner.sort-indicator-enter-active {
+  transition-delay: 110ms;
+}
+</style>
