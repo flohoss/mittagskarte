@@ -41,6 +41,7 @@ function normalizeRestaurant(record: RestaurantInput): RestaurantRecord {
     tags: Array.isArray(record.tags) ? record.tags.map(String) : [],
     rest_days: Array.isArray(record.rest_days) ? record.rest_days.map(String) : [],
     method: String(record.method ?? ''),
+    cron: String(record.cron ?? ''),
     status: String(record.status ?? 'idle'),
     updated: String(record.updated ?? ''),
     thumbnail: String(record.thumbnail ?? ''),

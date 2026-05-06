@@ -79,20 +79,54 @@ function formatRelativeDate(value: string) {
   return 'gerade eben';
 }
 
-function getRelativeDateBadgeClass(value: string) {
+function countCronWeekdays(field: string): number {
+  if (field === '*') return 7;
+  let count = 0;
+  for (const part of field.split(',')) {
+    if (part.includes('-')) {
+      const [start, end] = part.split('-').map(Number);
+      count += end - start + 1;
+    } else if (!Number.isNaN(Number(part))) {
+      count += 1;
+    }
+  }
+  return count || 1;
+}
+
+function getExpectedIntervalMs(cron: string): number {
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (!cron) return 7 * dayMs;
+
+  const fields = cron.trim().split(/\s+/);
+  if (fields.length < 5) return 7 * dayMs;
+
+  const [, , dayOfMonth, , dayOfWeek] = fields;
+
+  // Monthly: runs on a specific day of the month
+  if (dayOfMonth !== '*') return 30 * dayMs;
+
+  // Weekly or daily depending on how many weekdays
+  if (dayOfWeek !== '*') {
+    const days = countCronWeekdays(dayOfWeek);
+    if (days >= 5) return dayMs; // Mon–Fri treated as daily
+    return Math.round((7 / days) * dayMs);
+  }
+
+  // Every day (or more frequent)
+  return dayMs;
+}
+
+function getRelativeDateBadgeClass(value: string, cron: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'badge-neutral';
 
   const ageMs = nowMs.value - date.getTime();
-  const dayMs = 24 * 60 * 60 * 1000;
-  const weekMs = 7 * dayMs;
-  const monthMs = 30 * dayMs;
+  const intervalMs = getExpectedIntervalMs(cron);
 
-  if (ageMs <= dayMs) return 'badge-success';
-  if (ageMs <= 2 * dayMs) return 'badge-info';
-  if (ageMs <= weekMs) return 'badge-warning';
-  if (ageMs <= monthMs) return 'badge-error';
-  return 'badge-neutral';
+  if (ageMs <= intervalMs) return 'badge-success';
+  if (ageMs <= 2 * intervalMs) return 'badge-info';
+  if (ageMs <= 4 * intervalMs) return 'badge-warning';
+  return 'badge-error';
 }
 
 function getInitials(name: string) {
@@ -126,7 +160,7 @@ function getInitials(name: string) {
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
-        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated)]">{{
+        <span v-else-if="latestMenuCreated" :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated, props.restaurant.cron)]">{{
           formatRelativeDate(latestMenuCreated)
         }}</span>
         <span v-else />
