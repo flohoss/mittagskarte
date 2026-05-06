@@ -126,7 +126,7 @@ func init() {
 		restaurants.Fields.Add(&core.RelationField{
 			Name:         "menus",
 			CollectionId: menus.Id,
-			MaxSelect:    5,
+			MaxSelect:    10,
 		})
 		restaurants.Fields.Add(&core.FileField{
 			Name: "thumbnail",
