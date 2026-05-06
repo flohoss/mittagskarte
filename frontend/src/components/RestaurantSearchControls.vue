@@ -10,6 +10,7 @@ import Fa7SolidBan from '~icons/fa7-solid/ban';
 import Fa7SolidUser from '~icons/fa7-solid/user';
 import Fa7SolidUserShield from '~icons/fa7-solid/user-shield';
 import Fa7SolidRightFromBracket from '~icons/fa7-solid/right-from-bracket';
+import Fa7SolidXmark from '~icons/fa7-solid/xmark';
 import { computed, ref } from 'vue';
 import { useLogin } from '../stores/useLogin';
 import { restaurantSortOptions, useRestaurants } from '../stores/useRestaurants';
@@ -34,6 +35,8 @@ const searchShortcut = computed(() => {
 
   return isMac ? { primary: '⌘', key: 'K' } : { primary: 'Ctrl', key: 'K' };
 });
+
+const hasSearchQuery = computed(() => searchQuery.value.trim().length > 0);
 
 const sortLabel = computed(() => {
   return restaurantSortOptions.find((opt) => opt.value === sortBy.value)?.label || '';
@@ -75,6 +78,11 @@ function focusSearch() {
   input.value?.select();
 }
 
+function clearSearch() {
+  searchQuery.value = '';
+  input.value?.focus();
+}
+
 function closeDropdown() {
   (document.activeElement as HTMLElement)?.blur();
 }
@@ -94,15 +102,26 @@ defineExpose({
         id="search-input"
         ref="input"
         v-model="searchQuery"
-        type="search"
+        type="text"
         name="q"
         class="grow bg-transparent border-0 outline-0 focus:ring-0 placeholder:text-base-content/50"
         placeholder="Restaurant suchen..."
         autocomplete="off"
         spellcheck="false"
         aria-label="Restaurants suchen"
+        @keydown.esc.stop.prevent="clearSearch"
       />
-      <kbd class="hidden lg:inline-flex kbd kbd-sm font-mono opacity-50">
+      <button
+        v-if="hasSearchQuery"
+        type="button"
+        class="btn btn-ghost btn-xs btn-circle"
+        aria-label="Suche leeren"
+        title="Suche leeren"
+        @click.stop.prevent="clearSearch"
+      >
+        <Fa7SolidXmark class="size-4" aria-hidden="true" />
+      </button>
+      <kbd v-else class="hidden lg:inline-flex kbd kbd-sm font-mono opacity-50">
         <span class="me-1 text-sm">{{ searchShortcut.primary }}</span
         >{{ searchShortcut.key }}
       </kbd>

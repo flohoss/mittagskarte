@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouteQuery } from '@vueuse/router';
 import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
@@ -9,16 +10,35 @@ import { useRestaurants } from './stores/useRestaurants';
 
 const route = useRoute();
 const router = useRouter();
-const { initialize, filteredRestaurants, isLoading } = useRestaurants();
+const { initialize, filteredRestaurants, isLoading, searchQuery, applySearch } = useRestaurants();
+const querySearch = useRouteQuery<string | undefined>('q', undefined, { mode: 'replace' });
 const hasRestaurants = computed(() => filteredRestaurants.value.length > 0);
 
 initialize();
 
 watch(
+  querySearch,
+  (value) => {
+    const next = value ?? '';
+    if (next !== searchQuery.value) {
+      applySearch(next);
+    }
+  },
+  { immediate: true }
+);
+
+watch(searchQuery, (value) => {
+  const next = value || undefined;
+  if (next !== querySearch.value) {
+    querySearch.value = next;
+  }
+});
+
+watch(
   () => [isLoading.value, hasRestaurants.value, route.name] as const,
   ([loading, hasData, routeName]) => {
     if (loading || hasData || routeName === 'home') return;
-    void router.replace({ name: 'home' });
+    void router.replace({ name: 'home', query: route.query });
   },
   { immediate: true }
 );
