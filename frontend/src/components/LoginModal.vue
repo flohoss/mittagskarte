@@ -47,6 +47,10 @@ function closeLoginDialog(notify = true, force = false) {
   }
 }
 
+function handleCloseLoginDialog() {
+  closeLoginDialog();
+}
+
 async function login() {
   if (!loginIdentity.value.trim() || !loginPassword.value) {
     authError.value = 'Bitte E-Mail und Passwort eingeben.';
@@ -133,7 +137,7 @@ defineExpose({
         </div>
 
         <div class="modal-action mt-6 flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
-          <button type="button" class="btn w-full sm:w-auto" :disabled="isAuthenticating" @click="closeLoginDialog">Schließen</button>
+          <button type="button" class="btn w-full sm:w-auto" :disabled="isAuthenticating" @click="handleCloseLoginDialog">Schließen</button>
           <button type="button" class="btn btn-primary w-full sm:w-auto" :disabled="isAuthenticating" @click="login">
             <span v-if="isAuthenticating" class="loading loading-spinner loading-xs" aria-hidden="true" />
             <Fa7SolidRightToBracket v-else class="size-4" aria-hidden="true" />
@@ -141,7 +145,7 @@ defineExpose({
           </button>
         </div>
       </div>
-      <form method="dialog" class="modal-backdrop" @submit.prevent="closeLoginDialog">
+      <form method="dialog" class="modal-backdrop" @submit.prevent="handleCloseLoginDialog">
         <button type="submit">close</button>
       </form>
     </dialog>
