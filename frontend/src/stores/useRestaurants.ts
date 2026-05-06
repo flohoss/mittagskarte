@@ -1,5 +1,5 @@
-import { createGlobalState, useGeolocation, useStorage } from '@vueuse/core';
-import { computed, ref, watch } from 'vue';
+import { createGlobalState, useStorage } from '@vueuse/core';
+import { computed, ref } from 'vue';
 
 import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
 import { backendClient } from '../services/backendClient';
@@ -19,7 +19,7 @@ export enum RestaurantMethod {
 }
 
 export type RestaurantSort = 'name-asc' | 'name-desc' | 'menu-newest' | 'menu-oldest' | 'distance-asc';
-export type RestaurantGrouping = 'group' | 'none' | 'method';
+export type RestaurantGrouping = 'group' | 'none';
 
 export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string }> = [
   { value: 'name-asc', label: 'Name A-Z' },
@@ -31,7 +31,6 @@ export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string
 
 export const restaurantGroupingOptions: Array<{ value: RestaurantGrouping; label: string }> = [
   { value: 'group', label: 'Nach Gruppe' },
-  { value: 'method', label: 'Nach Abrufart' },
   { value: 'none', label: 'Keine Gruppierung' },
 ];
 
@@ -47,10 +46,39 @@ export const useRestaurants = createGlobalState(() => {
   const restaurants = ref<RestaurantRecord[]>([]);
   const isLoading = ref(true);
   const searchQuery = ref('');
-  const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'distance-asc');
+  const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'name-asc');
   const groupBy = useStorage<RestaurantGrouping>('mittagskarte:restaurants:group', 'group');
   const prefetchedMenuUrls = new Set<string>();
-  const { coords, error } = useGeolocation();
+  const coords = ref<{ latitude: number; longitude: number } | null>(null);
+  const geolocationLoading = ref(false);
+
+  function requestGeolocation() {
+    if (!navigator.geolocation) {
+      console.error('[Geolocation] API not available');
+      sortBy.value = 'name-asc';
+      return;
+    }
+    console.log('[Geolocation] Requesting position...');
+    geolocationLoading.value = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        coords.value = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+        geolocationLoading.value = false;
+        console.log('[Geolocation] Success:', coords.value);
+      },
+      (error) => {
+        geolocationLoading.value = false;
+        console.error('[Geolocation] Error:', {
+          code: error.code,
+          message: error.message,
+          codeDescription: error.code === 1 ? 'Permission denied' : error.code === 2 ? 'Position unavailable' : 'Timeout',
+        });
+        // Fall back to name sorting on failure
+        sortBy.value = 'name-asc';
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  }
 
   if (sortBy.value === ('last-check-desc' as RestaurantSort)) {
     sortBy.value = 'menu-newest';
@@ -58,16 +86,10 @@ export const useRestaurants = createGlobalState(() => {
     sortBy.value = 'menu-oldest';
   }
 
-  // Handle geolocation permission denial: fall back to name-asc if permission is denied
-  watch(
-    () => error.value,
-    (geolocationError) => {
-      if (geolocationError && geolocationError.code === 1) {
-        // GeolocationPositionError.PERMISSION_DENIED = 1
-        sortBy.value = 'name-asc';
-      }
-    }
-  );
+  // If distance-asc was persisted from previous session, request geolocation on init
+  if (sortBy.value === 'distance-asc') {
+    requestGeolocation();
+  }
 
   const collator = new Intl.Collator('de-DE', { sensitivity: 'base' });
 
@@ -83,14 +105,13 @@ export const useRestaurants = createGlobalState(() => {
   }
 
   function getUserCoordinates() {
-    const latitude = coords.value?.latitude;
-    const longitude = coords.value?.longitude;
-
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    if (!coords.value) return null;
+    const lat = coords.value.latitude;
+    const lon = coords.value.longitude;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       return null;
     }
-
-    return { latitude, longitude };
+    return { latitude: lat, longitude: lon };
   }
 
   function toRadians(value: number) {
@@ -374,6 +395,9 @@ export const useRestaurants = createGlobalState(() => {
   }
 
   const filteredRestaurants = computed(() => {
+    // Track dependencies so sorting updates when they change
+    void coords.value;
+    void sortBy.value;
     const query = searchQuery.value.trim().toLocaleLowerCase('de-DE');
 
     if (!query) {
@@ -401,23 +425,6 @@ export const useRestaurants = createGlobalState(() => {
       return groups;
     }
 
-    if (groupBy.value === 'method') {
-      const methodLabels: Record<RestaurantMethod, string> = {
-        [RestaurantMethod.SCRAPE]: 'Scrape',
-        [RestaurantMethod.DOWNLOAD]: 'Download',
-        [RestaurantMethod.UPLOAD]: 'Upload',
-      };
-
-      for (const restaurant of nextRestaurants) {
-        const label = methodLabels[restaurant.method as RestaurantMethod] ?? 'Unbekannt';
-        if (!groups[label]) {
-          groups[label] = [];
-        }
-        groups[label].push(restaurant);
-      }
-
-      return groups;
-    }
 
     const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
     if (favoriteRestaurants.length) {
@@ -458,5 +465,8 @@ export const useRestaurants = createGlobalState(() => {
     getMapUrl,
     getPhoneUrl,
     applySearch,
+    requestGeolocation,
+    coords,
+    geolocationLoading,
   };
 });

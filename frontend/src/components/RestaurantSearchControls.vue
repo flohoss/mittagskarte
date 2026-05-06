@@ -6,16 +6,15 @@ import Fa7SolidLocationDot from '~icons/fa7-solid/location-dot';
 import MdiSortCalendarAscending from '~icons/mdi/sort-calendar-ascending';
 import MdiSortCalendarDescending from '~icons/mdi/sort-calendar-descending';
 import Fa7SolidLayerGroup from '~icons/fa7-solid/layer-group';
-import Fa7SolidGears from '~icons/fa7-solid/gears';
 import Fa7SolidBan from '~icons/fa7-solid/ban';
 import Fa7SolidUser from '~icons/fa7-solid/user';
 import Fa7SolidUserShield from '~icons/fa7-solid/user-shield';
 import Fa7SolidRightFromBracket from '~icons/fa7-solid/right-from-bracket';
 import { computed, ref } from 'vue';
 import { useLogin } from '../stores/useLogin';
-import { restaurantGroupingOptions, restaurantSortOptions, useRestaurants } from '../stores/useRestaurants';
+import { restaurantSortOptions, useRestaurants } from '../stores/useRestaurants';
 
-const { searchQuery, sortBy, groupBy } = useRestaurants();
+const { searchQuery, sortBy, groupBy, requestGeolocation, geolocationLoading } = useRestaurants();
 const { isAuthenticated, clearAuthentication } = useLogin();
 const input = ref<HTMLInputElement | null>(null);
 
@@ -61,26 +60,7 @@ const sortIconComponent = computed(() => {
   return getSortIcon(sortBy.value);
 });
 
-const groupLabel = computed(() => {
-  return restaurantGroupingOptions.find((opt) => opt.value === groupBy.value)?.label || '';
-});
 
-const getGroupIcon = (groupValue: string) => {
-  switch (groupValue) {
-    case 'group':
-      return Fa7SolidLayerGroup;
-    case 'method':
-      return Fa7SolidGears;
-    case 'none':
-      return Fa7SolidBan;
-    default:
-      return Fa7SolidLayerGroup;
-  }
-};
-
-const groupIconComponent = computed(() => {
-  return getGroupIcon(groupBy.value);
-});
 
 const authStatus = computed(() => {
   return isAuthenticated.value ? '✓ Angemeldet' : '○ Gast';
@@ -95,6 +75,10 @@ function focusSearch() {
   input.value?.select();
 }
 
+function closeDropdown() {
+  (document.activeElement as HTMLElement)?.blur();
+}
+
 defineExpose({
   focusSearch,
 });
@@ -102,8 +86,10 @@ defineExpose({
 
 <template>
   <div class="flex w-full sm:w-auto items-center gap-2">
-    <label class="input flex-1 min-w-0 sm:flex-none sm:w-64 md:w-72 rounded-lg relative flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary/20">
-      <Fa7SolidMagnifyingGlass class="size-4 text-base-content/60 shrink-0" aria-hidden="true" />
+    <label
+      class="input flex-1 min-w-0 sm:flex-none sm:w-64 md:w-72 rounded-lg relative flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary/20"
+    >
+      <Fa7SolidMagnifyingGlass class="size-5 text-base-content/60 shrink-0" aria-hidden="true" />
       <input
         id="search-input"
         ref="input"
@@ -124,12 +110,26 @@ defineExpose({
 
     <!-- Sort Button -->
     <div class="dropdown dropdown-end">
-      <button type="button" class="btn btn-soft btn-square shrink-0" :aria-label="`Sortierung: ${sortLabel}`" tabindex="0">
-        <component :is="sortIconComponent" class="size-4" aria-hidden="true" />
+      <button 
+        type="button" 
+        class="btn btn-soft btn-square shrink-0"
+        :aria-label="`Sortierung: ${sortLabel}`" 
+        tabindex="0"
+      >
+        <span v-if="geolocationLoading" class="loading loading-spinner size-5" aria-hidden="true" />
+        <component v-else :is="sortIconComponent" class="size-5" aria-hidden="true" />
       </button>
       <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow border border-base-300/50">
         <li v-for="option in restaurantSortOptions" :key="option.value">
-          <a :class="{ active: sortBy === option.value }" @click="sortBy = option.value" class="flex items-center gap-2">
+          <a
+            :class="{ active: sortBy === option.value }"
+            @click="
+              sortBy = option.value;
+              if (option.value === 'distance-asc') requestGeolocation();
+              closeDropdown();
+            "
+            class="flex items-center gap-2"
+          >
             <component :is="getSortIcon(option.value)" class="size-4" aria-hidden="true" />
             <span>{{ option.label }}</span>
           </a>
@@ -138,35 +138,26 @@ defineExpose({
     </div>
 
     <!-- Group Button -->
-    <div class="dropdown dropdown-end">
-      <button type="button" class="btn btn-soft btn-square shrink-0" :aria-label="`Gruppierung: ${groupLabel}`" tabindex="0">
-        <component :is="groupIconComponent" class="size-4" aria-hidden="true" />
-      </button>
-      <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow border border-base-300/50">
-        <li v-for="option in restaurantGroupingOptions" :key="option.value">
-          <a :class="{ active: groupBy === option.value }" @click="groupBy = option.value" class="flex items-center gap-2">
-            <component :is="getGroupIcon(option.value)" class="size-4" aria-hidden="true" />
-            <span>{{ option.label }}</span>
-          </a>
-        </li>
-      </ul>
-    </div>
+    <label
+      class="btn btn-soft btn-square shrink-0 swap swap-rotate"
+      :class="{ 'swap-active': groupBy === 'group' }"
+      :aria-label="groupBy === 'group' ? 'Gruppierung aufheben' : 'Nach Gruppe gruppieren'"
+      @click="groupBy = groupBy === 'group' ? 'none' : 'group'"
+    >
+      <Fa7SolidLayerGroup class="swap-on size-5" aria-hidden="true" />
+      <Fa7SolidBan class="swap-off size-5" aria-hidden="true" />
+    </label>
 
     <!-- Auth Button -->
     <template v-if="isAuthenticated">
       <div class="dropdown dropdown-end">
-        <button 
-          type="button" 
-          class="btn btn-soft btn-square btn-success shrink-0"
-          :aria-label="authStatus" 
-          tabindex="0"
-        >
-          <component :is="authIconComponent" class="size-4" aria-hidden="true" />
+        <button type="button" class="btn btn-soft btn-square btn-success shrink-0" :aria-label="authStatus" tabindex="0">
+          <component :is="authIconComponent" class="size-5" aria-hidden="true" />
         </button>
         <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-50 w-48 p-2 shadow border border-base-300/50">
           <li>
             <a @click="clearAuthentication" class="flex items-center gap-2 text-error">
-              <Fa7SolidRightFromBracket class="size-4" aria-hidden="true" />
+              <Fa7SolidRightFromBracket class="size-5" aria-hidden="true" />
               <span>Abmelden</span>
             </a>
           </li>
@@ -174,13 +165,8 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <button 
-        type="button" 
-        class="btn btn-soft btn-square btn-ghost shrink-0"
-        :aria-label="authStatus" 
-        @click="onOpenAuthModal?.()"
-      >
-        <component :is="authIconComponent" class="size-4" aria-hidden="true" />
+      <button type="button" class="btn btn-soft btn-square btn-ghost shrink-0" :aria-label="authStatus" @click="onOpenAuthModal?.()">
+        <component :is="authIconComponent" class="size-5" aria-hidden="true" />
       </button>
     </template>
   </div>
