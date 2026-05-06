@@ -33,6 +33,8 @@ function normalizeRestaurant(record: RestaurantInput): RestaurantRecord {
     id: String(record.id ?? ''),
     name: String(record.name ?? ''),
     group: String(record.group ?? ''),
+    latitude: Number(record.latitude ?? 0),
+    longitude: Number(record.longitude ?? 0),
     address: String(record.address ?? ''),
     website: String(record.website ?? ''),
     phone: String(record.phone ?? ''),

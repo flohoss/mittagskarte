@@ -18,6 +18,7 @@ defineProps<{
 const route = useRoute();
 const router = useRouter();
 const searchControls = ref<InstanceType<typeof RestaurantSearchControls> | null>(null);
+const loginModal = ref<InstanceType<typeof LoginModal> | null>(null);
 const keys = useMagicKeys({
   passive: false,
   onEventFired(event) {
@@ -42,10 +43,8 @@ function focusSearch() {
   searchControls.value?.focusSearch();
 }
 
-function reopenSettings() {
-  requestAnimationFrame(() => {
-    searchControls.value?.openSettings();
-  });
+function openAuthModal() {
+  loginModal.value?.open();
 }
 
 whenever(
@@ -87,11 +86,8 @@ whenever(
             </RouterLink>
 
             <div class="w-full sm:w-auto max-w-full">
-              <RestaurantSearchControls ref="searchControls">
-                <template #auth>
-                  <LoginModal :show-label="true" @closed="reopenSettings" @authenticated="reopenSettings" />
-                </template>
-              </RestaurantSearchControls>
+              <RestaurantSearchControls ref="searchControls" :on-open-auth-modal="openAuthModal" />
+              <LoginModal ref="loginModal" :show-trigger="false" />
             </div>
           </div>
         </template>

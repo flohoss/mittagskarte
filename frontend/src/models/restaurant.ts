@@ -16,6 +16,8 @@ export interface RestaurantRecord extends RecordModel {
   id: string;
   name: string;
   group: string;
+  latitude: number;
+  longitude: number;
   address: string;
   website: string;
   phone: string;

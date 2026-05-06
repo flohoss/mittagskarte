@@ -9,9 +9,11 @@ import { useLogin } from '../stores/useLogin';
 const props = withDefaults(
   defineProps<{
     showLabel?: boolean;
+    showTrigger?: boolean;
   }>(),
   {
     showLabel: false,
+    showTrigger: true,
   }
 );
 
@@ -69,11 +71,15 @@ async function login() {
 function logout() {
   clearAuthentication();
 }
+
+defineExpose({
+  open: openLoginDialog,
+});
 </script>
 
 <template>
   <button
-    v-if="!hasAuthToken"
+    v-if="props.showTrigger && !hasAuthToken"
     type="button"
     :class="['btn btn-soft rounded-lg', props.showLabel ? 'gap-2' : 'btn-square']"
     title="Anmelden"
@@ -85,7 +91,7 @@ function logout() {
   </button>
 
   <button
-    v-else
+    v-else-if="props.showTrigger"
     type="button"
     :class="['btn btn-soft btn-error rounded-lg', props.showLabel ? 'gap-2' : 'btn-square']"
     title="Abmelden"

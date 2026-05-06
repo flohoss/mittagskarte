@@ -18,6 +18,10 @@ func authRule() *string {
 func init() {
 	m.Register(func(app core.App) error {
 		minOrder := float64(1)
+		latitudeMin := float64(-90)
+		latitudeMax := float64(90)
+		longitudeMin := float64(-180)
+		longitudeMax := float64(180)
 
 		selectors := core.NewBaseCollection("selectors")
 
@@ -85,6 +89,18 @@ func init() {
 		})
 		restaurants.Fields.Add(&core.TextField{
 			Name: "address",
+		})
+		restaurants.Fields.Add(&core.NumberField{
+			Name:     "latitude",
+			Required: true,
+			Min:      &latitudeMin,
+			Max:      &latitudeMax,
+		})
+		restaurants.Fields.Add(&core.NumberField{
+			Name:     "longitude",
+			Required: true,
+			Min:      &longitudeMin,
+			Max:      &longitudeMax,
 		})
 		restaurants.Fields.Add(&core.TextField{
 			Name:    "website",

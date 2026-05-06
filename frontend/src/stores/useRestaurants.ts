@@ -1,5 +1,5 @@
-import { createGlobalState, useStorage } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { createGlobalState, useGeolocation, useStorage } from '@vueuse/core';
+import { computed, ref, watch } from 'vue';
 
 import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
 import { backendClient } from '../services/backendClient';
@@ -18,20 +18,21 @@ export enum RestaurantMethod {
   UPLOAD = 'upload',
 }
 
-export type RestaurantSort = 'name-asc' | 'name-desc' | 'last-check-desc' | 'last-check-asc';
+export type RestaurantSort = 'name-asc' | 'name-desc' | 'menu-newest' | 'menu-oldest' | 'distance-asc';
 export type RestaurantGrouping = 'group' | 'none' | 'method';
 
 export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string }> = [
   { value: 'name-asc', label: 'Name A-Z' },
   { value: 'name-desc', label: 'Name Z-A' },
-  { value: 'last-check-desc', label: 'Zuletzt geprueft (neu)' },
-  { value: 'last-check-asc', label: 'Zuletzt geprueft (alt)' },
+  { value: 'distance-asc', label: 'Nächste zuerst' },
+  { value: 'menu-newest', label: 'Neueste zuerst' },
+  { value: 'menu-oldest', label: 'Älteste zuerst' },
 ];
 
 export const restaurantGroupingOptions: Array<{ value: RestaurantGrouping; label: string }> = [
   { value: 'group', label: 'Nach Gruppe' },
-  { value: 'method', label: 'Nach Methode' },
-  { value: 'none', label: 'Ohne Gruppen' },
+  { value: 'method', label: 'Nach Abrufart' },
+  { value: 'none', label: 'Keine Gruppierung' },
 ];
 
 declare global {
@@ -46,9 +47,27 @@ export const useRestaurants = createGlobalState(() => {
   const restaurants = ref<RestaurantRecord[]>([]);
   const isLoading = ref(true);
   const searchQuery = ref('');
-  const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'name-asc');
+  const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'distance-asc');
   const groupBy = useStorage<RestaurantGrouping>('mittagskarte:restaurants:group', 'group');
   const prefetchedMenuUrls = new Set<string>();
+  const { coords, error } = useGeolocation();
+
+  if (sortBy.value === ('last-check-desc' as RestaurantSort)) {
+    sortBy.value = 'menu-newest';
+  } else if (sortBy.value === ('last-check-asc' as RestaurantSort)) {
+    sortBy.value = 'menu-oldest';
+  }
+
+  // Handle geolocation permission denial: fall back to name-asc if permission is denied
+  watch(
+    () => error.value,
+    (geolocationError) => {
+      if (geolocationError && geolocationError.code === 1) {
+        // GeolocationPositionError.PERMISSION_DENIED = 1
+        sortBy.value = 'name-asc';
+      }
+    }
+  );
 
   const collator = new Intl.Collator('de-DE', { sensitivity: 'base' });
 
@@ -58,12 +77,52 @@ export const useRestaurants = createGlobalState(() => {
     return Number.isNaN(timestamp) ? 0 : timestamp;
   }
 
-  function getLastCheckTimestamp(restaurant: RestaurantRecord) {
-    return toTimestamp(restaurant.last_check?.at ?? null);
+  function getLatestMenuTimestamp(restaurant: RestaurantRecord) {
+    const latestMenu = restaurant.expand?.menus?.[0];
+    return toTimestamp(latestMenu?.created ?? null);
+  }
+
+  function getUserCoordinates() {
+    const latitude = coords.value?.latitude;
+    const longitude = coords.value?.longitude;
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return null;
+    }
+
+    return { latitude, longitude };
+  }
+
+  function toRadians(value: number) {
+    return (value * Math.PI) / 180;
+  }
+
+  function getDistanceMeters(left: { latitude: number; longitude: number }, right: { latitude: number; longitude: number }) {
+    const earthRadiusMeters = 6371e3;
+    const phi1 = toRadians(left.latitude);
+    const phi2 = toRadians(right.latitude);
+    const deltaPhi = toRadians(right.latitude - left.latitude);
+    const deltaLambda = toRadians(right.longitude - left.longitude);
+
+    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusMeters * c;
+  }
+
+  function getRestaurantDistanceMeters(restaurant: RestaurantRecord, userCoordinates: { latitude: number; longitude: number } | null) {
+    const latitude = restaurant.latitude;
+    const longitude = restaurant.longitude;
+
+    if (!userCoordinates || typeof latitude !== 'number' || typeof longitude !== 'number') {
+      return Number.POSITIVE_INFINITY;
+    }
+
+    return getDistanceMeters(userCoordinates, { latitude, longitude });
   }
 
   function sortRestaurants(records: RestaurantRecord[]) {
     const nextRecords = [...records];
+    const userCoordinates = getUserCoordinates();
 
     nextRecords.sort((a, b) => {
       if (sortBy.value === 'name-asc') {
@@ -74,15 +133,23 @@ export const useRestaurants = createGlobalState(() => {
         return collator.compare(b.name, a.name);
       }
 
-      const aLastCheck = getLastCheckTimestamp(a);
-      const bLastCheck = getLastCheckTimestamp(b);
+      if (sortBy.value === 'distance-asc') {
+        const aDistance = getRestaurantDistanceMeters(a, userCoordinates);
+        const bDistance = getRestaurantDistanceMeters(b, userCoordinates);
 
-      if (sortBy.value === 'last-check-desc') {
-        if (bLastCheck !== aLastCheck) return bLastCheck - aLastCheck;
+        if (aDistance !== bDistance) return aDistance - bDistance;
         return collator.compare(a.name, b.name);
       }
 
-      if (aLastCheck !== bLastCheck) return aLastCheck - bLastCheck;
+      const aLatestMenu = getLatestMenuTimestamp(a);
+      const bLatestMenu = getLatestMenuTimestamp(b);
+
+      if (sortBy.value === 'menu-newest') {
+        if (bLatestMenu !== aLatestMenu) return bLatestMenu - aLatestMenu;
+        return collator.compare(a.name, b.name);
+      }
+
+      if (aLatestMenu !== bLatestMenu) return aLatestMenu - bLatestMenu;
       return collator.compare(a.name, b.name);
     });
 
@@ -244,7 +311,7 @@ export const useRestaurants = createGlobalState(() => {
   function applyRestaurants(records: RestaurantRecord[]) {
     const nextRestaurants = backendClient.prepareRestaurants(records);
     // Clear timers for restaurants that are no longer present
-    const nextIds = new Set(nextRestaurants.map(r => r.id));
+    const nextIds = new Set(nextRestaurants.map((r) => r.id));
     for (const id of Array.from(coolDownTimers.keys())) {
       if (!nextIds.has(id)) {
         clearCoolDownTimer(id);
@@ -313,14 +380,16 @@ export const useRestaurants = createGlobalState(() => {
       return sortRestaurants(restaurants.value);
     }
 
-    return sortRestaurants(restaurants.value.filter((restaurant) => {
-      const haystack = [restaurant.name, restaurant.group, restaurant.address, restaurant.website, ...restaurant.tags]
-        .filter(Boolean)
-        .join(' ')
-        .toLocaleLowerCase('de-DE');
+    return sortRestaurants(
+      restaurants.value.filter((restaurant) => {
+        const haystack = [restaurant.name, restaurant.group, restaurant.address, restaurant.website, ...restaurant.tags]
+          .filter(Boolean)
+          .join(' ')
+          .toLocaleLowerCase('de-DE');
 
-      return haystack.includes(query);
-    }));
+        return haystack.includes(query);
+      })
+    );
   });
 
   const groupedRestaurants = computed<Record<string, RestaurantRecord[]>>(() => {
