@@ -44,7 +44,6 @@ services:
   release:
     profiles:
       - build
-    image: ${IMAGE_NAME:-mittagskarte}:${IMAGE_TAG:-local}
     build:
       context: .
       args:
