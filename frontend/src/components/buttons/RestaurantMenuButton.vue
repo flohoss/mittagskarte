@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
-import { useFloating, autoUpdate, offset, shift, flip, size } from '@floating-ui/vue';
+import { useFloating, autoUpdate, offset, shift, autoPlacement, size } from '@floating-ui/vue';
 import { useRouter } from 'vue-router';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
 import type { RestaurantRecord } from '../../models/restaurant';
@@ -19,7 +19,6 @@ const floating = ref<HTMLElement | null>(null);
 const hideTimeout = ref<number | null>(null);
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isLargeScreen = breakpoints.greaterOrEqual('lg');
-const isSmallerThanLg = breakpoints.smaller('lg');
 const imageWidth = ref<number | null>(props.menuWidth ?? null);
 const imageHeight = ref<number | null>(props.menuHeight ?? null);
 const router = useRouter();
@@ -34,33 +33,37 @@ const imageSize = computed(() => {
   };
 });
 
-const floatingClass = computed(() => {
-  const base = 'z-50 max-h-[95vh] rounded-xl border border-base-300 bg-base-100 p-3 shadow-xl';
-  return imageSize.value.isLandscape ? `${base} overflow-hidden` : `${base} overflow-auto`;
-});
-
-const imageClass = computed(() =>
-  imageSize.value.isLandscape ? 'block h-auto w-full max-h-[calc(95vh-28px)] object-contain' : 'block h-auto w-full object-contain'
-);
+// Portrait menus (left/right): appear beside the button — button row stays accessible.
+// Landscape menus (top/bottom): appear above/below — button is never covered by a wide image.
+const middleware = computed(() => [
+  offset(8),
+  autoPlacement({
+    padding: 8,
+    allowedPlacements: imageSize.value.isLandscape ? ['top', 'bottom'] : ['left', 'right'],
+  }),
+  shift({ padding: 8 }),
+  size({
+    padding: 8,
+    apply({ availableWidth, availableHeight, elements }) {
+      // Landscape (top/bottom): cap at 1400px so wide menus have plenty of space without spanning the full screen.
+      // Portrait (left/right): cap at 640px — tall menus stay readable beside the button.
+      const cap = imageSize.value.isLandscape ? 1400 : 640;
+      Object.assign(elements.floating.style, {
+        maxWidth: `${Math.min(Math.max(0, availableWidth), cap)}px`,
+        maxHeight: `${Math.max(0, availableHeight)}px`,
+      });
+    },
+  }),
+]);
 
 const { floatingStyles } = useFloating(reference, floating, {
-  placement: 'right',
   strategy: 'fixed',
   whileElementsMounted: autoUpdate,
-  middleware: [
-    offset(8),
-    flip(),
-    shift({ padding: 8, crossAxis: true }),
-    size({
-      padding: 8,
-      apply({ availableWidth, elements }) {
-        Object.assign(elements.floating.style, {
-          maxWidth: imageSize.value.isLandscape ? `${Math.max(0, availableWidth)}px` : `${Math.min(Math.max(0, availableWidth), 768)}px`,
-        });
-      },
-    }),
-  ],
+  middleware,
 });
+
+const floatingClass = 'z-50 rounded-xl border border-base-300 bg-base-100 p-3 shadow-xl overflow-auto';
+const imageClass = 'block w-full h-auto object-contain';
 
 function openPopover() {
   if (!isLargeScreen.value || !props.menuUrl) return;
@@ -114,8 +117,8 @@ function onImageLoad(event: Event) {
   }
 }
 
-watch(isSmallerThanLg, (isSmall) => {
-  if (isSmall) {
+watch(isLargeScreen, (isLarge) => {
+  if (!isLarge) {
     hidePopoverImmediate();
   }
 });
