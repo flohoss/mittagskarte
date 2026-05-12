@@ -102,6 +102,7 @@ whenever(
       <div class="container flex flex-col items-center gap-3 py-2 text-center md:flex-row md:items-center md:justify-between md:text-left">
         <div class="text-sm leading-relaxed">{{ title }} - {{ description }}</div>
         <div class="flex gap-2 items-center">
+          <RouterLink to="/datenschutz" class="btn btn-ghost">Datenschutz</RouterLink>
           <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="adminPanelUrl" title="Admin Panel">
             <SimpleIconsPocketbase class="size-5" />
           </a>

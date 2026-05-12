@@ -61,16 +61,30 @@
     <script id="initial-restaurants" type="application/json">
       {{ toJSON .Restaurants }}
     </script>
+    <script id="initial-email" type="application/json">
+      {{ toJSON .Email }}
+    </script>
     <script>
       window.__RESTAURANTS__ = undefined;
       const initialRestaurants = document.getElementById('initial-restaurants')?.textContent?.trim();
-      const looksLikeJson = initialRestaurants?.startsWith('[') || initialRestaurants?.startsWith('{');
 
-      if (initialRestaurants && looksLikeJson) {
+      if (initialRestaurants) {
         try {
           window.__RESTAURANTS__ = JSON.parse(initialRestaurants);
         } catch {
           window.__RESTAURANTS__ = undefined;
+        }
+      }
+
+      window.__EMAIL__ = undefined;
+      const initialEmail = document.getElementById('initial-email')?.textContent?.trim();
+      if (initialEmail) {
+        try {
+          const encoded = JSON.parse(initialEmail);
+          // Decode base64 email
+          window.__EMAIL__ = atob(encoded);
+        } catch {
+          window.__EMAIL__ = undefined;
         }
       }
     </script>

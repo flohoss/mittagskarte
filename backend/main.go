@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"html/template"
 	"log"
@@ -24,24 +25,30 @@ type config struct {
 	Dev              bool          `env:"DEV" envDefault:"false"`
 	CoolDownDuration time.Duration `env:"COOL_DOWN_DURATION" envDefault:"5m"`
 	TZ               time.Location `env:"TZ" envDefault:"UTC"`
+	Email            string        `env:"EMAIL" envDefault:"contact@example.com"`
 }
 
 type frontendPageData struct {
 	Restaurants []*restaurant.Restaurant
+	Email       string
 }
 
-func buildFrontendPageData(app core.App) (*frontendPageData, error) {
+func buildFrontendPageData(app core.App, email string) (*frontendPageData, error) {
 	restaurants, err := restaurant.GetRestaurantsWithMenus(app)
 	if err != nil {
 		return nil, err
 	}
 
+	// Base64 encode email to obfuscate from simple scrapers
+	encodedEmail := base64.StdEncoding.EncodeToString([]byte(email))
+
 	return &frontendPageData{
 		Restaurants: restaurants,
+		Email:       encodedEmail,
 	}, nil
 }
 
-func serveFrontend(app core.App, se *core.ServeEvent) error {
+func serveFrontend(app core.App, se *core.ServeEvent, email string) error {
 	frontendDist, err := filepath.Abs("dist")
 	if err != nil {
 		return err
@@ -79,7 +86,7 @@ func serveFrontend(app core.App, se *core.ServeEvent) error {
 	}
 
 	se.Router.GET("/{path...}", func(re *core.RequestEvent) error {
-		pageData, err := buildFrontendPageData(app)
+		pageData, err := buildFrontendPageData(app, email)
 		if err != nil {
 			return err
 		}
@@ -144,7 +151,7 @@ func main() {
 			return re.String(http.StatusOK, ".")
 		}).Bind(apis.SkipSuccessActivityLog())
 
-		if err = serveFrontend(app, se); err != nil {
+		if err = serveFrontend(app, se, cfg.Email); err != nil {
 			return err
 		}
 
