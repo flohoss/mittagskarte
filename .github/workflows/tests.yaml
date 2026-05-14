@@ -58,5 +58,6 @@ jobs:
         if: inputs.generate-coverage-report
         uses: ncruces/go-coverage-report@v0
         with:
-          coverage-file: backend/coverage.out
+          module-dir: backend
+          coverage-file: coverage.out
         continue-on-error: true
