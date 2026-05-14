@@ -1,6 +1,13 @@
+<div align="center">
+
 # Mittagskarte
 
+[![CI](https://github.com/flohoss/mittagskarte/actions/workflows/ci.yaml/badge.svg)](https://github.com/flohoss/mittagskarte/actions/workflows/ci.yaml)
+[![Coverage](https://raw.githubusercontent.com/wiki/flohoss/mittagskarte/coverage.svg)](https://github.com/flohoss/mittagskarte/wiki/coverage.html)
+
 Mittagskarte fetches, uploads, converts, and serves lunch menus for restaurants.
+
+</div>
 
 The current stack is:
 

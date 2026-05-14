@@ -1,0 +1,43 @@
+package placeholder
+
+import (
+	"strings"
+	"testing"
+	"time"
+)
+
+func TestReplaceNonDatePlaceholder(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("/menus/{{restaurant}}")
+	want := "/menus/restaurant"
+	if got != want {
+		t.Fatalf("unexpected replacement, got %q want %q", got, want)
+	}
+}
+
+func TestReplaceDateUppercase(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date(format=Jan,upper=true)}}")
+	if got == "" {
+		t.Fatal("expected non-empty output")
+	}
+	if got != strings.ToUpper(got) {
+		t.Fatalf("expected uppercase output, got %q", got)
+	}
+}
+
+func TestReplaceDateWeekdayAndOffset(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date(format=2006-01-02,day=monday,offset=1)}}")
+
+	now := time.Now()
+	diff := int(time.Monday - now.Weekday())
+	want := now.AddDate(0, 0, diff).AddDate(0, 0, 7).Format("2006-01-02")
+
+	if got != want {
+		t.Fatalf("unexpected date output, got %q want %q", got, want)
+	}
+}
