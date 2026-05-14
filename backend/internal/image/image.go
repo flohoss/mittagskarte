@@ -21,9 +21,7 @@ func New() *ImageMagic {
 }
 
 func (ic *ImageMagic) Close() {
-	if imagick.Terminate != nil {
-		imagick.Terminate()
-	}
+	imagick.Terminate()
 }
 
 func (ic *ImageMagic) ResizeWebp(filePath string) error {
