@@ -41,3 +41,62 @@ func TestReplaceDateWeekdayAndOffset(t *testing.T) {
 		t.Fatalf("unexpected date output, got %q want %q", got, want)
 	}
 }
+
+func TestReplaceDateDefaults(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date()}}")
+	if got == "" {
+		t.Fatal("expected non-empty replacement for date default")
+	}
+	if strings.Contains(got, "{{") || strings.Contains(got, "}}") {
+		t.Fatalf("expected placeholder to be resolved, got %q", got)
+	}
+}
+
+func TestReplaceDateInvalidArgsFallback(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date(format=2006-01-02,offset=abc)}}")
+	want := time.Now().Format("2006-01-02")
+	if got != want {
+		t.Fatalf("unexpected date with invalid offset, got %q want %q", got, want)
+	}
+}
+
+func TestReplaceDateUnknownLocaleFallsBackToEnglish(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date(format=Monday,lang=xx)}}")
+	if got == "" {
+		t.Fatal("expected non-empty output")
+	}
+
+	validWeekdays := map[string]struct{}{
+		"Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {},
+	}
+	if _, ok := validWeekdays[got]; !ok {
+		t.Fatalf("expected english weekday fallback, got %q", got)
+	}
+}
+
+func TestReplaceDateInvalidWeekdayIgnored(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("{{date(format=2006-01-02,day=notaday)}}")
+	want := time.Now().Format("2006-01-02")
+	if got != want {
+		t.Fatalf("unexpected date with invalid weekday, got %q want %q", got, want)
+	}
+}
+
+func TestReplaceMultiplePlaceholders(t *testing.T) {
+	t.Parallel()
+
+	got := Replace("menu-{{date(format=2006)}}-{{restaurant}}")
+	year := time.Now().Format("2006")
+	want := "menu-" + year + "-restaurant"
+	if got != want {
+		t.Fatalf("unexpected replacement, got %q want %q", got, want)
+	}
+}

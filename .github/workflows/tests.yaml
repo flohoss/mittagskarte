@@ -33,7 +33,7 @@ jobs:
       - name: Install native dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libmagickwand-dev
+          sudo apt-get install -y pkg-config libmagickwand-dev curl
 
       - name: Run Go tests with coverage
         run: go test ./... -covermode=atomic -coverprofile=coverage.out
