@@ -20,9 +20,11 @@ const menuUrlsById = computed(() => {
   return lookup;
 });
 
-function getMenuAlt(menu: MenuRecord) {
-  return `Menü ${menu.id}`;
+function isLandscape(menu: MenuRecord) {
+  return menu.dimensions?.landscape === true;
 }
+
+const landscapeLayout = computed(() => props.menus.length > 0 && isLandscape(props.menus[0]));
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -32,33 +34,27 @@ function formatDate(value: string) {
 </script>
 
 <template>
-  <div class="timeline-masonry columns-1 gap-3 sm:columns-2 lg:columns-3 2xl:columns-4">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:gap-4">
     <a
       v-for="menu in props.menus"
       :key="menu.id"
       :href="menuUrlsById.get(menu.id)"
       target="_blank"
       rel="noreferrer"
-      class="group relative mb-3 block break-inside-avoid overflow-hidden rounded-xl transition-opacity duration-200 hover:opacity-90"
+      :class="['card group block overflow-hidden', landscapeLayout ? 'col-span-1 sm:col-span-2 lg:col-span-3' : 'col-span-1 sm:col-span-1 lg:col-span-2']"
     >
-      <img :src="menuUrlsById.get(menu.id)" :alt="getMenuAlt(menu)" class="h-auto w-full" loading="lazy" />
       <div
-        class="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/65 via-black/25 to-transparent px-3 py-2 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+        :class="['relative w-full bg-cover bg-center bg-no-repeat', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']"
+        :style="{ backgroundImage: `url(${menuUrlsById.get(menu.id)})` }"
       >
-        {{ formatDate(menu.created) }}
+        <div
+          class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+        >
+          <span class="badge badge-neutral badge-lg">
+            {{ formatDate(menu.created) }}
+          </span>
+        </div>
       </div>
     </a>
   </div>
 </template>
-
-<style scoped>
-.timeline-masonry {
-  column-fill: balance;
-}
-
-@media (min-width: 1024px) {
-  .timeline-masonry {
-    column-gap: 0.9rem;
-  }
-}
-</style>
