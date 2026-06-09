@@ -34,14 +34,14 @@ function formatDate(value: string) {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:gap-4">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
     <a
       v-for="menu in props.menus"
       :key="menu.id"
       :href="menuUrlsById.get(menu.id)"
       target="_blank"
       rel="noreferrer"
-      :class="['card group block overflow-hidden', landscapeLayout ? 'col-span-1 sm:col-span-2 lg:col-span-3' : 'col-span-1 sm:col-span-1 lg:col-span-2']"
+      :class="['card group block overflow-hidden', landscapeLayout ? 'lg:col-span-2' : 'lg:col-span-1']"
     >
       <div
         :class="['relative w-full overflow-hidden bg-base-200', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']"
