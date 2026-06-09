@@ -7,7 +7,7 @@ import { sortMenusByCreatedDesc } from '../utils/menu';
 
 const route = useRoute();
 const router = useRouter();
-const { restaurants } = useRestaurants();
+const { restaurants, isLoading } = useRestaurants();
 
 const restaurantId = computed(() => String(route.params.restaurantId ?? '').trim());
 const restaurant = computed(() => restaurants.value.find((entry) => entry.id === restaurantId.value) ?? null);
@@ -16,6 +16,7 @@ const sortedMenus = computed(() => sortMenusByCreatedDesc(restaurant.value?.expa
 
 const shouldRedirectToHome = computed(() => {
   if (!restaurantId.value) return true;
+  if (isLoading.value) return false;
   if (!restaurant.value) return true;
   if (!sortedMenus.value.length) return true;
   return false;

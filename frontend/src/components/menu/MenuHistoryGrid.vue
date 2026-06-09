@@ -44,9 +44,15 @@ function formatDate(value: string) {
       :class="['card group block overflow-hidden', landscapeLayout ? 'col-span-1 sm:col-span-2 lg:col-span-3' : 'col-span-1 sm:col-span-1 lg:col-span-2']"
     >
       <div
-        :class="['relative w-full bg-cover bg-center bg-no-repeat', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']"
-        :style="{ backgroundImage: `url(${menuUrlsById.get(menu.id)})` }"
+        :class="['relative w-full overflow-hidden bg-base-200', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']"
       >
+        <img
+          :src="menuUrlsById.get(menu.id)"
+          :alt="`Speisekarte vom ${formatDate(menu.created)}`"
+          loading="lazy"
+          decoding="async"
+          class="h-full w-full object-cover"
+        />
         <div
           class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         >
