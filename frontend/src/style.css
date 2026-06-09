@@ -43,6 +43,12 @@
   @apply rounded-lg;
 }
 
+@utility badge-stale {
+  background-color: color-mix(in oklab, var(--color-warning) 58%, var(--color-error) 42%);
+  border-color: color-mix(in oklab, var(--color-warning) 42%, var(--color-error) 58%);
+  color: var(--color-warning-content);
+}
+
 @utility card-grid {
   @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
 }

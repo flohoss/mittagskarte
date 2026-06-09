@@ -30,6 +30,37 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
   style: 'long',
 });
 
+type LastCheckStatus = NonNullable<NonNullable<RestaurantRecord['last_check']>['status']>;
+type FreshnessStage = 'fresh' | 'aging' | 'warning' | 'stale' | 'expired';
+
+const freshnessVisuals: Record<FreshnessStage, { className: string; prefix: string; title: string }> = {
+  fresh: {
+    className: 'badge-success',
+    prefix: 'neu',
+    title: 'Aktuell',
+  },
+  aging: {
+    className: 'border border-success bg-success text-success-content',
+    prefix: 'älter',
+    title: 'Noch brauchbar, aber altert',
+  },
+  warning: {
+    className: 'border border-warning bg-warning text-warning-content',
+    prefix: 'alt',
+    title: 'Sollte bald aktualisiert werden',
+  },
+  stale: {
+    className: 'border badge-stale',
+    prefix: 'sehr alt',
+    title: 'Wahrscheinlich nicht mehr aktuell',
+  },
+  expired: {
+    className: 'badge-error',
+    prefix: 'zu alt',
+    title: 'Nicht mehr aktuell',
+  },
+};
+
 const nowMs = useNow(30_000);
 const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
 const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
@@ -41,6 +72,33 @@ const latestMenuCreated = computed(() => {
 const lastCheck = computed(() => {
   const lc = props.restaurant.last_check;
   return lc ?? null;
+});
+const freshnessReferenceDate = computed(() => {
+  const menuDate = latestMenuCreated.value;
+  const check = lastCheck.value;
+
+  if (!check?.at || (check.status !== 'success' && check.status !== 'not_changed')) {
+    return menuDate;
+  }
+
+  if (!menuDate) return check.at;
+
+  const menuTs = toTimestamp(menuDate);
+  const checkTs = toTimestamp(check.at);
+  if (menuTs === null) return check.at;
+  if (checkTs === null) return menuDate;
+
+  return checkTs > menuTs ? check.at : menuDate;
+});
+const menuFreshness = computed(() => {
+  if (!latestMenuCreated.value || !freshnessReferenceDate.value) return null;
+  return getMenuFreshnessMeta(
+    latestMenuCreated.value,
+    freshnessReferenceDate.value,
+    props.restaurant.cron,
+    props.restaurant.method,
+    lastCheck.value?.status
+  );
 });
 const lastCheckText = computed(() => {
   if (!lastCheck.value) return '';
@@ -94,6 +152,12 @@ function formatRelativeDate(value: string) {
   return 'gerade eben';
 }
 
+function toTimestamp(value?: string | null) {
+  if (!value) return null;
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? null : timestamp;
+}
+
 function countCronWeekdays(field: string): number {
   if (field === '*') return 7;
   let count = 0;
@@ -108,8 +172,10 @@ function countCronWeekdays(field: string): number {
   return count || 1;
 }
 
-function getExpectedIntervalMs(cron: string): number {
+function getExpectedIntervalMs(cron: string, method: string): number {
   const dayMs = 24 * 60 * 60 * 1000;
+  const normalizedMethod = method.trim().toLowerCase();
+  if (normalizedMethod === 'upload') return 7 * dayMs;
   if (!cron) return 7 * dayMs;
 
   const fields = cron.trim().split(/\s+/);
@@ -131,17 +197,62 @@ function getExpectedIntervalMs(cron: string): number {
   return dayMs;
 }
 
-function getRelativeDateBadgeClass(value: string, cron: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'badge-neutral';
+function getFreshnessStage(ageMs: number, intervalMs: number): FreshnessStage {
+  const ageRatio = ageMs / intervalMs;
+  if (ageRatio <= 1) return 'fresh';
+  if (ageRatio <= 1.5) return 'aging';
+  if (ageRatio <= 2.5) return 'warning';
+  if (ageRatio <= 4) return 'stale';
+  return 'expired';
+}
 
-  const ageMs = nowMs.value - date.getTime();
-  const intervalMs = getExpectedIntervalMs(cron);
+function getFreshnessPrefix(stage: FreshnessStage, checkStatus?: LastCheckStatus) {
+  if ((stage === 'fresh' || stage === 'aging') && checkStatus === 'not_changed') {
+    return 'unverändert';
+  }
 
-  if (ageMs <= intervalMs) return 'badge-success';
-  if (ageMs <= 2 * intervalMs) return 'badge-info';
-  if (ageMs <= 4 * intervalMs) return 'badge-warning';
-  return 'badge-error';
+  return freshnessVisuals[stage].prefix;
+}
+
+function getMenuFreshnessMeta(
+  menuDateValue: string,
+  referenceDateValue: string,
+  cron: string,
+  method: string,
+  checkStatus?: LastCheckStatus
+) {
+  const menuDate = new Date(menuDateValue);
+  const referenceDate = new Date(referenceDateValue);
+  if (Number.isNaN(menuDate.getTime()) || Number.isNaN(referenceDate.getTime())) {
+    return {
+      className: 'badge-neutral',
+      label: 'Unbekannt',
+      title: 'Datum unbekannt',
+    };
+  }
+
+  const ageMs = nowMs.value - referenceDate.getTime();
+  const intervalMs = getExpectedIntervalMs(cron, method);
+  const relative = formatRelativeDate(menuDateValue);
+  const escapedCron = cron.trim() || 'manuell (Upload)';
+
+  if (checkStatus === 'error') {
+    return {
+      className: 'badge-error',
+      label: `Fehler • ${relative}`,
+      title: `Letzte Prüfung fehlgeschlagen (Menü: ${relative}, Intervall: ${escapedCron})`,
+    };
+  }
+
+  const stage = getFreshnessStage(ageMs, intervalMs);
+  const visual = freshnessVisuals[stage];
+  const prefix = getFreshnessPrefix(stage, checkStatus);
+
+  return {
+    className: visual.className,
+    label: `${prefix} • ${relative}`,
+    title: `${visual.title} (${relative}, Intervall: ${escapedCron})`,
+  };
 }
 
 function getInitials(name: string) {
@@ -175,11 +286,12 @@ function getInitials(name: string) {
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <div class="flex items-center gap-1.5">
-          <span v-if="isClosed" class="badge badge-sm badge-error backdrop-blur">Heute geschlossen</span>
+          <span v-if="isClosed" class="badge badge-sm badge-info backdrop-blur">Heute geschlossen</span>
           <span
-            v-else-if="latestMenuCreated"
-            :class="['badge badge-sm backdrop-blur', getRelativeDateBadgeClass(latestMenuCreated, props.restaurant.cron)]"
-            >{{ formatRelativeDate(latestMenuCreated) }}</span
+            v-else-if="menuFreshness"
+            :class="['badge badge-sm', menuFreshness.className]"
+            :title="menuFreshness.title"
+            >{{ menuFreshness.label }}</span
           >
           <span v-if="showDistance" class="badge badge-sm badge-neutral/85 backdrop-blur">{{ distanceLabel }}</span>
         </div>
