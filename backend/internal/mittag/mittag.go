@@ -14,6 +14,7 @@ import (
 	"github.com/flohoss/mittagskarte/pkg/checksum"
 	"github.com/flohoss/mittagskarte/pkg/fsutil"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/filesystem"
@@ -180,18 +181,24 @@ func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
 		return e.Next()
 	}
 
-	// Prepend new menu to the existing relation IDs (already newest-first).
-	relationIDs := append([]string{e.Record.Id}, restaurantRecord.GetStringSlice("menus")...)
+	menuRecords, err := m.app.FindRecordsByFilter("menus", "restaurant = {:id}", "-created", 0, 0, dbx.Params{"id": restaurantID})
+	if err != nil {
+		m.app.Logger().Error("Failed to list menus for retention cleanup", "restaurantId", restaurantID, "error", err)
+		return e.Next()
+	}
 
-	if len(relationIDs) > retentionLimit {
-		for _, oldID := range relationIDs[retentionLimit:] {
-			if old, findErr := m.app.FindRecordById("menus", oldID); findErr == nil {
-				if deleteErr := m.app.Delete(old); deleteErr != nil {
-					m.app.Logger().Warn("Failed to delete old menu during retention cleanup", "restaurantId", restaurantID, "menuId", oldID, "error", deleteErr)
-				}
+	relationIDs := make([]string, 0, retentionLimit)
+	if len(menuRecords) > 0 {
+		for i, record := range menuRecords {
+			if i < retentionLimit {
+				relationIDs = append(relationIDs, record.Id)
+				continue
+			}
+
+			if deleteErr := m.app.Delete(record); deleteErr != nil {
+				m.app.Logger().Warn("Failed to delete old menu during retention cleanup", "restaurantId", restaurantID, "menuId", record.Id, "error", deleteErr)
 			}
 		}
-		relationIDs = relationIDs[:retentionLimit]
 	}
 
 	restaurantRecord.Set("menus", relationIDs)
