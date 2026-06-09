@@ -8,6 +8,11 @@ import (
 	"github.com/gen2brain/go-fitz"
 )
 
+const (
+	minimumPDFWidthPx = 1200
+	defaultRenderDPI  = 72.0
+)
+
 func MergeAllPDFPagesToWebp(inputPDFPath, outputWebpPath string) error {
 	doc, err := fitz.New(inputPDFPath)
 	if err != nil {
@@ -25,7 +30,7 @@ func MergeAllPDFPagesToWebp(inputPDFPath, outputWebpPath string) error {
 
 	images := make([]image.Image, 0, pageCount)
 	for i := 0; i < pageCount; i++ {
-		img, err := doc.Image(i)
+		img, err := renderPDFPageWithMinimumWidth(doc, i, minimumPDFWidthPx)
 		if err != nil {
 			return err
 		}
@@ -40,11 +45,41 @@ func FirstPDFPageToWebp(inputPDFPath, outputWebpPath string) error {
 		return err
 	}
 	defer doc.Close()
-	img, err := doc.Image(0)
+	img, err := renderPDFPageWithMinimumWidth(doc, 0, minimumPDFWidthPx)
 	if err != nil {
 		return err
 	}
 	return encodeImageAsWebp(outputWebpPath, img)
+}
+
+func renderPDFPageWithMinimumWidth(doc *fitz.Document, pageNumber int, minimumWidth int) (image.Image, error) {
+	img, err := doc.Image(pageNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	if minimumWidth <= 0 {
+		return img, nil
+	}
+
+	baseWidth := img.Bounds().Dx()
+	if baseWidth <= 0 || baseWidth >= minimumWidth {
+		return img, nil
+	}
+
+	targetDPI := defaultRenderDPI * (float64(minimumWidth) / float64(baseWidth))
+	upscaled, err := doc.ImageDPI(pageNumber, targetDPI)
+	if err != nil {
+		return nil, err
+	}
+
+	// Guard against rounding; request one more pass only if still below threshold.
+	if upscaled.Bounds().Dx() < minimumWidth {
+		adjustedDPI := targetDPI * (float64(minimumWidth) / float64(upscaled.Bounds().Dx()))
+		return doc.ImageDPI(pageNumber, adjustedDPI)
+	}
+
+	return upscaled, nil
 }
 
 func mergeImagesVertically(images []image.Image) image.Image {
