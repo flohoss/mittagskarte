@@ -48,7 +48,6 @@ export const useRestaurants = createGlobalState(() => {
   const searchQuery = ref('');
   const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'name-asc');
   const groupBy = useStorage<RestaurantGrouping>('mittagskarte:restaurants:group', 'group');
-  const prefetchedMenuUrls = new Set<string>();
   const coords = ref<{ latitude: number; longitude: number } | null>(null);
   const geolocationLoading = ref(false);
 
@@ -290,54 +289,6 @@ export const useRestaurants = createGlobalState(() => {
     return preloadImageUrls(records.filter((restaurant) => restaurant.thumbnail).map((restaurant) => backendClient.getFileUrl(restaurant)));
   }
 
-  function scheduleMenuPrefetch(records: RestaurantRecord[]) {
-    const browserWindow = typeof window === 'undefined' ? null : window;
-
-    if (!browserWindow) {
-      return;
-    }
-
-    const scheduleWhenIdle = (callback: () => void, timeout: number) => {
-      if ('requestIdleCallback' in browserWindow) {
-        browserWindow.requestIdleCallback(callback, { timeout });
-        return;
-      }
-
-      globalThis.setTimeout(callback, Math.min(timeout, 500));
-    };
-
-    const prefetchUrls = (urls: string[], onDone?: () => void) => {
-      const nextUrls = urls.filter((url) => Boolean(url) && !prefetchedMenuUrls.has(url));
-
-      if (!nextUrls.length) {
-        onDone?.();
-        return;
-      }
-
-      nextUrls.forEach((url) => prefetchedMenuUrls.add(url));
-      void preloadImageUrls(nextUrls).finally(() => onDone?.());
-    };
-
-    scheduleWhenIdle(() => {
-      const currentMenuUrls = records
-        .flatMap((restaurant) => {
-          const currentMenu = restaurant.expand?.menus?.[0];
-          return currentMenu ? [backendClient.getMenuFileUrl(currentMenu)] : [];
-        })
-        .slice(0, 24);
-
-      prefetchUrls(currentMenuUrls, () => {
-        scheduleWhenIdle(() => {
-          const historyMenuUrls = records
-            .flatMap((restaurant) => (restaurant.expand?.menus ?? []).slice(1).map((menu) => backendClient.getMenuFileUrl(menu)))
-            .slice(0, 64);
-
-          prefetchUrls(historyMenuUrls);
-        }, 2500);
-      });
-    }, 1200);
-  }
-
   function applyRestaurants(records: RestaurantRecord[]) {
     const nextRestaurants = backendClient.prepareRestaurants(records);
     // Clear timers for restaurants that are no longer present
@@ -357,7 +308,6 @@ export const useRestaurants = createGlobalState(() => {
     try {
       const nextRestaurants = applyRestaurants(await backendClient.fetchRestaurants());
       await preloadThumbnails(nextRestaurants);
-      scheduleMenuPrefetch(nextRestaurants);
     } finally {
       isLoading.value = false;
     }
@@ -379,7 +329,6 @@ export const useRestaurants = createGlobalState(() => {
 
     const nextRestaurants = applyRestaurants(initialRestaurants);
     await preloadThumbnails(nextRestaurants);
-    scheduleMenuPrefetch(nextRestaurants);
   }
 
   function initialize() {
