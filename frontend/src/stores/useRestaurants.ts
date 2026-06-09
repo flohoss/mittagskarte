@@ -45,7 +45,7 @@ export const useRestaurants = createGlobalState(() => {
 
   const restaurants = ref<RestaurantRecord[]>([]);
   const isLoading = ref(true);
-  const searchQuery = ref('');
+  const searchQuery = useStorage<string>('mittagskarte:restaurants:search', '');
   const sortBy = useStorage<RestaurantSort>('mittagskarte:restaurants:sort', 'name-asc');
   const groupBy = useStorage<RestaurantGrouping>('mittagskarte:restaurants:group', 'group');
   const coords = ref<{ latitude: number; longitude: number } | null>(null);

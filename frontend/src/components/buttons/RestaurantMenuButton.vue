@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, autoPlacement, size } from '@floating-ui/vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
 import type { RestaurantRecord } from '../../models/restaurant';
 
@@ -21,6 +21,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind);
 const isLargeScreen = breakpoints.greaterOrEqual('lg');
 const imageWidth = ref<number | null>(props.menuWidth ?? null);
 const imageHeight = ref<number | null>(props.menuHeight ?? null);
+const route = useRoute();
 const router = useRouter();
 const imageSize = computed(() => {
   const width = imageWidth.value && imageWidth.value > 0 ? imageWidth.value : undefined;
@@ -79,6 +80,7 @@ function openMenuHistory() {
     params: {
       restaurantId: props.restaurant.id,
     },
+    query: route.query,
   });
 }
 
