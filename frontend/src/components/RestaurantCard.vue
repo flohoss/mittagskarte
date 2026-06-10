@@ -7,6 +7,7 @@ import type { RestaurantRecord } from '../models/restaurant';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useNow } from '../composables/useNow';
 import { getLatestMenu } from '../utils/menu';
+import { formatAgeLabel, formatRelativePastLabel } from '../utils/date';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
@@ -16,20 +17,6 @@ const { getFileUrl, applySearch, getRestaurantDistanceKm, sortBy, coords } = use
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const RELATIVE_TIME_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
-  ['year', 60 * 60 * 24 * 365],
-  ['month', 60 * 60 * 24 * 30],
-  ['week', 60 * 60 * 24 * 7],
-  ['day', 60 * 60 * 24],
-  ['hour', 60 * 60],
-  ['minute', 60],
-];
-
-const relativeTimeFormatter = new Intl.RelativeTimeFormat('de', {
-  numeric: 'auto',
-  style: 'long',
-});
-
 type LastCheckStatus = NonNullable<NonNullable<RestaurantRecord['last_check']>['status']>;
 type FreshnessStage = 'fresh' | 'aging' | 'warning' | 'stale' | 'expired';
 
@@ -102,7 +89,7 @@ const menuFreshness = computed(() => {
 });
 const lastCheckText = computed(() => {
   if (!lastCheck.value) return '';
-  return `${formatRelativeDate(lastCheck.value.at)} zuletzt versucht`;
+  return `${formatRelativePastLabel(lastCheck.value.at, nowMs.value)} zuletzt versucht`;
 });
 const distanceKm = computed(() => getRestaurantDistanceKm(props.restaurant));
 const showDistance = computed(() => sortBy.value === 'distance-asc' && coords.value && distanceKm.value !== null);
@@ -132,25 +119,6 @@ const lastCheckTitle = computed(() => {
   }
   return '';
 });
-
-function formatRelativeDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unbekannt';
-
-  const rawDiffSeconds = Math.round((date.getTime() - nowMs.value) / 1000);
-  // Backend and client clocks can drift slightly; avoid showing future times in the UI.
-  const diffSeconds = Math.min(0, rawDiffSeconds);
-
-  if (diffSeconds > -60) return 'gerade eben';
-
-  for (const [unit, seconds] of RELATIVE_TIME_UNITS) {
-    if (Math.abs(diffSeconds) >= seconds) {
-      return relativeTimeFormatter.format(Math.round(diffSeconds / seconds), unit);
-    }
-  }
-
-  return 'gerade eben';
-}
 
 function toTimestamp(value?: string | null) {
   if (!value) return null;
@@ -233,7 +201,7 @@ function getMenuFreshnessMeta(
 
   const ageMs = nowMs.value - referenceDate.getTime();
   const intervalMs = getExpectedIntervalMs(cron, method);
-  const relative = formatRelativeDate(menuDateValue);
+  const relative = formatAgeLabel(menuDateValue, nowMs.value);
   const escapedCron = cron.trim() || 'manuell (Upload)';
 
   if (checkStatus === 'error') {
