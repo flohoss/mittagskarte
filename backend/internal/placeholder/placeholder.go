@@ -72,6 +72,7 @@ func parseDatePlaceholder(placeholder string) string {
 	weekdayStr := args["day"]
 	offsetStr := args["offset"]
 	upperStr := args["upper"]
+	charsStr := args["chars"]
 
 	now := time.Now()
 
@@ -96,6 +97,20 @@ func parseDatePlaceholder(placeholder string) string {
 	// Apply uppercase if requested
 	if strings.ToLower(upperStr) == "true" {
 		result = strings.ToUpper(result)
+	}
+
+	// Optionally limit output length by number of runes.
+	if charsStr != "" {
+		chars, err := strconv.Atoi(charsStr)
+		if err == nil {
+			if chars <= 0 {
+				return ""
+			}
+			runes := []rune(result)
+			if chars < len(runes) {
+				result = string(runes[:chars])
+			}
+		}
 	}
 
 	return result

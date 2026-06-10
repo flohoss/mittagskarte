@@ -28,6 +28,24 @@ func TestReplaceDateUppercase(t *testing.T) {
 	}
 }
 
+func TestReplaceDateCharsLimit(t *testing.T) {
+	t.Parallel()
+
+	full := Replace("{{date(format=Jan,lang=de,upper=true)}}")
+	got := Replace("{{date(format=Jan,lang=de,upper=true,chars=3)}}")
+
+	runes := []rune(full)
+	limit := 3
+	if len(runes) < limit {
+		limit = len(runes)
+	}
+	want := string(runes[:limit])
+
+	if got != want {
+		t.Fatalf("unexpected limited output, got %q want %q", got, want)
+	}
+}
+
 func TestReplaceDateWeekdayAndOffset(t *testing.T) {
 	t.Parallel()
 
