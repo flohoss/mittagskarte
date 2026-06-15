@@ -11,14 +11,14 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@floating-ui/vue": "^1.1.11",
-    "@tailwindcss/vite": "^4.3.0",
+    "@floating-ui/vue": "^2.0.0",
+    "@tailwindcss/vite": "^4.3.1",
     "@vueuse/core": "^14.3.0",
     "@vueuse/router": "^14.3.0",
     "daisyui": "^5.5.23",
     "pocketbase": "^0.27.0",
-    "tailwindcss": "^4.3.0",
-    "vue": "^3.5.35",
+    "tailwindcss": "^4.3.1",
+    "vue": "^3.5.38",
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
@@ -33,7 +33,7 @@
     "typescript": "~6.0.3",
     "unplugin-icons": "^23.0.1",
     "vite": "^8.0.16",
-    "vue-tsc": "^3.3.4"
+    "vue-tsc": "^3.3.5"
   },
   "prettier": {
     "printWidth": 160,
