@@ -7,7 +7,8 @@ import type { RestaurantRecord } from '../models/restaurant';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useNow } from '../composables/useNow';
 import { getLatestMenu } from '../utils/menu';
-import { formatAgeLabel, formatRelativePastLabel } from '../utils/date';
+import { formatRelativePastLabel } from '../utils/date';
+import { getMenuFreshnessMeta } from '../utils/menuFreshness';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
@@ -17,36 +18,6 @@ const { getFileUrl, applySearch, getRestaurantDistanceKm, sortBy, coords } = use
 const { isFavorite, toggleFavorite } = useFavorites();
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-type LastCheckStatus = NonNullable<NonNullable<RestaurantRecord['last_check']>['status']>;
-type FreshnessStage = 'fresh' | 'aging' | 'warning' | 'stale' | 'expired';
-
-const freshnessVisuals: Record<FreshnessStage, { className: string; prefix: string; title: string }> = {
-  fresh: {
-    className: 'badge-success',
-    prefix: 'neu',
-    title: 'Aktuell',
-  },
-  aging: {
-    className: 'border border-success bg-success text-success-content',
-    prefix: 'älter',
-    title: 'Noch brauchbar, aber altert',
-  },
-  warning: {
-    className: 'border border-warning bg-warning text-warning-content',
-    prefix: 'alt',
-    title: 'Sollte bald aktualisiert werden',
-  },
-  stale: {
-    className: 'border badge-stale',
-    prefix: 'sehr alt',
-    title: 'Wahrscheinlich nicht mehr aktuell',
-  },
-  expired: {
-    className: 'badge-error',
-    prefix: 'zu alt',
-    title: 'Nicht mehr aktuell',
-  },
-};
 
 const nowMs = useNow(30_000);
 const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
@@ -57,35 +28,17 @@ const latestMenuCreated = computed(() => {
   return getLatestMenu(props.restaurant.expand?.menus)?.created ?? null;
 });
 const lastCheck = computed(() => {
-  const lc = props.restaurant.last_check;
-  return lc ?? null;
-});
-const freshnessReferenceDate = computed(() => {
-  const menuDate = latestMenuCreated.value;
-  const check = lastCheck.value;
-
-  if (!check?.at || (check.status !== 'success' && check.status !== 'not_changed')) {
-    return menuDate;
-  }
-
-  if (!menuDate) return check.at;
-
-  const menuTs = toTimestamp(menuDate);
-  const checkTs = toTimestamp(check.at);
-  if (menuTs === null) return check.at;
-  if (checkTs === null) return menuDate;
-
-  return checkTs > menuTs ? check.at : menuDate;
+  return props.restaurant.last_check ?? null;
 });
 const menuFreshness = computed(() => {
-  if (!latestMenuCreated.value || !freshnessReferenceDate.value) return null;
-  return getMenuFreshnessMeta(
-    latestMenuCreated.value,
-    freshnessReferenceDate.value,
-    props.restaurant.cron,
-    props.restaurant.method,
-    lastCheck.value?.status
-  );
+  if (!latestMenuCreated.value) return null;
+  return getMenuFreshnessMeta({
+    menuDate: latestMenuCreated.value,
+    cron: props.restaurant.cron,
+    method: props.restaurant.method,
+    lastCheck: lastCheck.value,
+    now: nowMs.value,
+  });
 });
 const lastCheckText = computed(() => {
   if (!lastCheck.value) return '';
@@ -119,109 +72,6 @@ const lastCheckTitle = computed(() => {
   }
   return '';
 });
-
-function toTimestamp(value?: string | null) {
-  if (!value) return null;
-  const timestamp = new Date(value).getTime();
-  return Number.isNaN(timestamp) ? null : timestamp;
-}
-
-function countCronWeekdays(field: string): number {
-  if (field === '*') return 7;
-  let count = 0;
-  for (const part of field.split(',')) {
-    if (part.includes('-')) {
-      const [start, end] = part.split('-').map(Number);
-      count += end - start + 1;
-    } else if (!Number.isNaN(Number(part))) {
-      count += 1;
-    }
-  }
-  return count || 1;
-}
-
-function getExpectedIntervalMs(cron: string, method: string): number {
-  const dayMs = 24 * 60 * 60 * 1000;
-  const normalizedMethod = method.trim().toLowerCase();
-  if (normalizedMethod === 'upload') return 7 * dayMs;
-  if (!cron) return 7 * dayMs;
-
-  const fields = cron.trim().split(/\s+/);
-  if (fields.length < 5) return 7 * dayMs;
-
-  const [, , dayOfMonth, , dayOfWeek] = fields;
-
-  // Monthly: runs on a specific day of the month
-  if (dayOfMonth !== '*') return 30 * dayMs;
-
-  // Weekly or daily depending on how many weekdays
-  if (dayOfWeek !== '*') {
-    const days = countCronWeekdays(dayOfWeek);
-    if (days >= 5) return dayMs; // Mon–Fri treated as daily
-    return Math.round((7 / days) * dayMs);
-  }
-
-  // Every day (or more frequent)
-  return dayMs;
-}
-
-function getFreshnessStage(ageMs: number, intervalMs: number): FreshnessStage {
-  const ageRatio = ageMs / intervalMs;
-  if (ageRatio <= 1) return 'fresh';
-  if (ageRatio <= 1.5) return 'aging';
-  if (ageRatio <= 2.5) return 'warning';
-  if (ageRatio <= 4) return 'stale';
-  return 'expired';
-}
-
-function getFreshnessPrefix(stage: FreshnessStage, checkStatus?: LastCheckStatus) {
-  if ((stage === 'fresh' || stage === 'aging') && checkStatus === 'not_changed') {
-    return 'unverändert';
-  }
-
-  return freshnessVisuals[stage].prefix;
-}
-
-function getMenuFreshnessMeta(
-  menuDateValue: string,
-  referenceDateValue: string,
-  cron: string,
-  method: string,
-  checkStatus?: LastCheckStatus
-) {
-  const menuDate = new Date(menuDateValue);
-  const referenceDate = new Date(referenceDateValue);
-  if (Number.isNaN(menuDate.getTime()) || Number.isNaN(referenceDate.getTime())) {
-    return {
-      className: 'badge-neutral',
-      label: 'Unbekannt',
-      title: 'Datum unbekannt',
-    };
-  }
-
-  const ageMs = nowMs.value - referenceDate.getTime();
-  const intervalMs = getExpectedIntervalMs(cron, method);
-  const relative = formatAgeLabel(menuDateValue, nowMs.value);
-  const escapedCron = cron.trim() || 'manuell (Upload)';
-
-  if (checkStatus === 'error') {
-    return {
-      className: 'badge-error',
-      label: `Fehler • ${relative}`,
-      title: `Letzte Prüfung fehlgeschlagen (Menü: ${relative}, Intervall: ${escapedCron})`,
-    };
-  }
-
-  const stage = getFreshnessStage(ageMs, intervalMs);
-  const visual = freshnessVisuals[stage];
-  const prefix = getFreshnessPrefix(stage, checkStatus);
-
-  return {
-    className: visual.className,
-    label: `${prefix} • ${relative}`,
-    title: `${visual.title} (${relative}, Intervall: ${escapedCron})`,
-  };
-}
 
 function getInitials(name: string) {
   return name
