@@ -24,16 +24,15 @@ export function formatAgeLabel(value: string, nowMs: number) {
 
   const absSeconds = Math.abs(diffSeconds);
 
-  if (absSeconds < 60 * 60 * 24) {
-    for (const [unit, secondsInUnit] of RELATIVE_TIME_UNITS) {
-      if (unit === 'day') break;
-      if (absSeconds >= secondsInUnit || unit === 'minute') {
-        return relativeTimeFormatter.format(Math.round(diffSeconds / secondsInUnit), unit);
-      }
-    }
+  if (absSeconds < 60 * 60) {
+    return relativeTimeFormatter.format(Math.round(diffSeconds / 60), 'minute');
   }
 
-  const days = Math.max(1, Math.round(absSeconds / (60 * 60 * 24)));
+  if (absSeconds < 60 * 60 * 24) {
+    return relativeTimeFormatter.format(Math.round(diffSeconds / (60 * 60)), 'hour');
+  }
+
+  const days = Math.floor(absSeconds / (60 * 60 * 24));
   if (days >= 365) {
     const years = Math.round(days / 365);
     return years === 1 ? '1 Jahr alt' : `${years} Jahre alt`;
