@@ -12,12 +12,11 @@ export type LastCheck = {
 export type MenuFreshnessMeta = {
   className: string;
   label: string;
-  title: string;
   isCurrent: boolean;
 };
 
-const VISUAL_CURRENT = { className: 'badge-success', prefix: 'aktuell', title: 'Aktuell' };
-const VISUAL_OUTDATED = { className: 'badge-warning', prefix: 'veraltet', title: 'Veraltet' };
+const VISUAL_CURRENT = { className: 'badge-success', prefix: 'aktuell' };
+const VISUAL_OUTDATED = { className: 'badge-warning', prefix: 'veraltet' };
 
 export function toTimestamp(value: string | null | undefined): number | null {
   if (!value) return null;
@@ -37,12 +36,7 @@ export function getPreviousCronRunMs(cron: string | null | undefined, now: numbe
   }
 }
 
-export function isMenuCurrent(input: {
-  menuDate: string | null;
-  lastCheck: LastCheck | null;
-  cron: string | null;
-  now: number;
-}): boolean {
+export function isMenuCurrent(input: { menuDate: string | null; lastCheck: LastCheck | null; cron: string | null; now: number }): boolean {
   const { menuDate, lastCheck, cron, now } = input;
 
   const menuTs = toTimestamp(menuDate);
@@ -57,53 +51,34 @@ export function isMenuCurrent(input: {
   return (menuTs !== null && menuTs >= runMs) || (checkSucceeded && checkTs !== null && checkTs >= runMs);
 }
 
-export function getMenuFreshnessMeta(input: {
-  menuDate: string;
-  cron: string;
-  method: string;
-  lastCheck: LastCheck | null;
-  now: number;
-}): MenuFreshnessMeta {
-  const { menuDate, cron, method, lastCheck, now } = input;
+export function getMenuFreshnessMeta(input: { menuDate: string; cron: string; lastCheck: LastCheck | null; now: number }): MenuFreshnessMeta {
+  const { menuDate, cron, lastCheck, now } = input;
   const menuTs = toTimestamp(menuDate);
 
   if (menuTs === null) {
     return {
       className: 'badge-neutral',
       label: 'Unbekannt',
-      title: 'Datum unbekannt',
       isCurrent: false,
     };
   }
 
   const relative = formatAgeLabel(menuDate, now);
-  const escapedCron = cron.trim() || 'manuell (Upload)';
-  const normalizedMethod = method.trim().toLowerCase();
 
   if (lastCheck?.status === 'error') {
     return {
       className: 'badge-error',
       label: `Fehler • ${relative}`,
-      title: `Letzte Prüfung fehlgeschlagen (Menü: ${relative}, Intervall: ${escapedCron})`,
       isCurrent: false,
     };
   }
 
-  if (normalizedMethod === 'upload') {
-    return {
-      className: 'badge-success',
-      label: `aktuell • ${relative}`,
-      title: `Aktuell (Upload, ${relative})`,
-      isCurrent: true,
-    };
-  }
-
   const current = isMenuCurrent({ menuDate, lastCheck, cron, now });
+
   const visual = current ? VISUAL_CURRENT : VISUAL_OUTDATED;
   return {
     className: visual.className,
     label: `${visual.prefix} • ${relative}`,
-    title: `${visual.title} (${relative}, Intervall: ${escapedCron})`,
     isCurrent: current,
   };
 }

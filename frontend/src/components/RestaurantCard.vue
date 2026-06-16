@@ -35,7 +35,6 @@ const menuFreshness = computed(() => {
   return getMenuFreshnessMeta({
     menuDate: latestMenuCreated.value,
     cron: props.restaurant.cron,
-    method: props.restaurant.method,
     lastCheck: lastCheck.value,
     now: nowMs.value,
   });
@@ -105,12 +104,7 @@ function getInitials(name: string) {
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <div class="flex flex-col items-start gap-1.5">
           <span v-if="isClosed" class="badge badge-sm badge-info backdrop-blur">Heute geschlossen</span>
-          <span
-            v-else-if="menuFreshness"
-            :class="['badge badge-sm', menuFreshness.className]"
-            :title="menuFreshness.title"
-            >{{ menuFreshness.label }}</span
-          >
+          <span v-else-if="menuFreshness" :class="['badge badge-sm', menuFreshness.className]">{{ menuFreshness.label }}</span>
           <span v-if="showDistance" class="badge badge-sm badge-neutral/85 backdrop-blur w-fit">{{ distanceLabel }}</span>
         </div>
         <button
