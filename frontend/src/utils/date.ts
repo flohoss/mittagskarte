@@ -21,10 +21,7 @@ function clampedDiffSeconds(value: string, nowMs: number): number | null {
   return Math.min(0, rawDiffSeconds);
 }
 
-export function formatAgeLabel(value: string, nowMs: number) {
-  const diffSeconds = clampedDiffSeconds(value, nowMs);
-  if (diffSeconds === null) return 'Unbekannt';
-
+function formatRelativeTime(diffSeconds: number): string {
   if (diffSeconds > -60) return 'gerade eben';
 
   const absSeconds = Math.abs(diffSeconds);
@@ -38,7 +35,7 @@ export function formatAgeLabel(value: string, nowMs: number) {
   return 'gerade eben';
 }
 
-export function formatRelativePastLabel(value: string, nowMs: number) {
+export function formatAgeLabel(value: string, nowMs: number) {
   const diffSeconds = clampedDiffSeconds(value, nowMs);
   if (diffSeconds === null) return 'Unbekannt';
 
@@ -46,11 +43,39 @@ export function formatRelativePastLabel(value: string, nowMs: number) {
 
   const absSeconds = Math.abs(diffSeconds);
 
-  for (const [unit, secondsInUnit] of RELATIVE_TIME_UNITS) {
-    if (absSeconds >= secondsInUnit || unit === 'minute') {
-      return relativeTimeFormatter.format(Math.round(diffSeconds / secondsInUnit), unit);
-    }
+  if (absSeconds < 60 * 60) {
+    const minutes = Math.round(absSeconds / 60);
+    return minutes === 1 ? '1 Minute alt' : `${minutes} Minuten alt`;
   }
 
-  return 'gerade eben';
+  if (absSeconds < 60 * 60 * 24) {
+    const hours = Math.round(absSeconds / (60 * 60));
+    return hours === 1 ? '1 Stunde alt' : `${hours} Stunden alt`;
+  }
+
+  const days = Math.floor(absSeconds / (60 * 60 * 24));
+
+  if (days >= 365) {
+    const years = Math.round(days / 365);
+    return years === 1 ? '1 Jahr alt' : `${years} Jahre alt`;
+  }
+
+  if (days >= 30) {
+    const months = Math.round(days / 30);
+    return months === 1 ? '1 Monat alt' : `${months} Monate alt`;
+  }
+
+  if (days >= 7) {
+    const weeks = Math.round(days / 7);
+    return weeks === 1 ? '1 Woche alt' : `${weeks} Wochen alt`;
+  }
+
+  return days === 1 ? '1 Tag alt' : `${days} Tage alt`;
+}
+
+export function formatRelativePastLabel(value: string, nowMs: number) {
+  const diffSeconds = clampedDiffSeconds(value, nowMs);
+  if (diffSeconds === null) return 'Unbekannt';
+
+  return formatRelativeTime(diffSeconds);
 }
