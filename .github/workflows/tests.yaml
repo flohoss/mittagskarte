@@ -13,8 +13,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
-    name: Test and Coverage
+  test-backend:
+    name: Backend Test and Coverage
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,3 +61,27 @@ jobs:
           module-dir: backend
           coverage-file: coverage.out
         continue-on-error: true
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/package.json
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run frontend tests
+        run: yarn test
