@@ -8,6 +8,8 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "types": "openapi-ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -33,6 +35,7 @@
     "typescript": "~6.0.3",
     "unplugin-icons": "^23.0.1",
     "vite": "^8.0.16",
+    "vitest": "^4.1.9",
     "vue-tsc": "^3.3.5"
   },
   "prettier": {
