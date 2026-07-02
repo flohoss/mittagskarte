@@ -191,7 +191,7 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <button type="button" class="btn btn-soft btn-square btn-ghost shrink-0" :aria-label="authStatus" @click="onOpenAuthModal?.()">
+      <button type="button" class="btn btn-soft btn-square shrink-0" :aria-label="authStatus" @click="onOpenAuthModal?.()">
         <component :is="authIconComponent" class="size-5" aria-hidden="true" />
       </button>
     </template>
