@@ -107,6 +107,8 @@ jobs:
             release.args.APP_VERSION=${{ steps.build-vars.outputs.APP_VERSION }}
             release.args.BUILD_TIME=${{ steps.build-vars.outputs.BUILD_TIME }}
             release.args.REPO_URL=${{ steps.build-vars.outputs.REPO_URL }}
+            release.cache-from=type=gha
+            release.cache-to=type=gha,mode=max
 
       - name: Capture Docker digest
         env:

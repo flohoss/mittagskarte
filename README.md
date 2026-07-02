@@ -237,7 +237,7 @@ Compose services:
 - `backend`: PocketBase backend with hot reload via `air`
 - `frontend`: Vite dev server
 - `go`: helper container for Go commands
-- `yarn`: helper container for frontend package commands
+- `npm`: helper container for frontend package commands
 - `release`: build-only production image target used by local release builds and CI
 
 ## Common Commands

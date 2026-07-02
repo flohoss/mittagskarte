@@ -11,6 +11,7 @@ x-images:
 
 services:
   backend:
+    image: mittagskarte-backend
     build:
       context: backend
       args: *build-args
@@ -40,6 +41,17 @@ services:
       - '8090:8090'
     networks:
       - net
+
+  test-backend:
+    profiles:
+      - test
+    image: mittagskarte-backend
+    build:
+      context: backend
+      args: *build-args
+    working_dir: /app
+    volumes:
+      - ./backend:/app
 
   release:
     profiles:
