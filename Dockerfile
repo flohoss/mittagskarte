@@ -3,7 +3,7 @@ ARG V_NODE
 ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
-FROM node:${V_NODE}-trixie-slim AS backend-builder
+FROM node:${V_NODE}-slim AS backend-builder
 WORKDIR /app/backend
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
@@ -23,7 +23,7 @@ RUN go mod download
 COPY ./backend/ ./
 RUN go build -ldflags="-s -w" -o /out/mittag .
 
-FROM node:${V_NODE}-trixie-slim AS frontend-builder
+FROM node:${V_NODE}-slim AS frontend-builder
 WORKDIR /app/frontend
 
 ARG APP_VERSION
@@ -31,13 +31,13 @@ ENV VITE_APP_VERSION=${APP_VERSION}
 ARG REPO_URL
 ENV VITE_REPO_URL=${REPO_URL}
 
-COPY ./frontend/package.json ./frontend/yarn.lock ./
-RUN yarn install --frozen-lockfile --network-timeout 30000 --silent
+COPY ./frontend/package.json ./frontend/package-lock.json ./
+RUN npm ci --silent
 
 COPY ./frontend/ ./
-RUN yarn build
+RUN npm run build
 
-FROM node:${V_NODE}-trixie-slim AS final
+FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
 ARG V_PLAYWRIGHT

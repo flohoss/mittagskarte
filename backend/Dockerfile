@@ -4,7 +4,7 @@ ARG V_AIR
 ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
-FROM node:${V_NODE}-trixie-slim AS final
+FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
 ARG V_PLAYWRIGHT

@@ -1,13 +1,13 @@
 # Single source of truth for container tool versions. CI reads this block too.
 x-build-args: &build-args
   V_GOLANG: ${V_GOLANG:-1.26}
-  V_NODE: ${V_NODE:-25}
+  V_NODE: ${V_NODE:-26}
   V_AIR: ${V_AIR:-1.65.3}
   V_PLAYWRIGHT: ${V_PLAYWRIGHT:-1.60.0}
 
 x-images:
   go: &go-image golang:${V_GOLANG:-1.26}-alpine
-  node: &node-image node:${V_NODE:-25}-trixie-slim
+  node: &node-image node:${V_NODE:-26}-slim
 
 services:
   backend:
@@ -67,7 +67,7 @@ services:
         condition: service_healthy
     image: *node-image
     working_dir: /app
-    command: sh -c "yarn install --frozen-lockfile && yarn dev"
+    command: sh -c "npm install && npm run dev"
     volumes:
       - ./frontend:/app/
     ports:
@@ -75,12 +75,12 @@ services:
     networks:
       - net
 
-  yarn:
+  npm:
     profiles:
       - dev
     image: *node-image
     working_dir: /app
-    entrypoint: yarn
+    entrypoint: npm
     volumes:
       - ./frontend:/app/
 
