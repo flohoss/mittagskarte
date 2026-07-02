@@ -58,4 +58,4 @@ jobs:
 
       - name: Run frontend tests
         run: |
-          docker compose run --rm --profile dev npm sh -c 'npm ci && npm test'
+          docker compose --profile dev run --rm --entrypoint sh npm -c 'npm ci && npm test'
