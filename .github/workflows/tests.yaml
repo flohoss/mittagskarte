@@ -33,7 +33,7 @@ jobs:
       - name: Install native dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libmagickwand-dev curl
+          sudo apt-get install -y pkg-config libmagickwand-7.q16-dev libmagickcore-7.q16-dev curl
 
       - name: Run Go tests with coverage
         run: go test ./... -covermode=atomic -coverprofile=coverage.out
@@ -76,12 +76,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: frontend/package.json
-          cache: yarn
-          cache-dependency-path: frontend/yarn.lock
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run frontend tests
-        run: yarn test
+        run: npm test
