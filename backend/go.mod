@@ -5,12 +5,12 @@ go 1.26.1
 require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/chai2010/webp v1.4.0
-	github.com/gen2brain/go-fitz v1.24.15
+	github.com/gen2brain/go-fitz v1.28.1
 	github.com/goodsign/monday v1.0.2
-	github.com/playwright-community/playwright-go v0.5700.1
+	github.com/playwright-community/playwright-go v0.6000.0
 	github.com/pocketbase/dbx v1.12.0
-	github.com/pocketbase/pocketbase v0.39.4
-	golang.org/x/image v0.42.0
+	github.com/pocketbase/pocketbase v0.39.5
+	golang.org/x/image v0.43.0
 	gopkg.in/gographics/imagick.v2 v2.7.1
 )
 
@@ -46,8 +46,8 @@ require (
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
-	modernc.org/libc v1.73.3 // indirect
+	modernc.org/libc v1.73.5 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.52.0 // indirect
+	modernc.org/sqlite v1.53.0 // indirect
 )
