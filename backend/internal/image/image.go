@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
 type ImageMagic struct {
@@ -41,7 +41,7 @@ func (ic *ImageMagic) ResizeWebp(filePath string) error {
 	}
 
 	newHeight := uint(float64(height) * float64(ic.maximumWidth) / float64(width))
-	if err := mw.ResizeImage(ic.maximumWidth, newHeight, imagick.FILTER_LANCZOS, 1); err != nil {
+	if err := mw.ResizeImage(ic.maximumWidth, newHeight, imagick.FILTER_LANCZOS); err != nil {
 		return fmt.Errorf("failed to resize image: %w", err)
 	}
 
@@ -58,9 +58,6 @@ func (ic *ImageMagic) ConvertToWebp(oldFilePath string, newFilePath string) erro
 	defer mw.Destroy()
 	if err := mw.ReadImage(oldFilePath); err != nil {
 		return fmt.Errorf("failed to read image: %w", err)
-	}
-	if err := mw.SetImageFormat("webp"); err != nil {
-		return fmt.Errorf("failed to set image format webp: %w", err)
 	}
 
 	mw.SetCompressionQuality(ic.compressionQuality)

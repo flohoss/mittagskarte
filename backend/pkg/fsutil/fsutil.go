@@ -19,7 +19,8 @@ func LocalPath(f *filesystem.File, dir string) (path string, cleanup func(), err
 		if err != nil {
 			return "", nil, err
 		}
-		tmp := filepath.Join(dir, fmt.Sprintf("upload_%d", time.Now().UnixNano()))
+		ext := filepath.Ext(f.Name)
+		tmp := filepath.Join(dir, fmt.Sprintf("upload_%d%s", time.Now().UnixNano(), ext))
 		out, err := os.Create(tmp)
 		if err != nil {
 			rc.Close()

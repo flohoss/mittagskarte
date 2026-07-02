@@ -4,7 +4,7 @@ ARG V_AIR
 ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
-FROM node:${V_NODE}-slim AS final
+FROM node:${V_NODE}-trixie-slim AS final
 WORKDIR /app
 
 ARG V_PLAYWRIGHT
@@ -12,7 +12,8 @@ RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     git gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    libmagickwand-7.q16-dev libmagickcore-7.q16-dev imagemagick libmupdf-dev \
+    libheif1 libheif-plugin-libde265 libheif-plugin-dav1d \
     apt-transport-https ca-certificates curl tzdata > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 &&  \

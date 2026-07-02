@@ -3,12 +3,12 @@ ARG V_NODE
 ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
-FROM node:${V_NODE}-slim AS backend-builder
+FROM node:${V_NODE}-trixie-slim AS backend-builder
 WORKDIR /app/backend
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-    libmagickwand-dev libmagickcore-dev imagemagick libmupdf-dev \
+    libmagickwand-7.q16-dev libmagickcore-7.q16-dev imagemagick libmupdf-dev \
     apt-transport-https ca-certificates > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
@@ -23,7 +23,7 @@ RUN go mod download
 COPY ./backend/ ./
 RUN go build -ldflags="-s -w" -o /out/mittag .
 
-FROM node:${V_NODE}-slim AS frontend-builder
+FROM node:${V_NODE}-trixie-slim AS frontend-builder
 WORKDIR /app/frontend
 
 ARG APP_VERSION
@@ -37,7 +37,7 @@ RUN yarn install --frozen-lockfile --network-timeout 30000 --silent
 COPY ./frontend/ ./
 RUN yarn build
 
-FROM node:${V_NODE}-slim AS final
+FROM node:${V_NODE}-trixie-slim AS final
 WORKDIR /app
 
 ARG V_PLAYWRIGHT
@@ -45,7 +45,8 @@ RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     libnss3 libnet1 dumb-init ca-certificates curl tzdata \
-    libmagickwand-6.q16-6 imagemagick libmupdf-dev > /dev/null 2>&1 && \
+    libmagickwand-7.q16-10 imagemagick libmupdf-dev \
+    libheif1 libheif-plugin-libde265 libheif-plugin-dav1d > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -7,7 +7,7 @@ x-build-args: &build-args
 
 x-images:
   go: &go-image golang:${V_GOLANG:-1.26}-alpine
-  node: &node-image node:${V_NODE:-25}-alpine
+  node: &node-image node:${V_NODE:-25}-trixie-slim
 
 services:
   backend:
