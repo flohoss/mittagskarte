@@ -16,34 +16,20 @@ jobs:
   test-backend:
     name: Backend Test and Coverage
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: backend/go.mod
-          cache: true
-
-      - name: Install native dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pkg-config libmagickwand-7.q16-dev libmagickcore-7.q16-dev curl
-
       - name: Run Go tests with coverage
-        run: go test ./... -covermode=atomic -coverprofile=coverage.out
-
-      - name: Show coverage summary
         run: |
-          go tool cover -func=coverage.out | tee coverage.txt
+          docker compose run --rm backend sh -c '
+            go test ./... -covermode=atomic -coverprofile=coverage.out &&
+            go tool cover -func=coverage.out | tee coverage.txt
+          '
           echo "## Coverage" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat coverage.txt >> "$GITHUB_STEP_SUMMARY"
+          cat backend/coverage.txt >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage artifacts
@@ -65,23 +51,11 @@ jobs:
   test-frontend:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: frontend/.nvmrc
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Run frontend tests
-        run: npm test
+        run: |
+          docker compose run --rm frontend sh -c 'npm ci && npm test'

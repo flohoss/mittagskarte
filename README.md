@@ -245,8 +245,8 @@ Compose services:
 Install or update frontend dependencies:
 
 ```sh
-docker compose run --rm yarn install --frozen-lockfile
-docker compose run --rm yarn upgrade --latest
+docker compose run --rm npm install
+docker compose run --rm npm upgrade
 ```
 
 Update Go modules:
@@ -260,7 +260,7 @@ Build the frontend manually:
 
 ```sh
 cd frontend
-yarn build
+npm build
 ```
 
 ## Notes
