@@ -246,8 +246,11 @@ export const useRestaurants = createGlobalState(() => {
     restaurants.value.splice(index, 1);
   }
 
+  let unsubscribeStatus: (() => void) | null = null;
+  let unsubscribeRestaurants: (() => void) | null = null;
+
   async function subscribeRealtime() {
-    await backendClient.subscribeRestaurantStatus((event: RestaurantStatusEvent & { cooldownSeconds?: number; coolDownSeconds?: number }) => {
+    unsubscribeStatus = await backendClient.subscribeRestaurantStatus((event: RestaurantStatusEvent & { cooldownSeconds?: number; coolDownSeconds?: number }) => {
       setRestaurantStatus(
         event.id,
         event.status as RestaurantStatus,
@@ -255,7 +258,7 @@ export const useRestaurants = createGlobalState(() => {
       );
     });
 
-    await backendClient.subscribeRestaurants((action, record) => {
+    unsubscribeRestaurants = await backendClient.subscribeRestaurants((action, record) => {
       if (action === 'delete') {
         removeRestaurant(record.id);
         return;
@@ -265,6 +268,13 @@ export const useRestaurants = createGlobalState(() => {
         mergeRestaurant(record);
       }
     });
+  }
+
+  function unsubscribeRealtime() {
+    unsubscribeStatus?.();
+    unsubscribeStatus = null;
+    unsubscribeRestaurants?.();
+    unsubscribeRestaurants = null;
   }
 
   function preloadImageUrls(urls: string[]) {
@@ -417,6 +427,7 @@ export const useRestaurants = createGlobalState(() => {
     restaurantSortOptions,
     restaurantGroupingOptions,
     initialize,
+    unsubscribeRealtime,
     isLoading,
     fetchRestaurants,
     getFileUrl,

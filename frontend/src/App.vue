@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router';
-import { computed, watch } from 'vue';
+import { computed, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import AppShell from './components/AppShell.vue';
@@ -10,7 +10,11 @@ import { useRestaurants } from './stores/useRestaurants';
 
 const route = useRoute();
 const router = useRouter();
-const { initialize, filteredRestaurants, isLoading, searchQuery, applySearch } = useRestaurants();
+const { initialize, unsubscribeRealtime, filteredRestaurants, isLoading, searchQuery, applySearch } = useRestaurants();
+
+onBeforeUnmount(() => {
+  unsubscribeRealtime();
+});
 const querySearch = useRouteQuery<string | undefined>('q', undefined, { mode: 'replace' });
 const hasRestaurants = computed(() => filteredRestaurants.value.length > 0);
 

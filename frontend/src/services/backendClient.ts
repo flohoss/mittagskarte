@@ -122,14 +122,16 @@ async function fetchRestaurants() {
   return client.collection('restaurants').getFullList<RestaurantRecord>(RESTAURANT_LIST_OPTIONS);
 }
 
-async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent) => void) {
-  await client.realtime.subscribe('restaurants/status', (event: RestaurantStatusEvent) => {
+type Unsubscribe = () => void;
+
+async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent) => void): Promise<Unsubscribe> {
+  return client.realtime.subscribe('restaurants/status', (event: RestaurantStatusEvent) => {
     handler(event);
   });
 }
 
-async function subscribeRestaurants(handler: (action: string, record: RestaurantRecord) => void) {
-  await client.collection('restaurants').subscribe(
+async function subscribeRestaurants(handler: (action: string, record: RestaurantRecord) => void): Promise<Unsubscribe> {
+  return client.collection('restaurants').subscribe(
     '*',
     (event: RestaurantSubscriptionEvent) => {
       handler(event.action, normalizeRestaurant(event.record));
