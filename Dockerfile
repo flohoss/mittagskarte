@@ -40,9 +40,6 @@ RUN npm run build
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-ARG V_PLAYWRIGHT
-RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
-
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     libnss3 libnet1 dumb-init ca-certificates curl tzdata \
     libmagickwand-7.q16-10 imagemagick libmupdf-dev \
@@ -50,6 +47,9 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ARG V_PLAYWRIGHT
+RUN npx -y playwright@v${V_PLAYWRIGHT} install chromium > /dev/null 2>&1
 
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}

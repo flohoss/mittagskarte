@@ -7,9 +7,6 @@ FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
-ARG V_PLAYWRIGHT
-RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
-
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     git gnupg libc6-dev libnss3-dev libnet-dev build-essential \
     libmagickwand-7.q16-dev libmagickcore-7.q16-dev imagemagick libmupdf-dev \
@@ -24,6 +21,9 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
 ARG V_AIR
 RUN go install github.com/air-verse/air@v${V_AIR}
+
+ARG V_PLAYWRIGHT
+RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 ENV APP_VERSION=v0.0.0.0-dev
 

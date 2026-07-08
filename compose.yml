@@ -29,7 +29,8 @@ services:
       - ./backend:/app
     environment:
       - DEV=true
-      - TZ=Europe/Berlin
+      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL:-}
+      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD:-}
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8090/health']
       start_period: 10s
