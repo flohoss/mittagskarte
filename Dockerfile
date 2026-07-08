@@ -1,6 +1,5 @@
 ARG V_GOLANG
 ARG V_NODE
-ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS backend-builder
@@ -49,7 +48,7 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG V_PLAYWRIGHT
-RUN npx -y playwright@v${V_PLAYWRIGHT} install chromium > /dev/null 2>&1
+RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
 
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}

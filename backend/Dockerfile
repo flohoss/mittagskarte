@@ -1,7 +1,6 @@
 ARG V_NODE
 ARG V_GOLANG
 ARG V_AIR
-ARG V_PLAYWRIGHT
 
 FROM golang:${V_GOLANG} AS golang
 FROM node:${V_NODE}-slim AS final
