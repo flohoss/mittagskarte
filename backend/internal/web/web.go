@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"log/slog"
+	"sync"
 
 	"github.com/mxschmitt/playwright-go"
 )
@@ -16,28 +17,54 @@ func New() (*Web, error) {
 }
 
 type Web struct {
-	browser            playwright.Browser
-	pw                 *playwright.Playwright
+	browser playwright.Browser
+	pw      *playwright.Playwright
+
+	mu                 sync.Mutex
 	browserInitialized bool
 }
 
 func (s *Web) Close() {
-	if s.browserInitialized {
-		s.browser.Close()
+	s.mu.Lock()
+	browser := s.browser
+	s.browser = nil
+	s.browserInitialized = false
+	s.mu.Unlock()
+
+	if browser != nil {
+		browser.Close()
 	}
 	s.pw.Stop()
 }
 
 func (s *Web) init() error {
-	if s.browserInitialized {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.browserInitialized && s.browser != nil && s.browser.IsConnected() {
 		return nil
 	}
+
+	if s.browserInitialized && s.browser != nil {
+		s.browser.Close()
+		s.browserInitialized = false
+	}
+
 	browser, err := s.pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
 		Headless: playwright.Bool(true),
 	})
 	if err != nil {
 		return fmt.Errorf("could not launch chromium: %w", err)
 	}
+
+	browser.OnDisconnected(func(_ playwright.Browser) {
+		s.mu.Lock()
+		s.browserInitialized = false
+		s.browser = nil
+		s.mu.Unlock()
+		slog.Warn("Chromium browser disconnected; will relaunch on next scrape")
+	})
+
 	s.browser = browser
 	s.browserInitialized = true
 	return nil

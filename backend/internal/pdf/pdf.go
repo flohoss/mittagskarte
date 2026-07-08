@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"image"
+	"image/draw"
 	"os"
 
 	"github.com/chai2010/webp"
@@ -11,6 +12,7 @@ import (
 const (
 	minimumPDFWidthPx = 1200
 	defaultRenderDPI  = 72.0
+	maxMergePages     = 10
 )
 
 func MergeAllPDFPagesToWebp(inputPDFPath, outputWebpPath string) error {
@@ -28,8 +30,10 @@ func MergeAllPDFPagesToWebp(inputPDFPath, outputWebpPath string) error {
 		return FirstPDFPageToWebp(inputPDFPath, outputWebpPath)
 	}
 
-	images := make([]image.Image, 0, pageCount)
-	for i := 0; i < pageCount; i++ {
+	renderCount := min(pageCount, maxMergePages)
+
+	images := make([]image.Image, 0, renderCount)
+	for i := range renderCount {
 		img, err := renderPDFPageWithMinimumWidth(doc, i, minimumPDFWidthPx)
 		if err != nil {
 			return err
@@ -113,11 +117,7 @@ func getHorizontalCenterOffset(img image.Image, maxWidth int) int {
 
 func copyImageToPosition(dst *image.RGBA, src image.Image, offsetX, offsetY int) {
 	r := src.Bounds()
-	for y := 0; y < r.Dy(); y++ {
-		for x := 0; x < r.Dx(); x++ {
-			dst.Set(x+offsetX, y+offsetY, src.At(r.Min.X+x, r.Min.Y+y))
-		}
-	}
+	draw.Draw(dst, image.Rect(offsetX, offsetY, offsetX+r.Dx(), offsetY+r.Dy()), src, r.Min, draw.Src)
 }
 
 func encodeImageAsWebp(filePath string, img image.Image) error {
