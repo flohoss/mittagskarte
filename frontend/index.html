@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Finde täglich aktuelle Mittagsangebote und Restaurants in Stuttgart und Umgebung. Schniddzl.de bietet dir eine einzigartige Übersicht über die besten Mittagstische, Speisekarten und kulinarische Highlights der Region." />
+    <meta
+      name="description"
+      content="Finde täglich aktuelle Mittagsangebote und Restaurants in Stuttgart und Umgebung. Schniddzl.de bietet dir eine einzigartige Übersicht über die besten Mittagstische, Speisekarten und kulinarische Highlights der Region."
+    />
     <meta name="google" content="notranslate" />
     <meta property="og:title" content="Schniddzl.de – Die beste Übersicht für Mittagessen in Stuttgart" />
-    <meta property="og:description" content="Täglich aktuelle Mittagsangebote, Restaurants und Speisekarten für Stuttgart und Umgebung. Jetzt entdecken und genießen!" />
+    <meta
+      property="og:description"
+      content="Täglich aktuelle Mittagsangebote, Restaurants und Speisekarten für Stuttgart und Umgebung. Jetzt entdecken und genießen!"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://schniddzl.de/" />
     <meta property="og:image" content="https://schniddzl.de/static/schniddzl.webp" />
@@ -23,22 +29,22 @@
     <meta name="apple-mobile-web-app-title" content="Schniddzl.de" />
     <link rel="manifest" href="/static/site.webmanifest" />
     <title>Mittagessen Stuttgart: Täglich aktuelle Mittagsangebote & Restaurants | Schniddzl.de</title>
-      <!-- Structured Data for SEO -->
-      <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "Schniddzl.de",
-          "url": "https://schniddzl.de/",
-          "description": "Finde täglich aktuelle Mittagsangebote und Restaurants in Stuttgart und Umgebung. Schniddzl.de bietet dir eine einzigartige Übersicht über die besten Mittagstische, Speisekarten und kulinarische Highlights der Region.",
-          "inLanguage": "de-DE",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://schniddzl.de/?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-          }
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Schniddzl.de",
+        "url": "https://schniddzl.de/",
+        "description": "Finde täglich aktuelle Mittagsangebote und Restaurants in Stuttgart und Umgebung. Schniddzl.de bietet dir eine einzigartige Übersicht über die besten Mittagstische, Speisekarten und kulinarische Highlights der Region.",
+        "inLanguage": "de-DE",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://schniddzl.de/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
         }
-      </script>
+      }
+    </script>
   </head>
   <body>
     <noscript>
@@ -49,8 +55,7 @@
           {{ range .Restaurants }}
           <li>
             <strong>{{ .Name }}</strong>
-            {{ if .Website }}
-            –
+            {{ if .Website }} –
             <a href="{{ .Website }}">{{ .Website }}</a>
             {{ end }}
           </li>
