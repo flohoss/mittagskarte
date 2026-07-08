@@ -5,6 +5,12 @@
 > this repository. Read it before making changes. It is intentionally rule-oriented and
 > self-contained.
 
+## Code style
+
+- **No comments.** If something needs clarification, use a function or service name that explains it.
+- **No code markers** like `// ... existing code ...` in edits.
+- Go imports: stdlib, then external, then internal (`github.com/flohoss/chat/...`), each block alphabetical.
+
 ## Git
 
 Split commit message to a meaningful scope!
@@ -20,3 +26,12 @@ Split commit message to a meaningful scope!
   - `[refactor]` — formatting, renaming, structural-only changes
 - Capitalize the first letter after the prefix.
 - **Title only — no body.**
+
+## Verification after changes
+
+After any code change, **always run these before committing** — do not skip even for small edits:
+
+- **Backend:** `docker compose run --rm go fmt ./...`
+- **Frontend:** `docker compose run --rm npm run format`
+
+Only commit if all commands pass.
