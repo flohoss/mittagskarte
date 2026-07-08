@@ -19,8 +19,8 @@ The current stack is:
 ## Screenshots
 
 <p align="center">
-  <img src="images/dark.webp" width="800" />
-  <img src="images/light.webp" width="800" />
+  <img src="screenshots/dark.webp" width="800" />
+  <img src="screenshots/light.webp" width="800" />
 </p>
 
 ## Architecture
