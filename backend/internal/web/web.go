@@ -67,6 +67,9 @@ func (s *Web) Run(url string, fn func(page playwright.Page) error) error {
 	if err != nil {
 		return fmt.Errorf("could not navigate to page: %v", err)
 	}
+	if response == nil {
+		return fmt.Errorf("received nil response for %s", url)
+	}
 	if response.Status() >= 400 {
 		return fmt.Errorf("received %d: %s", response.Status(), response.StatusText())
 	}

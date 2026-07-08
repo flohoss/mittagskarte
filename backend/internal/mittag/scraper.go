@@ -135,32 +135,44 @@ func (s *Scraper) runScrapeWorker() {
 			return
 		}
 
-		s.notifyRestaurantStatus(restaurantID)
+		s.processScrape(restaurantID)
+	}
+}
 
-		r, err := s.getRestaurantByID(restaurantID)
-		if err != nil {
-			s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
+func (s *Scraper) processScrape(restaurantID string) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.app.Logger().Error("Panic during scrape, recovering", "id", restaurantID, "panic", r)
 			s.markScrapeDone(restaurantID)
 			s.notifyRestaurantStatus(restaurantID)
-			continue
 		}
+	}()
 
-		scrapeErr := s.scrapeSingle(r)
-		if errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) {
-			s.app.Logger().Warn("Skipped automated update: manual upload only", "name", r.Name)
-		} else if errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
-			s.app.Logger().Warn("No menu change detected", "name", r.Name)
-		} else if scrapeErr != nil {
-			s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", scrapeErr)
-		}
+	s.notifyRestaurantStatus(restaurantID)
 
+	r, err := s.getRestaurantByID(restaurantID)
+	if err != nil {
+		s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
 		s.markScrapeDone(restaurantID)
-		status, detail := restaurant.LastCheckFromError(scrapeErr)
-		if err := restaurant.UpdateLastCheck(s.app, restaurantID, status, detail); err != nil {
-			s.app.Logger().Error("Failed to save last_check for restaurant", "id", restaurantID, "error", err)
-		}
 		s.notifyRestaurantStatus(restaurantID)
+		return
 	}
+
+	scrapeErr := s.scrapeSingle(r)
+	if errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) {
+		s.app.Logger().Warn("Skipped automated update: manual upload only", "name", r.Name)
+	} else if errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
+		s.app.Logger().Warn("No menu change detected", "name", r.Name)
+	} else if scrapeErr != nil {
+		s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", scrapeErr)
+	}
+
+	s.markScrapeDone(restaurantID)
+	status, detail := restaurant.LastCheckFromError(scrapeErr)
+	if err := restaurant.UpdateLastCheck(s.app, restaurantID, status, detail); err != nil {
+		s.app.Logger().Error("Failed to save last_check for restaurant", "id", restaurantID, "error", err)
+	}
+	s.notifyRestaurantStatus(restaurantID)
 }
 
 func (s *Scraper) dequeueScrapeID() (string, bool) {
