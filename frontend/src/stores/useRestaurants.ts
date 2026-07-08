@@ -250,13 +250,15 @@ export const useRestaurants = createGlobalState(() => {
   let unsubscribeRestaurants: (() => void) | null = null;
 
   async function subscribeRealtime() {
-    unsubscribeStatus = await backendClient.subscribeRestaurantStatus((event: RestaurantStatusEvent & { cooldownSeconds?: number; coolDownSeconds?: number }) => {
-      setRestaurantStatus(
-        event.id,
-        event.status as RestaurantStatus,
-        typeof event.coolDownSeconds === 'number' ? event.coolDownSeconds : event.cooldownSeconds
-      );
-    });
+    unsubscribeStatus = await backendClient.subscribeRestaurantStatus(
+      (event: RestaurantStatusEvent & { cooldownSeconds?: number; coolDownSeconds?: number }) => {
+        setRestaurantStatus(
+          event.id,
+          event.status as RestaurantStatus,
+          typeof event.coolDownSeconds === 'number' ? event.coolDownSeconds : event.cooldownSeconds
+        );
+      }
+    );
 
     unsubscribeRestaurants = await backendClient.subscribeRestaurants((action, record) => {
       if (action === 'delete') {
@@ -392,7 +394,6 @@ export const useRestaurants = createGlobalState(() => {
       groups.Alle = nextRestaurants;
       return groups;
     }
-
 
     const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
     if (favoriteRestaurants.length) {

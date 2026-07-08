@@ -43,9 +43,7 @@ function formatDate(value: string) {
       rel="noreferrer"
       :class="['card group block overflow-hidden', landscapeLayout ? 'lg:col-span-2' : 'lg:col-span-1']"
     >
-      <div
-        :class="['relative w-full overflow-hidden bg-base-200', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']"
-      >
+      <div :class="['relative w-full overflow-hidden bg-base-200', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']">
         <img
           :src="menuUrlsById.get(menu.id)"
           :alt="`Speisekarte vom ${formatDate(menu.created)}`"

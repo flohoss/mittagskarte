@@ -63,8 +63,6 @@ const sortIconComponent = computed(() => {
   return getSortIcon(sortBy.value);
 });
 
-
-
 const authStatus = computed(() => {
   return isAuthenticated.value ? '✓ Angemeldet' : '○ Gast';
 });
@@ -129,19 +127,9 @@ defineExpose({
 
     <!-- Sort Button -->
     <div class="dropdown dropdown-end">
-      <button 
-        type="button" 
-        class="btn btn-soft btn-square shrink-0"
-        :aria-label="`Sortierung: ${sortLabel}`" 
-        tabindex="0"
-      >
+      <button type="button" class="btn btn-soft btn-square shrink-0" :aria-label="`Sortierung: ${sortLabel}`" tabindex="0">
         <Transition name="sort-indicator" mode="out-in">
-          <span
-            v-if="geolocationLoading"
-            key="spinner"
-            class="sort-indicator sort-indicator-spinner loading loading-spinner size-5"
-            aria-hidden="true"
-          />
+          <span v-if="geolocationLoading" key="spinner" class="sort-indicator sort-indicator-spinner loading loading-spinner size-5" aria-hidden="true" />
           <component v-else :is="sortIconComponent" key="icon" class="sort-indicator size-5" aria-hidden="true" />
         </Transition>
       </button>
@@ -177,7 +165,7 @@ defineExpose({
     <!-- Auth Button -->
     <template v-if="isAuthenticated">
       <div class="dropdown dropdown-end">
-        <button type="button" class="btn btn-soft btn-square btn-success shrink-0" :aria-label="authStatus" tabindex="0">
+        <button type="button" class="btn btn-square btn-success shrink-0" :aria-label="authStatus" tabindex="0">
           <component :is="authIconComponent" class="size-5" aria-hidden="true" />
         </button>
         <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-50 w-48 p-2 shadow border border-base-300/50">
@@ -201,7 +189,9 @@ defineExpose({
 <style scoped>
 .sort-indicator-enter-active,
 .sort-indicator-leave-active {
-  transition: opacity 140ms ease, transform 140ms ease;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
 }
 
 .sort-indicator-enter-from,

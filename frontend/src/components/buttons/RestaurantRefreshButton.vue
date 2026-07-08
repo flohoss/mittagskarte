@@ -25,10 +25,7 @@ const isDragOver = ref(false);
 const dragCounter = ref(0);
 
 const ACCEPTED_TYPES = ['image/', 'application/pdf'];
-const ACCEPTED_EXTENSIONS = [
-  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.tif',
-  '.heic', '.heif', '.avif', '.svg', '.ico', '.pdf',
-];
+const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.tif', '.heic', '.heif', '.avif', '.svg', '.ico', '.pdf'];
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 
 const acceptedExtensions = ACCEPTED_EXTENSIONS.join(', ');
@@ -259,14 +256,7 @@ async function triggerRefresh() {
         <label class="label px-0 pb-1">
           <span class="label-text">Datei (Bild oder PDF)</span>
         </label>
-        <input
-          ref="uploadFileInput"
-          type="file"
-          class="hidden"
-          :accept="acceptedExtensions"
-          :disabled="isUploading"
-          @change="onFileChange"
-        />
+        <input ref="uploadFileInput" type="file" class="hidden" :accept="acceptedExtensions" :disabled="isUploading" @change="onFileChange" />
 
         <div
           v-if="!uploadFile"
@@ -293,10 +283,7 @@ async function triggerRefresh() {
           <div class="text-xs text-base-content/60">Bilder, TIFF, HEIC, AVIF oder PDF · max. 25 MB</div>
         </div>
 
-        <div
-          v-else
-          class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-200/50 p-3"
-        >
+        <div v-else class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-200/50 p-3">
           <Fa7SolidFile class="size-8 shrink-0 text-primary" aria-hidden="true" />
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium text-base-content">{{ formattedUploadFile?.name }}</div>
