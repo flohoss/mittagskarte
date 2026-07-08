@@ -7,7 +7,7 @@ require (
 	github.com/chai2010/webp v1.4.0
 	github.com/gen2brain/go-fitz v1.28.1
 	github.com/goodsign/monday v1.0.2
-	github.com/playwright-community/playwright-go v0.6000.0
+	github.com/mxschmitt/playwright-go v0.6100.0
 	github.com/pocketbase/dbx v1.12.0
 	github.com/pocketbase/pocketbase v0.39.5
 	golang.org/x/image v0.43.0

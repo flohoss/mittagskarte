@@ -3,7 +3,7 @@ x-build-args: &build-args
   V_GOLANG: ${V_GOLANG:-1.26}
   V_NODE: ${V_NODE:-26}
   V_AIR: ${V_AIR:-1.65.3}
-  V_PLAYWRIGHT: ${V_PLAYWRIGHT:-1.61.1}
+  V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6100.0}
 
 x-images:
   go: &go-image golang:${V_GOLANG:-1.26}-alpine

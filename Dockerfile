@@ -22,6 +22,9 @@ RUN go mod download
 COPY ./backend/ ./
 RUN go build -ldflags="-s -w" -o /out/mittag .
 
+ARG V_PLAYWRIGHT
+RUN go install github.com/mxschmitt/playwright-go/cmd/playwright@v${V_PLAYWRIGHT}
+
 FROM node:${V_NODE}-slim AS frontend-builder
 WORKDIR /app/frontend
 
@@ -47,8 +50,9 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG V_PLAYWRIGHT
-RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
+COPY --from=backend-builder /root/go/bin/playwright /usr/local/bin/playwright
+RUN playwright install --with-deps chromium > /dev/null 2>&1 && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}

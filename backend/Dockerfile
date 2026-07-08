@@ -21,10 +21,10 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ARG V_AIR
 RUN go install github.com/air-verse/air@v${V_AIR}
 
-ARG V_PLAYWRIGHT
-RUN npx -y playwright@v${V_PLAYWRIGHT} install-deps chromium > /dev/null 2>&1
-
 ENV APP_VERSION=v0.0.0.0-dev
 
 COPY ./go.mod ./go.sum ./
 RUN go mod download
+
+ARG V_PLAYWRIGHT
+RUN go run github.com/mxschmitt/playwright-go/cmd/playwright@v${V_PLAYWRIGHT} install --with-deps chromium > /dev/null 2>&1

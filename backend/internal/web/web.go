@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/playwright-community/playwright-go"
+	"github.com/mxschmitt/playwright-go"
 )
 
 func New() (*Web, error) {
-	if err := playwright.Install(&playwright.RunOptions{Browsers: []string{"chromium"}}); err != nil {
-		return nil, fmt.Errorf("could not install driver: %w", err)
-	}
 	pw, err := playwright.Run()
 	if err != nil {
 		return nil, fmt.Errorf("could not start playwright: %w", err)
