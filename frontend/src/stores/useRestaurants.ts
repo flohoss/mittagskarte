@@ -5,18 +5,20 @@ import type { RestaurantRecord, RestaurantStatusEvent } from '../models/restaura
 import { backendClient } from '../services/backendClient';
 import { useFavorites } from './useFavorites';
 
-export enum RestaurantStatus {
-  QUEUED = 'queued',
-  UPDATING = 'updating',
-  COOLDOWN = 'cooldown',
-  IDLE = 'idle',
-}
+export const RestaurantStatus = {
+  QUEUED: 'queued',
+  UPDATING: 'updating',
+  COOLDOWN: 'cooldown',
+  IDLE: 'idle',
+} as const;
+export type RestaurantStatus = (typeof RestaurantStatus)[keyof typeof RestaurantStatus];
 
-export enum RestaurantMethod {
-  SCRAPE = 'scrape',
-  DOWNLOAD = 'download',
-  UPLOAD = 'upload',
-}
+export const RestaurantMethod = {
+  SCRAPE: 'scrape',
+  DOWNLOAD: 'download',
+  UPLOAD: 'upload',
+} as const;
+export type RestaurantMethod = (typeof RestaurantMethod)[keyof typeof RestaurantMethod];
 
 export type RestaurantSort = 'name-asc' | 'name-desc' | 'menu-newest' | 'menu-oldest' | 'distance-asc';
 export type RestaurantGrouping = 'group' | 'none';
