@@ -5,7 +5,7 @@ parser:
 
 generator:
   filters:
-    path_regex: '^/api/v1/(tools|download|pipeline)/.*'
+    path_regex: '^/api/v1/(tools|download|pipeline|admin|features)(/.*)?$'
   features:
     enable:
       - client/editors

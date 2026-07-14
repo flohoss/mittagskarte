@@ -35,6 +35,9 @@ func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*M
 	}
 
 	snapOtterClient := snapotter.New(snapOtterURL)
+	if err := snapOtterClient.Setup(); err != nil {
+		return nil, fmt.Errorf("setup snapotter: %w", err)
+	}
 
 	m := &Mittag{app: app}
 	m.scraper = NewScraper(app, webService, snapOtterClient, restaurant.GetRestaurantsWithNavigate, coolDownDuration)

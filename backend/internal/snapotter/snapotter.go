@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/flohoss/mittagskarte/pkg/snapotter/api"
 
@@ -90,6 +91,68 @@ func (c *Client) downloadFromTool(toolResp *api.ToolResponse, outputPath string)
 	return c.download(jobId, downloadUrl, outputPath)
 }
 
+func (c *Client) Setup() error {
+	res, err := c.api.ListFeatures(context.Background())
+	if err != nil {
+		return fmt.Errorf("list features: %w", err)
+	}
+
+	okResp, ok := res.(*api.ListFeaturesOK)
+	if !ok {
+		return fmt.Errorf("list features returned unexpected response: %T", res)
+	}
+
+	for _, bundle := range okResp.GetBundles() {
+		id, _ := bundle.GetID().Get()
+		if id != "face-detection" {
+			continue
+		}
+		status, _ := bundle.GetStatus().Get()
+		if status == api.ListFeaturesOKBundlesItemStatusInstalled {
+			return nil
+		}
+
+		installRes, err := c.api.InstallFeature(context.Background(), api.InstallFeatureParams{
+			BundleId: id,
+		})
+		if err != nil {
+			return fmt.Errorf("install feature %s: %w", id, err)
+		}
+		if _, ok := installRes.(*api.InstallFeatureAccepted); !ok {
+			return fmt.Errorf("install feature %s returned unexpected response: %T", id, installRes)
+		}
+
+		for range 60 {
+			time.Sleep(5 * time.Second)
+			checkRes, err := c.api.ListFeatures(context.Background())
+			if err != nil {
+				continue
+			}
+			checkOk, ok := checkRes.(*api.ListFeaturesOK)
+			if !ok {
+				continue
+			}
+			for _, b := range checkOk.GetBundles() {
+				bid, _ := b.GetID().Get()
+				if bid != id {
+					continue
+				}
+				bs, _ := b.GetStatus().Get()
+				if bs == api.ListFeaturesOKBundlesItemStatusInstalled {
+					return nil
+				}
+				if bs == api.ListFeaturesOKBundlesItemStatusNotInstalled {
+					return fmt.Errorf("feature %s installation failed", id)
+				}
+				break
+			}
+		}
+		return fmt.Errorf("feature %s installation timed out", id)
+	}
+
+	return nil
+}
+
 func (c *Client) ProcessFileToWebp(sourcePath, outputPath string) error {
 	if isPDFFile(sourcePath) {
 		return c.pdfToWebp(sourcePath, outputPath)
@@ -149,14 +212,14 @@ func (c *Client) pdfToWebp(inputPath, outputPath string) error {
 	}
 
 	if len(pagePaths) == 1 {
-		return c.OptimizeForWebp(pagePaths[0], outputPath, 1920)
+		return c.imageToWebp(pagePaths[0], outputPath)
 	}
 
 	stitchedPath := filepath.Join(tmpDir, "stitched.png")
 	if err := c.StitchImagesVertical(pagePaths, stitchedPath); err != nil {
 		return fmt.Errorf("stitch pdf pages: %w", err)
 	}
-	return c.OptimizeForWebp(stitchedPath, outputPath, 1920)
+	return c.imageToWebp(stitchedPath, outputPath)
 }
 
 func isPDFFile(sourcePath string) bool {
@@ -179,35 +242,6 @@ func isPDFFile(sourcePath string) bool {
 	return http.DetectContentType(header[:readBytes]) == "application/pdf"
 }
 
-func (c *Client) OptimizeForWebp(inputPath, outputPath string, maxWidth int) error {
-	file, cleanup, err := c.multipartFile(inputPath)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
-	settings, _ := json.Marshal(map[string]any{
-		"format":   "webp",
-		"quality":  85,
-		"maxWidth": maxWidth,
-	})
-
-	res, err := c.api.OptimizeForWeb(context.Background(), &api.OptimizeForWebReq{
-		File:     file,
-		Settings: api.NewOptString(string(settings)),
-	})
-	if err != nil {
-		return fmt.Errorf("optimize for web request: %w", err)
-	}
-
-	toolResp, ok := res.(*api.ToolResponse)
-	if !ok {
-		return fmt.Errorf("optimize for web returned unexpected response: %T", res)
-	}
-
-	return c.downloadFromTool(toolResp, outputPath)
-}
-
 func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create output dir: %w", err)
@@ -221,7 +255,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 
 	settings, _ := json.Marshal(map[string]any{
 		"format": "png",
-		"dpi":    150,
+		"dpi":    300,
 	})
 
 	res, err := c.api.PdfToImage(context.Background(), &api.PdfToImageReq{
