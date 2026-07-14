@@ -106,8 +106,8 @@ services:
       LOG_LEVEL: warn
     volumes:
       - snapotter:/data
-    expose:
-      - 1349
+    ports:
+      - '1349:1349'
     healthcheck:
       test:
         [
@@ -142,17 +142,9 @@ services:
       snapotter-schema:
         condition: service_completed_successfully
     build:
-      dockerfile_inline: |
-        ARG V_GOLANG
-        ARG V_OGEN
-        FROM golang:${V_GOLANG}
-
-        ARG V_OGEN
-        RUN go install github.com/ogen-go/ogen/cmd/ogen@v${V_OGEN}
-      args:
-        <<: *build-args
-    working_dir: /app
-    entrypoint: go generate ./...
+      context: backend
+      args: *build-args
+    command: go generate ./pkg/snapotter
     volumes:
       - ./backend:/app/
 

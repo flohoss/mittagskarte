@@ -236,6 +236,7 @@ Development URLs:
 - frontend: `http://localhost:5173`
 - backend: `http://localhost:8090`
 - PocketBase dashboard: `http://localhost:8090/_/`
+- SnapOtter: `http://localhost:1349`
 
 Compose services:
 
