@@ -14,7 +14,8 @@ The current stack is:
 - Go backend with PocketBase
 - Vue 3 frontend built with Vite
 - PocketBase collections and migrations for restaurant data
-- Playwright, MuPDF, and ImageMagick for scraping and file conversion
+- Playwright for scraping
+- [SnapOtter](https://github.com/snapotter-hq/snapotter) for image and PDF processing via API
 
 ## Screenshots
 
@@ -76,11 +77,15 @@ Restaurant menus can be obtained in three ways:
 - download files directly
 - upload files manually
 
-Files are normalized by the backend and stored in PocketBase-managed records. The app supports PDF and image sources and generates browser-friendly menu images for the frontend.
+Files are processed by [SnapOtter](https://github.com/snapotter-hq/snapotter), a self-hosted file processing service running as a Docker container in the same stack. The backend sends scraped or uploaded files to the SnapOtter API, which handles image trimming, PDF-to-image conversion, stitching, and WebP optimization. The processed WebP images are then stored in PocketBase-managed records.
+
+For images, the backend uses SnapOtter's pipeline API to chain `smart-crop` (trim) and `optimize-for-web` (WebP) in a single request.
+
+For PDFs, the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
 
 For each menu create event, the backend:
 
-- converts input files to optimized `webp`
+- sends the input file to SnapOtter and downloads the processed `webp`
 - stores calculated dimensions (`width`, `height`, `landscape`)
 - computes a content hash and rejects unchanged uploads/scrapes
 - prepends the new menu id to the restaurant `menus` relation
@@ -191,7 +196,7 @@ The production image is built from the repository root through the `release` ser
 
 - the compiled Go/PocketBase binary
 - the built Vue `dist` output
-- runtime dependencies required for Playwright, MuPDF, and ImageMagick
+- runtime dependencies required for Playwright
 
 Build the release image locally:
 
@@ -236,9 +241,18 @@ Compose services:
 
 - `backend`: PocketBase backend with hot reload via `air`
 - `frontend`: Vite dev server
+- `snapotter`: SnapOtter file processing service (image/PDF conversion)
+- `snapotter-schema`: fetches the SnapOtter OpenAPI spec
+- `ogen`: generates the Go API client from the SnapOtter OpenAPI spec
 - `go`: helper container for Go commands
 - `npm`: helper container for frontend package commands
 - `release`: build-only production image target used by local release builds and CI
+
+The SnapOtter API client is generated from the service's OpenAPI spec using [ogen](https://github.com/ogen-go/ogen). The spec is fetched from the running SnapOtter container, filtered to `/api/v1/(tools|download|pipeline)/.*`, and the generated code lives in `backend/pkg/snapotter/api/` (gitignored). Regenerate with:
+
+```sh
+docker compose run --rm ogen
+```
 
 ## Common Commands
 
@@ -267,4 +281,4 @@ npm build
 
 - The backend expects a built frontend bundle in `dist` when serving the production app.
 - Release builds are driven from `compose.yml`, and CI reuses the same `release` target.
-- The repository currently targets `linux/amd64` for Docker builds because of native library dependencies used by `go-fitz` and ImageMagick.
+- The repository currently targets `linux/amd64` for Docker builds because of Playwright's Chromium binary.
