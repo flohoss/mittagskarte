@@ -281,4 +281,3 @@ npm build
 
 - The backend expects a built frontend bundle in `dist` when serving the production app.
 - Release builds are driven from `compose.yml`, and CI reuses the same `release` target.
-- The repository currently targets `linux/amd64` for Docker builds because of Playwright's Chromium binary.
