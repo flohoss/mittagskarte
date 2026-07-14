@@ -66,6 +66,10 @@ func TestFile(t *testing.T) {
 	t.Run("unreadable file", func(t *testing.T) {
 		t.Parallel()
 
+		if os.Getuid() == 0 {
+			t.Skip("root bypasses file permissions")
+		}
+
 		dir := t.TempDir()
 		path := filepath.Join(dir, "unreadable.txt")
 		if err := os.WriteFile(path, []byte("data"), 0o644); err != nil {
