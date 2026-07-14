@@ -1,9 +1,11 @@
 package snapotter
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"image"
 	"io"
 	"net/http"
 	"net/url"
@@ -14,8 +16,30 @@ import (
 
 	"github.com/flohoss/mittagskarte/pkg/snapotter/api"
 
+	_ "golang.org/x/image/webp"
+
 	ht "github.com/ogen-go/ogen/http"
 )
+
+type Result struct {
+	Data   []byte
+	Name   string
+	Width  int
+	Height int
+}
+
+func newResult(data []byte, name string) (Result, error) {
+	config, _, err := image.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return Result{}, fmt.Errorf("decode image dimensions: %w", err)
+	}
+	return Result{
+		Data:   data,
+		Name:   name,
+		Width:  config.Width,
+		Height: config.Height,
+	}, nil
+}
 
 type Client struct {
 	api *api.Client
@@ -54,45 +78,46 @@ func (c *Client) multipartFile(path string) (ht.MultipartFile, func(), error) {
 	}, func() { f.Close() }, nil
 }
 
-func (c *Client) download(jobId, filename, outputPath string) error {
+func (c *Client) downloadBytes(jobId, filename string) ([]byte, error) {
 	res, err := c.api.DownloadProcessedImage(context.Background(), api.DownloadProcessedImageParams{
 		JobId:    jobId,
 		Filename: filename,
 	})
 	if err != nil {
-		return fmt.Errorf("download request: %w", err)
+		return nil, fmt.Errorf("download request: %w", err)
 	}
 
 	r, ok := res.(*api.DownloadProcessedImageOKHeaders)
 	if !ok {
-		return fmt.Errorf("download returned unexpected response: %T", res)
+		return nil, fmt.Errorf("download returned unexpected response: %T", res)
 	}
 
-	out, err := os.Create(outputPath)
+	data, err := io.ReadAll(r.Response.Data)
 	if err != nil {
-		return fmt.Errorf("create output file: %w", err)
+		return nil, fmt.Errorf("read download response: %w", err)
 	}
-	defer out.Close()
-	if _, err := io.Copy(out, r.Response.Data); err != nil {
-		return fmt.Errorf("write output file: %w", err)
-	}
-	return nil
+	return data, nil
 }
 
-func (c *Client) downloadJob(jobId, downloadUrl, outputPath string) error {
-	return c.download(jobId, filepath.Base(downloadUrl), outputPath)
+func (c *Client) downloadJob(jobId, downloadUrl string) (Result, error) {
+	filename := filepath.Base(downloadUrl)
+	data, err := c.downloadBytes(jobId, filename)
+	if err != nil {
+		return Result{}, err
+	}
+	return newResult(data, filename)
 }
 
-func (c *Client) downloadFromTool(toolResp *api.ToolResponse, outputPath string) error {
+func (c *Client) downloadFromTool(toolResp *api.ToolResponse) (Result, error) {
 	jobId, ok := toolResp.GetJobId().Get()
 	if !ok {
-		return fmt.Errorf("response returned no job id")
+		return Result{}, fmt.Errorf("response returned no job id")
 	}
 	downloadUrl, ok := toolResp.GetDownloadUrl().Get()
 	if !ok {
-		return fmt.Errorf("response returned no download url")
+		return Result{}, fmt.Errorf("response returned no download url")
 	}
-	return c.downloadJob(jobId, downloadUrl, outputPath)
+	return c.downloadJob(jobId, downloadUrl)
 }
 
 func (c *Client) Setup() error {
@@ -157,17 +182,17 @@ func (c *Client) Setup() error {
 	return nil
 }
 
-func (c *Client) ProcessFileToWebp(sourcePath, outputPath string) error {
+func (c *Client) ProcessFileToWebp(sourcePath string) (Result, error) {
 	if isPDFFile(sourcePath) {
-		return c.pdfToWebp(sourcePath, outputPath)
+		return c.pdfToWebp(sourcePath)
 	}
-	return c.imageToWebp(sourcePath, outputPath)
+	return c.imageToWebp(sourcePath)
 }
 
-func (c *Client) imageToWebp(sourcePath, outputPath string) error {
+func (c *Client) imageToWebp(sourcePath string) (Result, error) {
 	file, cleanup, err := c.multipartFile(sourcePath)
 	if err != nil {
-		return err
+		return Result{}, err
 	}
 	defer cleanup()
 
@@ -183,47 +208,47 @@ func (c *Client) imageToWebp(sourcePath, outputPath string) error {
 		Pipeline: string(pipeline),
 	})
 	if err != nil {
-		return fmt.Errorf("pipeline request: %w", err)
+		return Result{}, fmt.Errorf("pipeline request: %w", err)
 	}
 
 	okResp, ok := res.(*api.ExecutePipelineOK)
 	if !ok {
-		return fmt.Errorf("pipeline returned unexpected response: %T", res)
+		return Result{}, fmt.Errorf("pipeline returned unexpected response: %T", res)
 	}
 
 	jobId, ok := okResp.GetJobId().Get()
 	if !ok {
-		return fmt.Errorf("pipeline returned no job id")
+		return Result{}, fmt.Errorf("pipeline returned no job id")
 	}
 	downloadUrl, ok := okResp.GetDownloadUrl().Get()
 	if !ok {
-		return fmt.Errorf("pipeline returned no download url")
+		return Result{}, fmt.Errorf("pipeline returned no download url")
 	}
 
-	return c.downloadJob(jobId, downloadUrl, outputPath)
+	return c.downloadJob(jobId, downloadUrl)
 }
 
-func (c *Client) pdfToWebp(inputPath, outputPath string) error {
+func (c *Client) pdfToWebp(inputPath string) (Result, error) {
 	tmpDir, err := os.MkdirTemp("", "pdf2webp-")
 	if err != nil {
-		return fmt.Errorf("create temp dir: %w", err)
+		return Result{}, fmt.Errorf("create temp dir: %w", err)
 	}
 	defer os.RemoveAll(tmpDir)
 
 	pagePaths, err := c.PDFToPngPages(inputPath, tmpDir)
 	if err != nil {
-		return fmt.Errorf("convert pdf to images: %w", err)
+		return Result{}, fmt.Errorf("convert pdf to images: %w", err)
 	}
 
 	if len(pagePaths) == 1 {
-		return c.imageToWebp(pagePaths[0], outputPath)
+		return c.imageToWebp(pagePaths[0])
 	}
 
 	stitchedPath := filepath.Join(tmpDir, "stitched.png")
 	if err := c.StitchImagesVertical(pagePaths, stitchedPath); err != nil {
-		return fmt.Errorf("stitch pdf pages: %w", err)
+		return Result{}, fmt.Errorf("stitch pdf pages: %w", err)
 	}
-	return c.imageToWebp(stitchedPath, outputPath)
+	return c.imageToWebp(stitchedPath)
 }
 
 func isPDFFile(sourcePath string) bool {
@@ -288,8 +313,12 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 			return nil, fmt.Errorf("page %d returned no download url", i)
 		}
 		pagePath := filepath.Join(outputDir, fmt.Sprintf("page_%03d.png", i+1))
-		if err := c.download(jobId, filepath.Base(downloadUrl), pagePath); err != nil {
+		data, err := c.downloadBytes(jobId, filepath.Base(downloadUrl))
+		if err != nil {
 			return nil, fmt.Errorf("download page %d: %w", i+1, err)
+		}
+		if err := os.WriteFile(pagePath, data, 0o644); err != nil {
+			return nil, fmt.Errorf("write page %d: %w", i+1, err)
 		}
 		pagePaths = append(pagePaths, pagePath)
 	}
@@ -333,5 +362,9 @@ func (c *Client) StitchImagesVertical(pagePaths []string, outputPath string) err
 		return fmt.Errorf("stitch images returned unexpected response: %T", res)
 	}
 
-	return c.downloadFromTool(toolResp, outputPath)
+	result, err := c.downloadFromTool(toolResp)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(outputPath, result.Data, 0o644)
 }
