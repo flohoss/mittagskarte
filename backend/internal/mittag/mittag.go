@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/flohoss/mittagskarte/internal/image"
 	"github.com/flohoss/mittagskarte/internal/restaurant"
+	"github.com/flohoss/mittagskarte/internal/snapotter"
 	"github.com/flohoss/mittagskarte/internal/web"
 	"github.com/flohoss/mittagskarte/pkg/checksum"
 	"github.com/flohoss/mittagskarte/pkg/fsutil"
@@ -27,16 +28,16 @@ type Mittag struct {
 	started bool
 }
 
-func New(app core.App, coolDownDuration time.Duration) (*Mittag, error) {
+func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*Mittag, error) {
 	webService, err := web.New()
 	if err != nil {
 		return nil, err
 	}
 
-	imageMagic := image.New()
+	snapOtterClient := snapotter.New(snapOtterURL)
 
 	m := &Mittag{app: app}
-	m.scraper = NewScraper(app, webService, imageMagic, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
+	m.scraper = NewScraper(app, webService, snapOtterClient, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
 	m.bindHooks()
 
 	return m, nil

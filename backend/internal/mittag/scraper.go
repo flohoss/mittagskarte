@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/flohoss/mittagskarte/internal/image"
-	"github.com/flohoss/mittagskarte/internal/pdf"
 	"github.com/flohoss/mittagskarte/internal/restaurant"
+	"github.com/flohoss/mittagskarte/internal/snapotter"
 	"github.com/flohoss/mittagskarte/internal/web"
 
 	"github.com/pocketbase/pocketbase/core"
@@ -34,7 +31,7 @@ const (
 type Scraper struct {
 	app            core.App
 	web            *web.Web
-	im             *image.ImageMagic
+	snapotter      *snapotter.Client
 	getRestaurants restaurantsProvider
 
 	queueMu     sync.Mutex
@@ -48,11 +45,11 @@ type Scraper struct {
 	workerWg    sync.WaitGroup
 }
 
-func NewScraper(app core.App, webService *web.Web, imageMagic *image.ImageMagic, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
+func NewScraper(app core.App, webService *web.Web, snapotterClient *snapotter.Client, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
 	s := &Scraper{
 		app:            app,
 		web:            webService,
-		im:             imageMagic,
+		snapotter:      snapotterClient,
 		getRestaurants: provider,
 		queued:         make(map[string]struct{}),
 		inFlight:       make(map[string]struct{}),
@@ -75,7 +72,6 @@ func (s *Scraper) Close() {
 	s.workerWg.Wait()
 
 	s.web.Close()
-	s.im.Close()
 }
 
 func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
@@ -298,44 +294,10 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 func (s *Scraper) processFileToWebp(sourcePath string) (string, error) {
 	tmpFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d.webp", time.Now().UnixNano()))
 
-	var err error
-	if isPDFFile(sourcePath) {
-		err = pdf.MergeAllPDFPagesToWebp(sourcePath, tmpFilePath)
-	} else {
-		err = s.im.ConvertToWebp(sourcePath, tmpFilePath)
-	}
-	if err != nil {
-		return "", err
-	}
-
-	if err = s.im.Trim(tmpFilePath); err != nil {
-		os.Remove(tmpFilePath)
-		return "", err
-	}
-	if err = s.im.ResizeWebp(tmpFilePath); err != nil {
+	if err := s.snapotter.ProcessFileToWebp(sourcePath, tmpFilePath); err != nil {
 		os.Remove(tmpFilePath)
 		return "", err
 	}
 
 	return tmpFilePath, nil
-}
-
-func isPDFFile(sourcePath string) bool {
-	if strings.EqualFold(filepath.Ext(sourcePath), ".pdf") {
-		return true
-	}
-
-	file, err := os.Open(sourcePath)
-	if err != nil {
-		return false
-	}
-	defer file.Close()
-
-	header := make([]byte, 512)
-	readBytes, err := file.Read(header)
-	if err != nil || readBytes == 0 {
-		return false
-	}
-
-	return http.DetectContentType(header[:readBytes]) == "application/pdf"
 }

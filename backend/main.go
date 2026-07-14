@@ -42,7 +42,7 @@ func main() {
 			return fmt.Errorf("failed to sync superuser: %w", err)
 		}
 
-		mittagService, err = mittag.New(e.App, cfg.CoolDownDuration)
+		mittagService, err = mittag.New(e.App, cfg.SnapOtterURL, cfg.CoolDownDuration)
 		if err != nil {
 			return fmt.Errorf("failed to create mittag service: %w", err)
 		}

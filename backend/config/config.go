@@ -26,6 +26,7 @@ type Config struct {
 	SMTPPassword      string        `env:"SMTP_PASSWORD,unset"`
 	SuperuserEmail    string        `env:"SUPERUSER_EMAIL,unset"`
 	SuperuserPassword string        `env:"SUPERUSER_PASSWORD,unset"`
+	SnapOtterURL      url.URL       `env:"SNAPOTTER_URL,notEmpty" envDefault:"snapotter:1349"`
 }
 
 func parseURL(v string) (any, error) {
