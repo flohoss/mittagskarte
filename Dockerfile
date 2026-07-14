@@ -6,9 +6,8 @@ FROM node:${V_NODE}-slim AS backend-builder
 WORKDIR /app/backend
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
-    gnupg libc6-dev libnss3-dev libnet-dev build-essential \
-    libmagickwand-7.q16-dev libmagickcore-7.q16-dev imagemagick libmupdf-dev \
-    apt-transport-https ca-certificates > /dev/null 2>&1 && \
+    git build-essential libc6-dev \
+    ca-certificates > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -16,10 +15,14 @@ RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommend
 COPY --from=golang /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 
+ARG V_OGEN
+RUN go install github.com/ogen-go/ogen/cmd/ogen@v${V_OGEN}
+
 COPY ./backend/go.mod ./backend/go.sum ./
 RUN go mod download
 
 COPY ./backend/ ./
+RUN go generate ./pkg/snapotter
 RUN go build -ldflags="-s -w" -o /out/mittag .
 
 ARG V_PLAYWRIGHT
@@ -43,9 +46,7 @@ FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
-    libnss3 libnet1 dumb-init ca-certificates curl tzdata \
-    libmagickwand-7.q16-10 imagemagick libmupdf-dev \
-    libheif1 libheif-plugin-libde265 libheif-plugin-dav1d > /dev/null 2>&1 && \
+    dumb-init ca-certificates curl tzdata > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
