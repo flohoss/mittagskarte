@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ogen-go/ogen/main/schemas/ogen.jsonschema.json
+
+parser:
+  infer_types: true
+
+generator:
+  filters:
+    path_regex: '^/api/v1/(tools|download|pipeline)/.*'
+  features:
+    enable:
+      - client/editors
+      - client/request/options
+      - ogen/unimplemented
+      - paths/client
+      - webhooks/client
+    disable:
+      - 'ogen/otel'
+    disable_all: true
+  ignore_not_implemented: ['all']

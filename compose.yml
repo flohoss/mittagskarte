@@ -3,6 +3,7 @@ x-build-args: &build-args
   V_GOLANG: ${V_GOLANG:-1.26}
   V_NODE: ${V_NODE:-26}
   V_AIR: ${V_AIR:-1.65.3}
+  V_OGEN: ${V_OGEN:-1.23.0}
   V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6100.0}
 
 x-images:
@@ -15,6 +16,9 @@ services:
       context: backend
       args: *build-args
     platform: linux/amd64
+    depends_on:
+      ogen:
+        condition: service_completed_successfully
     command: >
       air
       --build.cmd "go build -o tmp/main ."
@@ -95,6 +99,68 @@ services:
     volumes:
       - ./frontend:/app/
 
+  snapotter:
+    image: snapotter/snapotter:latest
+    restart: always
+    environment:
+      AUTH_ENABLED: false
+      LOG_LEVEL: warn
+    volumes:
+      - snapotter:/data
+    expose:
+      - 1349
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '-sf',
+          '--max-time',
+          '5',
+          'http://localhost:1349/api/v1/health',
+        ]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 10
+    networks:
+      - net
+
+  snapotter-schema:
+    depends_on:
+      snapotter:
+        condition: service_healthy
+    image: curlimages/curl:latest
+    working_dir: /snapotter
+    entrypoint: curl snapotter:1349/api/docs/openapi.yaml -o openapi.yaml
+    volumes:
+      - ./backend/pkg/snapotter:/snapotter/
+    networks:
+      - net
+
+  ogen:
+    depends_on:
+      snapotter-schema:
+        condition: service_completed_successfully
+    build:
+      dockerfile_inline: |
+        ARG V_GOLANG
+        ARG V_OGEN
+        FROM golang:${V_GOLANG}
+
+        ARG V_OGEN
+        RUN go install github.com/ogen-go/ogen/cmd/ogen@v${V_OGEN}
+      args:
+        <<: *build-args
+    working_dir: /app
+    entrypoint: go generate ./...
+    volumes:
+      - ./backend:/app/
+
 networks:
   net:
+    external: false
+
+volumes:
+  snapotter:
     external: false
