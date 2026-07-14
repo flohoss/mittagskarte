@@ -255,7 +255,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 
 	settings, _ := json.Marshal(map[string]any{
 		"format": "png",
-		"dpi":    300,
+		"dpi":    1200,
 	})
 
 	res, err := c.api.PdfToImage(context.Background(), &api.PdfToImageReq{
