@@ -54,10 +54,10 @@ func (c *Client) multipartFile(path string) (ht.MultipartFile, func(), error) {
 	}, func() { f.Close() }, nil
 }
 
-func (c *Client) download(jobId, downloadUrl, outputPath string) error {
+func (c *Client) download(jobId, filename, outputPath string) error {
 	res, err := c.api.DownloadProcessedImage(context.Background(), api.DownloadProcessedImageParams{
 		JobId:    jobId,
-		Filename: filepath.Base(downloadUrl),
+		Filename: filename,
 	})
 	if err != nil {
 		return fmt.Errorf("download request: %w", err)
@@ -79,6 +79,10 @@ func (c *Client) download(jobId, downloadUrl, outputPath string) error {
 	return nil
 }
 
+func (c *Client) downloadJob(jobId, downloadUrl, outputPath string) error {
+	return c.download(jobId, filepath.Base(downloadUrl), outputPath)
+}
+
 func (c *Client) downloadFromTool(toolResp *api.ToolResponse, outputPath string) error {
 	jobId, ok := toolResp.GetJobId().Get()
 	if !ok {
@@ -88,7 +92,7 @@ func (c *Client) downloadFromTool(toolResp *api.ToolResponse, outputPath string)
 	if !ok {
 		return fmt.Errorf("response returned no download url")
 	}
-	return c.download(jobId, downloadUrl, outputPath)
+	return c.downloadJob(jobId, downloadUrl, outputPath)
 }
 
 func (c *Client) Setup() error {
@@ -196,7 +200,7 @@ func (c *Client) imageToWebp(sourcePath, outputPath string) error {
 		return fmt.Errorf("pipeline returned no download url")
 	}
 
-	return c.download(jobId, downloadUrl, outputPath)
+	return c.downloadJob(jobId, downloadUrl, outputPath)
 }
 
 func (c *Client) pdfToWebp(inputPath, outputPath string) error {
@@ -284,7 +288,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 			return nil, fmt.Errorf("page %d returned no download url", i)
 		}
 		pagePath := filepath.Join(outputDir, fmt.Sprintf("page_%03d.png", i+1))
-		if err := c.download(jobId, downloadUrl, pagePath); err != nil {
+		if err := c.download(jobId, filepath.Base(downloadUrl), pagePath); err != nil {
 			return nil, fmt.Errorf("download page %d: %w", i+1, err)
 		}
 		pagePaths = append(pagePaths, pagePath)
