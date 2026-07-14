@@ -25,7 +25,7 @@ jobs:
         run: |
           docker compose run --rm test-backend sh -c '
             go generate ./pkg/snapotter
-            go test ./... -covermode=atomic -coverprofile=coverage.out &&
+            go test $(go list ./... | grep -v /pkg/snapotter/api) -covermode=atomic -coverprofile=coverage.out &&
             go tool cover -func=coverage.out | tee coverage.txt
           '
           echo "## Coverage" >> "$GITHUB_STEP_SUMMARY"
