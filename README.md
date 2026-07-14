@@ -189,6 +189,7 @@ Supported arguments:
 - `day`: target weekday, for example `monday` or `fr`
 - `offset`: week offset, for example `-1`, `0`, `1`
 - `upper`: uppercase output toggle
+- `chars`: limit output to the first N runes
 
 ## Deployment
 
@@ -217,7 +218,7 @@ Then open http://localhost:8090.
 
 Important runtime paths:
 
-- PocketBase data directory: `data/pb`
+- PocketBase data directory: `data`
 - frontend bundle served by backend: `dist`
 - temporary download/processing files: `/tmp/downloads` (ephemeral in container lifecycle)
 
@@ -315,7 +316,7 @@ Compose services:
 - `npm`: helper container for frontend package commands
 - `release`: build-only production image target used by local release builds and CI
 
-The SnapOtter API client is generated from the service's OpenAPI spec using [ogen](https://github.com/ogen-go/ogen). The spec is fetched from the running SnapOtter container, filtered to `/api/v1/(tools|download|pipeline)/.*`, and the generated code lives in `backend/pkg/snapotter/api/` (gitignored). Regenerate with:
+The SnapOtter API client is generated from the service's OpenAPI spec using [ogen](https://github.com/ogen-go/ogen). The spec is fetched from the running SnapOtter container, filtered to `/api/v1/(tools|download|pipeline|admin|features)(/.*)?`, and the generated code lives in `backend/pkg/snapotter/api/` (gitignored). Regenerate with:
 
 ```sh
 docker compose run --rm ogen
