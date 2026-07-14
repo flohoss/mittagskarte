@@ -24,6 +24,7 @@ jobs:
       - name: Run Go tests with coverage
         run: |
           docker compose run --rm test-backend sh -c '
+            go generate ./pkg/snapotter
             go test ./... -covermode=atomic -coverprofile=coverage.out &&
             go tool cover -func=coverage.out | tee coverage.txt
           '
