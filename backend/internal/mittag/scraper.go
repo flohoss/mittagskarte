@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/flohoss/mittagskarte/internal/restaurant"
-	"github.com/flohoss/mittagskarte/internal/snapotter"
 	"github.com/flohoss/mittagskarte/internal/web"
 
 	"github.com/pocketbase/pocketbase/core"
@@ -31,7 +30,6 @@ const (
 type Scraper struct {
 	app            core.App
 	web            *web.Web
-	snapotter      *snapotter.Client
 	getRestaurants restaurantsProvider
 
 	queueMu     sync.Mutex
@@ -45,11 +43,10 @@ type Scraper struct {
 	workerWg    sync.WaitGroup
 }
 
-func NewScraper(app core.App, webService *web.Web, snapotterClient *snapotter.Client, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
+func NewScraper(app core.App, webService *web.Web, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
 	s := &Scraper{
 		app:            app,
 		web:            webService,
-		snapotter:      snapotterClient,
 		getRestaurants: provider,
 		queued:         make(map[string]struct{}),
 		inFlight:       make(map[string]struct{}),
@@ -289,15 +286,4 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 	}
 
 	return r.UpdateMenu(downloadPath, s.app)
-}
-
-func (s *Scraper) processFileToWebp(sourcePath string) (string, error) {
-	tmpFilePath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d.webp", time.Now().UnixNano()))
-
-	if err := s.snapotter.ProcessFileToWebp(sourcePath, tmpFilePath); err != nil {
-		os.Remove(tmpFilePath)
-		return "", err
-	}
-
-	return tmpFilePath, nil
 }

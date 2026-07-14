@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -23,9 +22,10 @@ import (
 )
 
 type Mittag struct {
-	app     core.App
-	scraper *Scraper
-	started bool
+	app       core.App
+	scraper   *Scraper
+	snapotter *snapotter.Client
+	started   bool
 }
 
 func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*Mittag, error) {
@@ -39,8 +39,8 @@ func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*M
 		return nil, fmt.Errorf("setup snapotter: %w", err)
 	}
 
-	m := &Mittag{app: app}
-	m.scraper = NewScraper(app, webService, snapOtterClient, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
+	m := &Mittag{app: app, snapotter: snapOtterClient}
+	m.scraper = NewScraper(app, webService, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
 	m.bindHooks()
 
 	return m, nil
@@ -118,27 +118,21 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 	}
 	defer cleanup()
 
-	tmpWebp, err := m.scraper.processFileToWebp(sourcePath)
+	result, err := m.snapotter.ProcessFileToWebp(sourcePath)
 	if err != nil {
 		return router.NewBadRequestError("Menü konnte nicht verarbeitet werden", err)
 	}
-	defer os.Remove(tmpWebp)
 
-	// Set dimensions while tmpWebp still exists on disk.
-	restaurant.SetMenuDimensions(e.Record, tmpWebp)
-
-	// Read into memory before removing the temp file.
-	// PocketBase stores the file after the hook returns, so a PathReader
-	// pointing to a deleted temp file would fail — BytesReader is safe.
-	data, readErr := os.ReadFile(tmpWebp)
-	if readErr != nil {
-		return router.NewBadRequestError("Verarbeitetes Menü konnte nicht gelesen werden", readErr)
-	}
+	e.Record.Set("dimensions", map[string]any{
+		"width":     result.Width,
+		"height":    result.Height,
+		"landscape": result.Width >= result.Height,
+	})
 
 	processedFile := &filesystem.File{
-		Reader: &filesystem.BytesReader{Bytes: data},
+		Reader: &filesystem.BytesReader{Bytes: result.Data},
 		Name:   "menu.webp",
-		Size:   int64(len(data)),
+		Size:   int64(len(result.Data)),
 	}
 	e.Record.Set("file", processedFile)
 

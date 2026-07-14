@@ -3,7 +3,6 @@ package restaurant
 import (
 	"errors"
 	"fmt"
-	"image"
 	"log/slog"
 	"math/rand"
 	"net/url"
@@ -20,7 +19,6 @@ import (
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/filesystem"
-	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -40,12 +38,6 @@ const (
 
 func init() {
 	os.MkdirAll(DownloadsFolder, os.ModePerm)
-}
-
-type menuDimensions struct {
-	Width     int  `json:"width"`
-	Height    int  `json:"height"`
-	Landscape bool `json:"landscape"`
 }
 
 type Restaurant struct {
@@ -162,12 +154,6 @@ func GetLatestMenuByRestaurantID(app core.App, restaurantID string) *core.Record
 	return records[0]
 }
 
-func SetMenuDimensions(record *core.Record, filePath string) {
-	if dims, err := readMenuDimensions(filePath); err == nil {
-		record.Set("dimensions", dims)
-	}
-}
-
 func LastCheckFromError(err error) (LastCheckStatus, string) {
 	if errors.Is(err, ErrManualUploadOnly) || errors.Is(err, ErrMenuUnchanged) {
 		return LastCheckStatusNotChanged, ""
@@ -223,29 +209,6 @@ func (r *Restaurant) UpdateMenu(filePath string, app core.App) error {
 	logger.Info("Successfully created menu record for restaurant", "id", menuRecord.Id)
 
 	return nil
-}
-
-func readMenuDimensions(filePath string) (*menuDimensions, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	config, _, err := image.DecodeConfig(file)
-	if err != nil {
-		return nil, err
-	}
-
-	if config.Width <= 0 || config.Height <= 0 {
-		return nil, fmt.Errorf("invalid image dimensions: %dx%d", config.Width, config.Height)
-	}
-
-	return &menuDimensions{
-		Width:     config.Width,
-		Height:    config.Height,
-		Landscape: config.Width >= config.Height,
-	}, nil
 }
 
 func (r *Restaurant) Download(downloadPath string, logger *slog.Logger) (string, error) {
