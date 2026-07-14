@@ -221,6 +221,72 @@ Important runtime paths:
 - frontend bundle served by backend: `dist`
 - temporary download/processing files: `/tmp/downloads` (ephemeral in container lifecycle)
 
+### Run in Production
+
+Mittagskarte and SnapOtter are meant to run together via Docker Compose. Traefik is used as a reverse proxy with TLS, and a `proxy` network is expected to already exist.
+
+Example `compose.yml`:
+
+```yaml
+services:
+  mittagskarte:
+    image: ghcr.io/flohoss/mittagskarte:latest
+    restart: always
+    environment:
+      - IMPRINT_EMAIL=imprint@example.com
+      - APP_URL=https://mittagskarte.example.com
+      - SMTP_SENDER_ADDRESS=noreply@example.com
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=user
+      - SMTP_PASSWORD=secret
+      - SUPERUSER_EMAIL=admin@example.com
+      - SUPERUSER_PASSWORD=change-me
+    volumes:
+      - /path/to/data:/app/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mittagskarte.entrypoints=https
+      - traefik.http.routers.mittagskarte.rule=Host(`mittagskarte.example.com`)
+      - traefik.http.routers.mittagskarte.tls=true
+      - traefik.http.routers.mittagskarte.tls.certresolver=desec
+    expose:
+      - 8090
+    networks:
+      - proxy
+      - net
+
+  snapotter:
+    image: snapotter/snapotter:latest
+    restart: always
+    environment:
+      TZ: Europe/Berlin
+      AUTH_ENABLED: false
+      LOG_LEVEL: warn
+      DEFAULT_THEME: dark
+    volumes:
+      - snapotter:/data
+    ports:
+      - '1349:1349'
+    networks:
+      - net
+
+networks:
+  proxy:
+    external: true
+  net:
+    external: false
+
+volumes:
+  snapotter: {}
+```
+
+Start the stack:
+
+```sh
+docker compose up -d
+```
+
 ## Development
 
 Local development uses Docker Compose with separate backend and frontend containers.
