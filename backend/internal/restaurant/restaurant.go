@@ -15,6 +15,7 @@ import (
 	"github.com/flohoss/mittagskarte/internal/web"
 	"github.com/flohoss/mittagskarte/pkg/curl"
 
+	"github.com/gosimple/slug"
 	"github.com/mxschmitt/playwright-go"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
@@ -43,6 +44,7 @@ func init() {
 type Restaurant struct {
 	ID          string     `db:"id" json:"id"`
 	Name        string     `db:"name" json:"name"`
+	Slug        string     `db:"slug" json:"slug"`
 	Website     string     `db:"website" json:"website"`
 	RestDays    []string   `db:"rest_days" json:"rest_days"`
 	Method      string     `db:"method" json:"method"`
@@ -77,6 +79,7 @@ func New(r *core.Record) *Restaurant {
 	return &Restaurant{
 		ID:          r.Id,
 		Name:        r.GetString("name"),
+		Slug:        r.GetString("slug"),
 		Website:     r.GetString("website"),
 		RestDays:    r.GetStringSlice("rest_days"),
 		Method:      r.GetString("method"),
@@ -84,6 +87,10 @@ func New(r *core.Record) *Restaurant {
 		Cron:        r.GetString("cron"),
 		Navigate:    navigate,
 	}
+}
+
+func Slugify(value string) string {
+	return slug.Make(value)
 }
 
 func getRestaurants(app core.App, expands []string) ([]*Restaurant, error) {
@@ -120,6 +127,19 @@ func GetRestaurant(app core.App, id string) (*Restaurant, error) {
 	app.ExpandRecord(r, []string{"navigate"}, nil)
 
 	return New(r), nil
+}
+
+func GetRestaurantBySlug(app core.App, slug string) (*Restaurant, error) {
+	records, err := app.FindRecordsByFilter("restaurants", "slug = {:slug}", "", 1, 0, dbx.Params{"slug": slug})
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 {
+		return nil, fmt.Errorf("restaurant with slug %q not found", slug)
+	}
+	app.ExpandRecord(records[0], []string{"navigate"}, nil)
+
+	return New(records[0]), nil
 }
 
 func GetCronGroups(app core.App) (map[string][]*Restaurant, error) {

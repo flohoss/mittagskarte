@@ -78,7 +78,7 @@ function openMenuHistory() {
   router.push({
     name: 'restaurant-view',
     params: {
-      restaurantId: props.restaurant.id,
+      restaurantSlug: props.restaurant.slug,
     },
     query: route.query,
   });

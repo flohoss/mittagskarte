@@ -33,7 +33,7 @@ export const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/restaurants/:restaurantId',
+      path: '/restaurants/:restaurantSlug',
       name: 'restaurant-view',
       component: RestaurantView,
     },

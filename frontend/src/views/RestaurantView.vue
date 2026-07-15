@@ -9,13 +9,13 @@ const route = useRoute();
 const router = useRouter();
 const { restaurants, isLoading } = useRestaurants();
 
-const restaurantId = computed(() => String(route.params.restaurantId ?? '').trim());
-const restaurant = computed(() => restaurants.value.find((entry) => entry.id === restaurantId.value) ?? null);
+const restaurantSlug = computed(() => String(route.params.restaurantSlug ?? '').trim());
+const restaurant = computed(() => restaurants.value.find((entry) => entry.slug === restaurantSlug.value) ?? null);
 
 const sortedMenus = computed(() => sortMenusByCreatedDesc(restaurant.value?.expand?.menus ?? []));
 
 const shouldRedirectToHome = computed(() => {
-  if (!restaurantId.value) return true;
+  if (!restaurantSlug.value) return true;
   if (isLoading.value) return false;
   if (!restaurant.value) return true;
   if (!sortedMenus.value.length) return true;
