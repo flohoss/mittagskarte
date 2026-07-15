@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/internal/sitemap"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -88,8 +89,21 @@ func RegisterRoutes(app core.App, se *core.ServeEvent, cfg *config.Config) error
 	healthRoute := se.Router.GET("/health", func(re *core.RequestEvent) error {
 		return re.String(http.StatusOK, ".")
 	})
+	sitemapRoute := se.Router.GET("/sitemap.xml", func(re *core.RequestEvent) error {
+		body, err := sitemap.Build(app, cfg.AppURL.String())
+		if err != nil {
+			return err
+		}
+		return re.XML(http.StatusOK, body)
+	})
+	robotsRoute := se.Router.GET("/robots.txt", func(re *core.RequestEvent) error {
+		re.Response.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		return re.String(http.StatusOK, sitemap.Robots(cfg.AppURL.String()))
+	})
 	if !cfg.Dev {
 		healthRoute.Bind(apis.SkipSuccessActivityLog())
+		sitemapRoute.Bind(apis.SkipSuccessActivityLog())
+		robotsRoute.Bind(apis.SkipSuccessActivityLog())
 	}
 
 	return ServeFrontend(app, se, cfg.ImprintEmail, cfg.Dev)

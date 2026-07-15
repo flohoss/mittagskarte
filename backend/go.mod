@@ -7,6 +7,7 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
 	github.com/goodsign/monday v1.0.2
+	github.com/gosimple/slug v1.15.0
 	github.com/mxschmitt/playwright-go v0.6100.0
 	github.com/ogen-go/ogen v1.23.0
 	github.com/pocketbase/dbx v1.12.0
@@ -33,6 +34,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
