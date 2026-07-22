@@ -1,10 +1,15 @@
 package mittag
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -24,6 +29,7 @@ import (
 
 type Mittag struct {
 	app       core.App
+	logger    *slog.Logger
 	scraper   *Scraper
 	snapotter *snapotter.Client
 	started   bool
@@ -40,7 +46,7 @@ func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*M
 		return nil, fmt.Errorf("setup snapotter: %w", err)
 	}
 
-	m := &Mittag{app: app, snapotter: snapOtterClient}
+	m := &Mittag{app: app, logger: app.Logger().WithGroup("mittag"), snapotter: snapOtterClient}
 	m.scraper = NewScraper(app, webService, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
 	m.bindHooks()
 
@@ -70,14 +76,14 @@ func (m *Mittag) initCron() error {
 		return err
 	}
 
-	m.app.Logger().Debug("Initializing cron jobs for restaurant groups", "groups", len(crons))
+	m.logger.Debug("Initializing cron jobs for restaurant groups", "groups", len(crons))
 
 	for cron, restaurants := range crons {
 		names := make([]string, len(restaurants))
 		for i, r := range restaurants {
 			names[i] = r.Name
 		}
-		m.app.Logger().Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","))
+		m.logger.Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","))
 		m.app.Cron().MustAdd(cron, cron, func() {
 			m.scraper.Enqueue(restaurants)
 		})
@@ -115,34 +121,26 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	sourcePath, cleanup, err := fsutil.LocalPath(f, restaurant.DownloadsFolder)
 	if err != nil {
-		m.app.Logger().Error("Hochgeladene Datei konnte nicht verarbeitet werden", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Hochgeladene Datei konnte nicht verarbeitet werden", "restaurantId", restaurantID, "error", err)
 		return router.NewBadRequestError("Hochgeladene Datei konnte nicht verarbeitet werden", err)
 	}
 	defer cleanup()
 
-	m.app.Logger().Debug("Processing menu file", "restaurantId", restaurantID, "sourcePath", sourcePath)
+	m.logger.Debug("Processing menu file", "restaurantId", restaurantID, "sourcePath", sourcePath)
 
-	if pdfinfo.IsPDF(sourcePath) {
-		pdfInfo, pdfErr := pdfinfo.Read(sourcePath)
-		if pdfErr != nil {
-			m.app.Logger().Warn("Failed to inspect PDF metadata, continuing with conversion", "restaurantId", restaurantID, "error", pdfErr)
-		} else {
-			e.Record.Set("pdf_metadata", pdfInfo)
-			if m.pdfUnchanged(restaurantID, pdfInfo) {
-				m.app.Logger().Debug("PDF metadata unchanged, skipping conversion", "restaurantId", restaurantID)
-				restaurant.UpdateLastCheck(m.app, restaurantID, restaurant.LastCheckStatusNotChanged, "")
-				return router.NewBadRequestError("Das Menü hat sich nicht geändert", fmt.Errorf("%w", restaurant.ErrMenuUnchanged))
-			}
-		}
-	}
-
-	result, err := m.snapotter.ProcessFileToWebp(sourcePath)
+	latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID)
+	result, err := m.processToWebp(context.Background(), sourcePath, restaurantID, e.Record, latest)
 	if err != nil {
-		m.app.Logger().Error("Menü konnte nicht verarbeitet werden", "restaurantId", restaurantID, "sourcePath", sourcePath, "error", err)
+		if errors.Is(err, restaurant.ErrMenuUnchanged) {
+			m.logger.Debug("PDF metadata unchanged, skipping conversion", "restaurantId", restaurantID)
+			restaurant.UpdateLastCheck(m.app, restaurantID, restaurant.LastCheckStatusNotChanged, "")
+			return router.NewBadRequestError("Das Menü hat sich nicht geändert", err)
+		}
+		m.logger.Error("Menü konnte nicht verarbeitet werden", "restaurantId", restaurantID, "sourcePath", sourcePath, "error", err)
 		return router.NewBadRequestError("Menü konnte nicht verarbeitet werden", err)
 	}
 
-	m.app.Logger().Debug("Menu file processed", "restaurantId", restaurantID, "width", result.Width, "height", result.Height, "bytes", len(result.Data))
+	m.logger.Debug("Menu file processed", "restaurantId", restaurantID, "width", result.Width, "height", result.Height, "bytes", len(result.Data))
 
 	e.Record.Set("dimensions", map[string]any{
 		"width":     result.Width,
@@ -159,24 +157,25 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	rc, err := processedFile.Reader.Open()
 	if err != nil {
-		m.app.Logger().Error("Failed to open processed menu file for checksum", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to open processed menu file for checksum", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 	hash, err := checksum.Reader(rc)
 	rc.Close()
 	if err != nil {
-		m.app.Logger().Error("Failed to compute menu checksum", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to compute menu checksum", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 
-	m.app.Logger().Debug("Computed menu checksum", "restaurantId", restaurantID, "hash", hash)
+	m.logger.Debug("Computed menu checksum", "restaurantId", restaurantID, "hash", hash)
 
-	if latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID); latest != nil {
+	if latest != nil {
 		if latest.GetString("hash") == hash {
-			m.app.Logger().Debug("Menu has not changed, skipping update", "restaurantId", restaurantID)
+			m.logger.Debug("Menu has not changed, skipping update", "restaurantId", restaurantID)
+			m.updatePdfMetadata(latest, e.Record)
 			status, detail := restaurant.LastCheckFromError(restaurant.ErrMenuUnchanged)
 			if err := restaurant.UpdateLastCheck(m.app, restaurantID, status, detail); err != nil {
-				m.app.Logger().Error("Failed to update last_check for unchanged menu", "restaurantId", restaurantID, "error", err)
+				m.logger.Error("Failed to update last_check for unchanged menu", "restaurantId", restaurantID, "error", err)
 			}
 			return router.NewBadRequestError("Das Menü hat sich nicht geändert", fmt.Errorf("%w", restaurant.ErrMenuUnchanged))
 		}
@@ -186,12 +185,61 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 	return e.Next()
 }
 
-func (m *Mittag) pdfUnchanged(restaurantID string, current pdfinfo.Metadata) bool {
-	latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID)
-	if latest == nil {
-		return false
+func (m *Mittag) processToWebp(ctx context.Context, sourcePath, restaurantID string, record *core.Record, latest *core.Record) (snapotter.Result, error) {
+	if !pdfinfo.IsPDF(sourcePath) {
+		return m.snapotter.ImageToWebp(ctx, sourcePath)
 	}
-	return pdfinfo.Equal(latest.Get("pdf_metadata"), current)
+
+	meta, err := pdfinfo.Read(sourcePath)
+	if err != nil {
+		m.logger.Warn("Failed to inspect PDF metadata, continuing with conversion", "restaurantId", restaurantID, "error", err)
+		meta = pdfinfo.Metadata{}
+	}
+
+	record.Set("pdf_metadata", meta)
+	if latest != nil && pdfinfo.Equal(latest.Get("pdf_metadata"), meta) {
+		return snapotter.Result{}, restaurant.ErrMenuUnchanged
+	}
+
+	tmpDir, err := os.MkdirTemp("", "pdf2webp-")
+	if err != nil {
+		return snapotter.Result{}, fmt.Errorf("create temp dir: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	m.logger.Debug("Converting PDF to webp", "restaurantId", restaurantID, "sourcePath", sourcePath, "tmpDir", tmpDir)
+
+	dpi := meta.DPI()
+	m.logger.Debug("Resolved PDF conversion DPI", "restaurantId", restaurantID, "pageCount", meta.PageCount, "pageWidthPt", meta.PageWidthPt, "pageHeightPt", meta.PageHeightPt, "dpi", dpi)
+
+	pagePaths, err := m.snapotter.PDFToPngPages(ctx, sourcePath, tmpDir, dpi)
+	if err != nil {
+		return snapotter.Result{}, fmt.Errorf("convert pdf to images: %w", err)
+	}
+	m.logger.Debug("PDF converted to page images", "restaurantId", restaurantID, "pageCount", len(pagePaths))
+
+	if len(pagePaths) == 1 {
+		m.logger.Debug("Single page PDF, converting directly to webp", "restaurantId", restaurantID)
+		return m.snapotter.ImageToWebp(ctx, pagePaths[0])
+	}
+
+	m.logger.Debug("Multi-page PDF, stitching pages vertically", "restaurantId", restaurantID, "pageCount", len(pagePaths))
+	stitchedPath := filepath.Join(tmpDir, "stitched.png")
+	if err := m.snapotter.StitchImagesVertical(ctx, pagePaths, stitchedPath); err != nil {
+		return snapotter.Result{}, fmt.Errorf("stitch pdf pages: %w", err)
+	}
+	m.logger.Debug("Pages stitched, converting to webp", "restaurantId", restaurantID, "stitchedPath", stitchedPath)
+	return m.snapotter.ImageToWebp(ctx, stitchedPath)
+}
+
+func (m *Mittag) updatePdfMetadata(latest, source *core.Record) {
+	meta, ok := source.Get("pdf_metadata").(pdfinfo.Metadata)
+	if !ok || pdfinfo.Equal(latest.Get("pdf_metadata"), meta) {
+		return
+	}
+	latest.Set("pdf_metadata", meta)
+	if err := m.app.Save(latest); err != nil {
+		m.logger.Error("Failed to update pdf_metadata on unchanged menu", "error", err)
+	}
 }
 
 func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
@@ -202,19 +250,19 @@ func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
 
 	restaurantRecord, err := m.app.FindRecordById("restaurants", restaurantID)
 	if err != nil {
-		m.app.Logger().Error("Failed to find restaurant for menu", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to find restaurant for menu", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 
 	retentionLimit, err := m.menuRetentionLimit()
 	if err != nil {
-		m.app.Logger().Error("Failed to resolve menu retention limit", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to resolve menu retention limit", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 
 	menuRecords, err := m.app.FindRecordsByFilter("menus", "restaurant = {:id}", "-created", 0, 0, dbx.Params{"id": restaurantID})
 	if err != nil {
-		m.app.Logger().Error("Failed to list menus for retention cleanup", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to list menus for retention cleanup", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 
@@ -227,7 +275,7 @@ func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
 			}
 
 			if deleteErr := m.app.Delete(record); deleteErr != nil {
-				m.app.Logger().Warn("Failed to delete old menu during retention cleanup", "restaurantId", restaurantID, "menuId", record.Id, "error", deleteErr)
+				m.logger.Warn("Failed to delete old menu during retention cleanup", "restaurantId", restaurantID, "menuId", record.Id, "error", deleteErr)
 			}
 		}
 	}
@@ -236,7 +284,7 @@ func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
 	status, detail := restaurant.LastCheckFromError(nil)
 	restaurant.SetLastCheck(restaurantRecord, status, detail)
 	if err := m.app.Save(restaurantRecord); err != nil {
-		m.app.Logger().Error("Failed to update restaurant menus", "restaurantId", restaurantID, "error", err)
+		m.logger.Error("Failed to update restaurant menus", "restaurantId", restaurantID, "error", err)
 	}
 
 	return e.Next()

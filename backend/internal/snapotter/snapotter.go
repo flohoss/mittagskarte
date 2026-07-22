@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/flohoss/mittagskarte/pkg/pdfinfo"
 	"github.com/flohoss/mittagskarte/pkg/snapotter/api"
 
 	_ "golang.org/x/image/webp"
@@ -80,8 +79,8 @@ func (c *Client) multipartFile(path string) (ht.MultipartFile, func(), error) {
 	}, func() { f.Close() }, nil
 }
 
-func (c *Client) downloadBytes(jobId, filename string) ([]byte, error) {
-	res, err := c.api.DownloadProcessedImage(context.Background(), api.DownloadProcessedImageParams{
+func (c *Client) downloadBytes(ctx context.Context, jobId, filename string) ([]byte, error) {
+	res, err := c.api.DownloadProcessedImage(ctx, api.DownloadProcessedImageParams{
 		JobId:    jobId,
 		Filename: filename,
 	})
@@ -101,16 +100,16 @@ func (c *Client) downloadBytes(jobId, filename string) ([]byte, error) {
 	return data, nil
 }
 
-func (c *Client) downloadJob(jobId, downloadUrl string) (Result, error) {
+func (c *Client) downloadJob(ctx context.Context, jobId, downloadUrl string) (Result, error) {
 	filename := filepath.Base(downloadUrl)
-	data, err := c.downloadBytes(jobId, filename)
+	data, err := c.downloadBytes(ctx, jobId, filename)
 	if err != nil {
 		return Result{}, err
 	}
 	return newResult(data, filename)
 }
 
-func (c *Client) downloadFromTool(toolResp *api.ToolResponse) (Result, error) {
+func (c *Client) downloadFromTool(ctx context.Context, toolResp *api.ToolResponse) (Result, error) {
 	jobId, ok := toolResp.GetJobId().Get()
 	if !ok {
 		return Result{}, fmt.Errorf("response returned no job id")
@@ -119,7 +118,7 @@ func (c *Client) downloadFromTool(toolResp *api.ToolResponse) (Result, error) {
 	if !ok {
 		return Result{}, fmt.Errorf("response returned no download url")
 	}
-	return c.downloadJob(jobId, downloadUrl)
+	return c.downloadJob(ctx, jobId, downloadUrl)
 }
 
 func (c *Client) Setup() error {
@@ -185,16 +184,7 @@ func (c *Client) Setup() error {
 	return nil
 }
 
-func (c *Client) ProcessFileToWebp(sourcePath string) (Result, error) {
-	if pdfinfo.IsPDF(sourcePath) {
-		c.logger.Debug("Processing PDF file", "sourcePath", sourcePath)
-		return c.pdfToWebp(sourcePath)
-	}
-	c.logger.Debug("Processing image file", "sourcePath", sourcePath)
-	return c.imageToWebp(sourcePath)
-}
-
-func (c *Client) imageToWebp(sourcePath string) (Result, error) {
+func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, error) {
 	file, cleanup, err := c.multipartFile(sourcePath)
 	if err != nil {
 		return Result{}, err
@@ -208,7 +198,7 @@ func (c *Client) imageToWebp(sourcePath string) (Result, error) {
 		},
 	})
 
-	res, err := c.api.ExecutePipeline(context.Background(), &api.ExecutePipelineReq{
+	res, err := c.api.ExecutePipeline(ctx, &api.ExecutePipelineReq{
 		File:     file,
 		Pipeline: string(pipeline),
 	})
@@ -231,48 +221,12 @@ func (c *Client) imageToWebp(sourcePath string) (Result, error) {
 		return Result{}, fmt.Errorf("pipeline returned no download url")
 	}
 
-	return c.downloadJob(jobId, downloadUrl)
+	return c.downloadJob(ctx, jobId, downloadUrl)
 }
 
-func (c *Client) pdfToWebp(inputPath string) (Result, error) {
-	tmpDir, err := os.MkdirTemp("", "pdf2webp-")
-	if err != nil {
-		return Result{}, fmt.Errorf("create temp dir: %w", err)
-	}
-	defer os.RemoveAll(tmpDir)
-	c.logger.Debug("Converting PDF to webp", "inputPath", inputPath, "tmpDir", tmpDir)
-
-	pagePaths, err := c.PDFToPngPages(inputPath, tmpDir)
-	if err != nil {
-		return Result{}, fmt.Errorf("convert pdf to images: %w", err)
-	}
-	c.logger.Debug("PDF converted to page images", "inputPath", inputPath, "pageCount", len(pagePaths))
-
-	if len(pagePaths) == 1 {
-		c.logger.Debug("Single page PDF, converting directly to webp")
-		return c.imageToWebp(pagePaths[0])
-	}
-
-	c.logger.Debug("Multi-page PDF, stitching pages vertically", "pageCount", len(pagePaths))
-	stitchedPath := filepath.Join(tmpDir, "stitched.png")
-	if err := c.StitchImagesVertical(pagePaths, stitchedPath); err != nil {
-		return Result{}, fmt.Errorf("stitch pdf pages: %w", err)
-	}
-	c.logger.Debug("Pages stitched, converting to webp", "stitchedPath", stitchedPath)
-	return c.imageToWebp(stitchedPath)
-}
-
-func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
+func (c *Client) PDFToPngPages(ctx context.Context, inputPath, outputDir string, dpi int) ([]string, error) {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create output dir: %w", err)
-	}
-
-	dpi := pdfinfo.DefaultDpi
-	if meta, err := pdfinfo.Read(inputPath); err != nil {
-		c.logger.Warn("Failed to inspect PDF page size, falling back to default DPI", "error", err)
-	} else {
-		dpi = meta.DPI()
-		c.logger.Debug("Resolved PDF conversion DPI", "inputPath", inputPath, "pageCount", meta.PageCount, "pageWidthPt", meta.PageWidthPt, "pageHeightPt", meta.PageHeightPt, "dpi", dpi)
 	}
 
 	file, cleanup, err := c.multipartFile(inputPath)
@@ -286,7 +240,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 		"dpi":    dpi,
 	})
 
-	res, err := c.api.PdfToImage(context.Background(), &api.PdfToImageReq{
+	res, err := c.api.PdfToImage(ctx, &api.PdfToImageReq{
 		File:     file,
 		Settings: api.NewOptString(string(settings)),
 	})
@@ -313,7 +267,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 			return nil, fmt.Errorf("page %d returned no download url", i)
 		}
 		pagePath := filepath.Join(outputDir, fmt.Sprintf("page_%03d.png", i+1))
-		data, err := c.downloadBytes(jobId, filepath.Base(downloadUrl))
+		data, err := c.downloadBytes(ctx, jobId, filepath.Base(downloadUrl))
 		if err != nil {
 			return nil, fmt.Errorf("download page %d: %w", i+1, err)
 		}
@@ -326,7 +280,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 	return pagePaths, nil
 }
 
-func (c *Client) StitchImagesVertical(pagePaths []string, outputPath string) error {
+func (c *Client) StitchImagesVertical(ctx context.Context, pagePaths []string, outputPath string) error {
 	files := make([]ht.MultipartFile, 0, len(pagePaths))
 	cleanups := make([]func(), 0, len(pagePaths))
 	defer func() {
@@ -349,7 +303,7 @@ func (c *Client) StitchImagesVertical(pagePaths []string, outputPath string) err
 		"format":    "png",
 	})
 
-	res, err := c.api.StitchImages(context.Background(), &api.StitchImagesReq{
+	res, err := c.api.StitchImages(ctx, &api.StitchImagesReq{
 		File:     files,
 		Settings: api.NewOptString(string(settings)),
 	})
@@ -363,7 +317,7 @@ func (c *Client) StitchImagesVertical(pagePaths []string, outputPath string) err
 		return fmt.Errorf("stitch images returned unexpected response: %T", res)
 	}
 
-	result, err := c.downloadFromTool(toolResp)
+	result, err := c.downloadFromTool(ctx, toolResp)
 	if err != nil {
 		return err
 	}
