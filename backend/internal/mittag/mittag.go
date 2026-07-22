@@ -13,6 +13,7 @@ import (
 	"github.com/flohoss/mittagskarte/internal/web"
 	"github.com/flohoss/mittagskarte/pkg/checksum"
 	"github.com/flohoss/mittagskarte/pkg/fsutil"
+	"github.com/flohoss/mittagskarte/pkg/pdfinfo"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/apis"
@@ -121,6 +122,20 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	m.app.Logger().Debug("Processing menu file", "restaurantId", restaurantID, "sourcePath", sourcePath)
 
+	if pdfinfo.IsPDF(sourcePath) {
+		pdfInfo, pdfErr := pdfinfo.Read(sourcePath)
+		if pdfErr != nil {
+			m.app.Logger().Warn("Failed to inspect PDF metadata, continuing with conversion", "restaurantId", restaurantID, "error", pdfErr)
+		} else {
+			e.Record.Set("pdf_metadata", pdfInfo)
+			if m.pdfUnchanged(restaurantID, pdfInfo) {
+				m.app.Logger().Debug("PDF metadata unchanged, skipping conversion", "restaurantId", restaurantID)
+				restaurant.UpdateLastCheck(m.app, restaurantID, restaurant.LastCheckStatusNotChanged, "")
+				return router.NewBadRequestError("Das Menü hat sich nicht geändert", fmt.Errorf("%w", restaurant.ErrMenuUnchanged))
+			}
+		}
+	}
+
 	result, err := m.snapotter.ProcessFileToWebp(sourcePath)
 	if err != nil {
 		m.app.Logger().Error("Menü konnte nicht verarbeitet werden", "restaurantId", restaurantID, "sourcePath", sourcePath, "error", err)
@@ -169,6 +184,14 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	e.Record.Set("hash", hash)
 	return e.Next()
+}
+
+func (m *Mittag) pdfUnchanged(restaurantID string, current pdfinfo.Metadata) bool {
+	latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID)
+	if latest == nil {
+		return false
+	}
+	return pdfinfo.Equal(latest.Get("pdf_metadata"), current)
 }
 
 func (m *Mittag) onMenuAfterCreateSuccess(e *core.RecordEvent) error {
