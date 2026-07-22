@@ -46,7 +46,7 @@ FROM node:${V_NODE}-slim AS final
 WORKDIR /app
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
-    dumb-init ca-certificates curl tzdata > /dev/null 2>&1 && \
+    dumb-init ca-certificates curl tzdata poppler-utils > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

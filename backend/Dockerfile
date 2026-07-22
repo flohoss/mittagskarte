@@ -7,7 +7,7 @@ WORKDIR /app
 
 RUN apt-get update > /dev/null 2>&1 && apt-get install -y --no-install-recommends \
     git build-essential libc6-dev \
-    curl ca-certificates tzdata > /dev/null 2>&1 && \
+    curl ca-certificates tzdata poppler-utils > /dev/null 2>&1 && \
     apt-get autoremove -y > /dev/null 2>&1 && \
     apt-get clean > /dev/null 2>&1 &&  \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
