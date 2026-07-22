@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -42,7 +43,8 @@ func newResult(data []byte, name string) (Result, error) {
 }
 
 type Client struct {
-	api *api.Client
+	api    *api.Client
+	logger *slog.Logger
 }
 
 type noAuth struct{}
@@ -51,13 +53,14 @@ func (noAuth) BearerAuth(ctx context.Context, operationName api.OperationName) (
 	return api.BearerAuth{}, nil
 }
 
-func New(u url.URL) *Client {
+func New(u url.URL, appLogger *slog.Logger) *Client {
 	apiClient, err := api.NewClient(u.String(), noAuth{})
 	if err != nil {
 		return nil
 	}
 	return &Client{
-		api: apiClient,
+		api:    apiClient,
+		logger: appLogger.WithGroup("snapotter"),
 	}
 }
 
@@ -121,6 +124,7 @@ func (c *Client) downloadFromTool(toolResp *api.ToolResponse) (Result, error) {
 }
 
 func (c *Client) Setup() error {
+	c.logger.Debug("Setting up snapotter client")
 	res, err := c.api.ListFeatures(context.Background())
 	if err != nil {
 		return fmt.Errorf("list features: %w", err)
@@ -184,8 +188,10 @@ func (c *Client) Setup() error {
 
 func (c *Client) ProcessFileToWebp(sourcePath string) (Result, error) {
 	if isPDFFile(sourcePath) {
+		c.logger.Debug("Processing PDF file", "sourcePath", sourcePath)
 		return c.pdfToWebp(sourcePath)
 	}
+	c.logger.Debug("Processing image file", "sourcePath", sourcePath)
 	return c.imageToWebp(sourcePath)
 }
 
@@ -210,6 +216,7 @@ func (c *Client) imageToWebp(sourcePath string) (Result, error) {
 	if err != nil {
 		return Result{}, fmt.Errorf("pipeline request: %w", err)
 	}
+	c.logger.Debug("Image pipeline completed, downloading result", "sourcePath", sourcePath)
 
 	okResp, ok := res.(*api.ExecutePipelineOK)
 	if !ok {
@@ -234,20 +241,25 @@ func (c *Client) pdfToWebp(inputPath string) (Result, error) {
 		return Result{}, fmt.Errorf("create temp dir: %w", err)
 	}
 	defer os.RemoveAll(tmpDir)
+	c.logger.Debug("Converting PDF to webp", "inputPath", inputPath, "tmpDir", tmpDir)
 
 	pagePaths, err := c.PDFToPngPages(inputPath, tmpDir)
 	if err != nil {
 		return Result{}, fmt.Errorf("convert pdf to images: %w", err)
 	}
+	c.logger.Debug("PDF converted to page images", "inputPath", inputPath, "pageCount", len(pagePaths))
 
 	if len(pagePaths) == 1 {
+		c.logger.Debug("Single page PDF, converting directly to webp")
 		return c.imageToWebp(pagePaths[0])
 	}
 
+	c.logger.Debug("Multi-page PDF, stitching pages vertically", "pageCount", len(pagePaths))
 	stitchedPath := filepath.Join(tmpDir, "stitched.png")
 	if err := c.StitchImagesVertical(pagePaths, stitchedPath); err != nil {
 		return Result{}, fmt.Errorf("stitch pdf pages: %w", err)
 	}
+	c.logger.Debug("Pages stitched, converting to webp", "stitchedPath", stitchedPath)
 	return c.imageToWebp(stitchedPath)
 }
 
@@ -306,6 +318,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 	}
 
 	pages := okResp.GetPages()
+	c.logger.Debug("PDF conversion completed, downloading pages", "inputPath", inputPath, "pageCount", len(pages))
 	pagePaths := make([]string, 0, len(pages))
 	for i, page := range pages {
 		downloadUrl, ok := page.GetDownloadUrl().Get()
@@ -356,6 +369,7 @@ func (c *Client) StitchImagesVertical(pagePaths []string, outputPath string) err
 	if err != nil {
 		return fmt.Errorf("stitch images request: %w", err)
 	}
+	c.logger.Debug("Stitch request completed, downloading result", "pageCount", len(pagePaths))
 
 	toolResp, ok := res.(*api.ToolResponse)
 	if !ok {

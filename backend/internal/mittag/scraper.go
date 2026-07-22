@@ -155,7 +155,7 @@ func (s *Scraper) processScrape(restaurantID string) {
 	if errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) {
 		s.app.Logger().Warn("Skipped automated update: manual upload only", "name", r.Name)
 	} else if errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
-		s.app.Logger().Warn("No menu change detected", "name", r.Name)
+		s.app.Logger().Debug("No menu change detected", "name", r.Name)
 	} else if scrapeErr != nil {
 		s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", scrapeErr)
 	}
@@ -268,6 +268,8 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 		_ = os.Remove(downloadPath)
 	}()
 
+	s.app.Logger().Debug("Starting scrape", "id", r.ID, "name", r.Name, "method", r.Method)
+
 	switch r.Method {
 	case "scrape":
 		downloadPath, err = r.Scrape(downloadPath, s.web, s.app.Logger())
@@ -285,5 +287,6 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 		return fmt.Errorf("unknown scraping method %q for restaurant %s", r.Method, r.Name)
 	}
 
+	s.app.Logger().Debug("Scrape completed, updating menu", "id", r.ID, "name", r.Name, "downloadPath", downloadPath)
 	return r.UpdateMenu(downloadPath, s.app)
 }

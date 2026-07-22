@@ -34,7 +34,7 @@ func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*M
 		return nil, err
 	}
 
-	snapOtterClient := snapotter.New(snapOtterURL)
+	snapOtterClient := snapotter.New(snapOtterURL, app.Logger())
 	if err := snapOtterClient.Setup(); err != nil {
 		return nil, fmt.Errorf("setup snapotter: %w", err)
 	}
@@ -114,14 +114,20 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	sourcePath, cleanup, err := fsutil.LocalPath(f, restaurant.DownloadsFolder)
 	if err != nil {
+		m.app.Logger().Error("Hochgeladene Datei konnte nicht verarbeitet werden", "restaurantId", restaurantID, "error", err)
 		return router.NewBadRequestError("Hochgeladene Datei konnte nicht verarbeitet werden", err)
 	}
 	defer cleanup()
 
+	m.app.Logger().Debug("Processing menu file", "restaurantId", restaurantID, "sourcePath", sourcePath)
+
 	result, err := m.snapotter.ProcessFileToWebp(sourcePath)
 	if err != nil {
+		m.app.Logger().Error("Menü konnte nicht verarbeitet werden", "restaurantId", restaurantID, "sourcePath", sourcePath, "error", err)
 		return router.NewBadRequestError("Menü konnte nicht verarbeitet werden", err)
 	}
+
+	m.app.Logger().Debug("Menu file processed", "restaurantId", restaurantID, "width", result.Width, "height", result.Height, "bytes", len(result.Data))
 
 	e.Record.Set("dimensions", map[string]any{
 		"width":     result.Width,
@@ -138,13 +144,17 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 
 	rc, err := processedFile.Reader.Open()
 	if err != nil {
+		m.app.Logger().Error("Failed to open processed menu file for checksum", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
 	hash, err := checksum.Reader(rc)
 	rc.Close()
 	if err != nil {
+		m.app.Logger().Error("Failed to compute menu checksum", "restaurantId", restaurantID, "error", err)
 		return e.Next()
 	}
+
+	m.app.Logger().Debug("Computed menu checksum", "restaurantId", restaurantID, "hash", hash)
 
 	if latest := restaurant.GetLatestMenuByRestaurantID(m.app, restaurantID); latest != nil {
 		if latest.GetString("hash") == hash {
