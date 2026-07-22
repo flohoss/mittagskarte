@@ -8,13 +8,12 @@ import (
 	"image"
 	"io"
 	"log/slog"
-	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
+	"github.com/flohoss/mittagskarte/pkg/pdfinfo"
 	"github.com/flohoss/mittagskarte/pkg/snapotter/api"
 
 	_ "golang.org/x/image/webp"
@@ -187,7 +186,7 @@ func (c *Client) Setup() error {
 }
 
 func (c *Client) ProcessFileToWebp(sourcePath string) (Result, error) {
-	if isPDFFile(sourcePath) {
+	if pdfinfo.IsPDF(sourcePath) {
 		c.logger.Debug("Processing PDF file", "sourcePath", sourcePath)
 		return c.pdfToWebp(sourcePath)
 	}
@@ -263,29 +262,17 @@ func (c *Client) pdfToWebp(inputPath string) (Result, error) {
 	return c.imageToWebp(stitchedPath)
 }
 
-func isPDFFile(sourcePath string) bool {
-	if strings.EqualFold(filepath.Ext(sourcePath), ".pdf") {
-		return true
-	}
-
-	file, err := os.Open(sourcePath)
-	if err != nil {
-		return false
-	}
-	defer file.Close()
-
-	header := make([]byte, 512)
-	readBytes, err := file.Read(header)
-	if err != nil || readBytes == 0 {
-		return false
-	}
-
-	return http.DetectContentType(header[:readBytes]) == "application/pdf"
-}
-
 func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create output dir: %w", err)
+	}
+
+	dpi := pdfinfo.DefaultDpi
+	if meta, err := pdfinfo.Read(inputPath); err != nil {
+		c.logger.Warn("Failed to inspect PDF page size, falling back to default DPI", "error", err)
+	} else {
+		dpi = meta.DPI()
+		c.logger.Debug("Resolved PDF conversion DPI", "inputPath", inputPath, "pageCount", meta.PageCount, "pageWidthPt", meta.PageWidthPt, "pageHeightPt", meta.PageHeightPt, "dpi", dpi)
 	}
 
 	file, cleanup, err := c.multipartFile(inputPath)
@@ -296,7 +283,7 @@ func (c *Client) PDFToPngPages(inputPath, outputDir string) ([]string, error) {
 
 	settings, _ := json.Marshal(map[string]any{
 		"format": "png",
-		"dpi":    1200,
+		"dpi":    dpi,
 	})
 
 	res, err := c.api.PdfToImage(context.Background(), &api.PdfToImageReq{
