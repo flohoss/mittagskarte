@@ -81,12 +81,13 @@ Files are processed by [SnapOtter](https://github.com/snapotter-hq/snapotter), a
 
 For images, the backend uses SnapOtter's pipeline API to chain `smart-crop` (trim) and `optimize-for-web` (WebP) in a single request.
 
-For PDFs, the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
+For PDFs, the backend first inspects the file locally with `pdfinfo` and `pdfimages` (from `poppler-utils`) to read page count, page dimensions, document metadata, and embedded image resolution. The DPI is computed dynamically: it targets a 4000px output width from the page size, but if the page is small with a high-resolution embedded image (e.g. Canva exports with tiny page sizes), the image's pixel width is used instead to ensure full fidelity (clamped to 150–1200 DPI). The full metadata is stored on the menu record and compared to the latest menu — if identical, conversion is skipped entirely. Otherwise the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
 
 For each menu create event, the backend:
 
+- inspects PDF metadata via `pdfinfo`/`pdfimages` and skips conversion if metadata matches the latest menu
 - sends the input file to SnapOtter and downloads the processed `webp`
-- stores calculated dimensions (`width`, `height`, `landscape`)
+- stores calculated dimensions (`width`, `height`, `landscape`) and `pdf_metadata`
 - computes a content hash and rejects unchanged uploads/scrapes
 - prepends the new menu id to the restaurant `menus` relation
 - removes older menu records beyond `restaurants.menus.maxSelect`
