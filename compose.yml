@@ -7,7 +7,7 @@ x-build-args: &build-args
   V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6100.0}
 
 x-images:
-  go: &go-image golang:${V_GOLANG:-1.26}-alpine
+  go: &go-image golang:${V_GOLANG:-1.26}
   node: &node-image node:${V_NODE:-26}-slim
 
 services:

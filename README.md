@@ -269,7 +269,7 @@ services:
     volumes:
       - snapotter:/data
     ports:
-      - '1349:1349'
+      - "1349:1349"
     networks:
       - net
 
@@ -329,7 +329,7 @@ Install or update frontend dependencies:
 
 ```sh
 docker compose run --rm npm install
-docker compose run --rm npm upgrade
+docker compose run --rm --entrypoint npx npm npm-check-updates -u && docker compose run --rm npm install
 ```
 
 Update Go modules:
