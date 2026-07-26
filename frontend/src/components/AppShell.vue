@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Fa7SolidArrowLeft from '~icons/fa7-solid/arrow-left';
-import SimpleIconsPocketbase from '~icons/simple-icons/pocketbase';
-import Github from '~icons/simple-icons/github';
 import { useMagicKeys, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -65,7 +62,7 @@ whenever(
         <template v-if="isMenuHistoryRoute">
           <div class="flex w-full items-center justify-between gap-4">
             <button class="btn btn-soft shrink-0" aria-label="Zur Startseite zurück" @click="router.back()">
-              <Fa7SolidArrowLeft class="size-4" aria-hidden="true" />
+              <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
               Zurück
             </button>
 
@@ -104,10 +101,10 @@ whenever(
         <div class="flex gap-2 items-center">
           <RouterLink to="/datenschutz" class="btn btn-ghost">Datenschutz</RouterLink>
           <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="adminPanelUrl" title="Admin Panel">
-            <SimpleIconsPocketbase class="size-5" />
+            <span class="icon-[simple-icons--pocketbase] size-5" aria-hidden="true"></span>
           </a>
           <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="RepoURL" :title="AppVersion">
-            <Github class="size-5" />
+            <span class="icon-[simple-icons--github] size-5" aria-hidden="true"></span>
           </a>
         </div>
       </div>

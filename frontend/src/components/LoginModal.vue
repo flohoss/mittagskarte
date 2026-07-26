@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import Fa7SolidEnvelope from '~icons/fa7-solid/envelope';
-import Fa7SolidLockOpen from '~icons/fa7-solid/lock-open';
-import Fa7SolidRightToBracket from '~icons/fa7-solid/right-to-bracket';
-import Fa7SolidRightFromBracket from '~icons/fa7-solid/right-from-bracket';
 import { useLogin } from '../stores/useLogin';
 
 const props = withDefaults(
@@ -90,7 +86,7 @@ defineExpose({
     aria-label="Anmelden"
     @click="openLoginDialog"
   >
-    <Fa7SolidLockOpen class="size-4" aria-hidden="true" />
+    <span class="icon-[fa7-solid--lock-open] size-4" aria-hidden="true"></span>
     <span v-if="props.showLabel">Anmelden</span>
   </button>
 
@@ -102,7 +98,7 @@ defineExpose({
     aria-label="Abmelden"
     @click="logout"
   >
-    <Fa7SolidRightFromBracket class="size-4" aria-hidden="true" />
+    <span class="icon-[fa7-solid--right-from-bracket] size-4" aria-hidden="true"></span>
     <span v-if="props.showLabel">Abmelden</span>
   </button>
 
@@ -116,12 +112,12 @@ defineExpose({
 
         <div class="mt-5 grid gap-3">
           <label class="input input-bordered flex w-full items-center gap-2">
-            <Fa7SolidEnvelope class="size-4 opacity-70" aria-hidden="true" />
+            <span class="icon-[fa7-solid--envelope] size-4 opacity-70" aria-hidden="true"></span>
             <input v-model="loginIdentity" type="email" class="grow" placeholder="E-Mail" autocomplete="username" :disabled="isAuthenticating" />
           </label>
 
           <label class="input input-bordered flex w-full items-center gap-2">
-            <Fa7SolidLockOpen class="size-4 opacity-70" aria-hidden="true" />
+            <span class="icon-[fa7-solid--lock-open] size-4 opacity-70" aria-hidden="true"></span>
             <input
               v-model="loginPassword"
               type="password"
@@ -140,7 +136,7 @@ defineExpose({
           <button type="button" class="btn w-full sm:w-auto" :disabled="isAuthenticating" @click="handleCloseLoginDialog">Schließen</button>
           <button type="button" class="btn btn-primary w-full sm:w-auto" :disabled="isAuthenticating" @click="login">
             <span v-if="isAuthenticating" class="loading loading-spinner loading-xs" aria-hidden="true" />
-            <Fa7SolidRightToBracket v-else class="size-4" aria-hidden="true" />
+            <span v-else class="icon-[fa7-solid--right-to-bracket] size-4" aria-hidden="true"></span>
             <span>{{ isAuthenticating ? 'Anmeldung läuft...' : 'Einloggen' }}</span>
           </button>
         </div>

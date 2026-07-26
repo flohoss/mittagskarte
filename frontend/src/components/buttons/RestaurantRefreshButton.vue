@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import type { RestaurantRecord } from '../../models/restaurant';
-import Fa7SolidArrowsRotate from '~icons/fa7-solid/arrows-rotate';
-import Fa7SolidDownload from '~icons/fa7-solid/download';
-import Fa7SolidUpload from '~icons/fa7-solid/upload';
-import Fa7SolidHourglassHalf from '~icons/fa7-solid/hourglass-half';
-import Fa7SolidClock from '~icons/fa7-solid/clock';
-import Fa7SolidCloudArrowUp from '~icons/fa7-solid/cloud-arrow-up';
-import Fa7SolidFile from '~icons/fa7-solid/file';
-import Fa7SolidXmark from '~icons/fa7-solid/xmark';
 import { RestaurantMethod, RestaurantStatus } from '../../stores/useRestaurants';
 import { backendClient } from '../../services/backendClient';
 
@@ -71,47 +63,47 @@ const statusMeta = computed(() => {
   switch (props.restaurant.status) {
     case RestaurantStatus.UPDATING:
       return {
-        icon: Fa7SolidArrowsRotate,
+        iconClass: 'icon-[fa7-solid--arrows-rotate]',
         label: 'Wird Aktualisiert',
         className: 'btn-neutral',
-        iconClass: 'animate-spin',
+        iconClassModifier: 'animate-spin',
       };
     case RestaurantStatus.QUEUED:
       return {
-        icon: Fa7SolidHourglassHalf,
+        iconClass: 'icon-[fa7-solid--hourglass-half]',
         label: 'In Warteschlange',
         className: 'btn-neutral',
-        iconClass: '',
+        iconClassModifier: '',
       };
     case RestaurantStatus.COOLDOWN:
       return {
-        icon: Fa7SolidClock,
+        iconClass: 'icon-[fa7-solid--clock]',
         label: 'Cooldown',
         className: 'btn-neutral',
-        iconClass: '',
+        iconClassModifier: '',
       };
     default:
       switch (props.restaurant.method) {
         case RestaurantMethod.SCRAPE:
           return {
-            icon: Fa7SolidArrowsRotate,
+            iconClass: 'icon-[fa7-solid--arrows-rotate]',
             label: 'Leerlauf',
             className: 'hover:btn-primary',
-            iconClass: '',
+            iconClassModifier: '',
           };
         case RestaurantMethod.DOWNLOAD:
           return {
-            icon: Fa7SolidDownload,
+            iconClass: 'icon-[fa7-solid--download]',
             label: 'Leerlauf',
             className: 'hover:btn-primary',
-            iconClass: '',
+            iconClassModifier: '',
           };
         default:
           return {
-            icon: Fa7SolidUpload,
+            iconClass: 'icon-[fa7-solid--upload]',
             label: 'Datei hochladen',
             className: 'hover:btn-primary',
-            iconClass: '',
+            iconClassModifier: '',
           };
       }
   }
@@ -244,7 +236,7 @@ async function triggerRefresh() {
     :disabled="!canTriggerRefresh"
     @click="triggerRefresh"
   >
-    <component :is="statusMeta.icon" :class="['btn-icon', statusMeta.iconClass]" aria-hidden="true" />
+    <span :class="['btn-icon', statusMeta.iconClass, statusMeta.iconClassModifier]" aria-hidden="true"></span>
   </button>
 
   <dialog ref="uploadDialog" class="modal">
@@ -275,7 +267,7 @@ async function triggerRefresh() {
           @dragover="onDragOver"
           @dragleave="onDragLeave"
         >
-          <Fa7SolidCloudArrowUp class="size-10 text-base-content/40" aria-hidden="true" />
+          <span class="icon-[fa7-solid--cloud-arrow-up] size-10 text-base-content/40" aria-hidden="true"></span>
           <div class="text-sm text-base-content/80">
             <span class="font-semibold">Datei hierher ziehen</span>
             <span> oder klicken zum Auswählen</span>
@@ -284,7 +276,7 @@ async function triggerRefresh() {
         </div>
 
         <div v-else class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-200/50 p-3">
-          <Fa7SolidFile class="size-8 shrink-0 text-primary" aria-hidden="true" />
+          <span class="icon-[fa7-solid--file] size-8 shrink-0 text-primary" aria-hidden="true"></span>
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium text-base-content">{{ formattedUploadFile?.name }}</div>
             <div class="text-xs text-base-content/60">{{ formattedUploadFile?.size }}</div>
@@ -297,7 +289,7 @@ async function triggerRefresh() {
             aria-label="Datei entfernen"
             @click="clearUploadFile"
           >
-            <Fa7SolidXmark class="size-4" aria-hidden="true" />
+            <span class="icon-[fa7-solid--xmark] size-4" aria-hidden="true"></span>
           </button>
         </div>
 

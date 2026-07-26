@@ -4,10 +4,6 @@ import type { RestaurantRecord } from '../models/restaurant';
 import MenuPopover from './buttons/RestaurantMenuButton.vue';
 import RestaurantRefreshButton from './buttons/RestaurantRefreshButton.vue';
 import ActionIconButton from './buttons/ActionIconButton.vue';
-import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
-import Fa7SolidPhone from '~icons/fa7-solid/phone';
-import Fa7SolidMap from '~icons/fa7-solid/map';
-import Fa7SolidGlobe from '~icons/fa7-solid/globe';
 import { useRestaurants } from '../stores/useRestaurants';
 import { useLogin } from '../stores/useLogin';
 import { backendClient } from '../services/backendClient';
@@ -50,21 +46,21 @@ const menuDimensions = computed(() => {
       :menu-height="menuDimensions.height"
     />
     <ActionIconButton v-else class-name="btn btn-primary" title="Keine Speisekarte verfügbar" ariaLabel="Keine Speisekarte verfügbar" :disabled="true">
-      <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
+      <span class="icon-[fa7-solid--list-alt] btn-icon" aria-hidden="true"></span>
     </ActionIconButton>
 
     <RestaurantRefreshButton v-if="isAuthenticated" :restaurant="props.restaurant" />
 
     <ActionIconButton :href="mapUrl" class-name="btn btn-soft hover:btn-warning" :title="mapActionTitle" :ariaLabel="mapActionLabel">
-      <Fa7SolidMap class="btn-icon" aria-hidden="true" />
+      <span class="icon-[fa7-solid--map] btn-icon" aria-hidden="true"></span>
     </ActionIconButton>
 
     <ActionIconButton :href="phoneUrl" class-name="btn btn-soft hover:btn-success" :title="phoneActionTitle" :ariaLabel="phoneActionLabel" target="_self">
-      <Fa7SolidPhone class="btn-icon" aria-hidden="true" />
+      <span class="icon-[fa7-solid--phone] btn-icon" aria-hidden="true"></span>
     </ActionIconButton>
 
     <ActionIconButton :href="websiteUrl" class-name="btn btn-soft hover:btn-info" :title="websiteActionTitle" :ariaLabel="websiteActionLabel">
-      <Fa7SolidGlobe class="btn-icon" aria-hidden="true" />
+      <span class="icon-[fa7-solid--globe] btn-icon" aria-hidden="true"></span>
     </ActionIconButton>
   </div>
 </template>

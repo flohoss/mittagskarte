@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Fa7SolidMagnifyingGlass from '~icons/fa7-solid/magnifying-glass';
 import { computed } from 'vue';
 
 import { useRestaurants } from '../../stores/useRestaurants';
@@ -13,7 +12,7 @@ const isFiltering = computed(() => searchQuery.value.trim().length > 0);
   <section class="grid min-h-[40vh] place-items-center rounded-4xl border border-dashed border-base-300 bg-base-200/40 p-8 text-center">
     <div class="max-w-md space-y-4">
       <div class="mx-auto flex size-16 items-center justify-center rounded-2xl border border-base-300 bg-base-100/80 text-base-content/55 shadow-sm">
-        <Fa7SolidMagnifyingGlass class="size-7" aria-hidden="true" />
+        <span class="icon-[fa7-solid--magnifying-glass] size-7" aria-hidden="true"></span>
       </div>
 
       <div class="space-y-2">

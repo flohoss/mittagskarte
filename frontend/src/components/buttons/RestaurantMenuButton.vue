@@ -3,7 +3,6 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { useFloating, autoUpdate, offset, shift, autoPlacement, size } from '@floating-ui/vue';
 import { useRoute, useRouter } from 'vue-router';
-import Fa7SolidListAlt from '~icons/fa7-solid/list-alt';
 import type { RestaurantRecord } from '../../models/restaurant';
 
 const props = defineProps<{
@@ -152,7 +151,7 @@ onBeforeUnmount(() => {
       @blur="hidePopoverImmediate"
       @click="openMenuHistory"
     >
-      <Fa7SolidListAlt class="btn-icon" aria-hidden="true" />
+      <span class="icon-[fa7-solid--list-alt] btn-icon" aria-hidden="true"></span>
     </button>
     <teleport to="body">
       <div

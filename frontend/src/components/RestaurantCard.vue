@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Fa7SolidStar from '~icons/fa7-solid/star';
 import { computed } from 'vue';
 import RestaurantActions from './RestaurantActions.vue';
 import { useFavorites } from '../stores/useFavorites';
@@ -117,7 +116,7 @@ function getInitials(name: string) {
           :aria-pressed="isFavorited"
           @click="toggleFavorite(props.restaurant.id)"
         >
-          <Fa7SolidStar aria-hidden="true" />
+          <span class="icon-[fa7-solid--star]" aria-hidden="true"></span>
         </button>
       </div>
       <!-- bottom row: tags -->
