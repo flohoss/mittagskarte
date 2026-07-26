@@ -12,7 +12,7 @@ const { groupedRestaurants, groupBy } = useRestaurants();
       :key="group"
       :restaurants="restaurants"
       :group="group"
-      :show-heading="groupBy !== 'none'"
+      :show-heading="groupBy !== 'none' || group === 'Favoriten'"
     />
   </div>
 </template>

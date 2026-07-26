@@ -21,7 +21,7 @@ export const RestaurantMethod = {
 export type RestaurantMethod = (typeof RestaurantMethod)[keyof typeof RestaurantMethod];
 
 export type RestaurantSort = 'name-asc' | 'name-desc' | 'menu-newest' | 'menu-oldest' | 'distance-asc';
-export type RestaurantGrouping = 'group' | 'none';
+export type RestaurantGrouping = 'group' | 'none' | 'none-favorites' | 'favorites';
 
 export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string }> = [
   { value: 'name-asc', label: 'Name A-Z' },
@@ -32,8 +32,10 @@ export const restaurantSortOptions: Array<{ value: RestaurantSort; label: string
 ];
 
 export const restaurantGroupingOptions: Array<{ value: RestaurantGrouping; label: string }> = [
-  { value: 'group', label: 'Nach Gruppe' },
-  { value: 'none', label: 'Keine Gruppierung' },
+  { value: 'group', label: 'Regionen' },
+  { value: 'none', label: 'Liste' },
+  { value: 'none-favorites', label: 'Liste, Favoriten oben' },
+  { value: 'favorites', label: 'Nur Favoriten' },
 ];
 
 declare global {
@@ -397,20 +399,36 @@ export const useRestaurants = createGlobalState(() => {
       return groups;
     }
 
+    if (groupBy.value === 'none-favorites') {
+      const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
+      if (favoriteRestaurants.length) {
+        groups.Favoriten = favoriteRestaurants;
+      }
+      groups.Alle = nextRestaurants.filter((restaurant) => !favorites.value[restaurant.id]);
+      return groups;
+    }
+
+    if (groupBy.value === 'favorites') {
+      const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
+      if (favoriteRestaurants.length) {
+        groups.Favoriten = favoriteRestaurants;
+      }
+      return groups;
+    }
+
     const favoriteRestaurants = nextRestaurants.filter((restaurant) => favorites.value[restaurant.id]);
     if (favoriteRestaurants.length) {
       groups.Favoriten = favoriteRestaurants;
     }
 
+    const groupKeys = new Set<string>();
     for (const restaurant of nextRestaurants) {
       if (favorites.value[restaurant.id]) continue;
+      groupKeys.add(restaurant.group || 'Ohne Gruppe');
+    }
 
-      const key = restaurant.group || 'Ohne Gruppe';
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-
-      groups[key].push(restaurant);
+    for (const key of [...groupKeys].sort((a, b) => collator.compare(a, b))) {
+      groups[key] = nextRestaurants.filter((restaurant) => !favorites.value[restaurant.id] && (restaurant.group || 'Ohne Gruppe') === key);
     }
 
     return groups;
