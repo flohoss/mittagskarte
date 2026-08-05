@@ -17,7 +17,7 @@ const { getMapUrl, getPhoneUrl } = useRestaurants();
 const { isAuthenticated } = useLogin();
 const mapUrl = computed(() => (props.restaurant.address ? getMapUrl(props.restaurant) : ''));
 const phoneUrl = computed(() => (props.restaurant.phone ? getPhoneUrl(props.restaurant) : ''));
-const mapActionTitle = computed(() => (mapUrl.value ? 'In Google Maps öffnen' : 'Keine Karte verfügbar'));
+const mapActionTitle = computed(() => (mapUrl.value ? `${props.restaurant.address}` : 'Keine Adresse verfügbar'));
 const mapActionLabel = computed(() => (mapUrl.value ? 'Karte öffnen' : 'Keine Karte verfügbar'));
 const phoneActionTitle = computed(() => (phoneUrl.value ? 'Anrufen' : 'Keine Telefonnummer verfügbar'));
 const phoneActionLabel = computed(() => (phoneUrl.value ? 'Restaurant anrufen' : 'Keine Telefonnummer verfügbar'));
