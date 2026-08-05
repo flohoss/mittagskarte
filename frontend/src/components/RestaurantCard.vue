@@ -8,13 +8,18 @@ import { useNow } from '../composables/useNow';
 import { getLatestMenu } from '../utils/menu';
 import { formatRelativePastLabel } from '../utils/date';
 import { getMenuFreshnessMeta } from '../utils/menuFreshness';
+import { getRegionBadgeColors } from '../utils/regionColor';
+import { usePrefersDark } from '../composables/usePrefersDark';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
+  showRegion?: boolean;
 }>();
 
 const { getFileUrl, applySearch, getRestaurantDistanceKm, sortBy, coords } = useRestaurants();
 const { isFavorite, toggleFavorite } = useFavorites();
+const prefersDark = usePrefersDark();
+const regionBadgeColors = computed(() => getRegionBadgeColors(props.restaurant.group || '', prefersDark.value));
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -121,12 +126,22 @@ function getInitials(name: string) {
       </div>
       <!-- bottom row: tags -->
       <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-100/90 to-transparent px-3 pb-3 pt-8">
-        <div class="flex flex-wrap gap-1.5">
+        <div class="no-scrollbar fade-right -mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1">
+          <button
+            v-if="showRegion && props.restaurant.group"
+            type="button"
+            class="badge badge-sm shrink-0 cursor-pointer border-0 px-2 py-2.5 text-xs font-medium backdrop-blur transition hover:brightness-95"
+            :style="{ backgroundColor: regionBadgeColors.backgroundColor, color: regionBadgeColors.color }"
+            :title="`Nach Region ${props.restaurant.group} filtern`"
+            @click="applySearch(props.restaurant.group)"
+          >
+            {{ props.restaurant.group }}
+          </button>
           <button
             v-for="tag in props.restaurant.tags"
             :key="tag"
             type="button"
-            class="badge badge-outline badge-xs cursor-pointer border-base-300/60 bg-base-100/70 px-2 py-2.5 text-xs font-medium backdrop-blur transition-colors hover:bg-base-100"
+            class="badge badge-outline badge-xs shrink-0 cursor-pointer border-base-300/60 bg-base-100/70 px-2 py-2.5 text-xs font-medium backdrop-blur transition-colors hover:bg-base-100"
             :title="`Nach Tag ${tag} filtern`"
             @click="applySearch(tag)"
           >

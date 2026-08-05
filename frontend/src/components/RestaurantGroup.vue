@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { RestaurantRecord } from '../models/restaurant';
 import RestaurantCard from './RestaurantCard.vue';
+import { useRestaurants } from '../stores/useRestaurants';
+
+const { groupBy } = useRestaurants();
 
 defineProps<{
   restaurants: RestaurantRecord[];
@@ -16,7 +19,12 @@ defineProps<{
       <span class="text-xs opacity-60">({{ restaurants.length }})</span>
     </div>
     <div class="card-grid">
-      <RestaurantCard v-for="restaurant in restaurants" :key="restaurant.id" :restaurant="restaurant" />
+      <RestaurantCard
+        v-for="restaurant in restaurants"
+        :key="restaurant.id"
+        :restaurant="restaurant"
+        :show-region="groupBy !== 'group' || group === 'Favoriten'"
+      />
     </div>
   </section>
 </template>
