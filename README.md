@@ -269,7 +269,7 @@ services:
     volumes:
       - snapotter:/data
     ports:
-      - "1349:1349"
+      - '1349:1349'
     networks:
       - net
 

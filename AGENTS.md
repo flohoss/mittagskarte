@@ -90,22 +90,20 @@ The backend parses `dist/index.html` as a Go `text/template` and injects `window
 
 ## Git
 
-**Commit message format** — title only, no body:
+Commit message — title only, no body, capitalize first letter:
 
-- `[fix]` — fixes a bug
-- `[feature]` — adds new functionality
-- `[improve]` — improves existing functionality
-- `[meta]` — changes outside the codebase (deployment, CI)
-- `[docs]` — documentation
-- `[refactor]` — formatting, renaming, structural-only
-
-Capitalize the first letter after the prefix.
+- `[fix]` bug fix
+- `[feature]` new functionality
+- `[improve]` improvement to existing functionality
+- `[meta]` changes outside the codebase (deployment, CI)
+- `[docs]` documentation
+- `[refactor]` formatting, renaming, structural-only
 
 ## Verification
 
 Before committing, always run:
 
 - **Backend:** `docker compose run --rm go fmt ./...`
-- **Frontend:** `docker compose run --rm npm run format`
+- **Format:** `docker compose run --rm format`
 
 Only commit if all pass.
