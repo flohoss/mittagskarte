@@ -5,4 +5,5 @@ tmp
 screenshots
 backend/data
 backend/pkg/snapotter/api
+backend/pkg/snapotter/openapi.yaml
 *.go
