@@ -1,50 +1,23 @@
 # Agent Guidance
 
-> **Purpose.** This file is the primary onboarding and guardrail document for any LLM
-> (Claude, GPT, Gemini, Cursor, Copilot, etc.) that reads, writes, or reviews code in
-> this repository. Read it before making changes. It is intentionally rule-oriented and
-> self-contained.
+Read before making changes. Rule-oriented and self-contained.
 
 ## Stack
 
-- **Backend:** Go + PocketBase v0.39 (pocketbase/pocketbase). Serves the frontend dist, a custom `/api/restaurants/scrape` endpoint, and a `sitemap.xml` on `:8090`.
-- **Frontend:** Vue 3 + Vite + Tailwind v4 + daisyUI. Built to `frontend/dist` and served by the backend. No i18n — UI is hardcoded German.
+- **Backend:** Go + PocketBase v0.39. Serves frontend dist, `/api/restaurants/scrape` endpoint, and `sitemap.xml` on `:8090`.
+- **Frontend:** Vue 3 + Vite + Tailwind v4 + daisyUI. Built to `frontend/dist`, served by backend. No i18n — UI is hardcoded German.
 - **Auth:** Email/password via PocketBase `users` collection. No OIDC.
 - **Scraping:** Playwright (Go) for browser-based menu scraping, SnapOtter for image/PDF conversion to WebP. Cron-driven per-restaurant schedules.
 
 ## Architecture
 
-### Backend packages
-
-| Package                | Responsibility                                                                            |
-| ---------------------- | ----------------------------------------------------------------------------------------- |
-| `main`                 | Entry point only — loads config, creates app, registers hooks, starts                     |
-| `config`               | Env parsing (`caarlos0/env`), validation, `Config` struct                                 |
-| `api`                  | HTTP route handlers, rate limit config, static file serving (SSR-lite template injection) |
-| `internal/mittag`      | Core orchestrator — cron scheduling, scrape queue, menu processing pipeline               |
-| `internal/restaurant`  | Domain model, data access functions, slug generation                                      |
-| `internal/sitemap`     | Sitemap XML generation and robots.txt                                                     |
-| `internal/snapotter`   | Client for the SnapOtter image processing service                                         |
-| `internal/web`         | Playwright browser wrapper for scraping                                                   |
-| `internal/placeholder` | Placeholder image generation                                                              |
-| `pkg/checksum`         | CRC32 checksum utilities for menu deduplication                                           |
-| `pkg/curl`             | HTTP download helpers                                                                     |
-| `pkg/fsutil`           | Filesystem utilities (local path resolution, temp files)                                  |
-| `pkg/pdfinfo`          | PDF metadata extraction via poppler-utils                                                 |
-| `pkg/snapotter`        | ogen-generated OpenAPI client for SnapOtter (do not edit — `go generate` regenerates)     |
-| `migrations`           | PocketBase app migrations (auto-run on serve)                                             |
-
-### Frontend layout
-
-- `src/services/backendClient.ts` — shared PocketBase client, auth, data fetching, realtime subscriptions, file URL helpers
-- `src/config.ts` — `BackendURL`, `RepoURL`, `AppVersion`
-- `src/router.ts` — vue-router with custom `scrollBehavior` (home scroll restoration)
-- `src/stores/` — global state via `createGlobalState` + `useStorage` (VueUse): `useFavorites`, `useLogin`, `useRestaurants`
-- `src/composables/` — reusable composition functions: `useNow`, `usePrefersDark`
-- `src/models/` — TypeScript interfaces for PocketBase records (`restaurant.ts`)
-- `src/utils/` — pure utility functions with vitest tests (`date`, `menu`, `menuFreshness`, `regionColor`)
-- `src/views/` — `HomeView`, `RestaurantView`, `PrivacyView`
-- Icons: `@iconify/tailwind4` plugin, use as CSS classes `icon-[<set>--<name>]`
+- `main` — entry point only. `config` — env parsing (`caarlos0/env`). `api` — HTTP routes, rate limits, static serving (SSR-lite template injection).
+- `internal/mittag` — core orchestrator (cron, scrape queue, menu pipeline). `internal/restaurant` — domain model, data access, slug generation.
+- `internal/sitemap` — sitemap XML and robots.txt. `internal/snapotter` — SnapOtter client. `internal/web` — Playwright wrapper. `internal/placeholder` — placeholder image generation.
+- `pkg/` — `checksum` (CRC32 for menu dedup), `curl` (HTTP downloads), `fsutil` (filesystem utils), `pdfinfo` (PDF metadata via poppler-utils), `snapotter` (ogen-generated OpenAPI client — do not edit, `go generate` regenerates).
+- `migrations` — PocketBase migrations (auto-run on serve).
+- Frontend: `backendClient.ts` (PocketBase SDK, auth, realtime), `config.ts`, `router.ts` (custom `scrollBehavior`), `stores/` (`useFavorites`, `useLogin`, `useRestaurants`), `composables/` (`useNow`, `usePrefersDark`), `models/`, `utils/` (pure functions with vitest tests), `views/` (`HomeView`, `RestaurantView`, `PrivacyView`).
+- Icons: `@iconify/tailwind4` plugin, use as CSS classes `icon-[<set>--<name>]`.
 
 ## Code style
 
@@ -56,24 +29,14 @@
 
 ### PocketBase collection rules
 
-- **`nil` rule = superuser-only** (not public). This is PocketBase's default for `NewBaseCollection`.
-- **`""` (empty string) = public access** for non-superusers. Do not use unless intentional.
+- **`nil` rule = superuser-only** (not public). **`""` = public access** — do not use unless intentional.
 - Use `publicRule()` (returns `""`) for public read access and `authRule()` (returns `@request.auth.id != ""`) for authenticated access.
 - Only expose the **minimum** rules needed by the frontend. If a collection is only mutated server-side via custom routes, leave Create/Update/Delete as `nil`.
 - `@request.auth.isAdmin` is **not** a valid PocketBase field. Use `nil` rules for superuser-only.
 
-### Dev vs production behavior
+### Dev vs production
 
-Many features are toggled by `!Dev` (i.e. only enabled in production). The `Dev` flag comes from the `DEV` env var (`false` by default).
-
-| Setting                  | Dev (`Dev=true`)      | Production (`Dev=false`)                                        |
-| ------------------------ | --------------------- | --------------------------------------------------------------- |
-| SMTP                     | disabled              | enabled                                                         |
-| Gzip middleware          | not applied           | applied (non-admin routes)                                      |
-| `SkipSuccessActivityLog` | not bound (logs kept) | bound on `/health`, `/sitemap.xml`, `/robots.txt`, and frontend |
-| Trusted proxy            | disabled              | enabled (`X-Forwarded-For`)                                     |
-| Rate limiting            | disabled              | enabled                                                         |
-| Superuser OTP/MFA        | disabled              | enabled                                                         |
+Features toggled by `!Dev` (only enabled in production). `Dev` comes from the `DEV` env var (`false` default). In production: SMTP, gzip (non-admin routes), trusted proxy (`X-Forwarded-For`), rate limiting, superuser OTP/MFA. `SkipSuccessActivityLog` bound on `/health`, `/sitemap.xml`, `/robots.txt`, and frontend.
 
 ### Frontend serving (SSR-lite)
 
@@ -90,14 +53,15 @@ The backend parses `dist/index.html` as a Go `text/template` and injects `window
 
 ## Git
 
-Commit message — title only, no body, capitalize first letter:
-
-- `[fix]` bug fix
-- `[feature]` new functionality
-- `[improve]` improvement to existing functionality
-- `[meta]` changes outside the codebase (deployment, CI)
-- `[docs]` documentation
-- `[refactor]` formatting, renaming, structural-only
+- Do not commit automatically — wait until explicitly asked.
+- One commit per concern — never batch unrelated changes.
+- Title only, no body. Capitalize first letter after the prefix:
+  - `[fix]` bug fix
+  - `[feature]` new functionality
+  - `[improve]` improvement to existing functionality
+  - `[refactor]` formatting, renaming, structural-only
+  - `[meta]` deployment, CI
+  - `[docs]` documentation
 
 ## Verification
 
