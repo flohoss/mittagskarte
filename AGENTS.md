@@ -90,6 +90,10 @@ docker compose up --build --force-recreate backend
 
 A mismatch causes: `could not start playwright: please install the driver (vX.Y.Z) first`.
 
+### TypeScript major
+
+`vue-tsc` breaks on TS majors it doesn't support yet (`ERR_PACKAGE_PATH_NOT_EXPORTED` for `./lib/tsc`). After `npm-check-updates -u`, if `typescript` was bumped to a new major, check if `vue-tsc` supports it (`docker compose run --rm npm run build`). If not, revert `typescript` in `frontend/package.json` to the previous major before installing.
+
 ## Git
 
 - Don't commit automatically — wait until asked.
