@@ -32,6 +32,11 @@ const isOnHoliday = computed(() => {
   const today = new Date(nowMs.value).toISOString().slice(0, 10);
   return today <= until;
 });
+const holidayLabel = computed(() => {
+  if (!isOnHoliday.value) return '';
+  const date = new Date(props.restaurant.holiday_until.slice(0, 10) + 'T00:00:00');
+  return `Urlaub bis ${date.toLocaleDateString('de-DE')}`;
+});
 const isFavorited = computed(() => isFavorite(props.restaurant.id));
 const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
 const latestMenuCreated = computed(() => {
@@ -116,7 +121,7 @@ function getInitials(name: string) {
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <div class="flex flex-col items-start gap-1.5">
-          <span v-if="isOnHoliday" class="badge badge-sm badge-warning backdrop-blur">Urlaub</span>
+          <span v-if="isOnHoliday" class="badge badge-sm badge-info backdrop-blur">{{ holidayLabel }}</span>
           <span v-else-if="isClosed" class="badge badge-sm badge-info backdrop-blur">Heute geschlossen</span>
           <span v-else-if="menuFreshness" :class="['badge badge-sm', menuFreshness.className]">{{ menuFreshness.label }}</span>
           <span v-if="showDistance" class="badge badge-sm badge-neutral/85 backdrop-blur w-fit">{{ distanceLabel }}</span>
@@ -167,8 +172,7 @@ function getInitials(name: string) {
           {{ props.restaurant.name }}
         </h3>
 
-        <p v-if="isOnHoliday" class="text-xs text-base-content/65">Im Urlaub bis {{ props.restaurant.holiday_until.slice(0, 10) }}</p>
-        <p v-else-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
+        <p v-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
           {{ lastCheckText }}
         </p>
         <p class="text-xs text-base-content/65" v-else>Noch nicht geprüft</p>
