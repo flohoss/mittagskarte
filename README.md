@@ -289,7 +289,6 @@ Start the stack:
 docker compose up -d
 ```
 
-## Notes
+## Development
 
-- The backend expects a built frontend bundle in `dist` when serving the production app.
-- Release builds are driven from `compose.yml`, and CI reuses the same `release` target.
+All development workflows — tests, code generation, formatting, dependency updates, and automatic rebuild — are documented in [`AGENTS.md`](AGENTS.md).
