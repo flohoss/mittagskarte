@@ -42,15 +42,16 @@ func init() {
 }
 
 type Restaurant struct {
-	ID          string     `db:"id" json:"id"`
-	Name        string     `db:"name" json:"name"`
-	Slug        string     `db:"slug" json:"slug"`
-	Website     string     `db:"website" json:"website"`
-	RestDays    []string   `db:"rest_days" json:"rest_days"`
-	Method      string     `db:"method" json:"method"`
-	ContentType string     `db:"content_type" json:"content_type"`
-	Cron        string     `db:"cron" json:"cron"`
-	Navigate    []Selector `db:"navigate" json:"navigate"`
+	ID           string     `db:"id" json:"id"`
+	Name         string     `db:"name" json:"name"`
+	Slug         string     `db:"slug" json:"slug"`
+	Website      string     `db:"website" json:"website"`
+	RestDays     []string   `db:"rest_days" json:"rest_days"`
+	Method       string     `db:"method" json:"method"`
+	ContentType  string     `db:"content_type" json:"content_type"`
+	Cron         string     `db:"cron" json:"cron"`
+	HolidayUntil string     `db:"holiday_until" json:"holiday_until"`
+	Navigate     []Selector `db:"navigate" json:"navigate"`
 }
 
 type Selector struct {
@@ -77,15 +78,16 @@ func New(r *core.Record) *Restaurant {
 		return navigate[i].Order < navigate[j].Order
 	})
 	return &Restaurant{
-		ID:          r.Id,
-		Name:        r.GetString("name"),
-		Slug:        r.GetString("slug"),
-		Website:     r.GetString("website"),
-		RestDays:    r.GetStringSlice("rest_days"),
-		Method:      r.GetString("method"),
-		ContentType: r.GetString("content_type"),
-		Cron:        r.GetString("cron"),
-		Navigate:    navigate,
+		ID:           r.Id,
+		Name:         r.GetString("name"),
+		Slug:         r.GetString("slug"),
+		Website:      r.GetString("website"),
+		RestDays:     r.GetStringSlice("rest_days"),
+		Method:       r.GetString("method"),
+		ContentType:  r.GetString("content_type"),
+		Cron:         r.GetString("cron"),
+		HolidayUntil: r.GetString("holiday_until"),
+		Navigate:     navigate,
 	}
 }
 
@@ -172,6 +174,37 @@ func GetLatestMenuByRestaurantID(app core.App, restaurantID string) *core.Record
 		return nil
 	}
 	return records[0]
+}
+
+func (r *Restaurant) IsOnHoliday(now time.Time) bool {
+	if r.HolidayUntil == "" {
+		return false
+	}
+	end, err := time.Parse("2006-01-02", r.HolidayUntil)
+	if err != nil {
+		return false
+	}
+	return now.Before(end.AddDate(0, 0, 1))
+}
+
+func ClearExpiredHoliday(app core.App, restaurantID string, now time.Time) error {
+	record, err := app.FindRecordById("restaurants", restaurantID)
+	if err != nil {
+		return err
+	}
+	holidayUntil := record.GetString("holiday_until")
+	if holidayUntil == "" {
+		return nil
+	}
+	end, err := time.Parse("2006-01-02", holidayUntil)
+	if err != nil {
+		return nil
+	}
+	if now.Before(end.AddDate(0, 0, 1)) {
+		return nil
+	}
+	record.Set("holiday_until", "")
+	return app.Save(record)
 }
 
 func LastCheckFromError(err error) (LastCheckStatus, string) {

@@ -26,6 +26,12 @@ const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 const nowMs = useNow(30_000);
 const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
 const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
+const isOnHoliday = computed(() => {
+  const until = props.restaurant.holiday_until;
+  if (!until) return false;
+  const today = new Date(nowMs.value).toISOString().slice(0, 10);
+  return today <= until;
+});
 const isFavorited = computed(() => isFavorite(props.restaurant.id));
 const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
 const latestMenuCreated = computed(() => {
@@ -95,19 +101,23 @@ function getInitials(name: string) {
         v-if="thumbnailUrl"
         :src="thumbnailUrl"
         :alt="props.restaurant.name"
-        :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isClosed ? 'opacity-40 grayscale' : '']"
+        :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isClosed || isOnHoliday ? 'opacity-40 grayscale' : '']"
         loading="lazy"
       />
       <div
         v-else
-        :class="['flex h-full w-full items-center justify-center text-2xl font-semibold', isClosed ? 'opacity-40 grayscale' : 'text-base-content/70']"
+        :class="[
+          'flex h-full w-full items-center justify-center text-2xl font-semibold',
+          isClosed || isOnHoliday ? 'opacity-40 grayscale' : 'text-base-content/70',
+        ]"
       >
         {{ getInitials(props.restaurant.name) }}
       </div>
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
         <div class="flex flex-col items-start gap-1.5">
-          <span v-if="isClosed" class="badge badge-sm badge-info backdrop-blur">Heute geschlossen</span>
+          <span v-if="isOnHoliday" class="badge badge-sm badge-warning backdrop-blur">Urlaub</span>
+          <span v-else-if="isClosed" class="badge badge-sm badge-info backdrop-blur">Heute geschlossen</span>
           <span v-else-if="menuFreshness" :class="['badge badge-sm', menuFreshness.className]">{{ menuFreshness.label }}</span>
           <span v-if="showDistance" class="badge badge-sm badge-neutral/85 backdrop-blur w-fit">{{ distanceLabel }}</span>
         </div>
@@ -157,7 +167,8 @@ function getInitials(name: string) {
           {{ props.restaurant.name }}
         </h3>
 
-        <p v-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
+        <p v-if="isOnHoliday" class="text-xs text-base-content/65">Im Urlaub bis {{ props.restaurant.holiday_until }}</p>
+        <p v-else-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
           {{ lastCheckText }}
         </p>
         <p class="text-xs text-base-content/65" v-else>Noch nicht geprüft</p>

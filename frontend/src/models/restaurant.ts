@@ -26,6 +26,7 @@ export interface RestaurantRecord extends RecordModel {
   rest_days: string[];
   method: string;
   cron: string;
+  holiday_until: string;
   status: string;
   updated: string;
   thumbnail: string;

@@ -93,6 +93,13 @@ func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
 	now := time.Now()
 	queuedRestaurantIDs := make([]string, 0)
 	for _, r := range restaurants {
+		if r.IsOnHoliday(now) {
+			s.app.Logger().Info("Skipping enqueue: restaurant on holiday", "id", r.ID, "holiday_until", r.HolidayUntil)
+			continue
+		}
+		if err := restaurant.ClearExpiredHoliday(s.app, r.ID, now); err != nil {
+			s.app.Logger().Error("Failed to clear expired holiday", "id", r.ID, "error", err)
+		}
 		if _, ok := s.queued[r.ID]; ok {
 			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", r.ID)
 			continue

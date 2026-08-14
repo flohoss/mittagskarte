@@ -304,6 +304,10 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 		return err
 	}
 
+	if r.IsOnHoliday(time.Now()) {
+		return re.String(http.StatusConflict, fmt.Sprintf("Restaurant %s ist bis %s im Urlaub", r.Name, r.HolidayUntil))
+	}
+
 	m.scraper.Enqueue([]*restaurant.Restaurant{r})
 
 	return re.String(http.StatusOK, fmt.Sprintf("Aktualisierung für Restaurant %s gestartet", r.ID))
