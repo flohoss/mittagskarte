@@ -12,8 +12,9 @@ func init() {
 			return err
 		}
 
-		collection.Fields.Add(&core.DateField{
-			Name: "holiday_until",
+		collection.Fields.Add(&core.TextField{
+			Name:    "holiday_until",
+			Pattern: `^\d{4}-\d{2}-\d{2}$`,
 		})
 
 		return app.Save(collection)

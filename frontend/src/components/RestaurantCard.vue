@@ -167,7 +167,7 @@ function getInitials(name: string) {
           {{ props.restaurant.name }}
         </h3>
 
-        <p v-if="isOnHoliday" class="text-xs text-base-content/65">Im Urlaub bis {{ props.restaurant.holiday_until }}</p>
+        <p v-if="isOnHoliday" class="text-xs text-base-content/65">Im Urlaub bis {{ props.restaurant.holiday_until.slice(0, 10) }}</p>
         <p v-else-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
           {{ lastCheckText }}
         </p>
