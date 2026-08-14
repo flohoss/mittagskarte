@@ -76,6 +76,7 @@ docker compose run --rm npm install
 docker compose run --rm --entrypoint npx npm --yes npm-check-updates -u && docker compose run --rm npm install
 docker compose run --rm go get -u ./...
 docker compose run --rm go mod tidy
+docker compose run --rm go fmt ./...
 docker compose run --rm npm run build
 ```
 
