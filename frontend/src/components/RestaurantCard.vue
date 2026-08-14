@@ -8,6 +8,7 @@ import { useNow } from '../composables/useNow';
 import { getLatestMenu } from '../utils/menu';
 import { formatRelativePastLabel } from '../utils/date';
 import { getMenuFreshnessMeta } from '../utils/menuFreshness';
+import { isOnHoliday as checkIsOnHoliday, formatHolidayLabel } from '../utils/holiday';
 import { getRegionBadgeColors } from '../utils/regionColor';
 import { usePrefersDark } from '../composables/usePrefersDark';
 
@@ -26,16 +27,10 @@ const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 const nowMs = useNow(30_000);
 const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
 const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
-const isOnHoliday = computed(() => {
-  const until = props.restaurant.holiday_until;
-  if (!until) return false;
-  const today = new Date(nowMs.value).toISOString().slice(0, 10);
-  return today <= until;
-});
+const isOnHoliday = computed(() => checkIsOnHoliday(props.restaurant.holiday_until, nowMs.value));
 const holidayLabel = computed(() => {
   if (!isOnHoliday.value) return '';
-  const date = new Date(props.restaurant.holiday_until.slice(0, 10) + 'T00:00:00');
-  return `Urlaub bis ${date.toLocaleDateString('de-DE')}`;
+  return formatHolidayLabel(props.restaurant.holiday_until);
 });
 const isFavorited = computed(() => isFavorite(props.restaurant.id));
 const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
