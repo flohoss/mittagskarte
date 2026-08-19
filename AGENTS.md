@@ -19,11 +19,13 @@ Read before making changes. Rule-oriented and self-contained.
 - Frontend: `backendClient.ts` (PB SDK, auth, realtime), `config.ts`, `router.ts`, `stores/` (`useFavorites`, `useLogin`, `useRestaurants`), `composables/` (`useNow`, `usePrefersDark`), `models/`, `utils/` (pure, vitest tests), `views/` (`HomeView`, `RestaurantView`, `PrivacyView`).
 - Icons: `@iconify/tailwind4` plugin, CSS classes `icon-[<set>--<name>]`.
 
-## Code style
+## Principles
 
-- **No comments.** Descriptive names instead.
+- **CLEAN code.** Small functions, single responsibility, descriptive names, no dead code, no overengineering.
+- **No comments.** Use descriptive function or service names instead.
 - **No code markers** like `// ... existing code ...` in edits.
 - Go imports: stdlib → external → internal (`github.com/flohoss/mittagskarte/...`), each block alphabetical.
+- Never edit generated files (`backend/pkg/snapotter/`).
 
 ## Conventions
 
@@ -51,23 +53,16 @@ Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAU
 5. Store menu → retention cleanup (`restaurants.menus` MaxSelect)
 6. Realtime broadcast: `restaurants/status` → `{id, status, coolDownSeconds}`
 
-## Development
+## Tooling — always via Docker Compose, never on the host
 
-Docker Compose with separate backend and frontend containers.
+- **Dev server:** `docker compose up --build --force-recreate` (separate backend and frontend containers).
+  - URLs: frontend `:5173`, backend `:8090`, dashboard `:8090/_/`, SnapOtter `:1349`.
+  - Services: `backend` (air hot reload), `frontend` (Vite), `snapotter`, `snapotter-schema`, `ogen`, `go`, `npm`, `release`.
+- **Code generation:** `docker compose run --rm ogen` — generates the SnapOtter client via [ogen](https://github.com/ogen-go/ogen) from OpenAPI spec (filtered to `/api/v1/(tools|download|pipeline|admin|features)`), output in `backend/pkg/snapotter/api/` (gitignored).
+- **Format (Go):** `docker compose run --rm go fmt ./...`
+- **Format (all non-Go files):** `docker compose run --rm format`
 
-```sh
-docker compose up --build --force-recreate
-```
-
-URLs: frontend `:5173`, backend `:8090`, dashboard `:8090/_/`, SnapOtter `:1349`.
-
-Services: `backend` (air hot reload), `frontend` (Vite), `snapotter`, `snapotter-schema`, `ogen`, `go`, `npm`, `release`.
-
-SnapOtter client generated via [ogen](https://github.com/ogen-go/ogen) from OpenAPI spec (filtered to `/api/v1/(tools|download|pipeline|admin|features)`), output in `backend/pkg/snapotter/api/` (gitignored):
-
-```sh
-docker compose run --rm ogen
-```
+Run formatting after every code change, even small edits. Only commit if all pass.
 
 ## Common Commands
 
@@ -96,15 +91,12 @@ A mismatch causes: `could not start playwright: please install the driver (vX.Y.
 
 ## Git
 
-- Don't commit automatically — wait until asked.
-- One commit per concern. Title only, no body. Capitalize after prefix.
-- Prefixes: `[fix]`, `[feature]`, `[improve]`, `[refactor]`, `[meta]`, `[docs]`.
-
-## Verification
-
-```sh
-docker compose run --rm go fmt ./...
-docker compose run --rm format
-```
-
-Only commit if all pass.
+- Do not commit automatically — wait until explicitly asked.
+- One commit per concern — never batch unrelated changes.
+- Title only, no body. Capitalize first letter after the prefix:
+  - `[fix]` bug fix
+  - `[feature]` new functionality
+  - `[improve]` improvement to existing functionality
+  - `[refactor]` formatting, renaming, structural-only
+  - `[meta]` deployment, CI
+  - `[docs]` documentation

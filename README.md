@@ -292,3 +292,7 @@ docker compose up -d
 ## Development
 
 All development workflows — tests, code generation, formatting, dependency updates, and automatic rebuild — are documented in [`AGENTS.md`](AGENTS.md).
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
