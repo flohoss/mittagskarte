@@ -16,8 +16,6 @@ import (
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 )
 
-type restaurantsProvider func(app core.App) ([]*restaurant.Restaurant, error)
-
 const (
 	ScrapeStatusUpdating = "updating"
 	ScrapeStatusQueued   = "queued"
@@ -28,9 +26,8 @@ const (
 )
 
 type Scraper struct {
-	app            core.App
-	web            *web.Web
-	getRestaurants restaurantsProvider
+	app core.App
+	web *web.Web
 
 	queueMu     sync.Mutex
 	queueCond   *sync.Cond
@@ -43,15 +40,14 @@ type Scraper struct {
 	workerWg    sync.WaitGroup
 }
 
-func NewScraper(app core.App, webService *web.Web, provider restaurantsProvider, coolDownDuration time.Duration) *Scraper {
+func NewScraper(app core.App, webService *web.Web, coolDownDuration time.Duration) *Scraper {
 	s := &Scraper{
-		app:            app,
-		web:            webService,
-		getRestaurants: provider,
-		queued:         make(map[string]struct{}),
-		inFlight:       make(map[string]struct{}),
-		lastRunAt:      make(map[string]time.Time),
-		coolDown:       coolDownDuration,
+		app:       app,
+		web:       webService,
+		queued:    make(map[string]struct{}),
+		inFlight:  make(map[string]struct{}),
+		lastRunAt: make(map[string]time.Time),
+		coolDown:  coolDownDuration,
 	}
 
 	s.queueCond = sync.NewCond(&s.queueMu)
@@ -72,16 +68,6 @@ func (s *Scraper) Close() {
 }
 
 func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
-	var err error
-
-	if restaurants == nil {
-		restaurants, err = s.getRestaurants(s.app)
-		if err != nil {
-			s.app.Logger().Error("Error fetching restaurants", "error", err)
-			return
-		}
-	}
-
 	s.queueMu.Lock()
 
 	if s.queueClosed {
@@ -93,13 +79,6 @@ func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
 	now := time.Now()
 	queuedRestaurantIDs := make([]string, 0)
 	for _, r := range restaurants {
-		if r.IsOnHoliday(now) {
-			s.app.Logger().Info("Skipping enqueue: restaurant on holiday", "id", r.ID, "holiday_until", r.HolidayUntil)
-			continue
-		}
-		if err := restaurant.ClearExpiredHoliday(s.app, r.ID, now); err != nil {
-			s.app.Logger().Error("Failed to clear expired holiday", "id", r.ID, "error", err)
-		}
 		if _, ok := s.queued[r.ID]; ok {
 			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", r.ID)
 			continue

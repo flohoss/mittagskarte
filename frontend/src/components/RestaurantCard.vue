@@ -49,7 +49,12 @@ const menuFreshness = computed(() => {
     now: nowMs.value,
   });
 });
+const isManualUpload = computed(() => props.restaurant.method === 'upload');
 const lastCheckText = computed(() => {
+  if (isManualUpload.value) {
+    if (!latestMenuCreated.value) return '';
+    return `${formatRelativePastLabel(latestMenuCreated.value, nowMs.value)} zuletzt aktualisiert`;
+  }
   if (!lastCheck.value) return '';
   return `${formatRelativePastLabel(lastCheck.value.at, nowMs.value)} zuletzt versucht`;
 });
@@ -69,6 +74,9 @@ const distanceLabel = computed(() => {
   return `~${Math.round(distanceKm.value)} km`;
 });
 const lastCheckTitle = computed(() => {
+  if (isManualUpload.value) {
+    return latestMenuCreated.value ? 'Zuletzt manuell aktualisiert' : '';
+  }
   if (!lastCheck.value) return '';
   if (lastCheck.value.status === 'success') {
     return 'Erfolgreich aktualisiert';
@@ -167,7 +175,7 @@ function getInitials(name: string) {
           {{ props.restaurant.name }}
         </h3>
 
-        <p v-if="lastCheck" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
+        <p v-if="lastCheckText" class="text-xs text-base-content/65" :title="lastCheckTitle" aria-label="Letzter Pruefstatus">
           {{ lastCheckText }}
         </p>
         <p class="text-xs text-base-content/65" v-else>Noch nicht geprüft</p>

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"time"
 
@@ -185,6 +186,14 @@ func (r *Restaurant) IsOnHoliday(now time.Time) bool {
 		return false
 	}
 	return now.Before(end.AddDate(0, 0, 1))
+}
+
+func (r *Restaurant) IsClosedToday(now time.Time) bool {
+	if len(r.RestDays) == 0 {
+		return false
+	}
+	weekday := now.Weekday().String()
+	return slices.Contains(r.RestDays, weekday)
 }
 
 func ClearExpiredHoliday(app core.App, restaurantID string, now time.Time) error {

@@ -47,7 +47,7 @@ func New(app core.App, snapOtterURL url.URL, coolDownDuration time.Duration) (*M
 	}
 
 	m := &Mittag{app: app, logger: app.Logger().WithGroup("mittag"), snapotter: snapOtterClient}
-	m.scraper = NewScraper(app, webService, restaurant.GetRestaurantsWithNavigate, coolDownDuration)
+	m.scraper = NewScraper(app, webService, coolDownDuration)
 	m.bindHooks()
 
 	return m, nil
@@ -85,11 +85,31 @@ func (m *Mittag) initCron() error {
 		}
 		m.logger.Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","))
 		m.app.Cron().MustAdd(cron, cron, func() {
-			m.scraper.Enqueue(restaurants)
+			m.enqueueScheduled(restaurants)
 		})
 	}
 
 	return nil
+}
+
+func (m *Mittag) enqueueScheduled(restaurants []*restaurant.Restaurant) {
+	now := time.Now()
+	eligible := make([]*restaurant.Restaurant, 0, len(restaurants))
+	for _, r := range restaurants {
+		if r.IsOnHoliday(now) {
+			m.logger.Info("Skipping scheduled scrape: restaurant on holiday", "name", r.Name, "holiday_until", r.HolidayUntil)
+			continue
+		}
+		if r.IsClosedToday(now) {
+			m.logger.Info("Skipping scheduled scrape: restaurant closed today", "name", r.Name, "rest_days", r.RestDays)
+			continue
+		}
+		if err := restaurant.ClearExpiredHoliday(m.app, r.ID, now); err != nil {
+			m.logger.Error("Failed to clear expired holiday", "name", r.Name, "error", err)
+		}
+		eligible = append(eligible, r)
+	}
+	m.scraper.Enqueue(eligible)
 }
 
 func (m *Mittag) bindHooks() {
@@ -302,10 +322,6 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 	r, err := m.loadRestaurant(re, payload.ID)
 	if err != nil {
 		return err
-	}
-
-	if r.IsOnHoliday(time.Now()) {
-		return re.String(http.StatusConflict, fmt.Sprintf("Restaurant %s ist bis %s im Urlaub", r.Name, r.HolidayUntil))
 	}
 
 	m.scraper.Enqueue([]*restaurant.Restaurant{r})

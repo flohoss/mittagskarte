@@ -67,3 +67,34 @@ func TestIsOnHoliday(t *testing.T) {
 		})
 	}
 }
+
+func TestIsClosedToday(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		restDays []string
+		now      time.Time
+		want     bool
+	}{
+		{name: "no rest days", restDays: nil, now: time.Date(2026, 8, 19, 12, 0, 0, 0, time.UTC), want: false},
+		{name: "closed on Monday", restDays: []string{"Monday"}, now: time.Date(2026, 8, 17, 12, 0, 0, 0, time.UTC), want: true},
+		{name: "open on Tuesday", restDays: []string{"Monday"}, now: time.Date(2026, 8, 18, 12, 0, 0, 0, time.UTC), want: false},
+		{name: "closed on Sunday", restDays: []string{"Sunday"}, now: time.Date(2026, 8, 23, 12, 0, 0, 0, time.UTC), want: true},
+		{name: "multiple rest days includes today", restDays: []string{"Monday", "Tuesday", "Wednesday"}, now: time.Date(2026, 8, 18, 12, 0, 0, 0, time.UTC), want: true},
+		{name: "multiple rest days excludes today", restDays: []string{"Monday", "Wednesday"}, now: time.Date(2026, 8, 18, 12, 0, 0, 0, time.UTC), want: false},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := &Restaurant{RestDays: tc.restDays}
+			got := r.IsClosedToday(tc.now)
+			if got != tc.want {
+				t.Fatalf("unexpected result, got %v want %v", got, tc.want)
+			}
+		})
+	}
+}
