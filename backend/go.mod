@@ -8,7 +8,7 @@ require (
 	github.com/go-faster/jx v1.2.0
 	github.com/goodsign/monday v1.0.2
 	github.com/gosimple/slug v1.15.0
-	github.com/mxschmitt/playwright-go v0.6201.0
+	github.com/mxschmitt/playwright-go v0.6201.1
 	github.com/ogen-go/ogen v1.24.0
 	github.com/pocketbase/dbx v1.12.0
 	github.com/pocketbase/pocketbase v0.39.11
@@ -28,7 +28,6 @@ require (
 	github.com/ganigeorgiev/fexpr v0.6.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
-	github.com/go-jose/go-jose/v3 v3.0.5 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

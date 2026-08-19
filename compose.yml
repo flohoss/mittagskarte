@@ -4,7 +4,7 @@ x-build-args: &build-args
   V_NODE: ${V_NODE:-26}
   V_AIR: ${V_AIR:-1.65.3}
   V_OGEN: ${V_OGEN:-1.23.0}
-  V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6201.0}
+  V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6201.1}
 
 x-images:
   go: &go-image golang:${V_GOLANG:-1.26}
