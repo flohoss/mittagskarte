@@ -3,8 +3,8 @@ info:
   title: SnapOtter API
   version: 2.0.0
   description: >
-    REST API for SnapOtter, a self-hosted file processing suite with 200+ tools
-    across image, video, audio, PDF, and files.
+    REST API for SnapOtter, self-hosted file-processing infrastructure with 200+
+    tools across image, video, audio, PDF, and documents.
 
 
     ## Authentication
@@ -174,6 +174,9 @@ components:
           example: Feature not installed
         code:
           type: string
+          enum:
+            - FEATURE_NOT_INSTALLED
+            - FEATURE_INCOMPATIBLE
           example: FEATURE_NOT_INSTALLED
         feature:
           type: string
@@ -184,6 +187,20 @@ components:
         estimatedSize:
           type: string
           description: Estimated download size
+        requestedQuality:
+          type: string
+          enum:
+            - fast
+            - balanced
+            - best
+          description: OCR tier that could not be honored; Fast is reported when Korean is
+            explicitly requested with Fast or the legacy Tesseract alias
+        compatibilityReason:
+          type: string
+          description: Machine-readable runtime compatibility reason, when available
+        guidance:
+          type: string
+          description: Actionable recovery guidance, when available
     HealthResponse:
       type: object
       properties:
@@ -260,7 +277,7 @@ paths:
       operationId: resizeImage
       tags:
         - Tools
-      summary: Resize
+      summary: Resize Image
       description: Resize an image to specific dimensions or by percentage.
       security:
         - bearerAuth: []
@@ -391,7 +408,7 @@ paths:
       operationId: cropImage
       tags:
         - Tools
-      summary: Crop
+      summary: Crop Image
       description: Crop an image to a specific region.
       security:
         - bearerAuth: []
@@ -448,7 +465,7 @@ paths:
       operationId: rotateImage
       tags:
         - Tools
-      summary: Rotate and flip
+      summary: Rotate & Flip Image
       description: Rotate an image by angle or flip horizontally/vertically.
       security:
         - bearerAuth: []
@@ -496,7 +513,7 @@ paths:
       operationId: convertFormat
       tags:
         - Tools
-      summary: Convert format
+      summary: Convert Image
       description: Convert an image to a different format.
       security:
         - bearerAuth: []
@@ -546,7 +563,7 @@ paths:
       operationId: compressImage
       tags:
         - Tools
-      summary: Compress
+      summary: Compress Image
       description: Reduce image file size by quality level or target size.
       security:
         - bearerAuth: []
@@ -600,7 +617,7 @@ paths:
       operationId: stripMetadata
       tags:
         - Tools
-      summary: Strip metadata
+      summary: Remove Image Metadata
       description: Remove EXIF, GPS, ICC, or XMP metadata from an image.
       security:
         - bearerAuth: []
@@ -891,7 +908,7 @@ paths:
       operationId: sharpenImage
       tags:
         - Tools
-      summary: Sharpening
+      summary: Sharpen Image
       description: Sharpen an image using adaptive, unsharp mask, or high-pass methods
         with optional noise reduction.
       security:
@@ -2796,6 +2813,15 @@ paths:
                 properties:
                   jobId:
                     type: string
+                  downloadUrl:
+                    type: string
+                    description: URL to download all pages as ZIP
+                  originalSize:
+                    type: integer
+                    description: Input PDF size in bytes
+                  processedSize:
+                    type: integer
+                    description: Output ZIP size in bytes
                   pageCount:
                     type: integer
                     description: Total pages in the PDF
@@ -2927,7 +2953,7 @@ paths:
       operationId: splitImage
       tags:
         - Tools
-      summary: Split image
+      summary: Split Image
       description: Split an image into a grid of tiles. Returns a ZIP file.
       security:
         - bearerAuth: []
@@ -3712,7 +3738,7 @@ paths:
       operationId: createCollage
       tags:
         - Tools
-      summary: Collage / grid
+      summary: Collage & Grid
       description: Combine multiple images into a grid collage.
       security:
         - bearerAuth: []
@@ -3782,7 +3808,7 @@ paths:
       operationId: stitchImages
       tags:
         - Tools
-      summary: Stitch images
+      summary: Stitch Images
       description: Join multiple images horizontally, vertically, or in a grid layout.
       security:
         - bearerAuth: []
@@ -3853,6 +3879,104 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedError"
+  /api/v1/tools/image/remove-gif-background:
+    post:
+      operationId: removeGifBackground
+      tags:
+        - Tools
+      summary: Remove background from an animated image
+      description: Remove the background from an animated GIF, WebP, or APNG frame by
+        frame using AI (rembg). Runs locally.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Animated image file (GIF, animated WebP, or APNG)
+                settings:
+                  type: string
+                  description: >
+                    JSON string with options:
+
+                    - `model` (string, optional) - AI model name
+
+                    - `outputFormat` (string, optional) - One of: webp, apng,
+                    gif
+
+                    - `backgroundType` (string, optional) - One of: transparent,
+                    color, gradient, blur, image
+
+                    - `backgroundColor` (string, optional) - Hex color for the
+                    color background
+
+                    - `gradientColor1` (string, optional) - First gradient color
+
+                    - `gradientColor2` (string, optional) - Second gradient
+                    color
+
+                    - `gradientAngle` (number, optional) - Gradient angle in
+                    degrees
+
+                    - `blurIntensity` (number 0-100, optional) - Blur strength
+                    for the blur background
+
+                    - `shadowEnabled` (boolean, optional) - Enable drop shadow
+
+                    - `shadowOpacity` (number 0-100, optional) - Shadow opacity
+
+                    - `edgeRefine` (number 0-3, optional) - Edge refinement
+                    level
+
+                    - `decontaminate` (boolean, optional) - Remove background
+                    color spill
+                backgroundImage:
+                  type: string
+                  format: binary
+                  description: Background image, required when backgroundType is "image"
+                clientJobId:
+                  type: string
+                  description: Client-provided job ID for SSE progress tracking
+      responses:
+        "202":
+          description: Accepted for async processing. Track progress via SSE at
+            /api/v1/jobs/{jobId}/progress.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                  async:
+                    type: boolean
+                    example: true
+        "400":
+          description: Invalid input (not animated, over the frame cap, or bad settings)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "501":
+          description: Feature not installed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureNotInstalledError"
   /api/v1/tools/image/remove-background:
     post:
       operationId: removeBackground
@@ -4196,7 +4320,7 @@ paths:
       operationId: blurFaces
       tags:
         - Tools
-      summary: Face blur
+      summary: Blur Faces & PII
       description: Detect and blur faces in an image for privacy. Uses OpenCV. Runs locally.
       security:
         - bearerAuth: []
@@ -4270,7 +4394,11 @@ paths:
       tags:
         - Tools
       summary: OCR / text extraction
-      description: Extract text from an image using OCR. Runs locally.
+      description: |
+        Extract text from an image locally. The built-in Fast tier uses
+        Tesseract. Balanced and Best use the optional signed RapidOCR runtime
+        with pinned PP-OCR ONNX models. Explicit tier requests never silently
+        downgrade to another tier.
       security:
         - bearerAuth: []
       requestBody:
@@ -4285,42 +4413,55 @@ paths:
                 file:
                   type: string
                   format: binary
+                  maxLength: 536870912
                   description: Image file to extract text from
                 settings:
                   type: string
                   description: >
                     JSON string with options:
 
-                    - `quality` (string, default "balanced") - One of: fast,
-                    balanced, best
+                    - `quality` (string, optional) - One of: fast, balanced,
+                    best. When both quality and engine are omitted, uses the
+                    best available tier in this order: best, balanced, fast.
+                    Korean never selects fast; it uses best, then balanced, or
+                    returns an accurate-runtime install/compatibility error
 
                     - `language` (string, default "auto") - One of: auto, en,
-                    de, fr, es, zh, ja, ko
+                    de, fr, es, zh, ja, ko. Korean is unsupported by fast and
+                    the legacy tesseract alias
 
-                    - `enhance` (boolean, default true) - Pre-process image for
-                    better recognition
+                    - `enhance` (boolean, optional) - Improve local contrast.
+                    Fast applies it directly; accurate tiers retain the variant
+                    only when calibrated scoring improves the result. Defaults
+                    to true for Best and false for Fast/Balanced
 
-                    - `engine` (string, optional) - One of: tesseract, paddleocr
-                    (backward compat)
+                    - `engine` (string, deprecated) - Compatibility alias:
+                    tesseract maps to fast; the legacy paddleocr value maps to
+                    balanced but does not load PaddlePaddle
                 clientJobId:
                   type: string
       responses:
-        "200":
-          description: Extracted text
+        "202":
+          description: Accepted after validation and enqueueing. Track progress via SSE at
+            /api/v1/jobs/{jobId}/progress; processing failures arrive in the
+            terminal failed event.
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - jobId
+                  - async
                 properties:
                   jobId:
                     type: string
-                  filename:
+                  progressJobId:
                     type: string
-                  text:
+                  artifactJobId:
                     type: string
-                    description: Extracted text content
-                  engine:
-                    type: string
+                  async:
+                    type: boolean
+                    const: true
         "400":
           description: Invalid input
           content:
@@ -4333,18 +4474,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedError"
-        "422":
-          description: Processing failed
+        "413":
+          description: Encoded OCR input exceeds the hard 512 MiB safety limit
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "501":
-          description: Feature not installed
+          description: Requested Balanced/Best runtime is not installed or is incompatible
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FeatureNotInstalledError"
+        "503":
+          description: OCR could not be queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/tools/image/info:
     post:
       operationId: getImageInfo
@@ -4929,7 +5076,7 @@ paths:
       operationId: editMetadata
       tags:
         - Tools
-      summary: Edit metadata
+      summary: Edit Image Metadata
       description: Edit EXIF, IPTC, GPS, and other metadata fields in an image using
         ExifTool.
       security:
@@ -6290,7 +6437,10 @@ paths:
       tags:
         - Auth
       summary: Create user
-      description: Requires users:manage permission.
+      description: >
+        Requires users:manage permission. The assigned role must be within the
+        actor's effective role authority, including hierarchy, permissions, tool
+        access, and any API-key scope.
       security:
         - bearerAuth: []
       requestBody:
@@ -6361,7 +6511,10 @@ paths:
       tags:
         - Auth
       summary: Update user
-      description: Requires users:manage permission.
+      description: >
+        Requires users:manage permission and authority over the target's current
+        role. Any newly assigned role must also be within the actor's effective
+        hierarchy, permissions, tool access, and API-key scope.
       security:
         - bearerAuth: []
       parameters:
@@ -6416,7 +6569,10 @@ paths:
       tags:
         - Auth
       summary: Delete user
-      description: Requires users:manage permission.
+      description: >
+        Requires users:manage permission and authority over the target's current
+        role, including hierarchy, permissions, tool access, and any API-key
+        scope. Self-deletion is not allowed.
       security:
         - bearerAuth: []
       parameters:
@@ -6454,7 +6610,10 @@ paths:
       tags:
         - Auth
       summary: Reset user password
-      description: Requires users:manage permission.
+      description: >
+        Reset a local user's password. Requires users:manage permission and
+        authority over the target's current role, including hierarchy,
+        permissions, tool access, and any API-key scope.
       security:
         - bearerAuth: []
       parameters:
@@ -6665,7 +6824,9 @@ paths:
       tags:
         - Settings
       summary: Get all settings
-      description: Retrieve all system settings as key-value pairs. Requires authentication.
+      description: Retrieve the system settings authorized by the caller's effective
+        permissions. Requires `settings:read`; security, compliance, and
+        full-administrator settings are filtered separately.
       security:
         - bearerAuth: []
       responses:
@@ -6691,8 +6852,11 @@ paths:
       tags:
         - Settings
       summary: Update settings
-      description: Accepts a flat JSON object of key-value pairs to set. Requires
-        admin role.
+      description: Accepts a flat JSON object containing recognized, writable setting
+        keys. Requires `settings:write`; security and compliance keys
+        additionally require their matching effective permission, secrets
+        require full-administrator authority, and dedicated or server-managed
+        keys are read-only.
       security:
         - bearerAuth: []
       requestBody:
@@ -6739,8 +6903,9 @@ paths:
       tags:
         - Settings
       summary: Get a single setting
-      description: Retrieve a single setting value by its key name. Returns the value
-        and last-updated timestamp.
+      description: Retrieve a recognized setting by key. Returns the value and
+        last-updated timestamp when the caller has both `settings:read` and the
+        key's additional authority.
       security:
         - bearerAuth: []
       parameters:
@@ -7005,8 +7170,9 @@ paths:
         - System
       summary: Job progress (SSE)
       description: >
-        Server-Sent Events stream for tracking long-running jobs. Closes
-        automatically 5 seconds after completion.
+        Server-Sent Events stream for tracking long-running jobs. Sends
+        single-file, batch, and heartbeat frames, and closes immediately after a
+        terminal job event.
       security: []
       parameters:
         - name: jobId
@@ -7018,47 +7184,99 @@ paths:
       responses:
         "200":
           description: >
-            SSE stream of job progress events. Two event types: `single`
-            (single-file tools) and `batch` (batch processing). Single events
-            have `status` and `progress`. Batch events have `completedFiles`,
-            `totalFiles`, `failedFiles` (integers), and an `errors` array.
+            SSE stream of job progress frames. Single-file frames use `phase`,
+            `percent`, optional `stage`, and terminal `result` or `error`
+            fields. Batch frames use `status`, file counters, and `errors`.
+            Heartbeat frames keep idle connections alive.
           content:
             text/event-stream:
               schema:
-                type: object
-                description: >
-                  Event shape varies by type. Single: { status, progress }.
-                  Batch: { completedFiles, totalFiles, failedFiles, errors }.
-                properties:
-                  status:
-                    type: string
-                    enum:
-                      - processing
-                      - completed
-                      - failed
-                  progress:
-                    type: integer
-                    minimum: 0
-                    maximum: 100
-                  completedFiles:
-                    type: integer
-                    description: Number of completed files (batch mode)
-                  totalFiles:
-                    type: integer
-                    description: Total files to process (batch mode)
-                  failedFiles:
-                    type: integer
-                    description: Number of failed files (batch mode)
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        filename:
-                          type: string
-                        error:
-                          type: string
-                    description: Error details for failed files (batch mode)
+                oneOf:
+                  - title: Single-file progress frame
+                    type: object
+                    required:
+                      - jobId
+                      - type
+                      - phase
+                      - percent
+                    properties:
+                      jobId:
+                        type: string
+                      type:
+                        type: string
+                        const: single
+                      phase:
+                        type: string
+                        enum:
+                          - processing
+                          - complete
+                          - failed
+                      stage:
+                        type: string
+                      percent:
+                        type: number
+                        minimum: 0
+                        maximum: 100
+                      error:
+                        type: string
+                        description: Present on terminal failed frames
+                      result:
+                        type: object
+                        additionalProperties: true
+                        description: Present on terminal complete frames; contains the tool result
+                  - title: Batch progress frame
+                    type: object
+                    required:
+                      - jobId
+                      - type
+                      - status
+                      - totalFiles
+                      - completedFiles
+                      - failedFiles
+                      - errors
+                    properties:
+                      jobId:
+                        type: string
+                      type:
+                        type: string
+                        const: batch
+                      status:
+                        type: string
+                        enum:
+                          - processing
+                          - completed
+                          - failed
+                      totalFiles:
+                        type: integer
+                        minimum: 0
+                      completedFiles:
+                        type: integer
+                        minimum: 0
+                      failedFiles:
+                        type: integer
+                        minimum: 0
+                      currentFile:
+                        type: string
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - filename
+                            - error
+                          properties:
+                            filename:
+                              type: string
+                            error:
+                              type: string
+                  - title: Heartbeat frame
+                    type: object
+                    required:
+                      - type
+                    properties:
+                      type:
+                        type: string
+                        const: heartbeat
   /api/v1/admin/health:
     get:
       operationId: adminHealthCheck
@@ -7186,6 +7404,55 @@ paths:
                             - "null"
                           description: Extracted on-disk size for this host's architecture, when the
                             manifest records it.
+                        compatibility:
+                          type: string
+                          enum:
+                            - compatible
+                            - incompatible
+                            - invalid
+                          description: OCR runtime compatibility; omitted for legacy bundles
+                        compatibilityReason:
+                          type:
+                            - string
+                            - "null"
+                          description: OCR runtime compatibility reason; omitted for legacy bundles
+                        selectedTarget:
+                          type:
+                            - string
+                            - "null"
+                          description: Selected OCR runtime target, such as linux-amd64-cpu-py312
+                        missingDownloadBytes:
+                          type:
+                            - integer
+                            - "null"
+                          description: Remaining OCR runtime download size for this host
+                        requiredMemoryBytes:
+                          type:
+                            - integer
+                            - "null"
+                          description: Minimum effective memory required by the selected OCR runtime; null
+                            for legacy bundles
+                        effectiveMemoryBytes:
+                          type:
+                            - integer
+                            - "null"
+                          description: Effective memory available to OCR (the configured container cgroup
+                            limit, otherwise host memory); null for legacy
+                            bundles
+                        healthyGeneration:
+                          type:
+                            - string
+                            - "null"
+                          description: Active immutable OCR generation identifier
+                        availableQualities:
+                          type: array
+                          description: OCR quality tiers currently available on this host
+                          items:
+                            type: string
+                            enum:
+                              - fast
+                              - balanced
+                              - best
                         enablesTools:
                           type: array
                           items:
@@ -7215,15 +7482,45 @@ paths:
       tags:
         - Features
       summary: Install a feature bundle
-      description: |
+      description: >
         Start async installation of an AI feature bundle. Downloads models and
+
         configures the Python sidecar. Returns a jobId for progress tracking
+
         via the SSE endpoint. Requires features:manage permission.
 
+
+        For bundleId=ocr, installation is supported in the official Linux amd64
+        and arm64 containers.
+
+        It downloads the target selected for this host, verifies the release
+
+        index's Ed25519 signature and the artifact/model digests, smoke-tests a
+
+        staged immutable generation, and atomically activates it. The OCR
+
+        runtime uses CPU even when the container has NVIDIA GPU access. The
+
+        accurate runtime requires at least 4 GiB of effective memory (the
+
+        configured container cgroup limit, otherwise host memory). Systems below
+        that signed
+
+        compatibility minimum are rejected before download with
+
+        compatibilityReason=insufficient-memory. Fast Tesseract OCR is not
+
+        subject to this requirement.
+
+
         Installs are serialized server-side: a request made while another
+
         install is running is queued (queued=true) rather than rejected, and
+
         starts automatically when the running install finishes. A repeat
+
         request for the same in-flight bundle is deduped and returns the same
+
         jobId.
       security:
         - bearerAuth: []
@@ -7268,11 +7565,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "409":
-          description: Bundle already installed
+          description: Bundle already installed or OCR runtime unsupported on this host
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ConflictError"
+        "503":
+          description: OCR runtime trust key is not configured in this image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/admin/features/{bundleId}/uninstall:
     post:
       operationId: uninstallFeature
@@ -7533,7 +7836,8 @@ paths:
       description: |
         Create a new custom role with specified permissions. Role names must be
         2-30 characters, lowercase alphanumeric with hyphens and underscores.
-        Requires security:manage permission.
+        Requires security:manage permission. The new role's permissions and tool
+        access must be contained by the actor's effective authority.
       security:
         - bearerAuth: []
       requestBody:
@@ -7567,7 +7871,10 @@ paths:
 
                     settings:read, settings:write, users:manage, teams:manage,
 
-                    features:manage, system:health, audit:read, security:manage
+                    features:manage, system:health, audit:read,
+                    compliance:manage,
+
+                    webhooks:manage, security:manage
       responses:
         "201":
           description: Role created
@@ -7621,7 +7928,9 @@ paths:
       summary: Update a custom role
       description: |
         Update name, description, or permissions of a custom role. Built-in
-        roles cannot be modified. Requires security:manage permission.
+        roles cannot be modified. Requires security:manage permission and
+        authority over the current role; the resulting permissions and tool
+        access must remain contained by the actor's effective authority.
       security:
         - bearerAuth: []
       parameters:
@@ -7697,7 +8006,8 @@ paths:
       description: |
         Delete a custom role. Users assigned to this role are reassigned to the
         default "user" role. Built-in roles cannot be deleted. Requires
-        security:manage permission.
+        security:manage permission, authority over the current role, and
+        authority to assign the fallback role.
       security:
         - bearerAuth: []
       parameters:
@@ -8397,7 +8707,7 @@ paths:
       operationId: videoLoudnorm
       tags:
         - Tools
-      summary: Normalize Audio
+      summary: Normalize Video Audio
       description: Normalize video audio volume to broadcast standard (EBU R128).
       security:
         - bearerAuth: []
@@ -9402,7 +9712,7 @@ paths:
       operationId: volumeAdjust
       tags:
         - Tools
-      summary: Volume Adjust
+      summary: Adjust Volume
       description: Increase or decrease audio volume by a fixed gain.
       security:
         - bearerAuth: []
@@ -10753,7 +11063,7 @@ paths:
       operationId: pdfaConvert
       tags:
         - Tools
-      summary: PDF/A convert
+      summary: PDF/A Converter
       description: Convert a PDF to archival PDF/A-2 format for long-term preservation.
       security:
         - bearerAuth: []
@@ -10842,7 +11152,7 @@ paths:
       operationId: nupPdf
       tags:
         - Tools
-      summary: N-up PDF
+      summary: Pages Per Sheet (N-up)
       description: Arrange multiple pages per sheet (e.g. 2-up, 4-up).
       security:
         - bearerAuth: []
@@ -11554,7 +11864,7 @@ paths:
       operationId: epubConvert
       tags:
         - Tools
-      summary: Convert EPUB
+      summary: Convert from EPUB
       description: Convert an EPUB to PDF, DOCX, HTML, or Markdown. Remote resources
         inside the book are not fetched.
       security:
@@ -11915,9 +12225,10 @@ paths:
         - Tools
       summary: PDF OCR
       description: |
-        AI-powered OCR to extract text from PDF documents. Supports
-        multiple quality tiers and languages. Requires the OCR feature
-        bundle to be installed.
+        Extract text from scanned PDF documents page by page. Fast uses the
+        built-in Tesseract runtime. Balanced and Best use the optional signed
+        RapidOCR runtime with pinned PP-OCR ONNX models. Explicit tier requests
+        never silently downgrade. A request can select at most 50 pages.
       security:
         - bearerAuth: []
       requestBody:
@@ -11932,20 +12243,34 @@ paths:
                 file:
                   type: string
                   format: binary
+                  maxLength: 536870912
                   description: PDF file to process (.pdf)
                 settings:
                   type: string
                   description: >
                     JSON string with options:
 
-                    - `quality` (string, default "balanced") - One of: fast,
-                    balanced, best
+                    - `quality` (string, optional) - One of: fast, balanced,
+                    best. When both quality and engine are omitted, uses the
+                    best available tier in this order: best, balanced, fast.
+                    Korean never selects fast; it uses best, then balanced, or
+                    returns an accurate-runtime install/compatibility error
 
                     - `language` (string, default "auto") - One of: auto, en,
-                    de, fr, es, zh, ja, ko
+                    de, fr, es, zh, ja, ko. Korean is unsupported by fast and
+                    the legacy tesseract alias
 
                     - `pages` (string, default "all") - Page selection, e.g.
                     "all", "1-3", "1,3,5"
+
+                    - `enhance` (boolean, optional) - Improve local contrast.
+                    Fast applies it directly; accurate tiers retain the variant
+                    only when calibrated scoring improves the result. Defaults
+                    to true for Best and false for Fast/Balanced
+
+                    - `engine` (string, deprecated) - Compatibility alias:
+                    tesseract maps to fast; the legacy paddleocr value maps to
+                    balanced but does not load PaddlePaddle
                 clientJobId:
                   type: string
                   description: Client-provided job ID for SSE progress tracking
@@ -11957,12 +12282,19 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - jobId
+                  - async
                 properties:
                   jobId:
                     type: string
+                  progressJobId:
+                    type: string
+                  artifactJobId:
+                    type: string
                   async:
                     type: boolean
-                    example: true
+                    const: true
         "400":
           description: Invalid input
           content:
@@ -11975,6 +12307,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedError"
+        "413":
+          description: Encoded PDF exceeds the hard 512 MiB safety limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "422":
           description: Processing failed
           content:
@@ -11982,11 +12320,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "501":
-          description: Feature not installed
+          description: Requested Balanced/Best runtime is not installed or is incompatible
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FeatureNotInstalledError"
+        "503":
+          description: PDF OCR could not be queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/tools/files/chart-maker:
     post:
       operationId: chartMaker
@@ -12292,7 +12636,7 @@ paths:
       operationId: yamlJson
       tags:
         - Tools
-      summary: YAML / JSON
+      summary: Convert YAML / JSON
       description: Convert between YAML and JSON, both directions. Upload a YAML file
         to get JSON, or upload a JSON file to get YAML.
       security:
@@ -12716,6 +13060,79 @@ paths:
                   type: string
                   description: >
                     JSON string with options:
+
+                    - `zoom` (number 1-5, default 1) - Zoom factor (>=1 crops
+                    tighter)
+
+                    - `offsetX` (number 0-1, default 0.5) - Horizontal center
+                    position
+
+                    - `offsetY` (number 0-1, default 0.5) - Vertical center
+                    position
+
+                    - `borderWidth` (integer 0-200, default 0) - Border width in
+                    pixels
+
+                    - `borderColor` (string, default "#ffffff") - Border hex
+                    color
+
+                    - `background` (string, default "transparent") -
+                    "transparent" or a hex color for corners
+
+                    - `outputSize` (integer 16-4096, optional) - Final square
+                    dimension in pixels
+      responses:
+        "200":
+          description: Processed image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToolResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+  /api/v1/tools/image/rounded-crop:
+    post:
+      operationId: roundedCrop
+      tags:
+        - Tools
+      summary: Rounded crop
+      description: Crop an image to a rounded square or squircle with transparent
+        corners, optional border, and adjustable zoom/offset.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Image file to process
+                settings:
+                  type: string
+                  description: >
+                    JSON string with options:
+
+                    - `shape` (string, default "rounded-square") -
+                    "rounded-square" or "squircle"
+
+                    - `cornerRadius` (number 0-50, default 25) - Corner radius
+                    as a percent of the shorter side (rounded-square only)
 
                     - `zoom` (number 1-5, default 1) - Zoom factor (>=1 crops
                     tighter)
@@ -18781,7 +19198,10 @@ paths:
       tags:
         - Auth
       summary: Reset user MFA
-      description: Admin reset of a user's MFA enrollment. Requires users:manage permission.
+      description: >
+        Reset a user's MFA enrollment. Requires users:manage permission and
+        authority over the target's current role, including hierarchy,
+        permissions, tool access, and any API-key scope.
       security:
         - bearerAuth: []
       parameters:
@@ -19060,7 +19480,13 @@ paths:
       tags:
         - Features
       summary: Import feature bundle
-      description: Import an offline AI bundle archive. Requires features:manage permission.
+      description: |
+        Import a legacy AI bundle archive, or import an offline accurate OCR
+        release using its signed index and matching platform archive. OCR
+        import performs the same signature, hash, compatibility, extraction,
+        and smoke-test checks as online installation, including the accurate
+        runtime's 4 GiB effective-memory minimum. Fast Tesseract OCR is not
+        subject to this requirement. Requires features:manage permission.
       security:
         - bearerAuth: []
       requestBody:
@@ -19069,29 +19495,49 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - file
+              oneOf:
+                - required:
+                    - file
+                - required:
+                    - index
+                    - archive
               properties:
                 file:
                   type: string
                   format: binary
+                  description: One legacy AI bundle archive; mutually exclusive with index/archive
+                index:
+                  type: string
+                  format: binary
+                  description: Signed ocr-runtime-index.json from the SnapOtter release
+                archive:
+                  type: string
+                  format: binary
+                  description: OCR runtime archive for the current Linux amd64 or arm64 target;
+                    must follow index
       responses:
         "200":
-          description: Bundle imported
+          description: Bundle verified, imported, and activated
         "400":
           description: Invalid archive
         "403":
           description: Insufficient permissions
         "409":
           description: Import lock is held
+        "507":
+          description: Insufficient storage for the authenticated archive and expanded
+            runtime
   /api/v1/enterprise/scim/token:
     post:
       operationId: createScimToken
       tags:
         - Enterprise
       summary: Create SCIM token
-      description: Generate a SCIM bearer token. Requires users:manage permission and
-        the enterprise SCIM feature.
+      description: >
+        Generate a global SCIM bearer token. Requires the enterprise SCIM
+        feature and full effective built-in administrator authority; custom
+        roles and API keys missing any administrator permission do not qualify.
+        Legacy unversioned tokens are invalid and must be reissued as v2 tokens.
       security:
         - bearerAuth: []
       responses:
@@ -19104,8 +19550,10 @@ paths:
       tags:
         - Enterprise
       summary: Revoke SCIM token
-      description: Revoke the current SCIM bearer token. Requires users:manage
-        permission and the enterprise SCIM feature.
+      description: >
+        Revoke the global SCIM bearer token. Requires the enterprise SCIM
+        feature and full effective built-in administrator authority; custom
+        roles and API keys missing any administrator permission do not qualify.
       security:
         - bearerAuth: []
       responses:
@@ -19299,8 +19747,10 @@ paths:
       tags:
         - Enterprise
       summary: Export configuration
-      description: Export redacted instance configuration, custom roles, and teams.
-        Requires system:health permission.
+      description: >
+        Export redacted instance configuration, custom roles, and teams.
+        Requires full effective built-in administrator authority; custom roles
+        and API keys missing any administrator permission do not qualify.
       security:
         - bearerAuth: []
       responses:
@@ -19314,8 +19764,10 @@ paths:
       tags:
         - Enterprise
       summary: Import configuration
-      description: Import instance configuration, custom roles, and teams. Requires
-        system:health permission.
+      description: >
+        Import instance configuration, custom roles, and teams. Requires full
+        effective built-in administrator authority; custom roles and API keys
+        missing any administrator permission do not qualify.
       security:
         - bearerAuth: []
       responses:
@@ -19567,8 +20019,11 @@ paths:
       tags:
         - Enterprise
       summary: Purge user data
-      description: Permanently purge a user's data after explicit confirmation.
-        Requires compliance:manage permission.
+      description: >
+        Permanently purge a user's data after explicit confirmation. Requires
+        compliance:manage permission and authority over the target's current
+        role, including hierarchy, permissions, tool access, and any API-key
+        scope.
       security:
         - bearerAuth: []
       parameters:
@@ -19582,6 +20037,9 @@ paths:
           description: User purged
         "400":
           description: Confirmation required
+        "403":
+          description: Feature not licensed, insufficient permission, or target role
+            beyond actor authority
         "409":
           description: User or team is under legal hold
   /api/v1/enterprise/teams/{id}/purge:
@@ -19590,8 +20048,11 @@ paths:
       tags:
         - Enterprise
       summary: Purge team data
-      description: Permanently purge a team's data after explicit confirmation.
-        Requires compliance:manage permission.
+      description: >
+        Permanently purge a team's data after explicit confirmation. Requires
+        compliance:manage permission and authority over every member's current
+        role, including hierarchy, permissions, tool access, and any API-key
+        scope. A team containing the actor cannot be purged.
       security:
         - bearerAuth: []
       parameters:
@@ -19605,6 +20066,9 @@ paths:
           description: Team purged
         "400":
           description: Confirmation required
+        "403":
+          description: Feature not licensed, insufficient permission, or a member role
+            beyond actor authority
         "409":
           description: Team is under legal hold
   /api/v1/admin/version:
