@@ -89,6 +89,15 @@ A mismatch causes: `could not start playwright: please install the driver (vX.Y.
 
 `vue-tsc` breaks on TS majors it doesn't support yet (`ERR_PACKAGE_PATH_NOT_EXPORTED` for `./lib/tsc`). After `npm-check-updates -u`, if `typescript` was bumped to a new major, check if `vue-tsc` supports it (`docker compose run --rm npm run build`). If not, revert `typescript` in `frontend/package.json` to the previous major before installing.
 
+**Root cause (TS 7):** `typescript@7` added an `exports` map that hides `./lib/tsc`, which vue-tsc needs via `require.resolve('typescript/lib/tsc')`. The file still ships; it's just not exported.
+
+**Quick check whether a new TS major is ready (fast, no build needed):**
+1. `npm view typescript@<new-major>.x exports` — if `lib/tsc` (or a `./lib/*` wildcard) is missing from the exports map, stock vue-tsc cannot use it yet.
+2. `npm view @typescript/typescript7 version` — a published `typescript7` alias means Vue tooling runs the new checker. Not published = still on the old (v6) checker under the hood.
+3. If the build is the real gate, run `docker compose run --rm npm run build`.
+
+**TS 7 migration mechanism (vue-tsc 3.3.8+):** alias `"typescript": "npm:@typescript/typescript6@6.0.2"`. vue-tsc's `resolveTscPath` detects `@typescript/typescript6` and redirects to the bundled `@typescript/old/lib/tsc` (real TS 6.0.3). This adopts the new `@typescript/*` package layout but **still compiles with TS 6** — it does not give you the TS 7 checker. Only worth doing when `@typescript/typescript7` exists.
+
 ## Git
 
 - Do not commit automatically — wait until explicitly asked.
