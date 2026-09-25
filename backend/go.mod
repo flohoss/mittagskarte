@@ -11,8 +11,8 @@ require (
 	github.com/mxschmitt/playwright-go v0.6201.1
 	github.com/ogen-go/ogen v1.24.0
 	github.com/pocketbase/dbx v1.12.0
-	github.com/pocketbase/pocketbase v0.40.3
-	golang.org/x/image v0.45.0
+	github.com/pocketbase/pocketbase v0.40.4
+	golang.org/x/image v0.46.0
 )
 
 require (
@@ -21,7 +21,7 @@ require (
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
@@ -45,19 +45,19 @@ require (
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	go.mongodb.org/mongo-driver v1.17.9 // indirect
+	go.mongodb.org/mongo-driver v1.17.10 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
-	golang.org/x/crypto v0.56.0 // indirect
-	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
-	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba // indirect
+	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/oauth2 v0.37.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	modernc.org/libc v1.75.7 // indirect
+	modernc.org/libc v1.77.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	modernc.org/sqlite v1.58.0 // indirect
+	modernc.org/sqlite v1.59.0 // indirect
 )
