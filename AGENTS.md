@@ -92,6 +92,7 @@ A mismatch causes: `could not start playwright: please install the driver (vX.Y.
 **Root cause (TS 7):** `typescript@7` added an `exports` map that hides `./lib/tsc`, which vue-tsc needs via `require.resolve('typescript/lib/tsc')`. The file still ships; it's just not exported.
 
 **Quick check whether a new TS major is ready (fast, no build needed):**
+
 1. `npm view typescript@<new-major>.x exports` — if `lib/tsc` (or a `./lib/*` wildcard) is missing from the exports map, stock vue-tsc cannot use it yet.
 2. `npm view @typescript/typescript7 version` — a published `typescript7` alias means Vue tooling runs the new checker. Not published = still on the old (v6) checker under the hood.
 3. If the build is the real gate, run `docker compose run --rm npm run build`.
