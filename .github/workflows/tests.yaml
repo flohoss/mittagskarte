@@ -2,11 +2,6 @@ name: Tests
 
 on:
   workflow_call:
-    inputs:
-      generate-coverage-report:
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -21,17 +16,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+
       - name: Run Go tests with coverage
         run: |
           docker compose run --rm test-backend sh -c '
             go generate ./pkg/snapotter
-            go test $(go list ./... | grep -v /pkg/snapotter/api) -covermode=atomic -coverprofile=coverage.out &&
-            go tool cover -func=coverage.out | tee coverage.txt
+            ./coverage/coverage.sh coverage.out
           '
+
+      - name: Show coverage summary
+        working-directory: backend
+        run: |
+          go tool cover -func=coverage.out | tee coverage.txt
+          go tool cover -html=coverage.out -o coverage.html
           echo "## Coverage" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat backend/coverage.txt >> "$GITHUB_STEP_SUMMARY"
+          cat coverage.txt >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Generate coverage badge
+        working-directory: backend
+        run: sh coverage/coverage-badge.sh coverage.out coverage/coverage.svg
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v7
@@ -40,14 +50,8 @@ jobs:
           path: |
             backend/coverage.out
             backend/coverage.txt
-
-      - name: Generate coverage report
-        if: inputs.generate-coverage-report
-        uses: ncruces/go-coverage-report@v0
-        with:
-          module-dir: backend
-          coverage-file: coverage.out
-        continue-on-error: true
+            backend/coverage.html
+            backend/coverage/coverage.svg
 
   test-frontend:
     name: Frontend Tests

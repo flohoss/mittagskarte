@@ -59,6 +59,9 @@ Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAU
   - URLs: frontend `:5173`, backend `:8090`, dashboard `:8090/_/`, SnapOtter `:1349`.
   - Services: `backend` (air hot reload), `frontend` (Vite), `snapotter`, `snapotter-schema`, `ogen`, `go`, `npm`, `release`.
 - **Code generation:** `docker compose run --rm ogen` — generates the SnapOtter client via [ogen](https://github.com/ogen-go/ogen) from OpenAPI spec (filtered to `/api/v1/(tools|download|pipeline|admin|features)`), output in `backend/pkg/snapotter/api/` (gitignored).
+- **Tests (backend):** `docker compose --profile test run --rm test-backend sh -c "go generate ./pkg/snapotter && go test ./..."`
+- **Coverage:** `docker compose --profile test run --rm test-backend sh -c "go generate ./pkg/snapotter && ./coverage/coverage.sh"` — writes `backend/coverage.out` and strips generated files (ogen API, detected by the `// Code generated ... DO NOT EDIT.` marker).
+- **Coverage badge:** `sh backend/coverage/coverage-badge.sh backend/coverage.out` — writes `backend/coverage/coverage.svg`, which CI commits to `main` when the value changes.
 - **Format (Go):** `docker compose run --rm go fmt ./...`
 - **Format (all non-Go files):** `docker compose run --rm format`
 

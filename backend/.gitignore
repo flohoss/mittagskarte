@@ -1,3 +1,9 @@
 tmp
 data
 pkg/snapotter/api/
+
+# Go coverage output (backend/coverage/coverage.svg is tracked: it holds the README badge)
+coverage.out
+coverage.out.raw
+coverage.txt
+coverage.html
