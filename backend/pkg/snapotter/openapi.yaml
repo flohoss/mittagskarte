@@ -19305,7 +19305,7 @@ paths:
           description: Could not generate preview
   /api/v1/preview/generate:
     post:
-      operationId: generatePreviewUpload
+      operationId: generatePreviewUploadUploadUploadUpload
       tags:
         - Files
       summary: Generate upload preview

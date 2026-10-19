@@ -64,7 +64,9 @@ func (s *Scraper) Close() {
 	s.queueCond.Broadcast()
 	s.workerWg.Wait()
 
-	s.web.Close()
+	if s.web != nil {
+		s.web.Close()
+	}
 }
 
 func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {

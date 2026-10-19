@@ -49,6 +49,21 @@ func TestReplaceDateCharsLimit(t *testing.T) {
 	}
 }
 
+func TestReplaceDateCharsTruncates(t *testing.T) {
+	t.Parallel()
+
+	full := Replace("{{date(format=Jan)}}")
+	got := Replace("{{date(format=Jan,chars=1)}}")
+
+	runes := []rune(full)
+	if len(runes) < 2 {
+		t.Fatalf("unexpected full output %q, expected at least 2 runes", full)
+	}
+	if got != string(runes[:1]) {
+		t.Fatalf("unexpected truncated output, got %q want %q", got, string(runes[:1]))
+	}
+}
+
 func TestReplaceDateWeekdayAndOffset(t *testing.T) {
 	t.Parallel()
 
