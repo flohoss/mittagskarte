@@ -1,13 +1,13 @@
 # Single source of truth for container tool versions. CI reads this block too.
 x-build-args: &build-args
-  V_GOLANG: ${V_GOLANG:-1.27}
+  V_GOLANG: ${V_GOLANG:-1.27.3}
   V_NODE: ${V_NODE:-26}
-  V_AIR: ${V_AIR:-1.65.3}
-  V_OGEN: ${V_OGEN:-1.23.0}
+  V_AIR: ${V_AIR:-1.67.4}
+  V_OGEN: ${V_OGEN:-1.24.0}
   V_PLAYWRIGHT: ${V_PLAYWRIGHT:-0.6201.1}
 
 x-images:
-  go: &go-image golang:${V_GOLANG:-1.27}
+  go: &go-image golang:${V_GOLANG:-1.27.3}
   node: &node-image node:${V_NODE:-26}-slim
 
 services:
