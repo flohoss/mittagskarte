@@ -2,6 +2,13 @@ package restaurant
 
 import (
 	"errors"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -96,5 +103,83 @@ func TestIsClosedToday(t *testing.T) {
 				t.Fatalf("unexpected result, got %v want %v", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestDownloadRequiresLocator(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		navigate []Selector
+	}{
+		{name: "no selectors", navigate: nil},
+		{name: "empty locator", navigate: []Selector{{Locator: ""}}},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := &Restaurant{Name: "Gasthaus", Navigate: tc.navigate}
+			_, err := r.Download(filepath.Join(t.TempDir(), "menu.pdf"), slog.New(slog.DiscardHandler))
+			if err == nil {
+				t.Fatal("expected error, got nil")
+			}
+			if !strings.Contains(err.Error(), "no URL defined in first locator") {
+				t.Fatalf("unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestDownloadRejectsInvalidURL(t *testing.T) {
+	t.Parallel()
+
+	r := &Restaurant{Name: "Gasthaus", Navigate: []Selector{{Locator: "://bad-url"}}}
+	_, err := r.Download(filepath.Join(t.TempDir(), "menu.pdf"), slog.New(slog.DiscardHandler))
+	if err == nil {
+		t.Fatal("expected error for invalid URL, got nil")
+	}
+	if !strings.Contains(err.Error(), "invalid URL in first locator") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestDownloadWritesServerContent(t *testing.T) {
+	requireCurl(t)
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("downloaded menu"))
+	}))
+	defer server.Close()
+
+	downloadPath := filepath.Join(t.TempDir(), "menu.pdf")
+	r := &Restaurant{Name: "Gasthaus", Navigate: []Selector{{Locator: server.URL + "/menu.pdf"}}}
+
+	gotPath, err := r.Download(downloadPath, slog.New(slog.DiscardHandler))
+	if err != nil {
+		t.Fatalf("Download returned error: %v", err)
+	}
+	if gotPath != downloadPath {
+		t.Fatalf("unexpected path, got %q want %q", gotPath, downloadPath)
+	}
+
+	data, err := os.ReadFile(gotPath)
+	if err != nil {
+		t.Fatalf("failed to read downloaded file: %v", err)
+	}
+	if string(data) != "downloaded menu" {
+		t.Fatalf("unexpected file content: %q", string(data))
+	}
+}
+
+func requireCurl(t *testing.T) {
+	t.Helper()
+
+	if _, err := exec.LookPath("curl"); err != nil {
+		t.Skip("curl binary not available")
 	}
 }
