@@ -105,6 +105,7 @@ A mismatch causes: `could not start playwright: please install the driver (vX.Y.
 ## Git
 
 - Do not commit automatically — wait until explicitly asked.
+- Never add a `Co-authored-by` trailer, including for Copilot or any other agent.
 - One commit per concern — never batch unrelated changes.
 - Title only, no body. Capitalize first letter after the prefix:
   - `[fix]` bug fix
