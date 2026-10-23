@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cronValidity, isMenuCurrent, type LastCheck } from './menuFreshness';
+import { cronValidity, isMenuCurrent, toTimestamp, type LastCheck } from './menuFreshness';
 
 type TestCase = {
   name: string;
@@ -17,6 +17,22 @@ function ts(date: string): number {
   // Use local-time strings in tests so day boundaries are consistent in any timezone.
   return new Date(date).getTime();
 }
+
+describe('toTimestamp', () => {
+  it('returns null for missing values', () => {
+    expect(toTimestamp(null)).toBeNull();
+    expect(toTimestamp(undefined)).toBeNull();
+    expect(toTimestamp('')).toBeNull();
+  });
+
+  it('returns null for unparsable values', () => {
+    expect(toTimestamp('not-a-date')).toBeNull();
+  });
+
+  it('parses valid ISO strings', () => {
+    expect(toTimestamp('2026-06-17T10:30:00+02:00')).toBe(ts('2026-06-17T10:30:00+02:00'));
+  });
+});
 
 describe('cronValidity', () => {
   it.each([
