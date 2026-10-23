@@ -70,12 +70,20 @@ func (s *Scraper) Close() {
 }
 
 func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
+	queuedRestaurantIDs := s.enqueueLocked(restaurants)
+
+	for _, restaurantID := range queuedRestaurantIDs {
+		s.notifyRestaurantStatus(restaurantID)
+	}
+}
+
+func (s *Scraper) enqueueLocked(restaurants []*restaurant.Restaurant) []string {
 	s.queueMu.Lock()
+	defer s.queueMu.Unlock()
 
 	if s.queueClosed {
-		s.queueMu.Unlock()
 		s.app.Logger().Warn("Scrape queue is closed, skipping enqueue")
-		return
+		return nil
 	}
 
 	now := time.Now()
@@ -100,11 +108,8 @@ func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
 	}
 
 	s.queueCond.Broadcast()
-	s.queueMu.Unlock()
 
-	for _, restaurantID := range queuedRestaurantIDs {
-		s.notifyRestaurantStatus(restaurantID)
-	}
+	return queuedRestaurantIDs
 }
 
 func (s *Scraper) runScrapeWorker() {

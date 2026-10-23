@@ -319,7 +319,7 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 		return re.String(http.StatusBadRequest, "Ungültiger JSON-Body")
 	}
 
-	r, err := m.loadRestaurant(re, payload.ID)
+	r, err := m.loadRestaurant(payload.ID)
 	if err != nil {
 		return err
 	}
@@ -329,14 +329,14 @@ func (m *Mittag) handleScrape(re *core.RequestEvent) error {
 	return re.String(http.StatusOK, fmt.Sprintf("Aktualisierung für Restaurant %s gestartet", r.ID))
 }
 
-func (m *Mittag) loadRestaurant(re *core.RequestEvent, id string) (*restaurant.Restaurant, error) {
+func (m *Mittag) loadRestaurant(id string) (*restaurant.Restaurant, error) {
 	id = strings.TrimSpace(id)
 	if id == "" {
-		return nil, re.String(http.StatusBadRequest, "Restaurant-ID ist erforderlich")
+		return nil, router.NewBadRequestError("Restaurant-ID ist erforderlich", nil)
 	}
 	r, err := restaurant.GetRestaurant(m.app, id)
 	if err != nil {
-		return nil, re.String(http.StatusInternalServerError, "Restaurant konnte nicht geladen werden")
+		return nil, router.NewInternalServerError("Restaurant konnte nicht geladen werden", nil)
 	}
 	return r, nil
 }

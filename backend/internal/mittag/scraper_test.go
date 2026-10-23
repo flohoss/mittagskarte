@@ -41,7 +41,7 @@ func createUploadRestaurant(t *testing.T, app core.App, slug string) *restaurant
 	return restaurant.New(record)
 }
 
-func waitForStatus(t *testing.T, s *Scraper, restaurantID, want string) {
+func waitForStatus(t testing.TB, s *Scraper, restaurantID, want string) {
 	t.Helper()
 
 	deadline := time.Now().Add(10 * time.Second)
@@ -54,7 +54,7 @@ func waitForStatus(t *testing.T, s *Scraper, restaurantID, want string) {
 	t.Fatalf("restaurant %s never reached status %q", restaurantID, want)
 }
 
-func checkLastCheckStatus(t *testing.T, record *core.Record, want restaurant.LastCheckStatus) {
+func checkLastCheckStatus(t testing.TB, record *core.Record, want restaurant.LastCheckStatus) {
 	t.Helper()
 
 	lastCheck, ok := record.Get("last_check").(types.JSONRaw)
@@ -145,4 +145,38 @@ func TestLastCheckFromUploadOnly(t *testing.T) {
 	if detail != "" {
 		t.Fatalf("unexpected detail, got %q", detail)
 	}
+}
+
+func TestScraperRecoversFromScrapePanic(t *testing.T) {
+	t.Parallel()
+
+	app, scraper := newTestScraper(t, time.Minute)
+	panicking := createRestaurantWithMethod(t, app, "panic-restaurant", "scrape")
+	survivor := createUploadRestaurant(t, app, "survivor")
+
+	scraper.Enqueue([]*restaurant.Restaurant{panicking})
+	waitForStatus(t, scraper, panicking.ID, ScrapeStatusCoolDown)
+
+	scraper.Enqueue([]*restaurant.Restaurant{survivor})
+	waitForStatus(t, scraper, survivor.ID, ScrapeStatusCoolDown)
+}
+
+func createRestaurantWithMethod(t *testing.T, app core.App, slug, method string) *restaurant.Restaurant {
+	t.Helper()
+
+	collection, err := app.FindCachedCollectionByNameOrId("restaurants")
+	if err != nil {
+		t.Fatalf("failed to find restaurants collection: %v", err)
+	}
+
+	record := core.NewRecord(collection)
+	record.Set("name", "Gasthaus "+slug)
+	record.Set("slug", slug)
+	record.Set("method", method)
+	record.Set("latitude", 48.5)
+	record.Set("longitude", 9.1)
+	if err := app.Save(record); err != nil {
+		t.Fatalf("failed to save restaurant record: %v", err)
+	}
+	return restaurant.New(record)
 }
