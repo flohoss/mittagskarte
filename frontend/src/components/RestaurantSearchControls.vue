@@ -130,8 +130,7 @@ defineExpose({
         <span class="icon-[fa7-solid--xmark] size-4" aria-hidden="true"></span>
       </button>
       <kbd v-else class="hidden lg:inline-flex kbd kbd-sm font-mono opacity-50">
-        <span class="me-1 text-sm">{{ searchShortcut.primary }}</span
-        >{{ searchShortcut.key }}
+        <span class="me-1 text-sm">{{ searchShortcut.primary }}</span>{{ searchShortcut.key }}
       </kbd>
     </label>
 
