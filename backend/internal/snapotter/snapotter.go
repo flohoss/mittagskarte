@@ -20,7 +20,50 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-const previewSettings = `{"format":"webp","quality":75,"maxWidth":480}`
+const (
+	PortraitPreviewMaxWidth  = 1200
+	LandscapePreviewMaxWidth = 600
+	PortraitFullMaxWidth     = 1200
+	LandscapeFullMaxWidth    = 1920
+)
+
+var (
+	PortraitPreviewSettings  = webpSettings(75, PortraitPreviewMaxWidth)
+	LandscapePreviewSettings = webpSettings(75, LandscapePreviewMaxWidth)
+)
+
+func (r Result) Landscape() bool {
+	return r.Width >= r.Height
+}
+
+func (r Result) PreviewSettings() string {
+	if r.Landscape() {
+		return LandscapePreviewSettings
+	}
+	return PortraitPreviewSettings
+}
+
+func webpSettings(quality, maxWidth int) string {
+	return fmt.Sprintf(`{"format":"webp","quality":%d,"maxWidth":%d}`, quality, maxWidth)
+}
+
+func SettingsForFile(path string, quality, landscapeMaxWidth, portraitMaxWidth int) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return webpSettings(quality, portraitMaxWidth)
+	}
+	defer f.Close()
+
+	config, _, err := image.DecodeConfig(f)
+	if err != nil {
+		return webpSettings(quality, portraitMaxWidth)
+	}
+
+	if config.Width >= config.Height {
+		return webpSettings(quality, landscapeMaxWidth)
+	}
+	return webpSettings(quality, portraitMaxWidth)
+}
 
 type Result struct {
 	Data   []byte
@@ -196,7 +239,7 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	pipeline, _ := json.Marshal(map[string]any{
 		"steps": []map[string]any{
 			{"toolId": "smart-crop", "settings": map[string]any{"mode": "trim", "threshold": 10}},
-			{"toolId": "optimize-for-web", "settings": map[string]any{"format": "webp", "quality": 85, "maxWidth": 1200}},
+			{"toolId": "optimize-for-web", "settings": SettingsForFile(sourcePath, 85, LandscapeFullMaxWidth, PortraitFullMaxWidth)},
 		},
 	})
 
@@ -226,14 +269,14 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	return c.downloadJob(ctx, jobId, downloadUrl)
 }
 
-func (c *Client) ImageToWebpPreview(ctx context.Context, source io.Reader, name string, size int64) (Result, error) {
+func (c *Client) ImageToWebpPreview(ctx context.Context, source io.Reader, name string, size int64, settings string) (Result, error) {
 	res, err := c.api.OptimizeForWebPreview(ctx, &api.OptimizeForWebPreviewReq{
 		File: ht.MultipartFile{
 			Name: name,
 			File: source,
 			Size: size,
 		},
-		Settings: api.NewOptString(previewSettings),
+		Settings: api.NewOptString(settings),
 	})
 	if err != nil {
 		return Result{}, fmt.Errorf("preview request: %w", err)

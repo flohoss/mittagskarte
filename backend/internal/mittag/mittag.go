@@ -115,7 +115,13 @@ func (m *Mittag) backfillMenuPreview(fsys *filesystem.System, menu *core.Record)
 	}
 	defer reader.Close()
 
-	preview, err := m.snapotter.ImageToWebpPreview(context.Background(), reader, menu.GetString("file"), reader.Size())
+	preview, err := m.snapotter.ImageToWebpPreview(
+		context.Background(),
+		reader,
+		menu.GetString("file"),
+		reader.Size(),
+		previewSettingsFor(menu),
+	)
 	if err != nil {
 		m.logger.Warn("Preview backfill could not generate preview", "menuId", menu.Id, "error", err)
 		return false
@@ -138,6 +144,24 @@ func (m *Mittag) backfillMenuPreview(fsys *filesystem.System, menu *core.Record)
 
 func (m *Mittag) Scraper() *Scraper {
 	return m.scraper
+}
+
+func PeekOrientation(menu *core.Record) (snapotter.Result, bool) {
+	var dims struct {
+		Width  int `json:"width"`
+		Height int `json:"height"`
+	}
+	if err := json.Unmarshal([]byte(menu.GetString("dimensions")), &dims); err != nil || dims.Width <= 0 || dims.Height <= 0 {
+		return snapotter.Result{}, false
+	}
+	return snapotter.Result{Width: dims.Width, Height: dims.Height}, true
+}
+
+func previewSettingsFor(menu *core.Record) string {
+	if orient, ok := PeekOrientation(menu); ok {
+		return orient.PreviewSettings()
+	}
+	return snapotter.PortraitPreviewSettings
 }
 
 func (m *Mittag) Close() {
@@ -256,6 +280,7 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 		bytes.NewReader(result.Data),
 		processedFile.Name,
 		int64(len(result.Data)),
+		result.PreviewSettings(),
 	); err != nil {
 		m.logger.Warn("Menu preview could not be generated, falling back to the full image", "restaurantId", restaurantID, "error", err)
 	} else {
