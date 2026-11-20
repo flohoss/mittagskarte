@@ -36,7 +36,6 @@ services:
       - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD:-}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
       - TELEGRAM_SECRET=${TELEGRAM_SECRET:-}
-      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8090/health']
       start_period: 10s

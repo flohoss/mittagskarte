@@ -15,8 +15,6 @@ import (
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
 )
 
-const webhookPathPrefix = "/api/telegram/"
-
 type Service struct {
 	cfg     *config.Config
 	logger  *slog.Logger
@@ -66,7 +64,7 @@ func (s *Service) Start(ctx context.Context) error {
 		return nil
 	}
 
-	s.logger.Info("Telegram bot started (webhook)", "url", s.cfg.TelegramWebhookURL)
+	s.logger.Info("Telegram bot started (webhook)", "url", s.cfg.TelegramWebhookURL())
 	go s.bot.StartWebhook(ctx)
 	return nil
 }
@@ -77,7 +75,7 @@ func (s *Service) RegisterWebhookRoute(se *core.ServeEvent) error {
 	}
 
 	se.Router.POST(
-		webhookPathPrefix+s.cfg.TelegramSecret,
+		config.TelegramWebhookPathPrefix+s.cfg.TelegramSecret,
 		func(re *core.RequestEvent) error {
 			s.bot.WebhookHandler().ServeHTTP(re.Response, re.Request)
 			return nil
@@ -85,7 +83,7 @@ func (s *Service) RegisterWebhookRoute(se *core.ServeEvent) error {
 	).Bind(apis.SkipSuccessActivityLog())
 
 	if _, err := s.bot.SetWebhook(context.Background(), &bot.SetWebhookParams{
-		URL:                s.cfg.TelegramWebhookURL,
+		URL:                s.cfg.TelegramWebhookURL(),
 		SecretToken:        s.cfg.TelegramSecret,
 		DropPendingUpdates: true,
 	}); err != nil {
