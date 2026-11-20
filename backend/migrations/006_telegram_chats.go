@@ -37,32 +37,8 @@ func init() {
 
 		chats.AddIndex("idx_telegram_chats_chat_id", true, "chat_id", "")
 
-		if err := app.Save(chats); err != nil {
-			return err
-		}
-
-		settings := core.NewBaseCollection("telegram_settings")
-
-		settings.Fields.Add(&core.NumberField{
-			Name:    "admin_chat_id",
-			OnlyInt: true,
-			Min:     chatIDMinPtr(),
-		})
-		settings.ListRule = nil
-		settings.ViewRule = nil
-		settings.CreateRule = nil
-		settings.UpdateRule = nil
-		settings.DeleteRule = nil
-
-		return app.Save(settings)
+		return app.Save(chats)
 	}, func(app core.App) error {
-		settings, err := app.FindCollectionByNameOrId("telegram_settings")
-		if err == nil {
-			if err := app.Delete(settings); err != nil {
-				return err
-			}
-		}
-
 		chats, err := app.FindCollectionByNameOrId("telegram_chats")
 		if err != nil {
 			return nil

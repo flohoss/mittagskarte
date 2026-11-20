@@ -26,8 +26,6 @@ type Service struct {
 
 func New(app core.App, cfg *config.Config, scraper *mittag.Scraper) (*Service, error) {
 	handler := &updateHandler{
-		app:     app,
-		cfg:     cfg,
 		logger:  app.Logger().WithGroup("telegram"),
 		scraper: scraper,
 		links:   &chatLinks{app: app},

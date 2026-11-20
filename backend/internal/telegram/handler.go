@@ -5,24 +5,18 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/internal/mittag"
 	"github.com/flohoss/mittagskarte/internal/restaurant"
 	"github.com/flohoss/mittagskarte/pkg/curl"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-
-	"strings"
-
-	"ganigeorgiev.com/pocketbase/pocketbase/core"
 )
 
 type updateHandler struct {
-	app     core.App
-	cfg     *config.Config
 	logger  *slog.Logger
 	scraper *mittag.Scraper
 	links   *chatLinks
@@ -165,14 +159,6 @@ func (h *updateHandler) downloadMedia(ctx context.Context, b *bot.Bot, restauran
 	return downloadPath, nil
 }
 
-func adminChatID(app core.App) int64 {
-	records, err := app.FindRecordsByFilter("telegram_settings", "", "", 1, 0)
-	if err != nil || len(records) == 0 {
-		return 0
-	}
-	return int64(records[0].GetInt("admin_chat_id"))
-}
-
 func (h *updateHandler) reply(ctx context.Context, b *bot.Bot, chatID int64, messageID int, text string) {
 	sendReply(ctx, b, chatID, messageID, text)
 }
@@ -189,20 +175,6 @@ func (h *updateHandler) replyGreeting(ctx context.Context, b *bot.Bot, chatID in
 	})
 	if err != nil {
 		slog.Error("telegram: failed to send greeting", "chatID", chatID, "error", err)
-	}
-}
-
-func (h *updateHandler) notify(ctx context.Context, b *bot.Bot, format string, args ...any) {
-	adminChatID := adminChatID(h.app)
-	if adminChatID == 0 {
-		return
-	}
-	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: adminChatID,
-		Text:   fmt.Sprintf(format, args...),
-	})
-	if err != nil {
-		h.logger.Error("Failed to notify admin chat", "error", err)
 	}
 }
 
@@ -225,14 +197,12 @@ func (h *updateHandler) startUpload(ctx context.Context, b *bot.Bot, chatID int6
 	filePath, err := h.downloadMedia(ctx, b, r.ID, kind, fileID)
 	if err != nil {
 		h.logger.Error("Failed to download Telegram media", "restaurant", r.Name, "error", err)
-		h.notify(ctx, b, "😖 Download für %s fehlgeschlagen: %v", r.Name, err)
 		h.reply(ctx, b, chatID, messageID, replyMenuFailed)
 		return
 	}
 
 	h.scraper.EnqueueTelegramUpload(r, filePath, func(err error, _ *restaurant.Restaurant) {
 		h.reply(ctx, b, chatID, messageID, menuReplyFor(err))
-		h.notify(ctx, b, "Telegram-Upload für %s: %s", r.Name, menuReplyFor(err))
 	})
 }
 

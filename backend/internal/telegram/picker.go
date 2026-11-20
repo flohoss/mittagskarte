@@ -14,14 +14,13 @@ const callbackPrefix = "tmenu:"
 const pendingTTL = 10 * time.Minute
 
 type messageRef struct {
-	ID   int
-	Text string
+	ID int
 }
 
 func callbackChat(query *models.CallbackQuery) (models.Chat, messageRef, bool) {
 	m := query.Message
 	if m.Type == models.MaybeInaccessibleMessageTypeMessage && m.Message != nil {
-		return m.Message.Chat, messageRef{ID: m.Message.ID, Text: m.Message.Text}, true
+		return m.Message.Chat, messageRef{ID: m.Message.ID}, true
 	}
 	if m.Type == models.MaybeInaccessibleMessageTypeInaccessibleMessage && m.InaccessibleMessage != nil {
 		return m.InaccessibleMessage.Chat, messageRef{}, true
