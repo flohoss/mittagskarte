@@ -36,6 +36,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: coverage
+          path: backend
 
       - name: Commit badge when changed
         run: |
