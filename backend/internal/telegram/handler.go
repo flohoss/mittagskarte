@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"github.com/flohoss/mittagskarte/config"
@@ -51,12 +50,10 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 
 	switch msg.Text {
 	case "/id":
-		h.reply(ctx, b, msg.Chat.ID, msg.ID,
-			replyIDPrefix+strconv.FormatInt(msg.Chat.ID, 10)+"\n\n"+replyIDHint)
+		h.replyGreeting(ctx, b, msg.Chat.ID, msg.ID, replyIDOnly)
 		return
 	case "/start":
-		h.reply(ctx, b, msg.Chat.ID, msg.ID,
-			replyGreeting+strconv.FormatInt(msg.Chat.ID, 10)+"\n\n"+replyIDHint)
+		h.replyGreeting(ctx, b, msg.Chat.ID, msg.ID, replyIntro)
 		return
 	}
 
@@ -178,6 +175,21 @@ func adminChatID(app core.App) int64 {
 
 func (h *updateHandler) reply(ctx context.Context, b *bot.Bot, chatID int64, messageID int, text string) {
 	sendReply(ctx, b, chatID, messageID, text)
+}
+
+func (h *updateHandler) replyGreeting(ctx context.Context, b *bot.Bot, chatID int64, messageID int, intro string) {
+	body := fmt.Sprintf(
+		"%s\n\n🫣 <code>%d</code>\n%s",
+		intro, chatID, replyIDHint,
+	)
+	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID:    chatID,
+		Text:      body,
+		ParseMode: models.ParseModeHTML,
+	})
+	if err != nil {
+		slog.Error("telegram: failed to send greeting", "chatID", chatID, "error", err)
+	}
 }
 
 func (h *updateHandler) notify(ctx context.Context, b *bot.Bot, format string, args ...any) {
