@@ -60,16 +60,10 @@ whenever(
     <header class="navbar bg-base-200 shadow-sm">
       <div class="container py-2">
         <template v-if="isMenuHistoryRoute">
-          <div class="flex w-full items-center justify-between gap-4">
-            <button class="btn btn-soft shrink-0" aria-label="Zur Startseite zurück" @click="router.back()">
-              <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
-              Zurück
-            </button>
-
-            <div class="shrink-0">
-              <LoginModal />
-            </div>
-          </div>
+          <button class="btn btn-soft" aria-label="Zur Startseite zurück" @click="router.back()">
+            <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
+            Zurück
+          </button>
         </template>
 
         <template v-else>
