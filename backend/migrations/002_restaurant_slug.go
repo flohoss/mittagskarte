@@ -16,7 +16,7 @@ func init() {
 
 		collection.Fields.Add(&core.TextField{
 			Name:     "slug",
-			Required: false,
+			Required: true,
 			Pattern:  `^[a-z0-9]+(?:-[a-z0-9]+)*$`,
 		})
 
