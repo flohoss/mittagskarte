@@ -60,7 +60,7 @@ const getGroupIconClass = (groupValue: string) => {
     case 'group':
       return 'icon-[fa7-solid--layer-group]';
     case 'none-favorites':
-      return 'icon-[fa7-solid--star]';
+      return 'icon-[fluent--star-arrow-right-start-24-filled]';
     case 'favorites':
       return 'icon-[fa7-solid--star]';
     case 'none':

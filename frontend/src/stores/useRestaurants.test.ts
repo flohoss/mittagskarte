@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RestaurantRecord } from '../models/restaurant';
+import { backendClient } from '../services/backendClient';
 import { RestaurantEmptyReason, useRestaurants } from './useRestaurants';
 
 function restaurant(id: string, name: string, group: string): RestaurantRecord {
@@ -26,34 +27,39 @@ function restaurant(id: string, name: string, group: string): RestaurantRecord {
   } as unknown as RestaurantRecord;
 }
 
-type StorageShim = Record<string, string>;
-
 function installStorageStub() {
-  const backing: StorageShim = {};
+  const backing = new Map<string, string>();
   const localStorageStub = {
-    getItem: (key: string) => (key in backing ? backing[key] : null),
+    getItem: (key: string) => (backing.has(key) ? backing.get(key)! : null),
     setItem: (key: string, value: string) => {
-      backing[key] = String(value);
+      backing.set(key, String(value));
     },
     removeItem: (key: string) => {
-      delete backing[key];
+      backing.delete(key);
     },
     clear: () => {
-      for (const key of Object.keys(backing)) delete backing[key];
+      backing.clear();
     },
-    key: (index: number) => Object.keys(backing)[index] ?? null,
+    key: (index: number) => Array.from(backing.keys())[index] ?? null,
     get length() {
-      return Object.keys(backing).length;
+      return backing.size;
     },
   };
 
   vi.stubGlobal('window', { ...globalThis, localStorage: localStorageStub } as unknown as Window & typeof globalThis);
   vi.stubGlobal('localStorage', localStorageStub);
   vi.stubGlobal('navigator', { geolocation: undefined });
-  vi.stubGlobal('Image', class {
-    onload: (() => void) | null = null;
-    onerror: (() => void) | null = null;
-  });
+  vi.stubGlobal(
+    'Image',
+    class {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+    }
+  );
+}
+
+function seedRestaurants(store: ReturnType<typeof useRestaurants>, records: RestaurantRecord[]) {
+  store.restaurants.value = backendClient.prepareRestaurants(records);
 }
 
 describe('useRestaurants groupedRestaurants empty states', () => {
@@ -64,48 +70,55 @@ describe('useRestaurants groupedRestaurants empty states', () => {
 
   it('flags favorites-only grouping without favorites as no-favorites instead of showing nothing', async () => {
     const { useFavorites } = await import('./useFavorites');
-    const { backendClient } = await import('../services/backendClient');
-    backendClient.prepareRestaurants = (records: RestaurantRecord[]) => records;
+    const { useRestaurants: useRestaurantsStore } = await import('./useRestaurants');
+    useFavorites();
+    const store = useRestaurantsStore();
+    seedRestaurants(store, [restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
 
-    const useRestaurants = (await import('./useRestaurants')).useRestaurants;
-    const store = useRestaurants();
-    store.applyRestaurants([restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
+    store.groupBy.value = 'favorites';
 
-    store.groupBy = 'favorites';
-
-    expect(store.hasVisibleRestaurants).toBe(false);
-    expect(store.emptyViewReason).toBe(RestaurantEmptyReason.NO_FAVORITES);
+    expect(store.hasVisibleRestaurants.value).toBe(false);
+    expect(store.emptyViewReason.value).toBe(RestaurantEmptyReason.NO_FAVORITES);
   });
 
-  it('shows favorites for favorites-only grouping when favorites exist', async () => {
+  it('shows favorites for favorites-only grouping when a favorite exists', async () => {
     const { useFavorites } = await import('./useFavorites');
-    const { backendClient } = await import('../services/backendClient');
-    backendClient.prepareRestaurants = (records: RestaurantRecord[]) => records;
-
-    const useRestaurants = (await import('./useRestaurants')).useRestaurants;
-    const favorites = useFavorites();
-    const store = useRestaurants();
-    store.applyRestaurants([restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
+    const { useRestaurants: useRestaurantsStore } = await import('./useRestaurants');
+    const { favorites } = useFavorites();
+    const store = useRestaurantsStore();
+    seedRestaurants(store, [restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
     favorites.value['2'] = true;
 
-    store.groupBy = 'favorites';
+    store.groupBy.value = 'favorites';
 
-    expect(store.hasVisibleRestaurants).toBe(true);
-    expect(store.emptyViewReason).toBe(null);
+    expect(store.hasVisibleRestaurants.value).toBe(true);
+    expect(store.emptyViewReason.value).toBe(null);
     expect(store.groupedRestaurants.value.Favoriten.map((entry) => entry.id)).toEqual(['2']);
   });
 
+  it('flags favorites-only grouping with favorites but a filtering search', async () => {
+    const { useFavorites } = await import('./useFavorites');
+    const { useRestaurants: useRestaurantsStore } = await import('./useRestaurants');
+    const { favorites } = useFavorites();
+    const store = useRestaurantsStore();
+    seedRestaurants(store, [restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
+    favorites.value['2'] = true;
+
+    store.groupBy.value = 'favorites';
+    store.applySearch('zzz-no-match');
+
+    expect(store.hasVisibleRestaurants.value).toBe(false);
+    expect(store.emptyViewReason.value).toBe(RestaurantEmptyReason.SEARCH);
+  });
+
   it('keeps favorites plus other groups for favorites-on-top grouping with no favorites', async () => {
-    const { backendClient } = await import('../services/backendClient');
-    backendClient.prepareRestaurants = (records: RestaurantRecord[]) => records;
+    const { useRestaurants: useRestaurantsStore } = await import('./useRestaurants');
+    const store = useRestaurantsStore();
+    seedRestaurants(store, [restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
 
-    const useRestaurants = (await import('./useRestaurants')).useRestaurants;
-    const store = useRestaurants();
-    store.applyRestaurants([restaurant('1', 'Alpha', 'Mitte'), restaurant('2', 'Beta', 'Sued')]);
+    store.groupBy.value = 'none-favorites';
 
-    store.groupBy = 'none-favorites';
-
-    expect(store.hasVisibleRestaurants).toBe(true);
-    expect(store.emptyViewReason).toBe(null);
+    expect(store.hasVisibleRestaurants.value).toBe(true);
+    expect(store.emptyViewReason.value).toBe(null);
   });
 });
