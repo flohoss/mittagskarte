@@ -50,15 +50,25 @@ func New(app core.App, cfg *config.Config, scraper *mittag.Scraper) (*Service, e
 	}, nil
 }
 
-func (s *Service) Start(ctx context.Context) {
+func (s *Service) Start(ctx context.Context) error {
 	if s.cfg.Dev {
+		deleted, err := s.bot.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
+			DropPendingUpdates: true,
+		})
+		if err != nil {
+			return fmt.Errorf("delete telegram webhook for polling: %w", err)
+		}
+		if !deleted {
+			return fmt.Errorf("delete telegram webhook for polling: telegram returned false")
+		}
 		s.logger.Info("Telegram bot started (long polling)")
 		go s.bot.Start(ctx)
-		return
+		return nil
 	}
 
 	s.logger.Info("Telegram bot started (webhook)", "url", s.cfg.TelegramWebhookURL)
 	go s.bot.StartWebhook(ctx)
+	return nil
 }
 
 func (s *Service) RegisterWebhookRoute(se *core.ServeEvent) error {

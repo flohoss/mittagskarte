@@ -73,11 +73,13 @@ func main() {
 		}
 
 		if telegramService != nil {
+			if err = telegramService.RegisterWebhookRoute(se); err != nil {
+				return err
+			}
+
 			var ctx context.Context
 			ctx, telegramStop = context.WithCancel(context.Background())
-			telegramService.Start(ctx)
-
-			if err = telegramService.RegisterWebhookRoute(se); err != nil {
+			if err = telegramService.Start(ctx); err != nil {
 				return err
 			}
 		}
