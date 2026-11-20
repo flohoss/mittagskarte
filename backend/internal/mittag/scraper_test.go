@@ -89,17 +89,20 @@ func waitForStatus(t testing.TB, s *Scraper, restaurantID, want string) {
 func checkLastCheckStatus(t testing.TB, record *core.Record, want restaurant.LastCheckStatus) {
 	t.Helper()
 
-	lastCheck, ok := record.Get("last_check").(types.JSONRaw)
+	raw, ok := record.Get("last_check").(types.JSONRaw)
 	if !ok {
 		t.Fatalf("unexpected last_check type: %T", record.Get("last_check"))
+	}
+	if len(raw) == 0 {
+		t.Fatalf("last_check is empty (status not yet persisted)")
 	}
 
 	var entry struct {
 		Status string `json:"status"`
 		Detail string `json:"detail"`
 	}
-	if err := json.Unmarshal(lastCheck, &entry); err != nil {
-		t.Fatalf("failed to decode last_check: %v", err)
+	if err := json.Unmarshal(raw, &entry); err != nil {
+		t.Fatalf("failed to decode last_check %q: %v", string(raw), err)
 	}
 	if entry.Status != string(want) {
 		t.Fatalf("unexpected last_check status, got %q want %q", entry.Status, want)
