@@ -49,8 +49,14 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 		return
 	}
 
-	if msg.Text == "/id" {
-		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyIDPrefix+strconv.FormatInt(msg.Chat.ID, 10))
+	switch msg.Text {
+	case "/id":
+		h.reply(ctx, b, msg.Chat.ID, msg.ID,
+			replyIDPrefix+strconv.FormatInt(msg.Chat.ID, 10)+"\n\n"+replyIDHint)
+		return
+	case "/start":
+		h.reply(ctx, b, msg.Chat.ID, msg.ID,
+			replyGreeting+strconv.FormatInt(msg.Chat.ID, 10)+"\n\n"+replyIDHint)
 		return
 	}
 

@@ -21,7 +21,9 @@ const (
 	replyCooldown       = "🥱 Die Karte wurde gerade erst aktualisiert. Bitte kurz warten und es erneut versuchen."
 	replyNotBound       = "🤬 Dieser Chat ist mit keinem Restaurant verknüpft. Bitte wende dich an den Betreiber."
 	replyPrivateOnly    = "😶‍🌫️ Bitte sende mir Nachrichten direkt in einem privaten Chat (keine Gruppe, kein Kanal)."
+	replyIDHint         = "Bitte teile diese ID dem Betreiber, damit er diesen Chat aktivieren kann."
 	replyIDPrefix       = "🫣 Deine Chat-ID lautet: "
+	replyGreeting       = "👋 Hallo! Sende mir die Tageskarte als Foto, Bild oder PDF.\n\n" + replyIDPrefix
 	replyPickRestaurant = "🤔 Für welches Restaurant ist die Karte?"
 	replyMediaExpired   = "🫥 Die Auswahl ist abgelaufen. Bitte sende die Karte erneut."
 	replyProcessingPick = "⏳ Karte wird verarbeitet …"
