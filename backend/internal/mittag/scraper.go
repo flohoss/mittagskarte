@@ -25,13 +25,19 @@ const (
 	RestaurantsStatusTopic = "restaurants/status"
 )
 
+type queueItem struct {
+	restaurantID     string
+	onDone           func(err error, r *restaurant.Restaurant)
+	telegramFilePath string
+}
+
 type Scraper struct {
 	app core.App
 	web *web.Web
 
 	queueMu     sync.Mutex
 	queueCond   *sync.Cond
-	scrapeQueue []string
+	scrapeQueue []queueItem
 	queued      map[string]struct{}
 	inFlight    map[string]struct{}
 	lastRunAt   map[string]time.Time
@@ -70,14 +76,43 @@ func (s *Scraper) Close() {
 }
 
 func (s *Scraper) Enqueue(restaurants []*restaurant.Restaurant) {
-	queuedRestaurantIDs := s.enqueueLocked(restaurants)
+	queuedRestaurantIDs := s.enqueueItemsLocked(s.itemsFromRestaurants(restaurants))
 
 	for _, restaurantID := range queuedRestaurantIDs {
 		s.notifyRestaurantStatus(restaurantID)
 	}
 }
 
-func (s *Scraper) enqueueLocked(restaurants []*restaurant.Restaurant) []string {
+func (s *Scraper) itemsFromRestaurants(restaurants []*restaurant.Restaurant) []queueItem {
+	items := make([]queueItem, 0, len(restaurants))
+	for _, r := range restaurants {
+		items = append(items, queueItem{restaurantID: r.ID})
+	}
+	return items
+}
+
+func (s *Scraper) EnqueueTelegramUpload(r *restaurant.Restaurant, filePath string, onDone func(error, *restaurant.Restaurant)) {
+	item := queueItem{
+		restaurantID:     r.ID,
+		onDone:           onDone,
+		telegramFilePath: filePath,
+	}
+	queuedRestaurantIDs := s.enqueueItemsLocked([]queueItem{item})
+
+	for _, restaurantID := range queuedRestaurantIDs {
+		s.notifyRestaurantStatus(restaurantID)
+	}
+}
+
+func (s *Scraper) menuItems(restaurants []*restaurant.Restaurant) map[string]queueItem {
+	items := make(map[string]queueItem, len(restaurants))
+	for _, r := range restaurants {
+		items[r.ID] = queueItem{restaurantID: r.ID}
+	}
+	return items
+}
+
+func (s *Scraper) enqueueItemsLocked(items []queueItem) []string {
 	s.queueMu.Lock()
 	defer s.queueMu.Unlock()
 
@@ -88,23 +123,23 @@ func (s *Scraper) enqueueLocked(restaurants []*restaurant.Restaurant) []string {
 
 	now := time.Now()
 	queuedRestaurantIDs := make([]string, 0)
-	for _, r := range restaurants {
-		if _, ok := s.queued[r.ID]; ok {
-			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", r.ID)
+	for _, item := range items {
+		if _, ok := s.queued[item.restaurantID]; ok {
+			s.app.Logger().Debug("Skipping enqueue: restaurant already queued", "id", item.restaurantID)
 			continue
 		}
-		if _, ok := s.inFlight[r.ID]; ok {
-			s.app.Logger().Debug("Skipping enqueue: restaurant scrape in progress", "id", r.ID)
+		if _, ok := s.inFlight[item.restaurantID]; ok {
+			s.app.Logger().Debug("Skipping enqueue: restaurant scrape in progress", "id", item.restaurantID)
 			continue
 		}
-		if lastRunAt, ok := s.lastRunAt[r.ID]; ok && now.Sub(lastRunAt) < s.coolDown {
-			s.app.Logger().Debug("Skipping enqueue: restaurant in coolDown", "id", r.ID, "nextAllowedAt", lastRunAt.Add(s.coolDown))
+		if lastRunAt, ok := s.lastRunAt[item.restaurantID]; ok && now.Sub(lastRunAt) < s.coolDown {
+			s.app.Logger().Debug("Skipping enqueue: restaurant in coolDown", "id", item.restaurantID, "nextAllowedAt", lastRunAt.Add(s.coolDown))
 			continue
 		}
 
-		s.scrapeQueue = append(s.scrapeQueue, r.ID)
-		s.queued[r.ID] = struct{}{}
-		queuedRestaurantIDs = append(queuedRestaurantIDs, r.ID)
+		s.scrapeQueue = append(s.scrapeQueue, item)
+		s.queued[item.restaurantID] = struct{}{}
+		queuedRestaurantIDs = append(queuedRestaurantIDs, item.restaurantID)
 	}
 
 	s.queueCond.Broadcast()
@@ -116,52 +151,57 @@ func (s *Scraper) runScrapeWorker() {
 	defer s.workerWg.Done()
 
 	for {
-		restaurantID, ok := s.dequeueScrapeID()
+		item, ok := s.dequeueScrape()
 		if !ok {
 			return
 		}
 
-		s.processScrape(restaurantID)
+		s.processScrape(item)
 	}
 }
 
-func (s *Scraper) processScrape(restaurantID string) {
+func (s *Scraper) processScrape(item queueItem) {
 	defer func() {
 		if r := recover(); r != nil {
-			s.app.Logger().Error("Panic during scrape, recovering", "id", restaurantID, "panic", r)
-			s.markScrapeDone(restaurantID)
-			s.notifyRestaurantStatus(restaurantID)
+			s.app.Logger().Error("Panic during scrape, recovering", "id", item.restaurantID, "panic", r)
+			s.markScrapeDone(item.restaurantID)
+			s.notifyRestaurantStatus(item.restaurantID)
 		}
 	}()
 
-	s.notifyRestaurantStatus(restaurantID)
+	s.notifyRestaurantStatus(item.restaurantID)
 
-	r, err := s.getRestaurantByID(restaurantID)
+	r, err := s.getRestaurantByID(item.restaurantID)
 	if err != nil {
-		s.app.Logger().Error("Error resolving restaurant for scrape", "id", restaurantID, "error", err)
-		s.markScrapeDone(restaurantID)
-		s.notifyRestaurantStatus(restaurantID)
+		s.app.Logger().Error("Error resolving restaurant for scrape", "id", item.restaurantID, "error", err)
+		s.markScrapeDone(item.restaurantID)
+		s.notifyRestaurantStatus(item.restaurantID)
 		return
 	}
 
-	scrapeErr := s.scrapeSingle(r)
-	if errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) {
-		s.app.Logger().Warn("Skipped automated update: manual upload only", "name", r.Name)
-	} else if errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
-		s.app.Logger().Debug("No menu change detected", "name", r.Name)
-	} else if scrapeErr != nil {
-		s.app.Logger().Error("Error scraping restaurant", "name", r.Name, "error", scrapeErr)
+	scrapeErr := s.scrapeSingle(item, r)
+	if scrapeErr == nil || errors.Is(scrapeErr, restaurant.ErrManualUploadOnly) || errors.Is(scrapeErr, restaurant.ErrMenuUnchanged) {
+		s.app.Logger().Debug("Scrape finished without change", "id", item.restaurantID, "name", r.Name)
+	} else {
+		s.app.Logger().Error("Error scraping restaurant", "id", item.restaurantID, "name", r.Name, "error", scrapeErr)
 	}
-
-	s.markScrapeDone(restaurantID)
-	status, detail := restaurant.LastCheckFromError(scrapeErr)
-	if err := restaurant.UpdateLastCheck(s.app, restaurantID, status, detail); err != nil {
-		s.app.Logger().Error("Failed to save last_check for restaurant", "id", restaurantID, "error", err)
-	}
-	s.notifyRestaurantStatus(restaurantID)
+	s.finishScrape(item, r, scrapeErr)
 }
 
-func (s *Scraper) dequeueScrapeID() (string, bool) {
+func (s *Scraper) finishScrape(item queueItem, r *restaurant.Restaurant, scrapeErr error) {
+	s.markScrapeDone(item.restaurantID)
+	status, detail := restaurant.LastCheckFromError(scrapeErr)
+	if err := restaurant.UpdateLastCheck(s.app, item.restaurantID, status, detail); err != nil {
+		s.app.Logger().Error("Failed to save last_check for restaurant", "id", item.restaurantID, "error", err)
+	}
+	s.notifyRestaurantStatus(item.restaurantID)
+
+	if item.onDone != nil {
+		item.onDone(scrapeErr, r)
+	}
+}
+
+func (s *Scraper) dequeueScrape() (queueItem, bool) {
 	s.queueMu.Lock()
 	defer s.queueMu.Unlock()
 
@@ -170,15 +210,15 @@ func (s *Scraper) dequeueScrapeID() (string, bool) {
 	}
 
 	if len(s.scrapeQueue) == 0 && s.queueClosed {
-		return "", false
+		return queueItem{}, false
 	}
 
-	restaurantID := s.scrapeQueue[0]
+	item := s.scrapeQueue[0]
 	s.scrapeQueue = s.scrapeQueue[1:]
-	delete(s.queued, restaurantID)
-	s.inFlight[restaurantID] = struct{}{}
-	s.lastRunAt[restaurantID] = time.Now()
-	return restaurantID, true
+	delete(s.queued, item.restaurantID)
+	s.inFlight[item.restaurantID] = struct{}{}
+	s.lastRunAt[item.restaurantID] = time.Now()
+	return item, true
 }
 
 func (s *Scraper) markScrapeDone(restaurantID string) {
@@ -249,8 +289,13 @@ func (s *Scraper) getRestaurantByID(restaurantID string) (*restaurant.Restaurant
 	return restaurant.GetRestaurant(s.app, restaurantID)
 }
 
-func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
+func (s *Scraper) scrapeSingle(item queueItem, r *restaurant.Restaurant) error {
 	var err error
+
+	if item.telegramFilePath != "" {
+		s.app.Logger().Debug("Storing Telegram upload as menu", "id", r.ID, "name", r.Name, "path", item.telegramFilePath)
+		return r.UpdateMenu(item.telegramFilePath, s.app)
+	}
 
 	initialDownloadPath := filepath.Join(restaurant.DownloadsFolder, fmt.Sprintf("%d_%s", time.Now().Unix(), r.ID))
 	downloadPath := initialDownloadPath
@@ -264,17 +309,17 @@ func (s *Scraper) scrapeSingle(r *restaurant.Restaurant) error {
 	s.app.Logger().Debug("Starting scrape", "id", r.ID, "name", r.Name, "method", r.Method)
 
 	switch r.Method {
-	case "scrape":
+	case restaurant.MethodScrape:
 		downloadPath, err = r.Scrape(downloadPath, s.web, s.app.Logger())
 		if err != nil {
 			return err
 		}
-	case "download":
+	case restaurant.MethodDownload:
 		downloadPath, err = r.Download(downloadPath, s.app.Logger())
 		if err != nil {
 			return err
 		}
-	case "upload":
+	case restaurant.MethodUpload:
 		return fmt.Errorf("%w: %s", restaurant.ErrManualUploadOnly, r.Name)
 	default:
 		return fmt.Errorf("unknown scraping method %q for restaurant %s", r.Method, r.Name)

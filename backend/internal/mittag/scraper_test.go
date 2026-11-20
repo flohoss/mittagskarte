@@ -1,16 +1,24 @@
 package mittag
 
 import (
+	"bytes"
 	"encoding/json"
+	"image"
+	"image/png"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"ganigeorgiev.com/pocketbase/dbx"
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
 	"ganigeorgiev.com/pocketbase/pocketbase/tests"
+	"ganigeorgiev.com/pocketbase/pocketbase/tools/filesystem"
 	"ganigeorgiev.com/pocketbase/pocketbase/tools/types"
 
 	"github.com/flohoss/mittagskarte/internal/restaurant"
 	_ "github.com/flohoss/mittagskarte/migrations"
+	"github.com/flohoss/mittagskarte/pkg/checksum"
 )
 
 func newTestScraper(t *testing.T, coolDown time.Duration) (*tests.TestApp, *Scraper) {
@@ -20,6 +28,29 @@ func newTestScraper(t *testing.T, coolDown time.Duration) (*tests.TestApp, *Scra
 	scraper := NewScraper(app, nil, coolDown)
 	t.Cleanup(scraper.Close)
 	return app, scraper
+}
+
+func bindTelegramMenuStubs(t *testing.T, app *tests.TestApp) {
+	t.Helper()
+
+	app.OnRecordCreate("menus").BindFunc(func(e *core.RecordEvent) error {
+		f, ok := e.Record.Get("file").(*filesystem.File)
+		if !ok || f == nil {
+			return e.Next()
+		}
+		rc, err := f.Reader.Open()
+		if err != nil {
+			return e.Next()
+		}
+		defer rc.Close()
+
+		hash, err := checksum.Reader(rc)
+		if err != nil {
+			return e.Next()
+		}
+		e.Record.Set("hash", hash)
+		return e.Next()
+	})
 }
 
 func createUploadRestaurant(t *testing.T, app core.App, slug string) *restaurant.Restaurant {
@@ -33,7 +64,7 @@ func createUploadRestaurant(t *testing.T, app core.App, slug string) *restaurant
 	record := core.NewRecord(collection)
 	record.Set("name", "Gasthaus "+slug)
 	record.Set("slug", slug)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodUpload)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	if err := app.Save(record); err != nil {
@@ -152,7 +183,7 @@ func TestScraperRecoversFromScrapePanic(t *testing.T) {
 	t.Parallel()
 
 	app, scraper := newTestScraper(t, time.Minute)
-	panicking := createRestaurantWithMethod(t, app, "panic-restaurant", "scrape")
+	panicking := createRestaurantWithMethod(t, app, "panic-restaurant", restaurant.MethodScrape)
 	survivor := createUploadRestaurant(t, app, "survivor")
 
 	scraper.Enqueue([]*restaurant.Restaurant{panicking})
@@ -180,4 +211,88 @@ func createRestaurantWithMethod(t *testing.T, app core.App, slug, method string)
 		t.Fatalf("failed to save restaurant record: %v", err)
 	}
 	return restaurant.New(record)
+}
+
+func TestScraperTelegramUploadStoresMenu(t *testing.T) {
+	t.Parallel()
+
+	app, scraper := newTestScraper(t, time.Minute)
+	bindTelegramMenuStubs(t, app)
+	r := createUploadRestaurant(t, app, "telegram-upload")
+
+	filePath := filepath.Join(restaurant.DownloadsFolder, "telegram_test.jpg")
+	if err := os.WriteFile(filePath, createTestImage(t), 0o644); err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	done := make(chan error, 1)
+	scraper.EnqueueTelegramUpload(r, filePath, func(err error, updated *restaurant.Restaurant) {
+		done <- err
+	})
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatalf("unexpected upload error: %v", err)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("timed out waiting for telegram upload")
+	}
+
+	waitForStatus(t, scraper, r.ID, ScrapeStatusCoolDown)
+
+	menus, err := app.FindRecordsByFilter("menus", "restaurant = {:id}", "-created", 1, 0, dbx.Params{"id": r.ID})
+	if err != nil {
+		t.Fatalf("failed to query menus: %v", err)
+	}
+	if len(menus) != 1 {
+		t.Fatalf("expected 1 menu, got %d", len(menus))
+	}
+
+	reloaded, err := app.FindRecordById("restaurants", r.ID)
+	if err != nil {
+		t.Fatalf("failed to reload restaurant: %v", err)
+	}
+	checkLastCheckStatus(t, reloaded, restaurant.LastCheckStatusSuccess)
+}
+
+func TestScraperTelegramUploadRespectsCooldown(t *testing.T) {
+	t.Parallel()
+
+	app, scraper := newTestScraper(t, time.Minute)
+	bindTelegramMenuStubs(t, app)
+	r := createUploadRestaurant(t, app, "telegram-cooldown")
+
+	filePath := filepath.Join(restaurant.DownloadsFolder, "telegram_cooldown.jpg")
+	if err := os.WriteFile(filePath, createTestImage(t), 0o644); err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	called := make(chan struct{}, 2)
+	scraper.EnqueueTelegramUpload(r, filePath, func(error, *restaurant.Restaurant) { called <- struct{}{} })
+	waitForStatus(t, scraper, r.ID, ScrapeStatusCoolDown)
+	select {
+	case <-called:
+	case <-time.After(10 * time.Second):
+		t.Fatal("timed out waiting for first upload callback")
+	}
+
+	scraper.EnqueueTelegramUpload(r, filePath, func(error, *restaurant.Restaurant) { called <- struct{}{} })
+	time.Sleep(50 * time.Millisecond)
+	select {
+	case <-called:
+		t.Fatal("expected cooldown to suppress second upload")
+	default:
+	}
+}
+
+func createTestImage(t *testing.T) []byte {
+	t.Helper()
+
+	img := image.NewRGBA(image.Rect(0, 0, 8, 8))
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		t.Fatalf("failed to encode test image: %v", err)
+	}
+	return buf.Bytes()
 }
