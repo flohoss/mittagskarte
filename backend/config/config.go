@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 	"time"
 
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
@@ -27,6 +28,10 @@ type Config struct {
 	SuperuserEmail    string        `env:"SUPERUSER_EMAIL,unset"`
 	SuperuserPassword string        `env:"SUPERUSER_PASSWORD,unset"`
 	SnapOtterURL      url.URL       `env:"SNAPOTTER_URL,notEmpty" envDefault:"http://snapotter:1349"`
+
+	TelegramBotToken   string `env:"TELEGRAM_BOT_TOKEN,unset"`
+	TelegramSecret     string `env:"TELEGRAM_SECRET,unset"`
+	TelegramWebhookURL string `env:"TELEGRAM_WEBHOOK_URL,unset"`
 }
 
 func parseURL(v string) (any, error) {
@@ -52,7 +57,45 @@ func Load() (*Config, error) {
 	if err := cfg.ValidateSMTP(); err != nil {
 		return nil, err
 	}
+	if err := cfg.ValidateTelegram(); err != nil {
+		return nil, err
+	}
 	return &cfg, nil
+}
+
+func (c *Config) TelegramEnabled() bool {
+	return c.TelegramBotToken != ""
+}
+
+func (c *Config) ValidateTelegram() error {
+	if c.TelegramBotToken == "" {
+		strays := []string{}
+		if c.TelegramSecret != "" {
+			strays = append(strays, "TELEGRAM_SECRET")
+		}
+		if c.TelegramWebhookURL != "" {
+			strays = append(strays, "TELEGRAM_WEBHOOK_URL")
+		}
+		if len(strays) > 0 {
+			return fmt.Errorf("%s set without TELEGRAM_BOT_TOKEN (telegram is disabled)", strings.Join(strays, ", "))
+		}
+		return nil
+	}
+
+	if !c.Dev && c.TelegramSecret == "" {
+		return fmt.Errorf("TELEGRAM_SECRET must be set in production (it secures the webhook route)")
+	}
+	if c.Dev {
+		return nil
+	}
+	if c.TelegramWebhookURL == "" {
+		return fmt.Errorf("TELEGRAM_WEBHOOK_URL must be set in production (webhook transport; unused in dev where polling is used)")
+	}
+	u, err := url.Parse(c.TelegramWebhookURL)
+	if err != nil || u.Scheme != "https" || u.Host == "" {
+		return fmt.Errorf("TELEGRAM_WEBHOOK_URL must be a valid https URL, got %q", c.TelegramWebhookURL)
+	}
+	return nil
 }
 
 func (c *Config) ValidateSMTP() error {
