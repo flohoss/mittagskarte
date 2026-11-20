@@ -49,7 +49,7 @@ watch(
 </script>
 
 <template>
-  <AppShell title="Schniddzl.de" description="deine Mittagskarte für die Region Stuttgart">
+  <AppShell title="Schniddzl.de" description="deine Mittagskarte">
     <div class="app-stage">
       <div class="app-content" :class="{ 'app-content--ready': !isLoading }" :aria-busy="isLoading">
         <RestaurantsEmpty v-if="!isLoading && !hasRestaurants" />
