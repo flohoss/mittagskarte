@@ -4,14 +4,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"html/template"
+	"io/fs"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"ganigeorgiev.com/pocketbase/pocketbase/apis"
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase/tools/router"
 
 	"github.com/flohoss/mittagskarte/internal/restaurant"
 )
@@ -59,21 +60,14 @@ func ServeFrontend(app core.App, se *core.ServeEvent, email string, dev bool) er
 		return err
 	}
 
+	distFS := os.DirFS(frontendDist)
+	assets := apis.Static(distFS, false)
+
 	servePath := func(re *core.RequestEvent) error {
 		requestPath := strings.TrimPrefix(re.Request.URL.Path, "/")
-		if requestPath != "" {
-			filePath := filepath.Join(frontendDist, filepath.Clean(requestPath))
-			abs, err := filepath.Abs(filePath)
-			if err != nil {
-				return re.NotFoundError("not found", nil)
-			}
-			rel, err := filepath.Rel(frontendDist, abs)
-			if err != nil || strings.HasPrefix(rel, "..") || rel == ".." {
-				return re.NotFoundError("not found", nil)
-			}
-			if info, err := os.Stat(abs); err == nil && !info.IsDir() {
-				http.ServeFile(re.Response, re.Request, abs)
-				return nil
+		if requestPath != "" && requestPath != router.IndexPage {
+			if info, statErr := fs.Stat(distFS, filepath.ToSlash(filepath.Clean(requestPath))); statErr == nil && !info.IsDir() {
+				return assets(re)
 			}
 			if filepath.Ext(requestPath) != "" {
 				return re.NotFoundError("not found", nil)

@@ -84,9 +84,11 @@ func (m *Mittag) initCron() error {
 			names[i] = r.Name
 		}
 		m.logger.Debug("Adding cron for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","))
-		m.app.Cron().MustAdd(cron, cron, func() {
+		if err := m.app.Cron().Add(cron, cron, func() {
 			m.enqueueScheduled(restaurants)
-		})
+		}); err != nil {
+			m.logger.Error("Failed to register cron job for restaurant group", "cron", cron, "restaurants", strings.Join(names, ","), "error", err)
+		}
 	}
 
 	return nil

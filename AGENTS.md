@@ -35,6 +35,7 @@ Read before making changes. Rule-oriented and self-contained.
 - `publicRule()` → `""` (public read). `authRule()` → `@request.auth.id != ""` (authed).
 - Expose minimum rules. Server-side-only collections: leave Create/Update/Delete as `nil`.
 - `@request.auth.isAdmin` is invalid. Use `nil` for superuser-only.
+- `users.CreateRule` is `nil` (superuser-only) so there is no self signup; superusers create accounts.
 
 ### Dev vs prod
 

@@ -27,12 +27,24 @@ func SyncSuperuser(app core.App, cfg *config.Config) error {
 	if cfg.SuperuserEmail == "" || cfg.SuperuserPassword == "" {
 		return nil
 	}
+
 	record, err := app.FindAuthRecordByEmail(superusers, cfg.SuperuserEmail)
 	if err != nil {
 		record = core.NewRecord(superusers)
 		record.SetEmail(cfg.SuperuserEmail)
+		record.SetPassword(cfg.SuperuserPassword)
+		return app.Save(record)
 	}
-	record.SetPassword(cfg.SuperuserPassword)
+
+	return updateSuperuserPasswordIfChanged(app, record, cfg.SuperuserPassword)
+}
+
+func updateSuperuserPasswordIfChanged(app core.App, record *core.Record, password string) error {
+	if record.ValidatePassword(password) {
+		return nil
+	}
+
+	record.SetPassword(password)
 	return app.Save(record)
 }
 
@@ -78,12 +90,13 @@ func SyncSettings(app core.App, cfg *config.Config) error {
 
 func RegisterRoutes(app core.App, se *core.ServeEvent, cfg *config.Config) error {
 	if !cfg.Dev {
+		gzip := apis.Gzip()
 		se.Router.BindFunc(func(e *core.RequestEvent) error {
 			path := e.Request.URL.Path
-			if strings.HasPrefix(path, "/_/") {
+			if strings.HasPrefix(path, "/_/") || strings.HasPrefix(path, "/api/realtime") {
 				return e.Next()
 			}
-			return apis.Gzip().Func(e)
+			return gzip.Func(e)
 		})
 	}
 

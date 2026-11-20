@@ -134,6 +134,38 @@ func TestSyncSuperuserCreatesAndUpdatesPassword(t *testing.T) {
 	}
 }
 
+func TestSyncSuperuserKeepsTokenKeyForUnchangedPassword(t *testing.T) {
+	t.Parallel()
+
+	app := newSyncTestApp(t)
+
+	cfg := testConfig(t, true)
+	cfg.SuperuserEmail = "bootstrap@example.com"
+	cfg.SuperuserPassword = "stable-password"
+
+	if err := api.SyncSuperuser(app, cfg); err != nil {
+		t.Fatalf("SyncSuperuser returned error on create: %v", err)
+	}
+
+	record, err := app.FindAuthRecordByEmail(core.CollectionNameSuperusers, cfg.SuperuserEmail)
+	if err != nil {
+		t.Fatalf("failed to find created superuser: %v", err)
+	}
+	originalTokenKey := record.TokenKey()
+
+	if err := api.SyncSuperuser(app, cfg); err != nil {
+		t.Fatalf("SyncSuperuser returned error on reseed: %v", err)
+	}
+
+	reloaded, err := app.FindAuthRecordByEmail(core.CollectionNameSuperusers, cfg.SuperuserEmail)
+	if err != nil {
+		t.Fatalf("failed to reload superuser: %v", err)
+	}
+	if reloaded.TokenKey() != originalTokenKey {
+		t.Fatal("expected the token key to stay stable so active sessions survive restarts")
+	}
+}
+
 func TestSyncSettingsInDev(t *testing.T) {
 	t.Parallel()
 
