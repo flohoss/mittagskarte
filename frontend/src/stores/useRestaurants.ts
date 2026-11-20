@@ -38,6 +38,13 @@ export const restaurantGroupingOptions: Array<{ value: RestaurantGrouping; label
   { value: 'favorites', label: 'Nur Favoriten' },
 ];
 
+export const RestaurantEmptyReason = {
+  NO_FAVORITES: 'no-favorites',
+  SEARCH: 'search',
+  NO_DATA: 'no-data',
+} as const;
+export type RestaurantEmptyReason = (typeof RestaurantEmptyReason)[keyof typeof RestaurantEmptyReason];
+
 declare global {
   interface Window {
     __RESTAURANTS__?: RestaurantRecord[] | undefined;
@@ -434,6 +441,27 @@ export const useRestaurants = createGlobalState(() => {
     return groups;
   });
 
+  const hasVisibleRestaurants = computed(() => {
+    for (const group of Object.values(groupedRestaurants.value)) {
+      if (group.length) return true;
+    }
+    return false;
+  });
+
+  const emptyViewReason = computed<RestaurantEmptyReason | null>(() => {
+    if (hasVisibleRestaurants.value) return null;
+
+    if (groupBy.value === 'favorites' && filteredRestaurants.value.length > 0) {
+      return RestaurantEmptyReason.NO_FAVORITES;
+    }
+
+    if (searchQuery.value.trim()) {
+      return RestaurantEmptyReason.SEARCH;
+    }
+
+    return RestaurantEmptyReason.NO_DATA;
+  });
+
   function applySearch(query: string) {
     searchQuery.value = query;
   }
@@ -445,6 +473,8 @@ export const useRestaurants = createGlobalState(() => {
     groupBy,
     groupedRestaurants,
     filteredRestaurants,
+    hasVisibleRestaurants,
+    emptyViewReason,
     restaurantSortOptions,
     restaurantGroupingOptions,
     initialize,
