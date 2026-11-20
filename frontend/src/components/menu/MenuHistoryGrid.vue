@@ -4,7 +4,7 @@ import type { MenuRecord } from '../../models/restaurant';
 import { backendClient } from '../../services/backendClient';
 
 const props = defineProps<{
-  menus: MenuRecord[];
+  menus: readonly MenuRecord[];
 }>();
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
@@ -35,7 +35,7 @@ function formatDate(value: string) {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+  <div class="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
     <a
       v-for="menu in props.menus"
       :key="menu.id"

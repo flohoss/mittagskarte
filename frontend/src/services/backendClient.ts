@@ -1,7 +1,7 @@
 import PocketBase from 'pocketbase';
 import type { RecordModel } from 'pocketbase';
 import type { MenuRecord, RestaurantRecord, RestaurantStatusEvent } from '../models/restaurant';
-import { sortMenusByCreatedDesc } from '../utils/menu';
+import { normalizeMenuRecord, sortMenusByCreatedDesc } from '../utils/menu';
 import { BackendURL } from '../config';
 
 const client = new PocketBase(BackendURL);
@@ -15,19 +15,8 @@ type AuthChangeHandler = (token: string) => void;
 type RestaurantInput = Partial<RestaurantRecord>;
 type RestaurantSubscriptionEvent = { action: string; record: RestaurantRecord };
 
-function normalizeMenu(menu: Partial<MenuRecord> | null | undefined): MenuRecord {
-  return {
-    ...(menu as MenuRecord),
-    id: String(menu?.id ?? ''),
-    file: String(menu?.file ?? ''),
-    preview: String(menu?.preview ?? ''),
-    hash: String(menu?.hash ?? ''),
-    created: String(menu?.created ?? ''),
-  };
-}
-
 function normalizeRestaurant(record: RestaurantInput): RestaurantRecord {
-  const menus = sortMenusByCreatedDesc((record.expand?.menus ?? []).map((menu) => normalizeMenu(menu)));
+  const menus = sortMenusByCreatedDesc((record.expand?.menus ?? []).map((menu) => normalizeMenuRecord(menu)));
 
   return {
     ...(record as RestaurantRecord),
@@ -123,7 +112,7 @@ async function fetchRestaurants() {
   return client.collection('restaurants').getFullList<RestaurantRecord>(RESTAURANT_LIST_OPTIONS);
 }
 
-type Unsubscribe = () => void;
+export type Unsubscribe = () => void;
 
 async function subscribeRestaurantStatus(handler: (event: RestaurantStatusEvent) => void): Promise<Unsubscribe> {
   return client.realtime.subscribe('restaurants/status', (event: RestaurantStatusEvent) => {

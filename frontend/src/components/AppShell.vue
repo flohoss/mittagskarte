@@ -4,6 +4,7 @@ import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import LoginModal from './LoginModal.vue';
 import RestaurantSearchControls from './RestaurantSearchControls.vue';
+import NavbarRestaurantIdentity from './NavbarRestaurantIdentity.vue';
 
 import { AppVersion, BackendURL, RepoURL } from '../config';
 
@@ -60,10 +61,12 @@ whenever(
     <header class="navbar bg-base-200 shadow-sm">
       <div class="container py-2">
         <template v-if="isMenuHistoryRoute">
-          <button class="btn btn-soft" aria-label="Zur Startseite zurück" @click="router.back()">
-            <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
-            Zurück
-          </button>
+          <div class="flex w-full min-w-0 items-center gap-2">
+            <button class="btn btn-soft btn-square shrink-0" aria-label="Zur Startseite zurück" @click="router.back()">
+              <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
+            </button>
+            <NavbarRestaurantIdentity class="min-w-0 flex-1" />
+          </div>
         </template>
 
         <template v-else>

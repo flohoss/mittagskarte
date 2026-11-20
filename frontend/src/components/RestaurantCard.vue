@@ -4,100 +4,32 @@ import RestaurantActions from './RestaurantActions.vue';
 import { useFavorites } from '../stores/useFavorites';
 import type { RestaurantRecord } from '../models/restaurant';
 import { useRestaurants } from '../stores/useRestaurants';
-import { useNow } from '../composables/useNow';
-import { getLatestMenu } from '../utils/menu';
-import { formatRelativePastLabel } from '../utils/date';
-import { getMenuFreshnessMeta } from '../utils/menuFreshness';
-import { isOnHoliday as checkIsOnHoliday, formatHolidayLabel } from '../utils/holiday';
 import { getRegionBadgeColors } from '../utils/regionColor';
 import { usePrefersDark } from '../composables/usePrefersDark';
+import { useRestaurantMeta } from '../composables/useRestaurantMeta';
 
 const props = defineProps<{
   restaurant: RestaurantRecord;
   showRegion?: boolean;
 }>();
 
-const { getFileUrl, applySearch, getRestaurantDistanceKm, sortBy, coords } = useRestaurants();
-const { isFavorite, toggleFavorite } = useFavorites();
+const { applySearch } = useRestaurants();
+const { toggleFavorite } = useFavorites();
 const prefersDark = usePrefersDark();
 const regionBadgeColors = computed(() => getRegionBadgeColors(props.restaurant.group || '', prefersDark.value));
-
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-const nowMs = useNow(30_000);
-const currentWeekday = computed(() => WEEKDAYS[new Date(nowMs.value).getDay()]);
-const isClosed = computed(() => props.restaurant.rest_days.includes(currentWeekday.value));
-const isOnHoliday = computed(() => checkIsOnHoliday(props.restaurant.holiday_until, nowMs.value));
-const holidayLabel = computed(() => {
-  if (!isOnHoliday.value) return '';
-  return formatHolidayLabel(props.restaurant.holiday_until);
-});
-const isFavorited = computed(() => isFavorite(props.restaurant.id));
-const thumbnailUrl = computed(() => getFileUrl(props.restaurant));
-const latestMenuCreated = computed(() => {
-  return getLatestMenu(props.restaurant.expand?.menus)?.created ?? null;
-});
-const lastCheck = computed(() => {
-  return props.restaurant.last_check ?? null;
-});
-const menuFreshness = computed(() => {
-  if (!latestMenuCreated.value) return null;
-  return getMenuFreshnessMeta({
-    menuDate: latestMenuCreated.value,
-    cron: props.restaurant.cron,
-    lastCheck: lastCheck.value,
-    now: nowMs.value,
-  });
-});
-const isManualUpload = computed(() => props.restaurant.method === 'upload');
-const lastCheckText = computed(() => {
-  if (isManualUpload.value) {
-    if (!latestMenuCreated.value) return '';
-    return `${formatRelativePastLabel(latestMenuCreated.value, nowMs.value)} zuletzt aktualisiert`;
-  }
-  if (!lastCheck.value) return '';
-  return `${formatRelativePastLabel(lastCheck.value.at, nowMs.value)} zuletzt versucht`;
-});
-const distanceKm = computed(() => getRestaurantDistanceKm(props.restaurant));
-const showDistance = computed(() => sortBy.value === 'distance-asc' && coords.value && distanceKm.value !== null);
-const distanceLabel = computed(() => {
-  if (distanceKm.value === null) return '';
-
-  if (distanceKm.value < 1) {
-    return `~${Math.round(distanceKm.value * 1000)} m`;
-  }
-
-  if (distanceKm.value < 10) {
-    return `~${distanceKm.value.toFixed(1)} km`;
-  }
-
-  return `~${Math.round(distanceKm.value)} km`;
-});
-const lastCheckTitle = computed(() => {
-  if (isManualUpload.value) {
-    return latestMenuCreated.value ? 'Zuletzt manuell aktualisiert' : '';
-  }
-  if (!lastCheck.value) return '';
-  if (lastCheck.value.status === 'success') {
-    return 'Erfolgreich aktualisiert';
-  }
-  if (lastCheck.value.status === 'not_changed') {
-    return 'Keine Änderung gefunden';
-  }
-  if (lastCheck.value.status === 'error') {
-    return `Fehler${lastCheck.value.detail ? `: ${lastCheck.value.detail}` : ''}`;
-  }
-  return '';
-});
-
-function getInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('');
-}
+const meta = useRestaurantMeta(() => props.restaurant);
+const thumbnailUrl = meta.thumbnailUrl;
+const isDimmed = meta.isDimmed;
+const initials = meta.initials;
+const isOnHoliday = meta.isOnHoliday;
+const holidayLabel = meta.holidayLabel;
+const isClosed = meta.isClosed;
+const menuFreshness = meta.menuFreshness;
+const showDistance = meta.showDistance;
+const distanceLabel = meta.distanceLabel;
+const isFavorited = meta.isFavorited;
+const lastCheckText = meta.lastCheckText;
+const lastCheckTitle = meta.lastCheckTitle;
 </script>
 
 <template>
@@ -109,17 +41,14 @@ function getInitials(name: string) {
         v-if="thumbnailUrl"
         :src="thumbnailUrl"
         :alt="props.restaurant.name"
-        :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isClosed || isOnHoliday ? 'opacity-40 grayscale' : '']"
+        :class="['h-full w-full object-cover transition-transform duration-500 group-hover:scale-105', isDimmed ? 'opacity-40 grayscale' : '']"
         loading="lazy"
       />
       <div
         v-else
-        :class="[
-          'flex h-full w-full items-center justify-center text-2xl font-semibold',
-          isClosed || isOnHoliday ? 'opacity-40 grayscale' : 'text-base-content/70',
-        ]"
+        :class="['flex h-full w-full items-center justify-center text-2xl font-semibold', isDimmed ? 'opacity-40 grayscale' : 'text-base-content/70']"
       >
-        {{ getInitials(props.restaurant.name) }}
+        {{ initials }}
       </div>
 
       <div class="absolute inset-x-0 top-0 flex items-start justify-between px-3 pt-3">
@@ -168,7 +97,6 @@ function getInitials(name: string) {
         </div>
       </div>
     </figure>
-
     <div class="card-body gap-3 p-3">
       <div>
         <h3 class="text-base font-semibold leading-tight">

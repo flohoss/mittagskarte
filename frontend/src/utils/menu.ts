@@ -5,8 +5,24 @@ export type MenuDimensions = {
   height: number | null;
 };
 
+export function normalizeMenuRecord(menu: Partial<MenuRecord> | null | undefined): MenuRecord {
+  return {
+    ...(menu as MenuRecord),
+    id: String(menu?.id ?? ''),
+    file: String(menu?.file ?? ''),
+    preview: String(menu?.preview ?? ''),
+    hash: String(menu?.hash ?? ''),
+    created: String(menu?.created ?? ''),
+  };
+}
+
+function toMenuCreatedTimestamp(menus: MenuRecord) {
+  const timestamp = new Date(menus.created).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
 export function sortMenusByCreatedDesc(menus: MenuRecord[] = []) {
-  return [...menus].sort((a, b) => (a.created > b.created ? -1 : 1));
+  return [...menus].sort((a, b) => toMenuCreatedTimestamp(b) - toMenuCreatedTimestamp(a));
 }
 
 export function getLatestMenu(menus: MenuRecord[] | null | undefined) {

@@ -12,7 +12,6 @@ export interface MenuRecord extends RecordModel {
     landscape?: boolean;
   } | null;
 }
-
 export interface RestaurantRecord extends RecordModel {
   id: string;
   name: string;
