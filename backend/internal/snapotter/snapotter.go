@@ -20,6 +20,8 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
+const previewSettings = `{"format":"webp","quality":75,"maxWidth":480}`
+
 type Result struct {
 	Data   []byte
 	Name   string
@@ -194,7 +196,7 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	pipeline, _ := json.Marshal(map[string]any{
 		"steps": []map[string]any{
 			{"toolId": "smart-crop", "settings": map[string]any{"mode": "trim", "threshold": 10}},
-			{"toolId": "optimize-for-web", "settings": map[string]any{"format": "webp", "quality": 85, "maxWidth": 1920}},
+			{"toolId": "optimize-for-web", "settings": map[string]any{"format": "webp", "quality": 85, "maxWidth": 1200}},
 		},
 	})
 
@@ -222,6 +224,32 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	}
 
 	return c.downloadJob(ctx, jobId, downloadUrl)
+}
+
+func (c *Client) ImageToWebpPreview(ctx context.Context, source io.Reader, name string, size int64) (Result, error) {
+	res, err := c.api.OptimizeForWebPreview(ctx, &api.OptimizeForWebPreviewReq{
+		File: ht.MultipartFile{
+			Name: name,
+			File: source,
+			Size: size,
+		},
+		Settings: api.NewOptString(previewSettings),
+	})
+	if err != nil {
+		return Result{}, fmt.Errorf("preview request: %w", err)
+	}
+
+	okResp, ok := res.(*api.OptimizeForWebPreviewOKHeaders)
+	if !ok {
+		return Result{}, fmt.Errorf("preview returned unexpected response: %T", res)
+	}
+
+	data, err := io.ReadAll(okResp.Response.Data)
+	if err != nil {
+		return Result{}, fmt.Errorf("read preview response: %w", err)
+	}
+
+	return newResult(data, "preview.webp")
 }
 
 func (c *Client) PDFToPngPages(ctx context.Context, inputPath, outputDir string, dpi int) ([]string, error) {

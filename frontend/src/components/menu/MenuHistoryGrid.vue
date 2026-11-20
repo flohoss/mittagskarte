@@ -13,9 +13,10 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', {
 });
 
 const menuUrlsById = computed(() => {
-  const lookup = new Map<string, string>();
+  const lookup = new Map<string, { previewUrl: string; fullUrl: string }>();
   props.menus.forEach((menu) => {
-    lookup.set(menu.id, backendClient.getMenuFileUrl(menu));
+    const fullUrl = backendClient.getMenuFileUrl(menu);
+    lookup.set(menu.id, { previewUrl: backendClient.getMenuPreviewUrl(menu) ?? fullUrl, fullUrl });
   });
   return lookup;
 });
@@ -38,14 +39,14 @@ function formatDate(value: string) {
     <a
       v-for="menu in props.menus"
       :key="menu.id"
-      :href="menuUrlsById.get(menu.id)"
+      :href="menuUrlsById.get(menu.id)?.fullUrl"
       target="_blank"
       rel="noreferrer"
       :class="['card group block overflow-hidden', landscapeLayout ? 'lg:col-span-2' : 'lg:col-span-1']"
     >
       <div :class="['relative w-full overflow-hidden bg-base-200', landscapeLayout ? 'aspect-4/3' : 'aspect-3/4']">
         <img
-          :src="menuUrlsById.get(menu.id)"
+          :src="menuUrlsById.get(menu.id)?.previewUrl"
           :alt="`Speisekarte vom ${formatDate(menu.created)}`"
           loading="lazy"
           decoding="async"

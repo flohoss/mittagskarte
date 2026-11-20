@@ -1,6 +1,7 @@
 package mittag
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -58,12 +59,81 @@ func (m *Mittag) Start() error {
 		return nil
 	}
 
+	m.backfillMenuPreviews()
+
 	if err := m.initCron(); err != nil {
 		return err
 	}
 
 	m.started = true
 	return nil
+}
+
+func (m *Mittag) backfillMenuPreviews() {
+	menusCollection, err := m.app.FindCachedCollectionByNameOrId("menus")
+	if err != nil {
+		m.logger.Error("Failed to find menus collection for preview backfill", "error", err)
+		return
+	}
+
+	if menusCollection.Fields.GetByName("preview") == nil {
+		return
+	}
+
+	pending, err := m.app.FindRecordsByFilter("menus", "file != '' && preview = ''", "", 0, 0)
+	if err != nil {
+		m.logger.Error("Failed to query menus for preview backfill", "error", err)
+		return
+	}
+
+	if len(pending) == 0 {
+		return
+	}
+
+	m.logger.Info("Backfilling menu previews", "count", len(pending))
+
+	fsys, err := m.app.NewFilesystem()
+	if err != nil {
+		m.logger.Error("Failed to open filesystem for preview backfill", "error", err)
+		return
+	}
+	defer fsys.Close()
+
+	for _, menu := range pending {
+		if m.backfillMenuPreview(fsys, menu) {
+			m.logger.Info("Menu preview backfilled", "menuId", menu.Id)
+		}
+	}
+}
+
+func (m *Mittag) backfillMenuPreview(fsys *filesystem.System, menu *core.Record) bool {
+	fileKey := menu.BaseFilesPath() + "/" + menu.GetString("file")
+	reader, err := fsys.GetReader(fileKey)
+	if err != nil {
+		m.logger.Warn("Preview backfill could not read menu file", "menuId", menu.Id, "error", err)
+		return false
+	}
+	defer reader.Close()
+
+	preview, err := m.snapotter.ImageToWebpPreview(context.Background(), reader, menu.GetString("file"), reader.Size())
+	if err != nil {
+		m.logger.Warn("Preview backfill could not generate preview", "menuId", menu.Id, "error", err)
+		return false
+	}
+
+	previewFile, err := filesystem.NewFileFromBytes(preview.Data, "preview.webp")
+	if err != nil {
+		m.logger.Warn("Preview backfill could not wrap preview file", "menuId", menu.Id, "error", err)
+		return false
+	}
+
+	menu.Set("preview", previewFile)
+	if err := m.app.Save(menu); err != nil {
+		m.logger.Warn("Preview backfill could not save menu", "menuId", menu.Id, "error", err)
+		return false
+	}
+
+	return true
 }
 
 func (m *Mittag) Scraper() *Scraper {
@@ -180,6 +250,21 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 		Size:   int64(len(result.Data)),
 	}
 	e.Record.Set("file", processedFile)
+
+	if preview, err := m.snapotter.ImageToWebpPreview(
+		context.Background(),
+		bytes.NewReader(result.Data),
+		processedFile.Name,
+		int64(len(result.Data)),
+	); err != nil {
+		m.logger.Warn("Menu preview could not be generated, falling back to the full image", "restaurantId", restaurantID, "error", err)
+	} else {
+		e.Record.Set("preview", &filesystem.File{
+			Reader: &filesystem.BytesReader{Bytes: preview.Data},
+			Name:   "preview.webp",
+			Size:   int64(len(preview.Data)),
+		})
+	}
 
 	rc, err := processedFile.Reader.Open()
 	if err != nil {

@@ -20,6 +20,7 @@ function normalizeMenu(menu: Partial<MenuRecord> | null | undefined): MenuRecord
     ...(menu as MenuRecord),
     id: String(menu?.id ?? ''),
     file: String(menu?.file ?? ''),
+    preview: String(menu?.preview ?? ''),
     hash: String(menu?.hash ?? ''),
     created: String(menu?.created ?? ''),
   };
@@ -148,6 +149,16 @@ function getMenuFileUrl(menu: MenuRecord) {
   return buildFileUrl(menu, menu.file);
 }
 
+export type MenuPreviewSource = MenuRecord | undefined | null;
+
+function getMenuPreviewUrl(menu: MenuPreviewSource) {
+  if (!menu?.preview) {
+    return undefined;
+  }
+  const url = buildFileUrl(menu, String(menu.preview));
+  return url || undefined;
+}
+
 function normalizeFileUrl(url: string) {
   if (!url) return url;
   if (url.startsWith('/')) return url;
@@ -199,6 +210,7 @@ export const backendClient = {
   prepareRestaurants,
   getFileUrl,
   getMenuFileUrl,
+  getMenuPreviewUrl,
   uploadMenu,
   triggerScrape,
 };

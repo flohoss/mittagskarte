@@ -3,6 +3,7 @@ import type { RecordModel } from 'pocketbase';
 export interface MenuRecord extends RecordModel {
   id: string;
   file: string;
+  preview?: string;
   hash: string;
   created: string;
   dimensions?: {
