@@ -3,6 +3,8 @@ module github.com/flohoss/mittagskarte
 go 1.27.4
 
 require (
+	ganigeorgiev.com/pocketbase/dbx v1.13.0
+	ganigeorgiev.com/pocketbase/pocketbase v0.42.3
 	github.com/caarlos0/env/v11 v11.4.2
 	github.com/go-faster/errors v0.8.0
 	github.com/go-faster/jx v1.2.0
@@ -10,12 +12,12 @@ require (
 	github.com/gosimple/slug v1.15.0
 	github.com/mxschmitt/playwright-go v0.6401.0
 	github.com/ogen-go/ogen v1.25.0
-	github.com/pocketbase/dbx v1.12.0
-	github.com/pocketbase/pocketbase v0.40.6
 	golang.org/x/image v0.48.0
 )
 
 require (
+	ganigeorgiev.com/fexpr v0.7.0 // indirect
+	ganigeorgiev.com/pocketbase/ozzo-validation/v4 v4.4.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/deckarep/golang-set/v2 v2.9.0 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
@@ -25,7 +27,6 @@ require (
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
-	github.com/ganigeorgiev/fexpr v0.6.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
@@ -37,7 +38,6 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
-	github.com/pocketbase/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect

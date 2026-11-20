@@ -7,8 +7,8 @@ import (
 	"github.com/flohoss/mittagskarte/api"
 	_ "github.com/flohoss/mittagskarte/migrations"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase/tests"
 )
 
 func newSyncTestApp(t *testing.T) *tests.TestApp {

@@ -5,11 +5,12 @@ import (
 	"testing"
 	"time"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase/tests"
+	"ganigeorgiev.com/pocketbase/pocketbase/tools/types"
+
 	"github.com/flohoss/mittagskarte/internal/restaurant"
 	_ "github.com/flohoss/mittagskarte/migrations"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/types"
 )
 
 func newTestScraper(t *testing.T, coolDown time.Duration) (*tests.TestApp, *Scraper) {

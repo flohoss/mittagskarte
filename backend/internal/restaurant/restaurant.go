@@ -16,11 +16,11 @@ import (
 	"github.com/flohoss/mittagskarte/internal/web"
 	"github.com/flohoss/mittagskarte/pkg/curl"
 
+	"ganigeorgiev.com/pocketbase/dbx"
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase/tools/filesystem"
 	"github.com/gosimple/slug"
 	"github.com/mxschmitt/playwright-go"
-	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
 )
 
 const (

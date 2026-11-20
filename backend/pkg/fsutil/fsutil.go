@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pocketbase/pocketbase/tools/filesystem"
+	"ganigeorgiev.com/pocketbase/pocketbase/tools/filesystem"
 )
 
 func LocalPath(f *filesystem.File, dir string) (path string, cleanup func(), err error) {

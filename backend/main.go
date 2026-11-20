@@ -9,8 +9,8 @@ import (
 	"github.com/flohoss/mittagskarte/internal/mittag"
 	_ "github.com/flohoss/mittagskarte/migrations"
 
-	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase"
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
 )
 
 func main() {

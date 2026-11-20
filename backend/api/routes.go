@@ -5,10 +5,11 @@ import (
 	"reflect"
 	"strings"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/apis"
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+
 	"github.com/flohoss/mittagskarte/config"
 	"github.com/flohoss/mittagskarte/internal/sitemap"
-	"github.com/pocketbase/pocketbase/apis"
-	"github.com/pocketbase/pocketbase/core"
 )
 
 func SyncSuperuser(app core.App, cfg *config.Config) error {

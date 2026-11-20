@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
 	"github.com/caarlos0/env/v11"
-	"github.com/pocketbase/pocketbase/core"
 )
 
 type Config struct {

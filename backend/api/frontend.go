@@ -10,9 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/apis"
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+
 	"github.com/flohoss/mittagskarte/internal/restaurant"
-	"github.com/pocketbase/pocketbase/apis"
-	"github.com/pocketbase/pocketbase/core"
 )
 
 type frontendPageData struct {

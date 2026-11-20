@@ -3,9 +3,10 @@ package mittag
 import (
 	"testing"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"ganigeorgiev.com/pocketbase/pocketbase/tests"
+
 	_ "github.com/flohoss/mittagskarte/migrations"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
 )
 
 func newTestApp(t *testing.T) *tests.TestApp {

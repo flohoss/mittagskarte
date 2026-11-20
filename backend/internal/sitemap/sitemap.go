@@ -4,8 +4,9 @@ import (
 	"encoding/xml"
 	"fmt"
 
+	"ganigeorgiev.com/pocketbase/pocketbase/core"
+
 	"github.com/flohoss/mittagskarte/internal/restaurant"
-	"github.com/pocketbase/pocketbase/core"
 )
 
 type URLSet struct {
