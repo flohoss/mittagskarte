@@ -14,14 +14,17 @@ import (
 )
 
 const (
-	replyMenuUpdated   = "😀 Menü aktualisiert."
-	replyMenuUnchanged = "🥺 Das Menü hat sich nicht geändert – kein Update nötig."
-	replyMenuFailed    = "😢 Das Menü konnte nicht verarbeitet werden. Bitte später erneut versuchen."
-	replyUnsupported   = "🤕 Bitte sende mir ein Foto, ein Bild als Datei oder eine PDF-Datei mit der aktuellen Tageskarte."
-	replyCooldown      = "🥱 Die Karte wurde gerade erst aktualisiert. Bitte kurz warten und es erneut versuchen."
-	replyNotBound      = "🤬 Dieser Chat ist mit keinem Restaurant verknüpft. Bitte wende dich an den Betreiber."
-	replyPrivateOnly   = "😶‍🌫️ Bitte sende mir Nachrichten direkt in einem privaten Chat (keine Gruppe, kein Kanal)."
-	replyIDPrefix      = "🫣 Deine Chat-ID lautet: "
+	replyMenuUpdated    = "😋 Menü aktualisiert."
+	replyMenuUnchanged  = "🥺 Das Menü hat sich nicht geändert – kein Update nötig."
+	replyMenuFailed     = "😖 Das Menü konnte nicht verarbeitet werden. Bitte später erneut versuchen."
+	replyUnsupported    = "🫤 Bitte sende mir ein Foto, ein Bild als Datei oder eine PDF-Datei mit der aktuellen Tageskarte."
+	replyCooldown       = "🥱 Die Karte wurde gerade erst aktualisiert. Bitte kurz warten und es erneut versuchen."
+	replyNotBound       = "🤬 Dieser Chat ist mit keinem Restaurant verknüpft. Bitte wende dich an den Betreiber."
+	replyPrivateOnly    = "😶‍🌫️ Bitte sende mir Nachrichten direkt in einem privaten Chat (keine Gruppe, kein Kanal)."
+	replyIDPrefix       = "🫣 Deine Chat-ID lautet: "
+	replyPickRestaurant = "🤔 Für welches Restaurant ist die Karte?"
+	replyMediaExpired   = "🫥 Die Auswahl ist abgelaufen. Bitte sende die Karte erneut."
+	replyProcessingPick = "⏳ Karte wird verarbeitet …"
 )
 
 func sendReply(ctx context.Context, b *bot.Bot, chatID int64, messageID int, text string) {
