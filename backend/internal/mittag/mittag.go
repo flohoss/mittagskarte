@@ -66,6 +66,10 @@ func (m *Mittag) Start() error {
 	return nil
 }
 
+func (m *Mittag) Scraper() *Scraper {
+	return m.scraper
+}
+
 func (m *Mittag) Close() {
 	m.scraper.Close()
 }

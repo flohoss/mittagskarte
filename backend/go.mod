@@ -8,6 +8,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.2
 	github.com/go-faster/errors v0.8.0
 	github.com/go-faster/jx v1.2.0
+	github.com/go-telegram/bot v1.30.0
 	github.com/goodsign/monday v1.0.2
 	github.com/gosimple/slug v1.15.0
 	github.com/mxschmitt/playwright-go v0.6401.0
