@@ -7,6 +7,16 @@ import (
 	"time"
 )
 
+func mustParseURL(t *testing.T, raw string) url.URL {
+	t.Helper()
+
+	u, err := url.Parse(raw)
+	if err != nil {
+		t.Fatalf("failed to parse URL %q: %v", raw, err)
+	}
+	return *u
+}
+
 func TestParseURL(t *testing.T) {
 	t.Parallel()
 
@@ -162,6 +172,126 @@ func TestValidateSMTP(t *testing.T) {
 		err := c.ValidateSMTP()
 		if err == nil {
 			t.Fatal("expected error for missing password, got nil")
+		}
+	})
+}
+
+func TestValidateTelegram(t *testing.T) {
+	t.Parallel()
+
+	t.Run("unset disables the feature", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{}
+		if err := c.ValidateTelegram(); err != nil {
+			t.Fatalf("expected nil error, got %v", err)
+		}
+		if c.TelegramEnabled() {
+			t.Fatal("expected TelegramEnabled false")
+		}
+	})
+
+	t.Run("secret without token fails", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{TelegramSecret: "s"}
+		if err := c.ValidateTelegram(); err == nil {
+			t.Fatal("expected error for secret without token, got nil")
+		}
+	})
+
+	t.Run("token alone enables the feature in dev", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{Dev: true, TelegramBotToken: "t"}
+		if err := c.ValidateTelegram(); err != nil {
+			t.Fatalf("expected nil error, got %v", err)
+		}
+		if !c.TelegramEnabled() {
+			t.Fatal("expected TelegramEnabled true")
+		}
+	})
+
+	t.Run("dev does not require secret or https app URL", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			Dev:              true,
+			TelegramBotToken: "t",
+			TelegramSecret:   "s",
+			AppURL:           mustParseURL(t, "http://localhost:8090"),
+		}
+		if err := c.ValidateTelegram(); err != nil {
+			t.Fatalf("expected nil error, got %v", err)
+		}
+	})
+
+	t.Run("prod requires secret", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			Dev:              false,
+			TelegramBotToken: "t",
+			AppURL:           mustParseURL(t, "https://example.com"),
+		}
+		if err := c.ValidateTelegram(); err == nil {
+			t.Fatal("expected error for missing webhook secret in prod, got nil")
+		}
+	})
+
+	t.Run("prod requires https app URL", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			Dev:              false,
+			TelegramBotToken: "t",
+			TelegramSecret:   "s",
+			AppURL:           mustParseURL(t, "http://example.com"),
+		}
+		if err := c.ValidateTelegram(); err == nil {
+			t.Fatal("expected error for non-https app URL, got nil")
+		}
+	})
+
+	t.Run("prod accepts https app URL", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			Dev:              false,
+			TelegramBotToken: "t",
+			TelegramSecret:   "s",
+			AppURL:           mustParseURL(t, "https://example.com"),
+		}
+		if err := c.ValidateTelegram(); err != nil {
+			t.Fatalf("expected nil error, got %v", err)
+		}
+	})
+}
+
+func TestTelegramWebhookURL(t *testing.T) {
+	t.Parallel()
+
+	t.Run("derives from app URL and secret", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			TelegramSecret: "secret",
+			AppURL:         mustParseURL(t, "https://mittagskarte.example.com"),
+		}
+		if got, want := c.TelegramWebhookURL(), "https://mittagskarte.example.com/api/telegram/secret"; got != want {
+			t.Fatalf("unexpected webhook URL, got %q want %q", got, want)
+		}
+	})
+
+	t.Run("ignores path, query and fragment of app URL", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{
+			TelegramSecret: "abc",
+			AppURL:         mustParseURL(t, "https://example.com/base?foo=bar#frag"),
+		}
+		if got, want := c.TelegramWebhookURL(), "https://example.com/api/telegram/abc"; got != want {
+			t.Fatalf("unexpected webhook URL, got %q want %q", got, want)
 		}
 	})
 }
