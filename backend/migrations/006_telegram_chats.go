@@ -30,13 +30,12 @@ func init() {
 		chats.Fields.Add(&core.RelationField{
 			Name:          "restaurant",
 			CollectionId:  restaurants.Id,
-			MaxSelect:     1,
+			MaxSelect:     10,
 			CascadeDelete: true,
 			Required:      true,
 		})
 
 		chats.AddIndex("idx_telegram_chats_chat_id", true, "chat_id", "")
-		chats.AddIndex("idx_telegram_chats_restaurant", true, "restaurant", "")
 
 		if err := app.Save(chats); err != nil {
 			return err

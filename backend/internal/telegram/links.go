@@ -13,7 +13,7 @@ type chatLinks struct {
 	app core.App
 }
 
-func (c *chatLinks) restaurantForChat(chatID int64) (*restaurant.Restaurant, error) {
+func (c *chatLinks) bindingForChat(chatID int64) (*chatBinding, error) {
 	records, err := c.app.FindRecordsByFilter(
 		"telegram_chats",
 		"chat_id = {:chat_id}",
@@ -28,6 +28,35 @@ func (c *chatLinks) restaurantForChat(chatID int64) (*restaurant.Restaurant, err
 	if len(records) == 0 {
 		return nil, fmt.Errorf("no restaurant bound to chat %d", chatID)
 	}
+	return &chatBinding{restaurants: c.expandRestaurants(records[0].Get("restaurant"))}, nil
+}
 
-	return restaurant.GetRestaurant(c.app, records[0].GetString("restaurant"))
+func (c *chatLinks) expandRestaurants(restaurantIDs any) []*restaurant.Restaurant {
+	ids, ok := restaurantIDs.([]string)
+	if !ok {
+		return nil
+	}
+
+	restaurants := make([]*restaurant.Restaurant, 0, len(ids))
+	for _, id := range ids {
+		r, err := restaurant.GetRestaurant(c.app, id)
+		if err != nil {
+			continue
+		}
+		restaurants = append(restaurants, r)
+	}
+	return restaurants
+}
+
+func (c *chatLinks) restaurantForCallback(chatID int64, restaurantID string) (*restaurant.Restaurant, error) {
+	binding, err := c.bindingForChat(chatID)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range binding.restaurants {
+		if r.ID == restaurantID {
+			return r, nil
+		}
+	}
+	return nil, fmt.Errorf("restaurant %s is not bound to chat %d", restaurantID, chatID)
 }

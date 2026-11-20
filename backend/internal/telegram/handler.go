@@ -16,6 +16,8 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
+	"strings"
+
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
 )
 
@@ -25,6 +27,7 @@ type updateHandler struct {
 	logger  *slog.Logger
 	scraper *mittag.Scraper
 	links   *chatLinks
+	pending *pendingMedia
 }
 
 type telegramMediaKind string
@@ -57,31 +60,59 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 		return
 	}
 
-	r, err := h.links.restaurantForChat(msg.Chat.ID)
+	binding, err := h.links.bindingForChat(msg.Chat.ID)
 	if err != nil {
 		h.logger.Debug("No restaurant bound to chat", "chatID", msg.Chat.ID)
 		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNotBound)
 		return
 	}
-
-	if r.Method != restaurant.MethodUpload {
-		h.logger.Warn("Restaurant is not open for Telegram uploads", "name", r.Name, "method", r.Method)
+	if !binding.isEligible() {
 		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNotBound)
 		return
 	}
+	binding.filterEligible()
 
-	filePath, err := h.downloadMedia(ctx, b, r.ID, kind, fileID)
-	if err != nil {
-		h.logger.Error("Failed to download Telegram media", "restaurant", r.Name, "error", err)
-		h.notify(ctx, b, "😢 Download für %s fehlgeschlagen: %v", r.Name, err)
-		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyMenuFailed)
+	if len(binding.restaurants) > 1 {
+		h.pending.store(msg.Chat.ID, kind, fileID)
+		h.askRestaurant(ctx, b, msg.Chat.ID, msg.ID, binding.restaurants)
 		return
 	}
 
-	h.scraper.EnqueueTelegramUpload(r, filePath, func(err error, _ *restaurant.Restaurant) {
-		h.reply(ctx, b, msg.Chat.ID, msg.ID, menuReplyFor(err))
-		h.notify(ctx, b, "Telegram-Upload für %s: %s", r.Name, menuReplyFor(err))
-	})
+	h.startUpload(ctx, b, msg.Chat.ID, msg.ID, binding.restaurants[0], kind, fileID)
+}
+
+func (h *updateHandler) handleCallback(ctx context.Context, b *bot.Bot, update *models.Update) {
+	query := update.CallbackQuery
+	if query == nil {
+		return
+	}
+
+	chat, messageRef, ok := callbackChat(query)
+	if !ok || chat.Type != models.ChatTypePrivate {
+		return
+	}
+
+	restaurantID, ok := strings.CutPrefix(query.Data, callbackPrefix)
+	if !ok {
+		b.AnswerCallbackQuery(ctx, &bot.AnswerCallbackQueryParams{CallbackQueryID: query.ID})
+		return
+	}
+
+	r, err := h.links.restaurantForCallback(chat.ID, restaurantID)
+	if err != nil {
+		h.logger.Warn("Callback addressed an unbound restaurant", "chatID", chat.ID, "restaurantID", restaurantID)
+		b.AnswerCallbackQuery(ctx, &bot.AnswerCallbackQueryParams{CallbackQueryID: query.ID})
+		return
+	}
+
+	kind, fileID, err := h.pending.take(chat.ID)
+	if err != nil {
+		b.AnswerCallbackQuery(ctx, &bot.AnswerCallbackQueryParams{CallbackQueryID: query.ID, Text: replyMediaExpired, ShowAlert: true})
+		return
+	}
+
+	b.AnswerCallbackQuery(ctx, &bot.AnswerCallbackQueryParams{CallbackQueryID: query.ID})
+	h.editMarkupAndStart(ctx, b, chat.ID, messageRef, r, kind, fileID)
 }
 
 func telegramMedia(msg *models.Message) (telegramMediaKind, string, error) {
@@ -155,4 +186,47 @@ func (h *updateHandler) notify(ctx context.Context, b *bot.Bot, format string, a
 	if err != nil {
 		h.logger.Error("Failed to notify admin chat", "error", err)
 	}
+}
+
+func (h *updateHandler) askRestaurant(ctx context.Context, b *bot.Bot, chatID int64, messageID int, restaurants []*restaurant.Restaurant) {
+	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: chatID,
+		Text:   replyPickRestaurant,
+		ReplyParameters: &models.ReplyParameters{
+			MessageID:                messageID,
+			AllowSendingWithoutReply: true,
+		},
+		ReplyMarkup: askMarkup(restaurants),
+	})
+	if err != nil {
+		h.logger.Error("Failed to send restaurant picker", "chatID", chatID, "error", err)
+	}
+}
+
+func (h *updateHandler) startUpload(ctx context.Context, b *bot.Bot, chatID int64, messageID int, r *restaurant.Restaurant, kind telegramMediaKind, fileID string) {
+	filePath, err := h.downloadMedia(ctx, b, r.ID, kind, fileID)
+	if err != nil {
+		h.logger.Error("Failed to download Telegram media", "restaurant", r.Name, "error", err)
+		h.notify(ctx, b, "😖 Download für %s fehlgeschlagen: %v", r.Name, err)
+		h.reply(ctx, b, chatID, messageID, replyMenuFailed)
+		return
+	}
+
+	h.scraper.EnqueueTelegramUpload(r, filePath, func(err error, _ *restaurant.Restaurant) {
+		h.reply(ctx, b, chatID, messageID, menuReplyFor(err))
+		h.notify(ctx, b, "Telegram-Upload für %s: %s", r.Name, menuReplyFor(err))
+	})
+}
+
+func (h *updateHandler) editMarkupAndStart(ctx context.Context, b *bot.Bot, chatID int64, ref messageRef, r *restaurant.Restaurant, kind telegramMediaKind, fileID string) {
+	if ref.ID != 0 {
+		if _, err := b.EditMessageText(ctx, &bot.EditMessageTextParams{
+			ChatID:    chatID,
+			MessageID: ref.ID,
+			Text:      replyProcessingPick,
+		}); err != nil {
+			h.logger.Debug("Failed to edit picker message", "chatID", chatID, "error", err)
+		}
+	}
+	h.startUpload(ctx, b, chatID, ref.ID, r, kind, fileID)
 }

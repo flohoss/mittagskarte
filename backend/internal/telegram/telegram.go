@@ -31,12 +31,14 @@ func New(app core.App, cfg *config.Config, scraper *mittag.Scraper) (*Service, e
 		logger:  app.Logger().WithGroup("telegram"),
 		scraper: scraper,
 		links:   &chatLinks{app: app},
+		pending: newPendingMedia(),
 	}
 
 	b, err := bot.New(cfg.TelegramBotToken,
 		bot.WithDefaultHandler(handler.handle),
+		bot.WithCallbackQueryDataHandler(callbackPrefix, bot.MatchTypePrefix, handler.handleCallback),
 		bot.WithWebhookSecretToken(cfg.TelegramSecret),
-		bot.WithAllowedUpdates(bot.AllowedUpdates{models.AllowedUpdateMessage}),
+		bot.WithAllowedUpdates(bot.AllowedUpdates{models.AllowedUpdateMessage, models.AllowedUpdateCallbackQuery}),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("create telegram bot: %w", err)
