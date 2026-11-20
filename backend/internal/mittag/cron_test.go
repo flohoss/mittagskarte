@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 )
 
 func createRestaurantWithCron(t *testing.T, app core.App, name, cronExpr string) {
@@ -18,7 +19,7 @@ func createRestaurantWithCron(t *testing.T, app core.App, name, cronExpr string)
 	record := core.NewRecord(collection)
 	record.Set("name", name)
 	record.Set("slug", name)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodUpload)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	record.Set("cron", cronExpr)

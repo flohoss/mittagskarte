@@ -39,7 +39,7 @@ func createRestaurantRecord(t *testing.T, app core.App, slug string) *core.Recor
 	record := core.NewRecord(collection)
 	record.Set("name", "Gasthaus "+slug)
 	record.Set("slug", slug)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodScrape)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	if err := app.Save(record); err != nil {

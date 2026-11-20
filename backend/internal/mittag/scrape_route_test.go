@@ -32,7 +32,7 @@ func newScrapeRouteApp(t testing.TB) (*tests.TestApp, *Mittag) {
 	record := core.NewRecord(collection)
 	record.Set("name", "Gasthaus Route")
 	record.Set("slug", scrapeRouteSlug)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodUpload)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	if err := app.Save(record); err != nil {

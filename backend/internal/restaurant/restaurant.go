@@ -25,6 +25,9 @@ import (
 
 const (
 	DownloadsFolder = "/tmp/downloads/"
+	MethodUpload    = "upload"
+	MethodScrape    = "scrape"
+	MethodDownload  = "download"
 )
 
 var ErrMenuUnchanged = errors.New("menu has not changed")

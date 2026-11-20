@@ -12,6 +12,7 @@ import (
 	"ganigeorgiev.com/pocketbase/pocketbase/tests"
 	"ganigeorgiev.com/pocketbase/pocketbase/tools/filesystem"
 
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 	_ "github.com/flohoss/mittagskarte/migrations"
 )
 
@@ -48,7 +49,7 @@ func createRestaurantWithMenu(t *testing.T, app core.App, slug string) {
 	record := core.NewRecord(restaurants)
 	record.Set("name", "Gasthaus "+slug)
 	record.Set("slug", slug)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodUpload)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	if err := app.Save(record); err != nil {

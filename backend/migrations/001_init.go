@@ -3,6 +3,7 @@ package migrations
 import (
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
 	m "ganigeorgiev.com/pocketbase/pocketbase/migrations"
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 )
 
 func publicRule() *string {
@@ -123,7 +124,7 @@ func init() {
 		})
 		restaurants.Fields.Add(&core.SelectField{
 			Name:     "method",
-			Values:   []string{"scrape", "download", "upload"},
+			Values:   []string{"scrape", "download", restaurant.MethodUpload},
 			Required: true,
 		})
 		restaurants.Fields.Add(&core.SelectField{

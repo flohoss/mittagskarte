@@ -12,6 +12,7 @@ import (
 
 	"github.com/flohoss/mittagskarte/api"
 	"github.com/flohoss/mittagskarte/config"
+	"github.com/flohoss/mittagskarte/internal/restaurant"
 	_ "github.com/flohoss/mittagskarte/migrations"
 
 	"ganigeorgiev.com/pocketbase/pocketbase/apis"
@@ -84,7 +85,7 @@ func createRestaurantWithMenu(t testing.TB, app core.App, slug string) {
 	record := core.NewRecord(restaurants)
 	record.Set("name", "Gasthaus "+slug)
 	record.Set("slug", slug)
-	record.Set("method", "upload")
+	record.Set("method", restaurant.MethodUpload)
 	record.Set("latitude", 48.5)
 	record.Set("longitude", 9.1)
 	if err := app.Save(record); err != nil {
