@@ -49,10 +49,7 @@ func TestPreviewSettingsDependOnOrientation(t *testing.T) {
 		t.Fatal("expected 1313x3700 to be portrait")
 	}
 	if got, want := portrait.PreviewSettings(), PortraitPreviewSettings; got != want {
-		t.Fatalf("portrait preview settings mismatch: got %s want %s", got, want)
-	}
-	if !json.Valid([]byte(portrait.PreviewSettings())) {
-		t.Fatal("portrait preview settings is not valid JSON")
+		t.Fatalf("portrait preview settings mismatch: got %v want %v", got, want)
 	}
 
 	landscape := Result{Width: 3700, Height: 1313}
@@ -60,10 +57,7 @@ func TestPreviewSettingsDependOnOrientation(t *testing.T) {
 		t.Fatal("expected 3700x1313 to be landscape")
 	}
 	if got, want := landscape.PreviewSettings(), LandscapePreviewSettings; got != want {
-		t.Fatalf("landscape preview settings mismatch: got %s want %s", got, want)
-	}
-	if !json.Valid([]byte(landscape.PreviewSettings())) {
-		t.Fatal("landscape preview settings is not valid JSON")
+		t.Fatalf("landscape preview settings mismatch: got %v want %v", got, want)
 	}
 
 	square := Result{Width: 800, Height: 800}
@@ -75,7 +69,7 @@ func TestPreviewSettingsDependOnOrientation(t *testing.T) {
 func TestPreviewSettingsJSONValues(t *testing.T) {
 	t.Parallel()
 
-	for name, settings := range map[string]string{
+	for name, settings := range map[string]WebpSettings{
 		"portrait":  PortraitPreviewSettings,
 		"landscape": LandscapePreviewSettings,
 	} {
@@ -84,7 +78,7 @@ func TestPreviewSettingsJSONValues(t *testing.T) {
 			Quality  int    `json:"quality"`
 			MaxWidth int    `json:"maxWidth"`
 		}
-		if err := json.Unmarshal([]byte(settings), &parsed); err != nil {
+		if err := json.Unmarshal([]byte(settings.String()), &parsed); err != nil {
 			t.Fatalf("%s settings are not valid JSON: %v", name, err)
 		}
 		if parsed.Format != "webp" {
@@ -147,5 +141,42 @@ func TestSettingsForFileFallsBackToPortraitOnUnreadableFile(t *testing.T) {
 	}
 	if got, want := SettingsForFile(unreadable, 85, LandscapeFullMaxWidth, PortraitFullMaxWidth), webpSettings(85, 1200); got != want {
 		t.Fatalf("garbage file settings mismatch: got %s want %s", got, want)
+	}
+}
+
+func TestWebpPipelineSendsSettingsAsObject(t *testing.T) {
+	t.Parallel()
+
+	encoded, err := webpPipeline(LandscapePreviewSettings)
+	if err != nil {
+		t.Fatalf("webpPipeline returned error: %v", err)
+	}
+
+	var parsed struct {
+		Steps []struct {
+			ToolID   string          `json:"toolId"`
+			Settings json.RawMessage `json:"settings"`
+		} `json:"steps"`
+	}
+	if err := json.Unmarshal([]byte(encoded), &parsed); err != nil {
+		t.Fatalf("pipeline is not valid JSON: %v", err)
+	}
+	if len(parsed.Steps) != 2 {
+		t.Fatalf("pipeline step count, got %d want 2", len(parsed.Steps))
+	}
+	if parsed.Steps[1].ToolID != "optimize-for-web" {
+		t.Fatalf("second step toolId, got %q want optimize-for-web", parsed.Steps[1].ToolID)
+	}
+
+	if first := parsed.Steps[1].Settings[0]; first != '{' {
+		t.Fatalf("settings must be a JSON object, got %s", parsed.Steps[1].Settings)
+	}
+
+	var settings WebpSettings
+	if err := json.Unmarshal(parsed.Steps[1].Settings, &settings); err != nil {
+		t.Fatalf("settings are not decodable: %v", err)
+	}
+	if settings != LandscapePreviewSettings {
+		t.Fatalf("settings mismatch, got %v want %v", settings, LandscapePreviewSettings)
 	}
 }

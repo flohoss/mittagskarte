@@ -157,7 +157,7 @@ func PeekOrientation(menu *core.Record) (snapotter.Result, bool) {
 	return snapotter.Result{Width: dims.Width, Height: dims.Height}, true
 }
 
-func previewSettingsFor(menu *core.Record) string {
+func previewSettingsFor(menu *core.Record) snapotter.WebpSettings {
 	if orient, ok := PeekOrientation(menu); ok {
 		return orient.PreviewSettings()
 	}
@@ -275,22 +275,6 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 	}
 	e.Record.Set("file", processedFile)
 
-	if preview, err := m.snapotter.ImageToWebpPreview(
-		context.Background(),
-		bytes.NewReader(result.Data),
-		processedFile.Name,
-		int64(len(result.Data)),
-		result.PreviewSettings(),
-	); err != nil {
-		m.logger.Warn("Menu preview could not be generated, falling back to the full image", "restaurantId", restaurantID, "error", err)
-	} else {
-		e.Record.Set("preview", &filesystem.File{
-			Reader: &filesystem.BytesReader{Bytes: preview.Data},
-			Name:   "preview.webp",
-			Size:   int64(len(preview.Data)),
-		})
-	}
-
 	rc, err := processedFile.Reader.Open()
 	if err != nil {
 		m.logger.Error("Failed to open processed menu file for checksum", "restaurantId", restaurantID, "error", err)
@@ -318,6 +302,23 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 	}
 
 	e.Record.Set("hash", hash)
+
+	if preview, err := m.snapotter.ImageToWebpPreview(
+		context.Background(),
+		bytes.NewReader(result.Data),
+		processedFile.Name,
+		int64(len(result.Data)),
+		result.PreviewSettings(),
+	); err != nil {
+		m.logger.Warn("Menu preview could not be generated, falling back to the full image", "restaurantId", restaurantID, "error", err)
+	} else {
+		e.Record.Set("preview", &filesystem.File{
+			Reader: &filesystem.BytesReader{Bytes: preview.Data},
+			Name:   "preview.webp",
+			Size:   int64(len(preview.Data)),
+		})
+	}
+
 	return e.Next()
 }
 

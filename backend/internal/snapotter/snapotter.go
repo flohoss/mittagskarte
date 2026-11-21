@@ -32,22 +32,32 @@ var (
 	LandscapePreviewSettings = webpSettings(75, LandscapePreviewMaxWidth)
 )
 
+type WebpSettings struct {
+	Format   string `json:"format"`
+	Quality  int    `json:"quality"`
+	MaxWidth int    `json:"maxWidth"`
+}
+
+func (s WebpSettings) String() string {
+	return fmt.Sprintf(`{"format":%q,"quality":%d,"maxWidth":%d}`, s.Format, s.Quality, s.MaxWidth)
+}
+
 func (r Result) Landscape() bool {
 	return r.Width >= r.Height
 }
 
-func (r Result) PreviewSettings() string {
+func (r Result) PreviewSettings() WebpSettings {
 	if r.Landscape() {
 		return LandscapePreviewSettings
 	}
 	return PortraitPreviewSettings
 }
 
-func webpSettings(quality, maxWidth int) string {
-	return fmt.Sprintf(`{"format":"webp","quality":%d,"maxWidth":%d}`, quality, maxWidth)
+func webpSettings(quality, maxWidth int) WebpSettings {
+	return WebpSettings{Format: "webp", Quality: quality, MaxWidth: maxWidth}
 }
 
-func SettingsForFile(path string, quality, landscapeMaxWidth, portraitMaxWidth int) string {
+func SettingsForFile(path string, quality, landscapeMaxWidth, portraitMaxWidth int) WebpSettings {
 	f, err := os.Open(path)
 	if err != nil {
 		return webpSettings(quality, portraitMaxWidth)
@@ -229,6 +239,42 @@ func (c *Client) Setup() error {
 	return nil
 }
 
+func describePipelineResponse(res api.ExecutePipelineRes) string {
+	badRequest, ok := res.(*api.ExecutePipelineBadRequest)
+	if !ok {
+		return fmt.Sprintf("%T", res)
+	}
+	pipelineError := api.Error(*badRequest)
+	details, _ := pipelineError.GetDetails().Get()
+	if details == "" {
+		return fmt.Sprintf("%T: %s", res, pipelineError.GetError())
+	}
+	return fmt.Sprintf("%T: %s (%s)", res, pipelineError.GetError(), details)
+}
+
+type pipelineStep struct {
+	ToolID   string `json:"toolId"`
+	Settings any    `json:"settings"`
+}
+
+type pipeline struct {
+	Steps []pipelineStep `json:"steps"`
+}
+
+func webpPipeline(settings WebpSettings) (string, error) {
+	defined := pipeline{
+		Steps: []pipelineStep{
+			{ToolID: "smart-crop", Settings: map[string]any{"mode": "trim", "threshold": 10}},
+			{ToolID: "optimize-for-web", Settings: settings},
+		},
+	}
+	encoded, err := json.Marshal(defined)
+	if err != nil {
+		return "", fmt.Errorf("marshal pipeline: %w", err)
+	}
+	return string(encoded), nil
+}
+
 func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, error) {
 	file, cleanup, err := c.multipartFile(sourcePath)
 	if err != nil {
@@ -236,16 +282,14 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	}
 	defer cleanup()
 
-	pipeline, _ := json.Marshal(map[string]any{
-		"steps": []map[string]any{
-			{"toolId": "smart-crop", "settings": map[string]any{"mode": "trim", "threshold": 10}},
-			{"toolId": "optimize-for-web", "settings": SettingsForFile(sourcePath, 85, LandscapeFullMaxWidth, PortraitFullMaxWidth)},
-		},
-	})
+	pipeline, err := webpPipeline(SettingsForFile(sourcePath, 85, LandscapeFullMaxWidth, PortraitFullMaxWidth))
+	if err != nil {
+		return Result{}, err
+	}
 
 	res, err := c.api.ExecutePipeline(ctx, &api.ExecutePipelineReq{
 		File:     file,
-		Pipeline: string(pipeline),
+		Pipeline: pipeline,
 	})
 	if err != nil {
 		return Result{}, fmt.Errorf("pipeline request: %w", err)
@@ -254,7 +298,7 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 
 	okResp, ok := res.(*api.ExecutePipelineOK)
 	if !ok {
-		return Result{}, fmt.Errorf("pipeline returned unexpected response: %T", res)
+		return Result{}, fmt.Errorf("pipeline returned unexpected response: %s", describePipelineResponse(res))
 	}
 
 	jobId, ok := okResp.GetJobId().Get()
@@ -269,14 +313,14 @@ func (c *Client) ImageToWebp(ctx context.Context, sourcePath string) (Result, er
 	return c.downloadJob(ctx, jobId, downloadUrl)
 }
 
-func (c *Client) ImageToWebpPreview(ctx context.Context, source io.Reader, name string, size int64, settings string) (Result, error) {
+func (c *Client) ImageToWebpPreview(ctx context.Context, source io.Reader, name string, size int64, settings WebpSettings) (Result, error) {
 	res, err := c.api.OptimizeForWebPreview(ctx, &api.OptimizeForWebPreviewReq{
 		File: ht.MultipartFile{
 			Name: name,
 			File: source,
 			Size: size,
 		},
-		Settings: api.NewOptString(settings),
+		Settings: api.NewOptString(settings.String()),
 	})
 	if err != nil {
 		return Result{}, fmt.Errorf("preview request: %w", err)
