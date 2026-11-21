@@ -45,6 +45,15 @@ function openAuthModal() {
   loginModal.value?.open();
 }
 
+function navigateBack() {
+  if (router.options.history.state.back) {
+    router.back();
+    return;
+  }
+
+  void router.replace({ name: 'home', query: route.query });
+}
+
 whenever(
   () => Boolean(keys['Meta+K']?.value || keys['Ctrl+K']?.value),
   () => {
@@ -62,7 +71,7 @@ whenever(
       <div class="container py-2">
         <template v-if="isMenuHistoryRoute">
           <div class="flex w-full min-w-0 items-center gap-2">
-            <button class="btn btn-soft btn-square shrink-0" aria-label="Zur Startseite zurück" @click="router.back()">
+            <button class="btn btn-soft btn-square shrink-0" aria-label="Zur Startseite zurück" @click="navigateBack">
               <span class="icon-[fa7-solid--arrow-left] size-4" aria-hidden="true"></span>
             </button>
             <NavbarRestaurantIdentity class="min-w-0 flex-1" />
