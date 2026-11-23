@@ -79,6 +79,7 @@ func (s *Web) Run(url string, fn func(page playwright.Page) error) error {
 	page, err := s.browser.NewPage(playwright.BrowserNewPageOptions{
 		BypassCSP:         playwright.Bool(true),
 		IgnoreHttpsErrors: playwright.Bool(true),
+		Locale:            playwright.String("de-DE"),
 	})
 	if err != nil {
 		return fmt.Errorf("could not create page: %v", err)
