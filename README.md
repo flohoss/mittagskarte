@@ -9,11 +9,10 @@ Mittagskarte fetches, uploads, converts, and serves lunch menus for restaurants.
 
 </div>
 
-The current stack is:
+Stack:
 
-- Go backend with PocketBase
+- Go backend on PocketBase
 - Vue 3 frontend built with Vite
-- PocketBase collections and migrations for restaurant data
 - Playwright for scraping
 - [SnapOtter](https://github.com/snapotter-hq/snapotter) for image and PDF processing via API
 - Optional [Telegram bot](https://github.com/go-telegram/bot) for uploading menus from a chat
@@ -27,12 +26,12 @@ The current stack is:
 
 ## Architecture
 
-The app is split into two parts during development:
+Two parts:
 
 - `backend/`: PocketBase app, custom API routes, migrations, scraping pipeline, Telegram importer
 - `frontend/`: Vue application
 
-In production, the Vue app is built to `dist` and served directly by the Go/PocketBase server.
+In production the Vue app is built to `dist` and served by the Go/PocketBase server.
 
 Frontend routes:
 
@@ -55,26 +54,25 @@ Server routes:
 
 The application schema is managed through PocketBase migrations in `backend/migrations`.
 
-Current app collections:
+App collections:
 
 - `restaurants`
 - `selectors`
 - `menus`
 - `telegram_chats`
 
-The app collections are publicly listable and viewable. `telegram_chats` has no public API rules and is managed by superusers in the dashboard.
+App collections are publicly listable and viewable, except `telegram_chats`, which has no public API rules and is managed by superusers in the dashboard.
 
 Collection relationships:
 
-- each restaurant can reference multiple `selectors` via `navigate`
+- each restaurant references its `selectors` via `navigate`
 - each menu belongs to exactly one restaurant (`menus.restaurant`)
 - each restaurant stores a rolling list of latest menu ids in `restaurants.menus`
 - each `telegram_chats` record binds one private Telegram chat (`chat_id`, unique) to up to 10 restaurants and has an `active` toggle; deactivating it pauses the bot for that chat without deleting the binding
 
-Restaurants have a required, unique `slug` that is used in detail page URLs, and an optional `holiday_until` date (`YYYY-MM-DD`). Existing restaurants were backfilled with a slug generated from their name; new ones set it in the dashboard. While a restaurant is on holiday, or on one of its `rest_days`, scheduled scrapes are skipped; expired holidays are cleared automatically.
+Restaurants have a required, unique `slug` used in detail page URLs and an optional `holiday_until` date (`YYYY-MM-DD`). While a restaurant is on holiday, or on one of its `rest_days`, scheduled scrapes are skipped; expired holidays are cleared automatically.
 
-Menu retention is controlled by the PocketBase relation field `restaurants.menus.maxSelect`.
-You can change this value in the PocketBase GUI and the backend will enforce it during cleanup.
+Menu retention is controlled by the PocketBase relation field `restaurants.menus.maxSelect`: the backend keeps that many newest menus per restaurant and deletes the rest. The value can be changed in the PocketBase GUI.
 
 The backend also uses PocketBase auth for protected operations.
 
@@ -86,24 +84,24 @@ Protected custom endpoints:
 
 ## How It Works
 
-Restaurant menus can be obtained in four ways:
+Restaurant menus are obtained in four ways:
 
 - scrape content from websites
 - download files directly
 - upload files manually through the frontend
 - upload files through the Telegram bot (see below)
 
-Files are processed by [SnapOtter](https://github.com/snapotter-hq/snapotter), a self-hosted file processing service running as a Docker container in the same stack. The backend sends scraped or uploaded files to the SnapOtter API, which handles image trimming, PDF-to-image conversion, stitching, and WebP optimization. The processed WebP images are then stored in PocketBase-managed records.
+Files are processed by [SnapOtter](https://github.com/snapotter-hq/snapotter), a self-hosted file processing service in the same stack. The backend sends scraped or uploaded files to the SnapOtter API, which trims, converts, stitches, and optimizes to WebP. The resulting WebP images are stored in PocketBase-managed records.
 
-For images, the backend uses SnapOtter's pipeline API to chain `smart-crop` (trim) and `optimize-for-web` (WebP) in a single request. The WebP width cap depends on the menu's orientation: portrait menus are capped at 1200px, landscape menus at 1920px.
+For images, the backend chains `smart-crop` (trim) and `optimize-for-web` (WebP) in a single pipeline request. The WebP width cap depends on the menu's orientation: portrait 1200px, landscape 1920px.
 
-In addition to the full-size WebP, the backend generates a small preview WebP for every changed menu (`preview` field), also orientation-aware: portrait previews are capped at 1200px and landscape previews at 600px, both at a lower quality. Previews are generated only after the content hash check passes, so unchanged scrapes skip the extra pipeline call. On startup, the backend backfills missing previews for all existing menus. The restaurant detail page renders the previews and only loads the full-size image when a menu is opened.
+Every changed menu also gets a small preview WebP (`preview` field), likewise orientation-aware: portrait 1200px, landscape 600px, both at lower quality. Previews are generated only after the content hash check passes, so unchanged scrapes skip the extra call. On startup the backend generates missing previews for existing menus. The restaurant detail page renders previews and loads the full-size image only when a menu is opened.
 
-For PDFs, the backend first inspects the file locally with `pdfinfo` and `pdfimages` (from `poppler-utils`) to read page count, page dimensions, document metadata, and embedded image resolution. The DPI is computed dynamically: it targets a 4000px output width from the page size, but if the page is small with a high-resolution embedded image (e.g. Canva exports with tiny page sizes), the image's pixel width is used instead to ensure full fidelity (clamped to 150–1200 DPI). The full metadata is stored on the menu record and compared to the latest menu — if identical, conversion is skipped entirely. Otherwise the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
+For PDFs, the backend inspects the file locally with `pdfinfo` and `pdfimages` (from `poppler-utils`) for page count, page dimensions, document metadata, and embedded image resolution. DPI is computed dynamically: it targets a 4000px output width from the page size, but a small page with a high-resolution embedded image (e.g. Canva exports with tiny page sizes) uses the image's pixel width instead, clamped to 150–1200 DPI. The metadata is stored on the menu record. When it matches the latest menu _and_ the PDF exposes `CreationDate`/`ModDate`, conversion is skipped, because only then does the metadata identify the document. Otherwise the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
 
 For each menu create event, the backend:
 
-- inspects PDF metadata via `pdfinfo`/`pdfimages` and skips conversion if metadata matches the latest menu
+- inspects PDF metadata via `pdfinfo`/`pdfimages` and skips conversion only for timestamped, matching metadata
 - sends the input file to SnapOtter and downloads the processed `webp`
 - stores calculated dimensions (`width`, `height`, `landscape`) and `pdf_metadata`
 - computes a content hash and rejects unchanged uploads/scrapes
@@ -111,11 +109,11 @@ For each menu create event, the backend:
 - prepends the new menu id to the restaurant `menus` relation
 - removes older menu records beyond `restaurants.menus.maxSelect`
 
-Scheduled scrapes also honour holidays and rest days: restaurants whose `holiday_until` has not passed yet, or that are closed on today's weekday, are skipped, and expired holidays are cleared before the queue is filled.
+Scheduled scrapes honour holidays and rest days: restaurants whose `holiday_until` has not passed, or that are closed on today's weekday, are skipped, and expired holidays are cleared before the queue is filled.
 
 ## Telegram Bot
 
-The backend can optionally run a Telegram bot so restaurant operators can push a menu straight from their phone. The bot is enabled as soon as `TELEGRAM_BOT_TOKEN` is set; without it the feature is off and a stray `TELEGRAM_SECRET` is rejected at startup.
+The backend optionally runs a Telegram bot so restaurant operators can push a menu straight from their phone. The bot is enabled when `TELEGRAM_BOT_TOKEN` is set; without it the feature is off and a stray `TELEGRAM_SECRET` is rejected at startup.
 
 Flow:
 
@@ -126,18 +124,18 @@ Flow:
 5. With a single bound restaurant the upload starts immediately. With several, the bot sends an inline keyboard to pick one; the pending file is kept for 10 minutes.
 6. The file is downloaded (20 MB limit) and handed to the shared scrape queue, so Telegram uploads share deduplication, cooldown, and status broadcasts with scrapes and downloads. The reply reports success, "unchanged", or failure.
 
-Every binding carries an `active` toggle that is set on creation. Turning it off pauses the chat without deleting anything: uploads, callbacks, and `/start` are refused with a hint, and the restaurant relations are kept for when it is turned back on.
+Every binding has an `active` toggle, set on creation. Turning it off pauses the chat without deleting anything: uploads, callbacks, and `/start` are refused with a hint, and the restaurant relations are kept for when it is turned back on.
 
 Transport depends on `DEV`:
 
 - development: long polling. The bot deletes any existing webhook before polling starts (Telegram rejects `getUpdates` while a webhook is registered).
-- production: webhook on `/api/telegram/<TELEGRAM_SECRET>`. There is no extra variable to set — the backend derives the webhook URL from `APP_URL` and `TELEGRAM_SECRET` and registers it itself, so `APP_URL` must be the public `https` URL of the deployment.
+- production: webhook on `/api/telegram/<TELEGRAM_SECRET>`. The backend derives the webhook URL from `APP_URL` and `TELEGRAM_SECRET` and registers it itself, so `APP_URL` must be the public `https` URL of the deployment.
 
-Group and channel chats are refused; only private chats can be bound.
+Only private chats can be bound; group and channel chats are refused.
 
 ## Selectors and Examples
 
-In the PocketBase model, each restaurant can reference multiple selector records through the relation field `navigate`.
+In the PocketBase model, each restaurant references multiple selector records through the relation field `navigate`. Selectors apply in `order`.
 
 Each selector record contains:
 
@@ -145,10 +143,7 @@ Each selector record contains:
 - `attribute`: optional attribute to read (for example `src` or `href`)
 - `style`: optional CSS injected before interaction, useful to hide overlays or cookie banners
 
-Typical usage pattern:
-
-- First selector steps are used for navigation (clicks)
-- Last selector step is used for extraction or screenshot logic
+Navigation uses every selector but the last (each one is clicked); the last selector performs extraction or screenshot logic.
 
 Example selector list:
 
@@ -206,7 +201,7 @@ restaurant:
 
 ### Example 4: HTML Screenshot with Injected Style (method = scrape)
 
-For HTML content, the scraper can screenshot the selected element. Optional style can hide fixed headers or navigation.
+For HTML content, the scraper screenshots the selected element. Optional style can hide fixed headers or navigation.
 
 ```yaml
 restaurant:
@@ -220,19 +215,19 @@ restaurant:
 
 ### Dynamic Date Placeholders in Locators
 
-You can use date placeholders in selector locators:
+Locators support date placeholders:
 
 ```yaml
-locator: "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=fr, offset=-1)}}']"
+locator: "//div[@class='calendar']//span[text()='{{date(format=02.01.2006, day=friday, offset=-1)}}']"
 ```
 
-Supported arguments:
+Arguments:
 
-- `format`: Go date format, for example `02.01.2006`
-- `lang`: language, for example `en` or `de`
-- `day`: target weekday, for example `monday` or `fr`
+- `format`: Go date format, default `Monday, 02 January 2006`
+- `lang`: language, `en` or `de`, default `en`
+- `day`: target weekday as full English name, for example `monday` or `friday`
 - `offset`: week offset, for example `-1`, `0`, `1`
-- `upper`: uppercase output toggle
+- `upper`: `true` to uppercase the output
 - `chars`: limit output to the first N runes
 
 ## Deployment
@@ -249,18 +244,19 @@ Build the release image locally:
 docker compose --profile build build release
 ```
 
-This produces the local image `mittagskarte:local` by default.
-The GitHub release workflow uses Docker Bake against the same `release` target, so local and CI builds stay aligned.
+The local build produces the image `mittagskarte-release`. Use `docker compose --profile build up --build release` to build and run it.
 
-Run it:
+The GitHub release workflow builds the same `release` target with Docker Bake and pushes `ghcr.io/flohoss/mittagskarte` tagged with the release tag plus `latest`, so local and CI builds stay aligned.
+
+Run the image:
 
 ```sh
-docker run --rm -p 8090:8090 mittagskarte:local
+docker run --rm -p 8090:8090 ghcr.io/flohoss/mittagskarte:latest
 ```
 
 Then open http://localhost:8090.
 
-Important runtime paths:
+Runtime paths:
 
 - PocketBase data directory: `data`
 - frontend bundle served by backend: `dist`
@@ -268,22 +264,22 @@ Important runtime paths:
 
 ### Configuration
 
-All configuration is read from the environment (see [`.env.example`](.env.example)).
+All configuration is read from the environment. [`.env.example`](.env.example) lists a subset.
 
-| Variable                                                   | Default                               | Notes                                                                             |
-| ---------------------------------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------- |
-| `DEV`                                                      | `false`                               | Dev mode: SMTP disabled, no gzip/rate limits/trusted proxy, Telegram long polling |
-| `TZ`                                                       | `Europe/Berlin`                       | Timezone for the cron scheduler                                                   |
-| `APP_NAME`                                                 | `Mittagskarte`                        | Synced to PocketBase meta settings                                                |
-| `APP_URL`                                                  | `http://localhost:8090`               | Base URL for the sitemap, PocketBase meta, and the derived Telegram webhook       |
-| `IMPRINT_EMAIL`                                            | `contact@example.com`                 | Injected into the privacy page                                                    |
-| `COOL_DOWN_DURATION`                                       | `5m`                                  | Minimum time between two scrapes of the same restaurant                           |
-| `SNAPOTTER_URL`                                            | `http://snapotter:1349`               | SnapOtter API base URL                                                            |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | –                                     | Required in production, synced to PocketBase SMTP settings                        |
-| `SMTP_SENDER_NAME`, `SMTP_SENDER_ADDRESS`                  | `Mittagskarte`, `noreply@example.com` | Synced to PocketBase meta settings                                                |
-| `SUPERUSER_EMAIL`, `SUPERUSER_PASSWORD`                    | –                                     | Superuser created/updated on startup                                              |
-| `TELEGRAM_BOT_TOKEN`                                       | –                                     | Enables the Telegram bot when set                                                 |
-| `TELEGRAM_SECRET`                                          | –                                     | Required in production, secures the webhook route and forms its path              |
+| Variable                                                   | Default                               | Notes                                                                                     |
+| ---------------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `DEV`                                                      | `false`                               | Dev mode: SMTP disabled, no gzip/rate limits/trusted proxy, OTP/MFA off, Telegram polling |
+| `TZ`                                                       | `Europe/Berlin`                       | Timezone for the cron scheduler                                                           |
+| `APP_NAME`                                                 | `Mittagskarte`                        | Synced to PocketBase meta settings                                                        |
+| `APP_URL`                                                  | `http://localhost:8090`               | Base URL for the sitemap, PocketBase meta, and the derived Telegram webhook               |
+| `IMPRINT_EMAIL`                                            | `contact@example.com`                 | Exposed to the privacy page                                                               |
+| `COOL_DOWN_DURATION`                                       | `5m`                                  | Minimum time between two scrapes of the same restaurant                                   |
+| `SNAPOTTER_URL`                                            | `http://snapotter:1349`               | SnapOtter API base URL                                                                    |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | –                                     | Required in production, synced to PocketBase SMTP settings                                |
+| `SMTP_SENDER_NAME`, `SMTP_SENDER_ADDRESS`                  | `Mittagskarte`, `noreply@example.com` | Synced to PocketBase meta settings                                                        |
+| `SUPERUSER_EMAIL`, `SUPERUSER_PASSWORD`                    | –                                     | Superuser created/updated on startup                                                      |
+| `TELEGRAM_BOT_TOKEN`                                       | –                                     | Enables the Telegram bot when set                                                         |
+| `TELEGRAM_SECRET`                                          | –                                     | Required in production, secures the webhook route and forms its path                      |
 
 ### Run in Production
 
