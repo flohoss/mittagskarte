@@ -351,8 +351,8 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 					}); err != nil {
 						return fmt.Errorf("could not wait for %s: %w", nav.Locator, err)
 					}
-					if err := waitForStableContent(page, nav.Locator); err != nil {
-						return fmt.Errorf("content of %s did not stabilize: %w", nav.Locator, err)
+					if err := waitForRenderedContent(locator); err != nil {
+						return fmt.Errorf("could not wait for %s content: %w", nav.Locator, err)
 					}
 					err = locator.ScrollIntoViewIfNeeded()
 					if err != nil {
@@ -385,4 +385,13 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 
 	logger.Info("Successfully scraped restaurant", "path", downloadPath)
 	return downloadPath, nil
+}
+
+func waitForRenderedContent(locator playwright.Locator) error {
+	contentScript := `(el) => (el.innerText || '').trim().length > 100`
+	if err := locator.WaitForFunction(contentScript, nil,
+		playwright.LocatorWaitForFunctionOptions{Timeout: playwright.Float(30000)}); err != nil {
+		return err
+	}
+	return nil
 }
