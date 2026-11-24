@@ -95,6 +95,8 @@ Files are processed by [SnapOtter](https://github.com/snapotter-hq/snapotter), a
 
 For images, the backend chains `smart-crop` (trim) and `optimize-for-web` (WebP) in a single pipeline request. The WebP width cap depends on the menu's orientation: portrait 1200px, landscape 1920px.
 
+SnapOtter calls go through a transport that retries dropped connections (`EOF`, connection resets, timeouts) and transient statuses (`429`, `500`, `502`, `503`, `504`) up to three attempts with exponential backoff and jitter. Multipart uploads are buffered to a temp file so the full body is replayed on each attempt, and every request is capped at a five minute timeout.
+
 Every changed menu also gets a small preview WebP (`preview` field), likewise orientation-aware: portrait 1200px, landscape 600px, both at lower quality. Previews are generated only after the content hash check passes, so unchanged scrapes skip the extra call. On startup the backend generates missing previews for existing menus. The restaurant detail page renders previews and loads the full-size image only when a menu is opened.
 
 For PDFs, the backend inspects the file locally with `pdfinfo` and `pdfimages` (from `poppler-utils`) for page count, page dimensions, document metadata, and embedded image resolution. DPI is computed dynamically: it targets a 4000px output width from the page size, but a small page with a high-resolution embedded image (e.g. Canva exports with tiny page sizes) uses the image's pixel width instead, clamped to 150–1200 DPI. The metadata is stored on the menu record. When it matches the latest menu _and_ the PDF exposes `CreationDate`/`ModDate`, conversion is skipped, because only then does the metadata identify the document. Otherwise the backend calls `pdf-to-image` to render all pages as PNG, stitches multiple pages vertically with `stitch`, then optimizes the result to WebP.
@@ -102,7 +104,7 @@ For PDFs, the backend inspects the file locally with `pdfinfo` and `pdfimages` (
 For each menu create event, the backend:
 
 - inspects PDF metadata via `pdfinfo`/`pdfimages` and skips conversion only for timestamped, matching metadata
-- sends the input file to SnapOtter and downloads the processed `webp`
+- sends the input file to SnapOtter and downloads the processed `webp`, retrying transient failures with backoff
 - stores calculated dimensions (`width`, `height`, `landscape`) and `pdf_metadata`
 - computes a content hash and rejects unchanged uploads/scrapes
 - generates an orientation-aware preview WebP for changed menus

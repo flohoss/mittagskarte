@@ -56,6 +56,8 @@ Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAU
 
 Before converting, `processToWebp` may skip unchanged PDFs via `pdfinfo` metadata — but only when the PDF exposes `CreationDate`/`ModDate` (`pdfMetadataIdentifiesContent`). Template PDFs without those timestamps (e.g. Da Mamma) keep constant metadata across new editions, so metadata alone is never treated as proof the content is unchanged and the CRC32 check stays authoritative.
 
+All SnapOtter calls go through `internal/snapotter/transport.go`: it retries transport errors and `429`/`5xx` statuses up to three attempts with exponential backoff plus jitter, caps each request at `RequestTimeout`, and spools multipart bodies to a temp file so uploads replay in full on retry. Non-retryable errors (`400`, `401`, `413`, `422`) return immediately, so a genuinely broken file still fails fast.
+
 ## Tooling — always via Docker Compose, never on the host
 
 - **Dev server:** `docker compose up --build --force-recreate` (separate backend and frontend containers).

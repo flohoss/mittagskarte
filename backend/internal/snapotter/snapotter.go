@@ -8,6 +8,7 @@ import (
 	"image"
 	"io"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -107,7 +108,9 @@ func (noAuth) BearerAuth(ctx context.Context, operationName api.OperationName) (
 }
 
 func New(u url.URL, appLogger *slog.Logger) *Client {
-	apiClient, err := api.NewClient(u.String(), noAuth{})
+	apiClient, err := api.NewClient(u.String(), noAuth{}, api.WithClient(newRetryTransport(&http.Client{
+		Timeout: RequestTimeout,
+	})))
 	if err != nil {
 		return nil
 	}
