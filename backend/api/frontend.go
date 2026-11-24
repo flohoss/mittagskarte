@@ -18,25 +18,33 @@ import (
 )
 
 type frontendPageData struct {
-	Restaurants []*restaurant.Restaurant
-	Email       string
+	Restaurants     []*restaurant.Restaurant
+	Email           string
+	BuyMeACoffeeURL string
 }
 
-func buildFrontendPageData(app core.App, email string) (*frontendPageData, error) {
+type FrontendConfig struct {
+	ImprintEmail    string
+	BuyMeACoffeeURL string
+	Dev             bool
+}
+
+func buildFrontendPageData(app core.App, cfg FrontendConfig) (*frontendPageData, error) {
 	restaurants, err := restaurant.GetRestaurantsWithMenus(app)
 	if err != nil {
 		return nil, err
 	}
 
-	encodedEmail := base64.StdEncoding.EncodeToString([]byte(email))
+	encodedEmail := base64.StdEncoding.EncodeToString([]byte(cfg.ImprintEmail))
 
 	return &frontendPageData{
-		Restaurants: restaurants,
-		Email:       encodedEmail,
+		Restaurants:     restaurants,
+		Email:           encodedEmail,
+		BuyMeACoffeeURL: cfg.BuyMeACoffeeURL,
 	}, nil
 }
 
-func ServeFrontend(app core.App, se *core.ServeEvent, email string, dev bool) error {
+func ServeFrontend(app core.App, se *core.ServeEvent, cfg FrontendConfig) error {
 	frontendDist, err := filepath.Abs("dist")
 	if err != nil {
 		return err
@@ -74,7 +82,7 @@ func ServeFrontend(app core.App, se *core.ServeEvent, email string, dev bool) er
 			}
 		}
 
-		pageData, err := buildFrontendPageData(app, email)
+		pageData, err := buildFrontendPageData(app, cfg)
 		if err != nil {
 			return err
 		}
@@ -86,7 +94,7 @@ func ServeFrontend(app core.App, se *core.ServeEvent, email string, dev bool) er
 	route := se.Router.GET("/{path...}", func(re *core.RequestEvent) error {
 		return servePath(re)
 	})
-	if !dev {
+	if !cfg.Dev {
 		route.Bind(apis.SkipSuccessActivityLog())
 	}
 

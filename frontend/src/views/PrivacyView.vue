@@ -34,6 +34,12 @@ const email = (window as any)?.__EMAIL__;
       entfernen.
     </p>
 
+    <h2 class="mt-8 text-base font-semibold">Spenden-Link</h2>
+    <p class="mt-2 text-sm leading-relaxed">
+      Unten rechts findest du einen Link zu Buy Me a Coffee. Das Symbol kommt aus dem eingebundenen Icon-Set, es werden also keine Daten an den Dienst
+      übertragen, solange du den Link nicht anklickst. Spendest du freiwillig, gelten zusätzlich die Datenschutzbestimmungen von buymeacoffee.com.
+    </p>
+
     <h2 class="mt-8 text-base font-semibold">Deine Rechte</h2>
     <p class="mt-2 text-sm leading-relaxed">
       Du hast die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch.

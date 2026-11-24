@@ -18,13 +18,23 @@ import (
 )
 
 const (
-	testImprintEmail = "contact@example.com"
-	indexTemplate    = `<!doctype html>
+	testImprintEmail    = "contact@example.com"
+	testBuyMeACoffeeURL = "https://buymeacoffee.com/flohoss"
+	indexTemplate       = `<!doctype html>
 <html><body>
 <script id="initial-restaurants" type="application/json">{{ toJSON .Restaurants }}</script>
 <script id="initial-email" type="application/json">{{ toJSON .Email }}</script>
+<script id="initial-buymeacoffee" type="application/json">{{ toJSON .BuyMeACoffeeURL }}</script>
 </body></html>`
 )
+
+func testFrontendConfig(dev bool) api.FrontendConfig {
+	return api.FrontendConfig{
+		ImprintEmail:    testImprintEmail,
+		BuyMeACoffeeURL: testBuyMeACoffeeURL,
+		Dev:             dev,
+	}
+}
 
 func writeFrontendDist(t *testing.T) string {
 	t.Helper()
@@ -65,7 +75,7 @@ func newFrontendApp(t *testing.T, dir string, dev bool) (*tests.TestApp, http.Ha
 	serveEvent.Router = pbRouter
 
 	if err := app.OnServe().Trigger(serveEvent, func(e *core.ServeEvent) error {
-		return api.ServeFrontend(app, e, testImprintEmail, dev)
+		return api.ServeFrontend(app, e, testFrontendConfig(dev))
 	}); err != nil {
 		t.Fatalf("failed to trigger serve event: %v", err)
 	}
@@ -113,7 +123,7 @@ func TestServeFrontendInjectsPageData(t *testing.T) {
 
 	body := recorder.Body.String()
 	encodedEmail := base64.StdEncoding.EncodeToString([]byte(testImprintEmail))
-	for _, want := range []string{encodedEmail, `"slug":"gasthaus-a"`, "Gasthaus gasthaus-a"} {
+	for _, want := range []string{encodedEmail, `"slug":"gasthaus-a"`, "Gasthaus gasthaus-a", testBuyMeACoffeeURL} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("expected %q in rendered page, got:\n%s", want, body)
 		}

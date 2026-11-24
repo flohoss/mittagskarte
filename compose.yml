@@ -32,6 +32,7 @@ services:
       - ./backend:/app
     environment:
       - DEV=true
+      - BUYMEACOFFEE_URL=${BUYMEACOFFEE_URL:-https://buymeacoffee.com/flohoss}
       - SUPERUSER_EMAIL=${SUPERUSER_EMAIL:-}
       - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD:-}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
@@ -84,6 +85,8 @@ services:
     image: *node-image
     working_dir: /app
     command: sh -c "npm install && npm run dev"
+    environment:
+      - VITE_BUYMEACOFFEE_URL=${BUYMEACOFFEE_URL:-https://buymeacoffee.com/flohoss}
     volumes:
       - ./frontend:/app/
     ports:

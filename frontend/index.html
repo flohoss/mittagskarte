@@ -66,6 +66,9 @@
     <script id="initial-email" type="application/json">
       {{ toJSON .Email }}
     </script>
+    <script id="initial-buymeacoffee" type="application/json">
+      {{ toJSON .BuyMeACoffeeURL }}
+    </script>
     <script>
       window.__RESTAURANTS__ = undefined;
       const initialRestaurants = document.getElementById('initial-restaurants')?.textContent?.trim();
@@ -87,6 +90,16 @@
           window.__EMAIL__ = atob(encoded);
         } catch {
           window.__EMAIL__ = undefined;
+        }
+      }
+
+      window.__BUYMEACOFFEE__ = undefined;
+      const initialBuyMeACoffee = document.getElementById('initial-buymeacoffee')?.textContent?.trim();
+      if (initialBuyMeACoffee) {
+        try {
+          window.__BUYMEACOFFEE__ = JSON.parse(initialBuyMeACoffee);
+        } catch {
+          window.__BUYMEACOFFEE__ = undefined;
         }
       }
     </script>

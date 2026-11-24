@@ -120,5 +120,9 @@ func RegisterRoutes(app core.App, se *core.ServeEvent, cfg *config.Config) error
 		robotsRoute.Bind(apis.SkipSuccessActivityLog())
 	}
 
-	return ServeFrontend(app, se, cfg.ImprintEmail, cfg.Dev)
+	return ServeFrontend(app, se, FrontendConfig{
+		ImprintEmail:    cfg.ImprintEmail,
+		BuyMeACoffeeURL: cfg.BuyMeACoffeeURL,
+		Dev:             cfg.Dev,
+	})
 }

@@ -296,6 +296,46 @@ func TestTelegramWebhookURL(t *testing.T) {
 	})
 }
 
+func TestValidateBuyMeACoffee(t *testing.T) {
+	t.Parallel()
+
+	t.Run("empty URL is allowed", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{}
+		if err := c.ValidateBuyMeACoffee(); err != nil {
+			t.Fatalf("unexpected error for empty URL: %v", err)
+		}
+	})
+
+	t.Run("absolute https URL is allowed", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{BuyMeACoffeeURL: "https://buymeacoffee.com/flohoss"}
+		if err := c.ValidateBuyMeACoffee(); err != nil {
+			t.Fatalf("unexpected error for valid URL: %v", err)
+		}
+	})
+
+	t.Run("relative URL is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{BuyMeACoffeeURL: "buymeacoffee.com/flohoss"}
+		if err := c.ValidateBuyMeACoffee(); err == nil {
+			t.Fatal("expected error for relative URL, got nil")
+		}
+	})
+
+	t.Run("non-http scheme is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		c := &Config{BuyMeACoffeeURL: "javascript:alert(1)"}
+		if err := c.ValidateBuyMeACoffee(); err == nil {
+			t.Fatal("expected error for non-http scheme, got nil")
+		}
+	})
+}
+
 func TestSMTPSettings(t *testing.T) {
 	t.Parallel()
 

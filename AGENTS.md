@@ -43,7 +43,7 @@ Read before making changes. Rule-oriented and self-contained.
 
 ### Frontend serving (SSR-lite)
 
-Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAURANTS__` (JSON) and `window.__EMAIL__` (base64). Frontend hydrates from globals, then subscribes to realtime.
+Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAURANTS__` (JSON), `window.__EMAIL__` (base64) and `window.__BUYMEACOFFEE__` (URL). Frontend hydrates from globals, then subscribes to realtime.
 
 ### Scrape pipeline
 

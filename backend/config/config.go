@@ -16,6 +16,7 @@ type Config struct {
 	Location         time.Location `env:"TZ,notEmpty" envDefault:"Europe/Berlin"`
 	CoolDownDuration time.Duration `env:"COOL_DOWN_DURATION,notEmpty" envDefault:"5m"`
 	ImprintEmail     string        `env:"IMPRINT_EMAIL,notEmpty" envDefault:"contact@example.com"`
+	BuyMeACoffeeURL  string        `env:"BUYMEACOFFEE_URL"`
 	AppName          string        `env:"APP_NAME,notEmpty" envDefault:"Mittagskarte"`
 	AppURL           url.URL       `env:"APP_URL,notEmpty" envDefault:"http://localhost:8090"`
 
@@ -60,10 +61,27 @@ func Load() (*Config, error) {
 	if err := cfg.ValidateSMTP(); err != nil {
 		return nil, err
 	}
+	if err := cfg.ValidateBuyMeACoffee(); err != nil {
+		return nil, err
+	}
 	if err := cfg.ValidateTelegram(); err != nil {
 		return nil, err
 	}
 	return &cfg, nil
+}
+
+func (c *Config) ValidateBuyMeACoffee() error {
+	if c.BuyMeACoffeeURL == "" {
+		return nil
+	}
+	u, err := url.Parse(c.BuyMeACoffeeURL)
+	if err != nil {
+		return fmt.Errorf("BUYMEACOFFEE_URL is not a valid URL: %w", err)
+	}
+	if (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" {
+		return fmt.Errorf("BUYMEACOFFEE_URL must be an absolute http(s) URL, got %q", c.BuyMeACoffeeURL)
+	}
+	return nil
 }
 
 func (c *Config) TelegramEnabled() bool {
