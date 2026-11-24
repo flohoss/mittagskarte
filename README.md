@@ -7,6 +7,10 @@
 
 Mittagskarte fetches, uploads, converts, and serves lunch menus for restaurants.
 
+<p>
+  <a href="https://buymeacoffee.com/flohoss"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" width="240" /></a>
+</p>
+
 </div>
 
 Stack:
