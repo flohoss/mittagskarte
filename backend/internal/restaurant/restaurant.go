@@ -351,7 +351,7 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 					}); err != nil {
 						return fmt.Errorf("could not wait for %s: %w", nav.Locator, err)
 					}
-					if err := waitForRenderedContent(page, locator); err != nil {
+					if err := settleBeforeScreenshot(page, locator); err != nil {
 						return fmt.Errorf("could not wait for %s content: %w", nav.Locator, err)
 					}
 					err = locator.ScrollIntoViewIfNeeded()
@@ -387,26 +387,23 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 	return downloadPath, nil
 }
 
-func waitForRenderedContent(page playwright.Page, locator playwright.Locator) error {
-	// Static sites: wait for the network to settle so late images are loaded.
-	if err := page.WaitForLoadState(playwright.PageWaitForLoadStateOptions{
+func settleBeforeScreenshot(page playwright.Page, locator playwright.Locator) error {
+	// Static sites
+	err := page.WaitForLoadState(playwright.PageWaitForLoadStateOptions{
 		State:   playwright.LoadStateNetworkidle,
 		Timeout: playwright.Float(10000),
-	}); err != nil {
-		slog.Debug("network did not settle within timeout, continuing", "error", err)
+	})
+	if err == nil {
+		return nil
 	}
 
-	// Dynamic sites: wait until the element holds real content (any loaded image
-	// or meaningful text). Loading shells (spinner cards) have neither.
+	// Streaming sites
 	renderedScript := `(el) => {
 		for (const img of el.querySelectorAll('img')) {
 			if (img.complete && img.naturalWidth > 0) return true;
 		}
 		return (el.innerText || '').trim().length > 100;
 	}`
-	if err := locator.WaitForFunction(renderedScript, nil,
-		playwright.LocatorWaitForFunctionOptions{Timeout: playwright.Float(30000)}); err != nil {
-		return err
-	}
-	return nil
+	return locator.WaitForFunction(renderedScript, nil,
+		playwright.LocatorWaitForFunctionOptions{Timeout: playwright.Float(30000)})
 }
