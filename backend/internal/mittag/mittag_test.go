@@ -3,6 +3,8 @@ package mittag
 import (
 	"testing"
 
+	"github.com/flohoss/mittagskarte/pkg/pdfinfo"
+
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
 	"ganigeorgiev.com/pocketbase/pocketbase/tests"
 
@@ -84,5 +86,61 @@ func TestMenuRetentionLimitNonRelation(t *testing.T) {
 
 	if _, err := m.menuRetentionLimit(); err == nil {
 		t.Fatal("expected error when menus is not a relation field, got nil")
+	}
+}
+
+func TestPdfMetadataIdentifiesContent(t *testing.T) {
+	t.Parallel()
+
+	untimestamped := pdfinfo.Metadata{
+		Title:        "Da Mamma - Mittagstisch",
+		Author:       "Da Mamma eGbR",
+		Producer:     "Da Mamma Kartenredaktion",
+		PageCount:    1,
+		PageWidthPt:  595,
+		PageHeightPt: 842,
+	}
+
+	tests := []struct {
+		name   string
+		stored any
+		cur    pdfinfo.Metadata
+		want   bool
+	}{
+		{
+			name:   "identical metadata without timestamps is not proof of unchanged content",
+			stored: untimestamped,
+			cur:    untimestamped,
+			want:   false,
+		},
+		{
+			name:   "identical metadata with timestamps identifies content",
+			stored: pdfinfo.Metadata{Title: "Wochenkarte", ModDate: "D:20260101"},
+			cur:    pdfinfo.Metadata{Title: "Wochenkarte", ModDate: "D:20260101"},
+			want:   true,
+		},
+		{
+			name:   "timestamped metadata that differs does not identify content",
+			stored: pdfinfo.Metadata{Title: "Wochenkarte", ModDate: "D:20260101"},
+			cur:    pdfinfo.Metadata{Title: "Wochenkarte", ModDate: "D:20260102"},
+			want:   false,
+		},
+		{
+			name:   "missing stored metadata does not identify content",
+			stored: nil,
+			cur:    pdfinfo.Metadata{Title: "Wochenkarte", ModDate: "D:20260101"},
+			want:   false,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := pdfMetadataIdentifiesContent(tc.stored, tc.cur); got != tc.want {
+				t.Fatalf("unexpected result, got %v want %v", got, tc.want)
+			}
+		})
 	}
 }

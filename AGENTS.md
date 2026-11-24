@@ -54,6 +54,8 @@ Backend parses `dist/index.html` as Go `text/template`, injects `window.__RESTAU
 5. Store menu → retention cleanup (`restaurants.menus` MaxSelect)
 6. Realtime broadcast: `restaurants/status` → `{id, status, coolDownSeconds}`
 
+Before converting, `processToWebp` may skip unchanged PDFs via `pdfinfo` metadata — but only when the PDF exposes `CreationDate`/`ModDate` (`pdfMetadataIdentifiesContent`). Template PDFs without those timestamps (e.g. Da Mamma) keep constant metadata across new editions, so metadata alone is never treated as proof the content is unchanged and the CRC32 check stays authoritative.
+
 ## Tooling — always via Docker Compose, never on the host
 
 - **Dev server:** `docker compose up --build --force-recreate` (separate backend and frontend containers).

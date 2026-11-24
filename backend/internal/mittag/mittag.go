@@ -322,6 +322,10 @@ func (m *Mittag) onMenuCreate(e *core.RecordEvent) error {
 	return e.Next()
 }
 
+func pdfMetadataIdentifiesContent(stored any, current pdfinfo.Metadata) bool {
+	return current.HasModificationTimestamps() && pdfinfo.Equal(stored, current)
+}
+
 func (m *Mittag) processToWebp(ctx context.Context, sourcePath, restaurantID string, record *core.Record, latest *core.Record) (snapotter.Result, error) {
 	if !pdfinfo.IsPDF(sourcePath) {
 		return m.snapotter.ImageToWebp(ctx, sourcePath)
@@ -334,7 +338,7 @@ func (m *Mittag) processToWebp(ctx context.Context, sourcePath, restaurantID str
 	}
 
 	record.Set("pdf_metadata", meta)
-	if latest != nil && pdfinfo.Equal(latest.Get("pdf_metadata"), meta) {
+	if latest != nil && pdfMetadataIdentifiesContent(latest.Get("pdf_metadata"), meta) {
 		return snapotter.Result{}, restaurant.ErrMenuUnchanged
 	}
 

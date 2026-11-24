@@ -41,6 +41,10 @@ func (m Metadata) DPI() int {
 	return dpiForTargetWidth(m.PageWidthPt, TargetWidth, MinDpi, MaxDpi)
 }
 
+func (m Metadata) HasModificationTimestamps() bool {
+	return m.CreationDate != "" || m.ModDate != ""
+}
+
 func Equal(stored any, current Metadata) bool {
 	if stored == nil {
 		return false

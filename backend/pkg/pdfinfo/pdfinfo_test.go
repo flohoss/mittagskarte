@@ -208,6 +208,32 @@ func TestEqual(t *testing.T) {
 	}
 }
 
+func TestHasModificationTimestamps(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		meta Metadata
+		want bool
+	}{
+		{name: "no timestamps", meta: Metadata{Title: "Da Mamma"}, want: false},
+		{name: "creation date only", meta: Metadata{CreationDate: "D:20260101"}, want: true},
+		{name: "mod date only", meta: Metadata{ModDate: "D:20260102"}, want: true},
+		{name: "both timestamps", meta: Metadata{CreationDate: "D:20260101", ModDate: "D:20260102"}, want: true},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := tc.meta.HasModificationTimestamps(); got != tc.want {
+				t.Fatalf("unexpected result, got %v want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestIsPDF(t *testing.T) {
 	t.Parallel()
 
