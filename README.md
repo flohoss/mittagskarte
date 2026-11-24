@@ -119,11 +119,12 @@ The backend can optionally run a Telegram bot so restaurant operators can push a
 
 Flow:
 
-1. An operator opens the bot in a private chat. `/start` greets with the chat id, `/id` returns just the id.
+1. An operator opens the bot in a private chat. `/start` greets with the chat id and an inline "ID kopieren" button, `/id` returns just the id.
 2. A superuser binds that chat id to one or more restaurants in the `telegram_chats` collection (only restaurants with `method = upload` accept Telegram uploads).
-3. The operator sends a photo, image document, or PDF.
-4. With a single bound restaurant the upload starts immediately. With several, the bot sends an inline keyboard to pick one; the pending file is kept for 10 minutes.
-5. The file is downloaded (20 MB limit) and handed to the shared scrape queue, so Telegram uploads share deduplication, cooldown, and status broadcasts with scrapes and downloads. The reply reports success, "unchanged", or failure.
+3. Once bound, `/start` welcomes the operator back and confirms the chat is waiting for a menu image.
+4. The operator sends a photo, image document, or PDF.
+5. With a single bound restaurant the upload starts immediately. With several, the bot sends an inline keyboard to pick one; the pending file is kept for 10 minutes.
+6. The file is downloaded (20 MB limit) and handed to the shared scrape queue, so Telegram uploads share deduplication, cooldown, and status broadcasts with scrapes and downloads. The reply reports success, "unchanged", or failure.
 
 Transport depends on `DEV`:
 

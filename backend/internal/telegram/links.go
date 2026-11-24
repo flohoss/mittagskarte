@@ -31,6 +31,14 @@ func (c *chatLinks) bindingForChat(chatID int64) (*chatBinding, error) {
 	return &chatBinding{restaurants: c.expandRestaurants(records[0].Get("restaurant"))}, nil
 }
 
+func (c *chatLinks) acceptsUploads(chatID int64) bool {
+	binding, err := c.bindingForChat(chatID)
+	if err != nil {
+		return false
+	}
+	return binding.isEligible()
+}
+
 func (c *chatLinks) expandRestaurants(restaurantIDs any) []*restaurant.Restaurant {
 	ids, ok := restaurantIDs.([]string)
 	if !ok {

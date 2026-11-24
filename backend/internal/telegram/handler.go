@@ -44,10 +44,10 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 
 	switch msg.Text {
 	case "/id":
-		h.replyGreeting(ctx, b, msg.Chat.ID, msg.ID, replyIDOnly)
+		h.sendChatID(ctx, b, msg.Chat.ID)
 		return
 	case "/start":
-		h.replyGreeting(ctx, b, msg.Chat.ID, msg.ID, replyIntro)
+		h.greet(ctx, b, msg.Chat.ID, msg.ID)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 		return
 	}
 	if !binding.isEligible() {
-		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNotBound)
+		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNoUploads)
 		return
 	}
 	binding.filterEligible()
@@ -163,30 +163,41 @@ func (h *updateHandler) reply(ctx context.Context, b *bot.Bot, chatID int64, mes
 	sendReply(ctx, b, chatID, messageID, text)
 }
 
-func (h *updateHandler) replyGreeting(ctx context.Context, b *bot.Bot, chatID int64, messageID int, intro string) {
-	body := fmt.Sprintf(
-		"%s\n\n🫣 <code>%d</code>\n%s",
-		intro, chatID, replyIDHint,
-	)
-	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
+func (h *updateHandler) greet(ctx context.Context, b *bot.Bot, chatID int64, messageID int) {
+	if h.links.acceptsUploads(chatID) {
+		h.sendHTML(ctx, b, chatID, messageID, replyRegistered)
+		return
+	}
+	h.sendHTML(ctx, b, chatID, messageID, introHTML(chatID), copyIDMarkup(chatID))
+}
+
+func (h *updateHandler) sendChatID(ctx context.Context, b *bot.Bot, chatID int64) {
+	h.sendHTML(ctx, b, chatID, 0, chatIDHTML(chatID), copyIDMarkup(chatID))
+}
+
+func (h *updateHandler) sendHTML(ctx context.Context, b *bot.Bot, chatID int64, messageID int, text string, markup ...models.ReplyMarkup) {
+	params := &bot.SendMessageParams{
 		ChatID:    chatID,
-		Text:      body,
+		Text:      text,
 		ParseMode: models.ParseModeHTML,
-	})
-	if err != nil {
-		slog.Error("telegram: failed to send greeting", "chatID", chatID, "error", err)
+	}
+	if messageID != 0 {
+		params.ReplyParameters = replyParameters(messageID)
+	}
+	if len(markup) > 0 {
+		params.ReplyMarkup = markup[0]
+	}
+	if _, err := b.SendMessage(ctx, params); err != nil {
+		h.logger.Error("Failed to send message", "chatID", chatID, "error", err)
 	}
 }
 
 func (h *updateHandler) askRestaurant(ctx context.Context, b *bot.Bot, chatID int64, messageID int, restaurants []*restaurant.Restaurant) {
 	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: chatID,
-		Text:   replyPickRestaurant,
-		ReplyParameters: &models.ReplyParameters{
-			MessageID:                messageID,
-			AllowSendingWithoutReply: true,
-		},
-		ReplyMarkup: askMarkup(restaurants),
+		ChatID:          chatID,
+		Text:            replyPickRestaurant,
+		ReplyParameters: replyParameters(messageID),
+		ReplyMarkup:     askMarkup(restaurants),
 	})
 	if err != nil {
 		h.logger.Error("Failed to send restaurant picker", "chatID", chatID, "error", err)

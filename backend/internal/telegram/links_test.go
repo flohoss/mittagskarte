@@ -119,6 +119,31 @@ func TestChatLinksUnknownChat(t *testing.T) {
 	}
 }
 
+func TestChatLinksAcceptsUploads(t *testing.T) {
+	t.Parallel()
+
+	app := newTestApp(t)
+	links := &chatLinks{app: app}
+	upload := createRestaurant(t, app, "accept-upload", restaurant.MethodUpload)
+	scrape := createRestaurant(t, app, "accept-scrape", restaurant.MethodScrape)
+	bindChat(t, app, 111, upload.Id)
+	bindChat(t, app, 222, scrape.Id)
+	bindMulti(t, app, 333, []string{scrape.Id, upload.Id})
+
+	if !links.acceptsUploads(111) {
+		t.Fatal("expected upload restaurant to accept uploads")
+	}
+	if links.acceptsUploads(222) {
+		t.Fatal("expected scrape-only restaurant to reject uploads")
+	}
+	if links.acceptsUploads(999) {
+		t.Fatal("expected unbound chat to reject uploads")
+	}
+	if !links.acceptsUploads(333) {
+		t.Fatal("expected mixed binding with one upload restaurant to accept uploads")
+	}
+}
+
 func TestChatLinksCallbackScopedToChat(t *testing.T) {
 	t.Parallel()
 
