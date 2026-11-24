@@ -44,26 +44,27 @@ func TestPendingMediaOverwrite(t *testing.T) {
 func TestChatBindingEligibility(t *testing.T) {
 	t.Parallel()
 
-	binding := chatBinding{restaurants: []*restaurant.Restaurant{
+	binding := newChatBinding([]*restaurant.Restaurant{
 		{ID: "a", Method: restaurant.MethodUpload},
 		{ID: "b", Method: restaurant.MethodScrape},
-	}}
+	})
 
-	if !binding.isEligible() {
-		t.Fatal("expected binding with one upload restaurant to be eligible")
+	if !binding.canAcceptUploads() {
+		t.Fatal("expected binding with one upload restaurant to accept uploads")
 	}
-
-	binding.filterEligible()
 	if len(binding.restaurants) != 1 || binding.restaurants[0].ID != "a" {
 		t.Fatalf("expected only the upload restaurant to remain, got %+v", binding.restaurants)
 	}
 
-	none := chatBinding{restaurants: []*restaurant.Restaurant{
+	noUpload := newChatBinding([]*restaurant.Restaurant{
 		{ID: "b", Method: restaurant.MethodScrape},
-	}}
-	none.filterEligible()
-	if none.isEligible() {
-		t.Fatal("expected binding without upload restaurants to be ineligible")
+	})
+	if noUpload.canAcceptUploads() {
+		t.Fatal("expected binding without upload restaurants to reject uploads")
+	}
+
+	if newChatBinding(nil).canAcceptUploads() {
+		t.Fatal("expected empty binding to reject uploads")
 	}
 }
 

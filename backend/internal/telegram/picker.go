@@ -32,23 +32,18 @@ type chatBinding struct {
 	restaurants []*restaurant.Restaurant
 }
 
-func (b *chatBinding) filterEligible() {
-	eligible := make([]*restaurant.Restaurant, 0, len(b.restaurants))
-	for _, r := range b.restaurants {
+func newChatBinding(restaurants []*restaurant.Restaurant) *chatBinding {
+	uploadable := make([]*restaurant.Restaurant, 0, len(restaurants))
+	for _, r := range restaurants {
 		if r.Method == restaurant.MethodUpload {
-			eligible = append(eligible, r)
+			uploadable = append(uploadable, r)
 		}
 	}
-	b.restaurants = eligible
+	return &chatBinding{restaurants: uploadable}
 }
 
-func (b *chatBinding) isEligible() bool {
-	for _, r := range b.restaurants {
-		if r.Method == restaurant.MethodUpload {
-			return true
-		}
-	}
-	return false
+func (b *chatBinding) canAcceptUploads() bool {
+	return len(b.restaurants) > 0
 }
 
 type pendingMedia struct {

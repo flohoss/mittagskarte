@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"errors"
 	"testing"
 
 	"ganigeorgiev.com/pocketbase/pocketbase/core"
@@ -18,6 +19,7 @@ func newTestApp(t *testing.T) *tests.TestApp {
 		t.Fatalf("failed to create test app: %v", err)
 	}
 	t.Cleanup(app.Cleanup)
+	BindHooks(app)
 	return app
 }
 
@@ -100,11 +102,11 @@ func TestChatLinksMultiBindingPreservesOrder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(binding.restaurants) != 3 {
-		t.Fatalf("expected 3 restaurants on record %s, got %d", record.Id, len(binding.restaurants))
+	if len(binding.restaurants) != 2 {
+		t.Fatalf("expected only the 2 upload restaurants on record %s, got %d", record.Id, len(binding.restaurants))
 	}
-	if binding.restaurants[1].ID != second.Id {
-		t.Fatalf("unexpected ordering, got %q want %q", binding.restaurants[1].ID, second.Id)
+	if binding.restaurants[0].ID != first.Id || binding.restaurants[1].ID != third.Id {
+		t.Fatalf("unexpected ordering, got %q, %q", binding.restaurants[0].ID, binding.restaurants[1].ID)
 	}
 }
 
@@ -119,7 +121,7 @@ func TestChatLinksUnknownChat(t *testing.T) {
 	}
 }
 
-func TestChatLinksAcceptsUploads(t *testing.T) {
+func TestChatLinksCanAcceptUploads(t *testing.T) {
 	t.Parallel()
 
 	app := newTestApp(t)
@@ -130,17 +132,66 @@ func TestChatLinksAcceptsUploads(t *testing.T) {
 	bindChat(t, app, 222, scrape.Id)
 	bindMulti(t, app, 333, []string{scrape.Id, upload.Id})
 
-	if !links.acceptsUploads(111) {
-		t.Fatal("expected upload restaurant to accept uploads")
+	for _, chatID := range []int64{111, 333} {
+		binding, err := links.bindingForChat(chatID)
+		if err != nil {
+			t.Fatalf("unexpected error for chat %d: %v", chatID, err)
+		}
+		if !binding.canAcceptUploads() {
+			t.Fatalf("expected chat %d to accept uploads", chatID)
+		}
 	}
-	if links.acceptsUploads(222) {
-		t.Fatal("expected scrape-only restaurant to reject uploads")
+
+	binding, err := links.bindingForChat(222)
+	if err != nil {
+		t.Fatalf("unexpected error for chat 222: %v", err)
 	}
-	if links.acceptsUploads(999) {
-		t.Fatal("expected unbound chat to reject uploads")
+	if binding.canAcceptUploads() {
+		t.Fatal("expected scrape-only chat to reject uploads")
 	}
-	if !links.acceptsUploads(333) {
-		t.Fatal("expected mixed binding with one upload restaurant to accept uploads")
+}
+
+func TestChatLinksRejectsDeactivatedChat(t *testing.T) {
+	t.Parallel()
+
+	app := newTestApp(t)
+	links := &chatLinks{app: app}
+	upload := createRestaurant(t, app, "inactive-chat", restaurant.MethodUpload)
+	record := bindChat(t, app, 444, upload.Id)
+	record.Set(activeField, false)
+	if err := app.Save(record); err != nil {
+		t.Fatalf("failed to deactivate chat: %v", err)
+	}
+
+	if _, err := links.bindingForChat(444); !errors.Is(err, errChatInactive) {
+		t.Fatalf("expected errChatInactive, got %v", err)
+	}
+}
+
+func TestChatLinksRejectsUnknownChat(t *testing.T) {
+	t.Parallel()
+
+	app := newTestApp(t)
+	links := &chatLinks{app: app}
+
+	if _, err := links.bindingForChat(999); !errors.Is(err, errChatNotBound) {
+		t.Fatalf("expected errChatNotBound, got %v", err)
+	}
+}
+
+func TestChatLinksBindCreatesActiveChat(t *testing.T) {
+	t.Parallel()
+
+	app := newTestApp(t)
+	links := &chatLinks{app: app}
+	upload := createRestaurant(t, app, "auto-active", restaurant.MethodUpload)
+	record := bindChat(t, app, 555, upload.Id)
+
+	if !record.GetBool(activeField) {
+		t.Fatal("expected newly created chat to be active")
+	}
+	if _, err := links.bindingForChat(555); err != nil {
+		t.Fatalf("unexpected error for newly created chat: %v", err)
 	}
 }
 
@@ -152,12 +203,20 @@ func TestChatLinksCallbackScopedToChat(t *testing.T) {
 	own := createRestaurant(t, app, "callback-own", restaurant.MethodUpload)
 	other := createRestaurant(t, app, "callback-other", restaurant.MethodUpload)
 	bindChat(t, app, 12345, own.Id)
+	deactivated := bindChat(t, app, 54321, own.Id)
+	deactivated.Set(activeField, false)
+	if err := app.Save(deactivated); err != nil {
+		t.Fatalf("failed to deactivate chat: %v", err)
+	}
 
 	if _, err := links.restaurantForCallback(12345, own.Id); err != nil {
 		t.Fatalf("unexpected error for own restaurant: %v", err)
 	}
 	if _, err := links.restaurantForCallback(12345, other.Id); err == nil {
 		t.Fatal("expected error for restaurant outside binding, got nil")
+	}
+	if _, err := links.restaurantForCallback(54321, own.Id); !errors.Is(err, errChatInactive) {
+		t.Fatalf("expected errChatInactive for deactivated chat, got %v", err)
 	}
 }
 

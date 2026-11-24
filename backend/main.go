@@ -53,6 +53,8 @@ func main() {
 			return fmt.Errorf("failed to create mittag service: %w", err)
 		}
 
+		telegram.BindHooks(e.App)
+
 		if cfg.TelegramEnabled() {
 			telegramService, err = telegram.New(e.App, cfg, mittagService.Scraper())
 			if err != nil {

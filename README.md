@@ -69,7 +69,7 @@ Collection relationships:
 - each restaurant can reference multiple `selectors` via `navigate`
 - each menu belongs to exactly one restaurant (`menus.restaurant`)
 - each restaurant stores a rolling list of latest menu ids in `restaurants.menus`
-- each `telegram_chats` record binds one private Telegram chat (`chat_id`, unique) to up to 10 restaurants
+- each `telegram_chats` record binds one private Telegram chat (`chat_id`, unique) to up to 10 restaurants and has an `active` toggle; deactivating it pauses the bot for that chat without deleting the binding
 
 Restaurants have a required, unique `slug` that is used in detail page URLs, and an optional `holiday_until` date (`YYYY-MM-DD`). Existing restaurants were backfilled with a slug generated from their name; new ones set it in the dashboard. While a restaurant is on holiday, or on one of its `rest_days`, scheduled scrapes are skipped; expired holidays are cleared automatically.
 
@@ -119,12 +119,14 @@ The backend can optionally run a Telegram bot so restaurant operators can push a
 
 Flow:
 
-1. An operator opens the bot in a private chat. `/start` greets with the chat id and an inline "ID kopieren" button, `/id` returns just the id.
+1. An operator opens the bot in a private chat. `/start` greets with the chat id and an inline "Kopieren" button, `/id` returns just the id.
 2. A superuser binds that chat id to one or more restaurants in the `telegram_chats` collection (only restaurants with `method = upload` accept Telegram uploads).
-3. Once bound, `/start` welcomes the operator back and confirms the chat is waiting for a menu image.
+3. Once bound and active, `/start` confirms the chat is ready and waiting for a menu image.
 4. The operator sends a photo, image document, or PDF.
 5. With a single bound restaurant the upload starts immediately. With several, the bot sends an inline keyboard to pick one; the pending file is kept for 10 minutes.
 6. The file is downloaded (20 MB limit) and handed to the shared scrape queue, so Telegram uploads share deduplication, cooldown, and status broadcasts with scrapes and downloads. The reply reports success, "unchanged", or failure.
+
+Every binding carries an `active` toggle that is set on creation. Turning it off pauses the chat without deleting anything: uploads, callbacks, and `/start` are refused with a hint, and the restaurant relations are kept for when it is turned back on.
 
 Transport depends on `DEV`:
 

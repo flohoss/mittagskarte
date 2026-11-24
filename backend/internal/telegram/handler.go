@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"path/filepath"
@@ -59,15 +60,13 @@ func (h *updateHandler) handle(ctx context.Context, b *bot.Bot, update *models.U
 
 	binding, err := h.links.bindingForChat(msg.Chat.ID)
 	if err != nil {
-		h.logger.Debug("No restaurant bound to chat", "chatID", msg.Chat.ID)
-		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNotBound)
+		h.replyBindingError(ctx, b, msg.Chat.ID, msg.ID, err)
 		return
 	}
-	if !binding.isEligible() {
+	if !binding.canAcceptUploads() {
 		h.reply(ctx, b, msg.Chat.ID, msg.ID, replyNoUploads)
 		return
 	}
-	binding.filterEligible()
 
 	if len(binding.restaurants) > 1 {
 		h.pending.store(msg.Chat.ID, kind, fileID)
@@ -164,11 +163,29 @@ func (h *updateHandler) reply(ctx context.Context, b *bot.Bot, chatID int64, mes
 }
 
 func (h *updateHandler) greet(ctx context.Context, b *bot.Bot, chatID int64, messageID int) {
-	if h.links.acceptsUploads(chatID) {
+	binding, err := h.links.bindingForChat(chatID)
+	switch {
+	case errors.Is(err, errChatNotBound):
+		h.sendHTML(ctx, b, chatID, messageID, introHTML(chatID), copyIDMarkup(chatID))
+	case err != nil:
+		h.replyBindingError(ctx, b, chatID, messageID, err)
+	case binding.canAcceptUploads():
 		h.sendHTML(ctx, b, chatID, messageID, replyRegistered)
-		return
+	default:
+		h.sendHTML(ctx, b, chatID, messageID, replyNoUploads)
 	}
-	h.sendHTML(ctx, b, chatID, messageID, introHTML(chatID), copyIDMarkup(chatID))
+}
+
+func (h *updateHandler) replyBindingError(ctx context.Context, b *bot.Bot, chatID int64, messageID int, err error) {
+	h.logger.Debug("Chat cannot upload", "chatID", chatID, "error", err)
+	switch {
+	case errors.Is(err, errChatInactive):
+		h.reply(ctx, b, chatID, messageID, replyInactive)
+	case errors.Is(err, errChatNotBound):
+		h.reply(ctx, b, chatID, messageID, replyNotBound)
+	default:
+		h.reply(ctx, b, chatID, messageID, replyMenuFailed)
+	}
 }
 
 func (h *updateHandler) sendChatID(ctx context.Context, b *bot.Bot, chatID int64) {

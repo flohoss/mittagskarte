@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/flohoss/mittagskarte/internal/restaurant"
@@ -12,6 +13,11 @@ import (
 type chatLinks struct {
 	app core.App
 }
+
+var (
+	errChatNotBound = errors.New("chat is not bound to a restaurant")
+	errChatInactive = errors.New("chat is deactivated")
+)
 
 func (c *chatLinks) bindingForChat(chatID int64) (*chatBinding, error) {
 	records, err := c.app.FindRecordsByFilter(
@@ -26,17 +32,12 @@ func (c *chatLinks) bindingForChat(chatID int64) (*chatBinding, error) {
 		return nil, err
 	}
 	if len(records) == 0 {
-		return nil, fmt.Errorf("no restaurant bound to chat %d", chatID)
+		return nil, fmt.Errorf("%w: %d", errChatNotBound, chatID)
 	}
-	return &chatBinding{restaurants: c.expandRestaurants(records[0].Get("restaurant"))}, nil
-}
-
-func (c *chatLinks) acceptsUploads(chatID int64) bool {
-	binding, err := c.bindingForChat(chatID)
-	if err != nil {
-		return false
+	if !records[0].GetBool(activeField) {
+		return nil, fmt.Errorf("%w: %d", errChatInactive, chatID)
 	}
-	return binding.isEligible()
+	return newChatBinding(c.expandRestaurants(records[0].Get("restaurant"))), nil
 }
 
 func (c *chatLinks) expandRestaurants(restaurantIDs any) []*restaurant.Restaurant {
