@@ -345,12 +345,14 @@ func (r *Restaurant) Scrape(downloadPath string, webService *web.Web, logger *sl
 				if nav.Locator != "" {
 					logger.Debug("Making a screenshot of locator", "locator", nav.Locator)
 					locator := page.Locator(nav.Locator).First()
-					locatorCount, err := locator.Count()
-					if err != nil {
-						return fmt.Errorf("could not count locators %s: %w", nav.Locator, err)
+					if err := locator.WaitFor(playwright.LocatorWaitForOptions{
+						State:   playwright.WaitForSelectorStateVisible,
+						Timeout: playwright.Float(15000),
+					}); err != nil {
+						return fmt.Errorf("could not wait for %s: %w", nav.Locator, err)
 					}
-					if locatorCount == 0 {
-						return fmt.Errorf("no element found for locator %s", nav.Locator)
+					if err := waitForStableContent(page, nav.Locator); err != nil {
+						return fmt.Errorf("content of %s did not stabilize: %w", nav.Locator, err)
 					}
 					err = locator.ScrollIntoViewIfNeeded()
 					if err != nil {
