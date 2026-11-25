@@ -6,7 +6,7 @@ import LoginModal from './LoginModal.vue';
 import RestaurantSearchControls from './RestaurantSearchControls.vue';
 import NavbarRestaurantIdentity from './NavbarRestaurantIdentity.vue';
 
-import { AppVersion, BackendURL, RepoURL } from '../config';
+import { AppVersion, BackendURL, BuyMeACoffeeURL, RepoURL } from '../config';
 
 defineProps<{
   title: string;
@@ -104,13 +104,26 @@ whenever(
     <footer class="navbar bg-base-200">
       <div class="container flex flex-col items-center gap-3 py-2 text-center md:flex-row md:items-center md:justify-between md:text-left">
         <div class="text-sm leading-relaxed">{{ title }} - {{ description }}</div>
-        <div class="flex gap-2 items-center">
+        <div class="flex flex-col items-center gap-2 md:flex-row">
           <RouterLink to="/datenschutz" class="btn btn-ghost">Datenschutz</RouterLink>
-          <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="adminPanelUrl" title="Admin Panel">
-            <span class="icon-[simple-icons--pocketbase] size-5" aria-hidden="true"></span>
-          </a>
-          <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="RepoURL" :title="AppVersion">
-            <span class="icon-[simple-icons--github] size-5" aria-hidden="true"></span>
+          <div class="flex items-center gap-2">
+            <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="adminPanelUrl" title="Admin Panel">
+              <span class="icon-[simple-icons--pocketbase] size-5" aria-hidden="true"></span>
+            </a>
+            <a target="_blank" rel="noreferrer" class="btn btn-circle btn-ghost" :href="RepoURL" :title="AppVersion">
+              <span class="icon-[simple-icons--github] size-5" aria-hidden="true"></span>
+            </a>
+          </div>
+          <a
+            v-if="BuyMeACoffeeURL"
+            target="_blank"
+            rel="noreferrer"
+            class="btn w-56 max-w-full border-[#ffdd00] bg-[#ffdd00] text-black hover:border-[#ffe74d] hover:bg-[#ffe74d] md:w-auto"
+            :href="BuyMeACoffeeURL"
+            title="Kaffee spendieren"
+          >
+            <span class="icon-[simple-icons--buymeacoffee] size-5" aria-hidden="true"></span>
+            Kaffee spendieren
           </a>
         </div>
       </div>

@@ -279,7 +279,7 @@ All configuration is read from the environment. [`.env.example`](.env.example) l
 | `APP_NAME`                                                 | `Mittagskarte`                        | Synced to PocketBase meta settings                                                        |
 | `APP_URL`                                                  | `http://localhost:8090`               | Base URL for the sitemap, PocketBase meta, and the derived Telegram webhook               |
 | `IMPRINT_EMAIL`                                            | `contact@example.com`                 | Exposed to the privacy page                                                               |
-| `BUYMEACOFFEE_URL`                                         | –                                     | Floating Buy Me a Coffee button (bottom right, expands on hover); hidden when empty       |
+| `BUYMEACOFFEE_URL`                                         | –                                     | Shows a Buy Me a Coffee button in the footer; hidden when empty                           |
 | `COOL_DOWN_DURATION`                                       | `5m`                                  | Minimum time between two scrapes of the same restaurant                                   |
 | `SNAPOTTER_URL`                                            | `http://snapotter:1349`               | SnapOtter API base URL                                                                    |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | –                                     | Required in production, synced to PocketBase SMTP settings                                |

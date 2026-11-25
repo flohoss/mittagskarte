@@ -4,10 +4,8 @@ import { computed, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import AppShell from './components/AppShell.vue';
-import BuyMeACoffeeButton from './components/BuyMeACoffeeButton.vue';
 import RestaurantsEmpty from './components/state/RestaurantsEmpty.vue';
 import RestaurantsLoading from './components/state/RestaurantsLoading.vue';
-import { BuyMeACoffeeURL } from './config';
 import { useRestaurants } from './stores/useRestaurants';
 
 const route = useRoute();
@@ -68,8 +66,6 @@ watch(
         </div>
       </Transition>
     </div>
-
-    <BuyMeACoffeeButton v-if="BuyMeACoffeeURL" :href="BuyMeACoffeeURL" />
   </AppShell>
 </template>
 
